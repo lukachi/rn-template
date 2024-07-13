@@ -8,9 +8,7 @@
       "@/*": ["./src/*"],
       "@env": ["./src/core/env.js"]
     },
-    "types": [
-      "lodash"
-    ]
+    "types": ["lodash"]
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
   "exclude": [

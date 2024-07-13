@@ -8,4 +8,4 @@ export const resources = {
   ua: { translation: { ...ua } },
 }
 
-export type Language = keyof typeof resources;
+export type Language = keyof typeof resources

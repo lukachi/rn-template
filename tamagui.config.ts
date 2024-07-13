@@ -1,6 +1,8 @@
 import {config as configBase} from '@tamagui/config/v3'
 import {createTamagui, createTokens} from 'tamagui'
-import {allThemes, BaseTheme} from "@/theme";
+
+import type { BaseTheme} from "@/theme";
+import {allThemes} from "@/theme";
 
 const tokens = createTokens({
     ...configBase.tokens,

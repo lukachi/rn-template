@@ -1,7 +1,8 @@
+import { Atom, AudioWaveform, TextCursor } from '@tamagui/lucide-icons'
 import { Link, Tabs } from 'expo-router'
 import { Button, useTheme } from 'tamagui'
-import { Atom, AudioWaveform, TextCursor } from '@tamagui/lucide-icons'
-import {translate} from "@/core";
+
+import { translate } from '@/core'
 
 export default function TabLayout() {
   const theme = useTheme()
@@ -13,28 +14,28 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name='index'
         options={{
           title: translate('tabs.one'),
           tabBarIcon: ({ color }) => <Atom color={color} />,
           headerRight: () => (
-            <Link href="/modal" asChild>
-              <Button mr="$4" bg="$purple8" color="$purple12">
-                  Hello!
+            <Link href='/modal' asChild>
+              <Button mr='$4' bg='$purple8' color='$purple12'>
+                Hello!
               </Button>
             </Link>
           ),
         }}
       />
       <Tabs.Screen
-        name="two"
+        name='two'
         options={{
           title: translate('tabs.two'),
           tabBarIcon: ({ color }) => <AudioWaveform color={color} />,
         }}
       />
       <Tabs.Screen
-        name="typography"
+        name='typography'
         options={{
           title: translate('tabs.typography'),
           tabBarIcon: ({ color }) => <TextCursor color={color} />,

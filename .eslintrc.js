@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require('path')
 
 /** @type {import("eslint").Linter.Config} */
 module.exports = {
@@ -7,23 +7,16 @@ module.exports = {
     // Ignore dotfiles
     // ".*.js",
     // ".*",
-    "*.js",
-    "node_modules/",
-    "dist/",
+    '*.js',
+    'node_modules/',
+    'dist/',
   ],
   overrides: [
     // Configuration for TypeScript files
     {
       files: ['**/*.ts', '**/*.tsx', '**/*.js'],
-      plugins: [
-        '@typescript-eslint',
-        'unused-imports',
-        'simple-import-sort',
-      ],
-      extends: [
-        '@react-native-community',
-        'plugin:prettier/recommended',
-      ],
+      plugins: ['@typescript-eslint', 'unused-imports', 'simple-import-sort'],
+      extends: ['@react-native-community', 'plugin:prettier/recommended'],
       parserOptions: {
         project: './tsconfig.json',
       },
@@ -54,6 +47,10 @@ module.exports = {
             caughtErrorsIgnorePattern: '^_',
           },
         ],
+
+        'react/react-in-jsx-scope': 'off',
+        'react-native/no-inline-styles': 'off',
+        'react/no-unstable-nested-components': 'off',
       },
     },
     // Configuration for translations files (i18next)
@@ -64,7 +61,7 @@ module.exports = {
         'i18n-json/valid-message-syntax': [
           2,
           {
-            syntax: path.resolve('./scripts/i18next-syntax-validation.js'),
+            syntax: path.resolve('./scripts/i18next-syntax-validation.cjs'),
           },
         ],
         'i18n-json/valid-json': 2,
