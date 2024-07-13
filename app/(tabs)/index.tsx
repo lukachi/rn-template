@@ -5,7 +5,7 @@ import { ToastControl } from 'app/CurrentToast'
 export default function TabOneScreen() {
   return (
     <YStack f={1} ai="center" gap="$8" px="$10" pt="$5">
-      <H2>Tamagui + Expo</H2>
+      <H2 textAlign={'center'}>Tamagui + Expo yopta</H2>
 
       <ToastControl />
 
