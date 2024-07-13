@@ -2,8 +2,6 @@ import {Button, Text, XStack, YStack} from "tamagui";
 import {useSelectedLanguage} from "@/core";
 import {Language, resources} from "@/core/localization/resources";
 
-console.log(resources)
-
 export default function LangSwitcher() {
     const {language, setLanguage} = useSelectedLanguage()
 

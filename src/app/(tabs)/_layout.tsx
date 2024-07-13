@@ -1,6 +1,6 @@
 import { Link, Tabs } from 'expo-router'
 import { Button, useTheme } from 'tamagui'
-import { Atom, AudioWaveform } from '@tamagui/lucide-icons'
+import { Atom, AudioWaveform, TextCursor } from '@tamagui/lucide-icons'
 import {translate} from "@/core";
 
 export default function TabLayout() {
@@ -9,7 +9,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.red10.val,
+        tabBarActiveTintColor: theme.primaryMain?.val,
       }}
     >
       <Tabs.Screen
@@ -31,6 +31,13 @@ export default function TabLayout() {
         options={{
           title: translate('tabs.two'),
           tabBarIcon: ({ color }) => <AudioWaveform color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="typography"
+        options={{
+          title: translate('tabs.typography'),
+          tabBarIcon: ({ color }) => <TextCursor color={color} />,
         }}
       />
     </Tabs>
