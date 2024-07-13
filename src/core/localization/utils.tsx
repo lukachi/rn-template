@@ -50,5 +50,5 @@ export const useSelectedLanguage = () => {
     [setLang]
   );
 
-  return { language: language as Language, setLanguage };
+  return { language: language as Language || 'en', setLanguage };
 };
