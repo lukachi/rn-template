@@ -10,7 +10,6 @@
     "preserveSymlinks": true,
     "incremental": true,
     "jsx": "react-jsx",
-    "module": "system",
     "moduleResolution": "node",
     "noEmitOnError": false,
     "noImplicitAny": false,
