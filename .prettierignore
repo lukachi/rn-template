@@ -1,0 +1,16 @@
+.env*
+.env.*
+*.config.js
+*.config.ts
+*.css
+.turbo
+.turbotsconfig.json
+node_modules
+__tests__/
+.vscode/
+android/
+coverage/
+ios/
+.expo
+.expo-shared
+.yarn/
