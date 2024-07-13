@@ -5,7 +5,8 @@
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "resolveJsonModule": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@env": ["./src/core/env.js"]
     },
     "types": [
       "lodash"

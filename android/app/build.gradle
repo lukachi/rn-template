@@ -83,9 +83,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.lukachi.rn_template'
+    namespace 'com.obytes.development'
     defaultConfig {
-        applicationId 'com.lukachi.rn_template'
+        applicationId 'com.obytes.development'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

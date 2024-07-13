@@ -1,4 +1,4 @@
-package com.lukachi.rn_template
+package com.obytes.development
 
 import android.os.Build
 import android.os.Bundle

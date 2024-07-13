@@ -1,4 +1,4 @@
-package com.lukachi.rn_template
+package com.obytes.development
 
 import android.app.Application
 import android.content.res.Configuration
