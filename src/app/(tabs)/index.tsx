@@ -1,11 +1,12 @@
 import { ExternalLink } from '@tamagui/lucide-icons'
-import { Anchor, H2, Paragraph, XStack, YStack } from 'tamagui'
+import {Anchor, H2, Paragraph, XStack, YStack} from 'tamagui'
 import { ToastControl } from 'src/app/CurrentToast'
+
 
 export default function TabOneScreen() {
   return (
     <YStack f={1} ai="center" gap="$8" px="$10" pt="$5">
-      <H2 textAlign={'center'}>Tamagui + Expo yopta</H2>
+      <H2 textAlign={'center'}>Tamagui + Expo</H2>
 
       <ToastControl />
 
