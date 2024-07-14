@@ -7,7 +7,7 @@ import type { Language } from '@/core/localization/resources'
 
 export const setDayjsLocale = (locale: Language) => {
   const nextLocale = {
-    ua: ukDayjsLocal,
+    uk: ukDayjsLocal,
     en: enDayjsLocal,
     ar: arDayjsLocal,
   }[locale]
