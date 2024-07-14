@@ -1,8 +1,9 @@
 import { ExternalLink } from '@tamagui/lucide-icons'
 import { ToastControl } from 'src/app/CurrentToast'
-import { Anchor, H2, Paragraph, XStack, YStack } from 'tamagui'
+import { Anchor, H2, Paragraph, XStack, YStack, Text } from 'tamagui'
 
 import LangSwitcher from '@/app/LangSwitcher'
+import { formatDateDiff, formatDateDMY, formatDateDMYT } from '@/helpers'
 
 export default function TabOneScreen() {
   return (
@@ -10,6 +11,10 @@ export default function TabOneScreen() {
       <H2 textAlign={'center'}>Tamagui + Expo</H2>
 
       <LangSwitcher />
+
+      <Text>{formatDateDMY(1720949121)}</Text>
+      <Text>{formatDateDMYT(1720949121)}</Text>
+      <Text>{formatDateDiff(1720949121)}</Text>
 
       <ToastControl />
 

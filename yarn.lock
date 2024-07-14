@@ -1228,6 +1228,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@distributedlab/tools@npm:^1.0.0-rc.16":
+  version: 1.0.0-rc.16
+  resolution: "@distributedlab/tools@npm:1.0.0-rc.16"
+  dependencies:
+    bignumber.js: "npm:^9.1.1"
+    dayjs: "npm:^1.11.7"
+    tslib: "npm:^2.5.0"
+  checksum: 826cd73cd2b600804b8058979bf906c3d82489026172f34e27ecb13b5b57b0345f7c017b245eb68fec77f321a7930ab75d1c744c257ea9d9c83522c05595724f
+  languageName: node
+  linkType: hard
+
 "@esbuild/aix-ppc64@npm:0.23.0":
   version: 0.23.0
   resolution: "@esbuild/aix-ppc64@npm:0.23.0"
@@ -6826,6 +6837,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bignumber.js@npm:^9.1.1":
+  version: 9.1.2
+  resolution: "bignumber.js@npm:9.1.2"
+  checksum: d89b8800a987225d2c00dcbf8a69dc08e92aa0880157c851c287b307d31ceb2fc2acb0c62c3e3a3d42b6c5fcae9b004035f13eb4386e56d529d7edac18d5c9d8
+  languageName: node
+  linkType: hard
+
 "binary-extensions@npm:^2.0.0":
   version: 2.3.0
   resolution: "binary-extensions@npm:2.3.0"
@@ -7790,7 +7808,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.8.15":
+"dayjs@npm:^1.11.7, dayjs@npm:^1.8.15":
   version: 1.11.11
   resolution: "dayjs@npm:1.11.11"
   checksum: f03948b172fbeed229837965988d1d5bac99c72a31c28731a457303259439f2f36289186489ae140adbeb10f591a926908c8de5d81eb449a2edbf5cbd6e9e30c
@@ -16037,6 +16055,7 @@ __metadata:
   resolution: "template-v1@workspace:."
   dependencies:
     "@babel/core": "npm:^7.24.6"
+    "@distributedlab/tools": "npm:^1.0.0-rc.16"
     "@expo/config": "npm:~9.0.2"
     "@expo/metro-config": "npm:~0.18.4"
     "@expo/metro-runtime": "npm:~3.2.1"
@@ -16375,7 +16394,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.2":
+"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.5.0, tslib@npm:^2.6.2":
   version: 2.6.3
   resolution: "tslib@npm:2.6.3"
   checksum: 52109bb681f8133a2e58142f11a50e05476de4f075ca906d13b596ae5f7f12d30c482feb0bff167ae01cfc84c5803e575a307d47938999246f5a49d174fc558c

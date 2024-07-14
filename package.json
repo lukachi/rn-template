@@ -20,6 +20,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@distributedlab/tools": "^1.0.0-rc.16",
     "@react-navigation/native": "^6.1.17",
     "@tamagui/config": "^1.102.1",
     "@tamagui/lucide-icons": "^1.102.1",

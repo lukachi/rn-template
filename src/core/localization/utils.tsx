@@ -10,6 +10,7 @@ import { storage } from '@/core/storage'
 
 import type { Language, resources } from './resources'
 import type { RecursiveKeyOf } from './types'
+import { setDayjsLocale } from '@/helpers/formatters'
 
 type DefaultLocale = typeof resources.en.translation
 export type TxKeyPath = RecursiveKeyOf<DefaultLocale>
@@ -26,11 +27,14 @@ export const translate = memoize(
 
 export const changeLanguage = (lang: Language) => {
   i18n.changeLanguage(lang)
-  if (lang === 'ir') {
+  if (lang === 'ar') {
     I18nManager.forceRTL(true)
   } else {
     I18nManager.forceRTL(false)
   }
+
+  setDayjsLocale(lang)
+
   if (Platform.OS === 'ios' || Platform.OS === 'android') {
     if (__DEV__) NativeModules.DevSettings.reload()
     else RNRestart.restart()

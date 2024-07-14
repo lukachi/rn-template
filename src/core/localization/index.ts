@@ -5,7 +5,10 @@ import { I18nManager } from 'react-native'
 
 import { resources } from './resources'
 import { getLanguage } from './utils'
+import { setDayjsLocale } from '@/helpers/formatters'
 export * from './utils'
+
+const language = getLanguage() || getLocales()[0]
 
 i18n.use(initReactI18next).init({
   resources,
@@ -24,5 +27,7 @@ export const isRTL: boolean = i18n.dir() === 'rtl'
 
 I18nManager.allowRTL(isRTL)
 I18nManager.forceRTL(isRTL)
+
+setDayjsLocale(language)
 
 export default i18n
