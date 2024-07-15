@@ -9,20 +9,11 @@ export default function TabOneScreen() {
   return (
     <ScrollView>
       <View
-        style={{
-          alignItems: 'center',
-          gap: 48,
-          paddingHorizontal: 40,
-          paddingTop: 20,
-        }}
+        className={['w-full', 'flex', 'flex-col', 'gap-10', 'py-5', 'px-10', 'items-center'].join(
+          ' ',
+        )}
       >
-        <Text
-          style={{
-            textAlign: 'center',
-          }}
-        >
-          {translate('errors.default')}
-        </Text>
+        <Text className='text-center'>{translate('errors.default')}</Text>
 
         <LangSwitcher />
 
@@ -38,13 +29,18 @@ export default function TabOneScreen() {
 
         <Text>Plurals</Text>
 
-        {/*<Text>{translate('plurals.key', { count: 1 })}</Text>*/}
-        {/*<Text>{translate('plurals.key', { count: 2 })}</Text>*/}
-        {/*<Text>{translate('plurals.key', { count: 3 })}</Text>*/}
-        {/*<Text>{translate('plurals.key', { count: 4 })}</Text>*/}
-        {/*<Text>{translate('plurals.key', { count: 5 })}</Text>*/}
-        {/*<Text>{translate('plurals.key', { count: 25 })}</Text>*/}
-        {/*<Text>{translate('plurals.key', { count: 205 })}</Text>*/}
+        <Text>{translate('plurals.key', { count: 1 })}</Text>
+        <Text>{translate('plurals.key', { count: 2 })}</Text>
+        <Text>{translate('plurals.key', { count: 3 })}</Text>
+        <Text>{translate('plurals.key', { count: 4 })}</Text>
+        <Text>{translate('plurals.key', { count: 4 })}</Text>
+        <Text>{translate('plurals.key', { count: 4 })}</Text>
+        <Text>{translate('plurals.key', { count: 4 })}</Text>
+        <Text>{translate('plurals.key', { count: 4 })}</Text>
+        <Text>{translate('plurals.key', { count: 4 })}</Text>
+        <Text>{translate('plurals.key', { count: 5 })}</Text>
+        <Text>{translate('plurals.key', { count: 25 })}</Text>
+        <Text>{translate('plurals.key', { count: 205 })}</Text>
       </View>
     </ScrollView>
   )
