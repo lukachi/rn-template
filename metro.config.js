@@ -4,19 +4,26 @@
  */
 const { getDefaultConfig } = require('expo/metro-config')
 
+/** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname, {
   // [Web-only]: Enables CSS support in Metro.
   isCSSEnabled: true,
 })
 
-// Enable Tamagui and add nice web support with optimizing compiler + CSS extraction
-const { withTamagui } = require('@tamagui/metro-plugin')
-module.exports = withTamagui(config, {
-  components: ['tamagui'],
-  config: './tamagui.config.ts',
-  outputCSS: './tamagui-web.css',
-})
+/** @type {import('expo/metro-config').MetroConfig} */
+module.exports = (async () => {
+  const {
+    resolver: { sourceExts },
+  } = config;
 
-config.resolver.sourceExts.push('mjs')
+  const modifiedConfig = {
+    ...config,
+    resolver: {
+      ...config.resolver,
+      sourceExts: [...sourceExts, 'mjs'],
+    },
+  };
 
-module.exports = config
+  // return withNativeWind(modifiedConfig, { input: './global.css', inlineRem: 16 });
+  return modifiedConfig
+})();

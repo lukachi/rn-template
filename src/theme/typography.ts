@@ -1,4 +1,4 @@
-import type { TextStyle } from 'tamagui'
+import type { TextStyle } from 'react-native'
 
 export const typography = {
   h1: {
@@ -135,6 +135,14 @@ export const typography = {
     fontWeight: 700,
     fontSize: 10,
     lineHeight: 10 * 1.2,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  } as TextStyle,
+  testCursive: {
+    fontFamily: 'PlaywriteCU-ExtraLight',
+    fontWeight: 200,
+    fontSize: 10,
+    lineHeight: 10 * 2,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
   } as TextStyle,

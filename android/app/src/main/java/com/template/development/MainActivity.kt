@@ -1,4 +1,4 @@
-package com.obytes.development
+package com.template.development
 
 import android.os.Build
 import android.os.Bundle

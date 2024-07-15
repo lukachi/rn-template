@@ -7,10 +7,10 @@ import { useMMKVString } from 'react-native-mmkv'
 import RNRestart from 'react-native-restart'
 
 import { storage } from '@/core/storage'
+import { setDayjsLocale } from '@/helpers/formatters'
 
 import type { Language, resources } from './resources'
 import type { RecursiveKeyOf } from './types'
-import { setDayjsLocale } from '@/helpers/formatters'
 
 type DefaultLocale = typeof resources.en.translation
 export type TxKeyPath = RecursiveKeyOf<DefaultLocale>

@@ -24,9 +24,9 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="obytesApp"/>
-        <data android:scheme="com.obytes.development"/>
-        <data android:scheme="exp+obytesapp"/>
+        <data android:scheme="templateApp"/>
+        <data android:scheme="com.template.development"/>
+        <data android:scheme="exp+template"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>

@@ -1,6 +1,6 @@
-import { Atom, AudioWaveform, TextCursor } from '@tamagui/lucide-icons'
+import { useTheme } from '@react-navigation/native'
 import { Link, Tabs } from 'expo-router'
-import { Button, useTheme } from 'tamagui'
+import { Button } from 'react-native'
 
 import { translate } from '@/core'
 
@@ -10,35 +10,41 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.primaryMain?.val,
+        tabBarActiveTintColor: theme.colors.primary,
       }}
     >
       <Tabs.Screen
         name='index'
         options={{
           title: translate('tabs.one'),
-          tabBarIcon: ({ color }) => <Atom color={color} />,
-          headerRight: () => (
-            <Link href='/modal' asChild>
-              <Button mr='$4' bg='$purple8' color='$purple12'>
-                Hello!
-              </Button>
-            </Link>
-          ),
+          // tabBarIcon: ({ color }) => <Atom color={color} />,
+          // headerRight: () => (
+          //   <Link
+          //     href='/'
+          //     style={{
+          //       marginRight: 24,
+          //       backgroundColor: theme.colors.card,
+          //       color: theme.colors.text,
+          //     }}
+          //     asChild
+          //   >
+          //     <Button title={'Hello!'} />
+          //   </Link>
+          // ),
         }}
       />
       <Tabs.Screen
         name='two'
         options={{
           title: translate('tabs.two'),
-          tabBarIcon: ({ color }) => <AudioWaveform color={color} />,
+          // tabBarIcon: ({ color }) => <AudioWaveform color={color} />,
         }}
       />
       <Tabs.Screen
         name='typography'
         options={{
           title: translate('tabs.typography'),
-          tabBarIcon: ({ color }) => <TextCursor color={color} />,
+          // tabBarIcon: ({ color }) => <TextCursor color={color} />,
         }}
       />
     </Tabs>

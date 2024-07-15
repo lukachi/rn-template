@@ -1,4 +1,5 @@
-import { ScrollView, Square, Text, useTheme, XStack } from 'tamagui'
+import { useTheme } from '@react-navigation/native'
+import { ScrollView, Text, View } from 'react-native'
 
 import { allThemes, typography } from '@/theme'
 
@@ -7,20 +8,33 @@ export default function ColorsScreen() {
 
   return (
     <ScrollView>
-      <XStack flexWrap='wrap' gap={16} alignItems='center' justifyContent='center'>
+      <View
+        style={{
+          flexWrap: 'wrap',
+          gap: 16,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         {Object.keys(allThemes.light).map(el => (
-          <Square key={el} size={120} backgroundColor={theme[el]?.val}>
+          <View
+            key={el}
+            style={{
+              width: 120,
+              height: 120,
+              backgroundColor: theme[el]?.val,
+            }}
+          >
             <Text
-              {...typography.body3}
-              color={theme.textPrimary.val}
-              backgroundColor={theme.background.val}
-              padding={8}
+              style={{
+                ...typography.body3,
+              }}
             >
               {el}
             </Text>
-          </Square>
+          </View>
         ))}
-      </XStack>
+      </View>
     </ScrollView>
   )
 }

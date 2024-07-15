@@ -7,7 +7,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>ObytesApp</string>
+    <string>template</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -27,14 +27,14 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>obytesApp</string>
-          <string>com.obytes.development</string>
+          <string>templateApp</string>
+          <string>com.template.development</string>
         </array>
       </dict>
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>exp+obytesapp</string>
+          <string>exp+template</string>
         </array>
       </dict>
     </array>
@@ -52,6 +52,25 @@
     <key>NSUserActivityTypes</key>
     <array>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
+    </array>
+    <key>UIAppFonts</key>
+    <array>
+      <string>PlaywriteCU-ExtraLight.ttf</string>
+      <string>PlaywriteCU-Light.ttf</string>
+      <string>PlaywriteCU-Regular.ttf</string>
+      <string>PlaywriteCU-Thin.ttf</string>
+      <string>Roboto-Black.ttf</string>
+      <string>Roboto-BlackItalic.ttf</string>
+      <string>Roboto-Bold.ttf</string>
+      <string>Roboto-BoldItalic.ttf</string>
+      <string>Roboto-Italic.ttf</string>
+      <string>Roboto-Light.ttf</string>
+      <string>Roboto-LightItalic.ttf</string>
+      <string>Roboto-Medium.ttf</string>
+      <string>Roboto-MediumItalic.ttf</string>
+      <string>Roboto-Regular.ttf</string>
+      <string>Roboto-Thin.ttf</string>
+      <string>Roboto-ThinItalic.ttf</string>
     </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>

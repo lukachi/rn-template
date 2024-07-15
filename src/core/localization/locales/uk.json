@@ -14,6 +14,14 @@
     "default-title-success": "Success",
     "default-title-warning": "Warning"
   },
+  "plurals": {
+    "key_few": "few",
+    "key_many": "many",
+    "key_one": "singular",
+    "key_other": "other",
+    "key_two": "two",
+    "key_zero": "zero"
+  },
   "tabs": {
     "one": "TAB one yopta",
     "two": "TAB two yopta",
@@ -23,13 +31,5 @@
     "field-error_maxLength": "This field must contain maximum {{maxLength}} symbols",
     "field-error_minLength": "This field must contain minimum {{minLength}} symbols",
     "field-error_required": "Please fill out this field"
-  },
-  "plurals": {
-    "key_zero": "zero",
-    "key_one": "singular",
-    "key_two": "two",
-    "key_few": "few",
-    "key_many": "many",
-    "key_other": "other"
   }
 }

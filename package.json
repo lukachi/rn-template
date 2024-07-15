@@ -3,9 +3,8 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "upgrade:tamagui": "yarn up '*tamagui*'@latest '@tamagui/*'@latest",
-    "upgrade:tamagui:canary": "yarn up '*tamagui*'@canary '@tamagui/*'@canary",
     "start": "npx expo start -c",
+    "prebuild": "npx expo prebuild --clean && npx pod-install",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "npx expo start --web",
@@ -22,9 +21,6 @@
   "dependencies": {
     "@distributedlab/tools": "^1.0.0-rc.16",
     "@react-navigation/native": "^6.1.17",
-    "@tamagui/config": "^1.102.1",
-    "@tamagui/lucide-icons": "^1.102.1",
-    "@tamagui/toast": "^1.102.1",
     "app-icon-badge": "^0.0.15",
     "babel-preset-expo": "^11.0.6",
     "burnt": "^0.12.2",
@@ -46,7 +42,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "^14.1.2",
-    "react-native": "0.74.1",
+    "react-native": "0.74.3",
     "react-native-mmkv": "^2.12.2",
     "react-native-reanimated": "~3.10.1",
     "react-native-restart": "^0.0.27",
@@ -54,7 +50,6 @@
     "react-native-screens": "~3.31.1",
     "react-native-svg": "15.2.0",
     "react-native-web": "^0.19.12",
-    "tamagui": "^1.102.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -63,8 +58,6 @@
     "@expo/metro-config": "~0.18.4",
     "@expo/metro-runtime": "~3.2.1",
     "@react-native-community/eslint-config": "^3.2.0",
-    "@tamagui/babel-plugin": "^1.102.1",
-    "@tamagui/metro-plugin": "^1.102.1",
     "@testing-library/jest-dom": "^6.4.6",
     "@types/eslint": "^8.56.10",
     "@types/jest": "^29.5.12",
@@ -73,6 +66,7 @@
     "@types/react-native": "^0.73.0",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
+    "babel-plugin-module-resolver": "^5.0.2",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -88,7 +82,7 @@
     "jest-junit": "^16.0.0",
     "prettier": "^3.3.3",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.5.2"
+    "typescript": "~5.3.3"
   },
   "private": true,
   "packageManager": "yarn@4.0.2"

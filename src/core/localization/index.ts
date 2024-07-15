@@ -3,9 +3,10 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { I18nManager } from 'react-native'
 
+import { setDayjsLocale } from '@/helpers/formatters'
+
 import { resources } from './resources'
 import { getLanguage } from './utils'
-import { setDayjsLocale } from '@/helpers/formatters'
 export * from './utils'
 
 const language = getLanguage() || getLocales()[0]

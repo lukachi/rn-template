@@ -1,4 +1,5 @@
-import { ScrollView, Text, useTheme, View, YStack } from 'tamagui'
+import { useTheme } from '@react-navigation/native'
+import { ScrollView, Text, View } from 'react-native'
 
 import { typography } from '@/theme'
 
@@ -7,15 +8,26 @@ export default function TypographyScreen() {
 
   return (
     <ScrollView>
-      <YStack paddingVertical={24} gap={24} overflow={'scroll'}>
+      <View
+        style={{
+          gap: 24,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {Object.entries(typography).map(([key, value]) => (
           <View key={key}>
-            <Text {...value} color={theme.textPrimary.val}>
+            <Text
+              {...value}
+              style={{
+                color: theme.colors.text,
+              }}
+            >
               This is a {key} text
             </Text>
           </View>
         ))}
-      </YStack>
+      </View>
     </ScrollView>
   )
 }
