@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "npx expo start -c",
+    "start": "npx expo start --clear",
     "prebuild": "npx expo prebuild --clean && npx pod-install",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -24,6 +24,8 @@
     "app-icon-badge": "^0.0.15",
     "babel-preset-expo": "^11.0.6",
     "burnt": "^0.12.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
     "expo": "~51.0.9",
     "expo-build-properties": "~0.12.3",
     "expo-constants": "~16.0.2",
@@ -44,6 +46,7 @@
     "react-dom": "18.2.0",
     "react-i18next": "^14.1.2",
     "react-native": "0.74.3",
+    "react-native-gesture-handler": "~2.16.1",
     "react-native-mmkv": "^2.12.2",
     "react-native-reanimated": "^3.14.0",
     "react-native-restart": "^0.0.27",
@@ -51,7 +54,9 @@
     "react-native-screens": "~3.31.1",
     "react-native-svg": "15.2.0",
     "react-native-web": "^0.19.12",
+    "tailwind-merge": "^2.4.0",
     "tailwindcss": "^3.4.5",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -83,6 +88,7 @@
     "jest-expo": "~51.0.3",
     "jest-junit": "^16.0.0",
     "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.5",
     "ts-jest": "^29.1.2",
     "typescript": "~5.3.3"
   },

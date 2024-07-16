@@ -1246,6 +1246,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@egjs/hammerjs@npm:^2.0.17":
+  version: 2.0.17
+  resolution: "@egjs/hammerjs@npm:2.0.17"
+  dependencies:
+    "@types/hammerjs": "npm:^2.0.36"
+  checksum: f695129d45edfcfd6c5f2d1d36186da36ffade013991972ce23721a6b7ad7f214ce282abc4023e3f6b63062620852a63e897b523f247804afc7acd188fee9d9d
+  languageName: node
+  linkType: hard
+
 "@eslint-community/eslint-utils@npm:^4.2.0, @eslint-community/eslint-utils@npm:^4.4.0":
   version: 4.4.0
   resolution: "@eslint-community/eslint-utils@npm:4.4.0"
@@ -3401,6 +3410,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/hammerjs@npm:^2.0.36":
+  version: 2.0.45
+  resolution: "@types/hammerjs@npm:2.0.45"
+  checksum: 8d7f8791789853a9461f6445e625f18922a823a61042161dde5513f4a2c15ecd6361fa6f9b457ce13bfb6b518489b892fedb9e2cebb4420523cb45f1cbb4ee88
+  languageName: node
+  linkType: hard
+
 "@types/istanbul-lib-coverage@npm:*, @types/istanbul-lib-coverage@npm:^2.0.0, @types/istanbul-lib-coverage@npm:^2.0.1":
   version: 2.0.6
   resolution: "@types/istanbul-lib-coverage@npm:2.0.6"
@@ -5019,6 +5035,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"class-variance-authority@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "class-variance-authority@npm:0.7.0"
+  dependencies:
+    clsx: "npm:2.0.0"
+  checksum: 06646e82953e577fb8834100d763f1e5ecb808b8a1fba6244e94b20603865b134ff2296e30432449793baaeb02282cce617afba6981afe18b6846f1f8e9485ca
+  languageName: node
+  linkType: hard
+
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
   resolution: "clean-stack@npm:2.2.0"
@@ -5095,6 +5120,20 @@ __metadata:
   version: 2.1.2
   resolution: "clone@npm:2.1.2"
   checksum: d9c79efba655f0bf601ab299c57eb54cbaa9860fb011aee9d89ed5ac0d12df1660ab7642fddaabb9a26b7eff0e117d4520512cb70798319ff5d30a111b5310c2
+  languageName: node
+  linkType: hard
+
+"clsx@npm:2.0.0":
+  version: 2.0.0
+  resolution: "clsx@npm:2.0.0"
+  checksum: 943766d1b02fee3538c871e56638d87f973fbc2d6291ce221215ea436fdecb9be97ad323f411839c2d52c45640c449b1a53fbfe7e8b3d529b4e263308b630c9a
+  languageName: node
+  linkType: hard
+
+"clsx@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "clsx@npm:2.1.1"
+  checksum: cdfb57fa6c7649bbff98d9028c2f0de2f91c86f551179541cf784b1cfdc1562dcb951955f46d54d930a3879931a980e32a46b598acaea274728dbe068deca919
   languageName: node
   linkType: hard
 
@@ -7804,6 +7843,15 @@ __metadata:
   dependencies:
     source-map: "npm:^0.7.3"
   checksum: 92ffe2ad1baa7c6d6ed3f62dc33a1ac579dac408fece35ce82c25ca2844cbd48e8d3e425558bd3f76e20065af787033032ae23c881e5084c5855056389e8cfe1
+  languageName: node
+  linkType: hard
+
+"hoist-non-react-statics@npm:^3.3.0":
+  version: 3.3.2
+  resolution: "hoist-non-react-statics@npm:3.3.2"
+  dependencies:
+    react-is: "npm:^16.7.0"
+  checksum: 1acbe85f33e5a39f90c822ad4d28b24daeb60f71c545279431dc98c312cd28a54f8d64788e477fe21dc502b0e3cf58589ebe5c1ad22af27245370391c2d24ea6
   languageName: node
   linkType: hard
 
@@ -11547,6 +11595,61 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier-plugin-tailwindcss@npm:^0.6.5":
+  version: 0.6.5
+  resolution: "prettier-plugin-tailwindcss@npm:0.6.5"
+  peerDependencies:
+    "@ianvs/prettier-plugin-sort-imports": "*"
+    "@prettier/plugin-pug": "*"
+    "@shopify/prettier-plugin-liquid": "*"
+    "@trivago/prettier-plugin-sort-imports": "*"
+    "@zackad/prettier-plugin-twig-melody": "*"
+    prettier: ^3.0
+    prettier-plugin-astro: "*"
+    prettier-plugin-css-order: "*"
+    prettier-plugin-import-sort: "*"
+    prettier-plugin-jsdoc: "*"
+    prettier-plugin-marko: "*"
+    prettier-plugin-organize-attributes: "*"
+    prettier-plugin-organize-imports: "*"
+    prettier-plugin-sort-imports: "*"
+    prettier-plugin-style-order: "*"
+    prettier-plugin-svelte: "*"
+  peerDependenciesMeta:
+    "@ianvs/prettier-plugin-sort-imports":
+      optional: true
+    "@prettier/plugin-pug":
+      optional: true
+    "@shopify/prettier-plugin-liquid":
+      optional: true
+    "@trivago/prettier-plugin-sort-imports":
+      optional: true
+    "@zackad/prettier-plugin-twig-melody":
+      optional: true
+    prettier-plugin-astro:
+      optional: true
+    prettier-plugin-css-order:
+      optional: true
+    prettier-plugin-import-sort:
+      optional: true
+    prettier-plugin-jsdoc:
+      optional: true
+    prettier-plugin-marko:
+      optional: true
+    prettier-plugin-organize-attributes:
+      optional: true
+    prettier-plugin-organize-imports:
+      optional: true
+    prettier-plugin-sort-imports:
+      optional: true
+    prettier-plugin-style-order:
+      optional: true
+    prettier-plugin-svelte:
+      optional: true
+  checksum: 49b5a12f8bd74a6558b28c7d7f6f323c1a1fc523701f6768552bac9c18e92a213d375ad0a00ce71c943c80571b40d10c2b6c6299c08d581d4637165aee9dda24
+  languageName: node
+  linkType: hard
+
 "prettier@npm:^2.8.3":
   version: 2.8.8
   resolution: "prettier@npm:2.8.8"
@@ -11671,7 +11774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.8.1":
+"prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -11848,7 +11951,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.0, react-is@npm:^16.13.1":
+"react-is@npm:^16.13.0, react-is@npm:^16.13.1, react-is@npm:^16.7.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: 5aa564a1cde7d391ac980bedee21202fc90bdea3b399952117f54fb71a932af1e5902020144fb354b4690b2414a0c7aafe798eb617b76a3d441d956db7726fdf
@@ -11882,6 +11985,22 @@ __metadata:
     react-native-svg:
       optional: true
   checksum: 5d99c7bfe0ef7b75032b60b162c3991fa162d200d3c5f64935e6a31c888173532bf06e6a551286b18ad20f419926af8fb64aa6884feccd76f38aacae517acbf5
+  languageName: node
+  linkType: hard
+
+"react-native-gesture-handler@npm:~2.16.1":
+  version: 2.16.2
+  resolution: "react-native-gesture-handler@npm:2.16.2"
+  dependencies:
+    "@egjs/hammerjs": "npm:^2.0.17"
+    hoist-non-react-statics: "npm:^3.3.0"
+    invariant: "npm:^2.2.4"
+    lodash: "npm:^4.17.21"
+    prop-types: "npm:^15.7.2"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 227799f5e16f9725d81db524fc06c1fbef226835a5ee989642d132748832f7543ebc750d4309e49bcaa0fb6d1e7dd6b74028785e4b755978ab7f66f05b414c18
   languageName: node
   linkType: hard
 
@@ -13453,6 +13572,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tailwind-merge@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "tailwind-merge@npm:2.4.0"
+  checksum: dda331a95146c9943dd18f152156fe7a5daf450a686d0562fb521ebc027273bd0c8f9503742668b3e90d27e887aa794ea5e79c38faa51216e19e9d0f1ec55925
+  languageName: node
+  linkType: hard
+
+"tailwindcss-animate@npm:^1.0.7":
+  version: 1.0.7
+  resolution: "tailwindcss-animate@npm:1.0.7"
+  peerDependencies:
+    tailwindcss: "*"
+  checksum: ef176fbb0bf9dca84178b35b6a9615cd756358ea80be9c575456d12ecd7f3c431e9e571915c7df72959dc798a730959e9a4739d59eab55d8cc6db390870ff0d2
+  languageName: node
+  linkType: hard
+
 "tailwindcss@npm:^3.4.5":
   version: 3.4.5
   resolution: "tailwindcss@npm:3.4.5"
@@ -13546,6 +13681,8 @@ __metadata:
     babel-plugin-module-resolver: "npm:^5.0.2"
     babel-preset-expo: "npm:^11.0.6"
     burnt: "npm:^0.12.2"
+    class-variance-authority: "npm:^0.7.0"
+    clsx: "npm:^2.1.1"
     dotenv: "npm:^16.4.5"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
@@ -13576,10 +13713,12 @@ __metadata:
     lodash: "npm:^4.17.21"
     nativewind: "npm:^4.0.1"
     prettier: "npm:^3.3.3"
+    prettier-plugin-tailwindcss: "npm:^0.6.5"
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"
     react-i18next: "npm:^14.1.2"
     react-native: "npm:0.74.3"
+    react-native-gesture-handler: "npm:~2.16.1"
     react-native-mmkv: "npm:^2.12.2"
     react-native-reanimated: "npm:^3.14.0"
     react-native-restart: "npm:^0.0.27"
@@ -13587,7 +13726,9 @@ __metadata:
     react-native-screens: "npm:~3.31.1"
     react-native-svg: "npm:15.2.0"
     react-native-web: "npm:^0.19.12"
+    tailwind-merge: "npm:^2.4.0"
     tailwindcss: "npm:^3.4.5"
+    tailwindcss-animate: "npm:^1.0.7"
     ts-jest: "npm:^29.1.2"
     typescript: "npm:~5.3.3"
     zod: "npm:^3.23.8"

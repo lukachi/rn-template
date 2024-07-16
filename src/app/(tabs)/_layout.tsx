@@ -1,6 +1,5 @@
 import { useTheme } from '@react-navigation/native'
-import { Link, Tabs } from 'expo-router'
-import { Button } from 'react-native'
+import { Tabs } from 'expo-router'
 
 import { translate } from '@/core'
 
@@ -34,9 +33,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name='two'
+        name='colors'
         options={{
-          title: translate('tabs.two'),
+          title: 'colors',
           // tabBarIcon: ({ color }) => <AudioWaveform color={color} />,
         }}
       />

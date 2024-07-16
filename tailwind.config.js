@@ -1,31 +1,48 @@
+import {
+  animation,
+  borderRadius,
+  colors,
+  fontFamily,
+  typography,
+  keyframes,
+  spacing,
+  cssVars,
+} from './src/theme/config'
+import plugin from "tailwindcss/plugin";
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   // NOTE: Update this to include the paths to all of your component files.
-  content: ["./src/app/**/*.{js,jsx,ts,tsx}"],
+  content: [
+    "./src/app/**/*.{js,jsx,ts,tsx}",
+    "./src/theme/**/*.{js,jsx,ts,tsx}",
+  ],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-      fontFamily: {
-        inter: [
-          'PlaywriteCU-ExtraLight',
-          'PlaywriteCU-Light',
-          'PlaywriteCU-Regular',
-          'PlaywriteCU-Thin',
-          'Roboto-Black',
-          'Roboto-BlackItalic',
-          'Roboto-Bold',
-          'Roboto-BoldItalic',
-          'Roboto-Italic',
-          'Roboto-Light',
-          'Roboto-LightItalic',
-          'Roboto-Medium',
-          'Roboto-MediumItalic',
-          'Roboto-Regular',
-          'Roboto-Thin',
-          'Roboto-ThinItalic',
-        ],
-      },
+      colors,
+      fontFamily,
+      borderRadius,
+      spacing,
+      keyframes,
+      animation,
     },
   },
-  plugins: [],
+  plugins: [
+    ({addBase}) => addBase({
+      ":root": {
+        ...cssVars.light
+      },
+      ".dark:root": {
+        ...cssVars.dark
+      },
+    }),
+
+    plugin(({addUtilities}) => {
+      addUtilities(typography, {
+        variants: ["responsive", "hover"],
+      })
+    }),
+  ],
 }

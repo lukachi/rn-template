@@ -1,37 +1,23 @@
-import { useTheme } from '@react-navigation/native'
 import { ScrollView, Text, View } from 'react-native'
 
-import { allThemes, typography } from '@/theme'
+import { colors } from '@/theme/config'
+import { cn } from '@/theme/utils'
 
 export default function ColorsScreen() {
-  const theme = useTheme()
-
   return (
     <ScrollView>
-      <View
-        style={{
-          flexWrap: 'wrap',
-          gap: 16,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {Object.keys(allThemes.light).map(el => (
+      <View className={cn('flex flex-row flex-wrap items-center justify-center gap-4')}>
+        {Object.keys(colors).map(el => (
           <View
             key={el}
-            style={{
-              width: 120,
-              height: 120,
-              backgroundColor: theme[el]?.val,
-            }}
+            className={cn(
+              'flex size-[150px] items-center justify-center rounded-md shadow-md',
+              `bg-${el}`,
+            )}
           >
-            <Text
-              style={{
-                ...typography.body3,
-              }}
-            >
-              {el}
-            </Text>
+            <View className={cn('bg-baseBlack p-4')}>
+              <Text className={cn('text-baseWhite text-center')}>{el}</Text>
+            </View>
           </View>
         ))}
       </View>

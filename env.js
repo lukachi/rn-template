@@ -139,7 +139,9 @@ if (parsed.success === false) {
     `\n❌ Missing variables in .env.${APP_ENV} file, Make sure all required variables are defined in the .env.${APP_ENV} file.`,
     `\n💡 Tip: If you recently updated the .env.${APP_ENV} file and the error still persists, try restarting the server with the -cc flag to clear the cache.`,
   )
-  throw new Error('Invalid environment variables, Check terminal for more details ')
+  throw new Error(
+    'Invalid environment variables, Check terminal for more details ',
+  )
 }
 
 const Env = parsed.data

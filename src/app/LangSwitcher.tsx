@@ -3,15 +3,16 @@ import { Button, Text, View } from 'react-native'
 import { useSelectedLanguage } from '@/core'
 import type { Language } from '@/core/localization/resources'
 import { resources } from '@/core/localization/resources'
+import { cn } from '@/theme'
 
 export default function LangSwitcher() {
   const { language, setLanguage } = useSelectedLanguage()
 
   return (
-    <View style={{ gap: 24, alignItems: 'center' }}>
+    <View className={cn('flex flex-col items-center gap-4')}>
       <Text>current lang: {language}</Text>
 
-      <View style={{ gap: 8 }}>
+      <View className={cn('flex flex-row gap-2')}>
         {Object.keys(resources).map(el => (
           <Button
             key={el}
