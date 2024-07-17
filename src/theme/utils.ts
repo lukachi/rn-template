@@ -7,7 +7,7 @@ import { extendTailwindMerge } from 'tailwind-merge'
 import { storage } from '@/core/storage'
 
 const SELECTED_THEME = 'SELECTED_THEME'
-export type ColorSchemeType = 'light' | 'dark' | 'system'
+export type ColorSchemeType = 'light' | 'dark' | 'system' // TODO: use from colors.ts
 
 /**
  * this hooks should only be used while selecting the theme

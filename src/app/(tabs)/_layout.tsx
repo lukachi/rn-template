@@ -1,49 +1,41 @@
-import { useTheme } from '@react-navigation/native'
+import { Fontisto } from '@expo/vector-icons'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import Octicons from '@expo/vector-icons/Octicons'
 import { Tabs } from 'expo-router'
 
 import { translate } from '@/core'
+import { usePalette } from '@/theme'
 
 export default function TabLayout() {
-  const theme = useTheme()
+  const palette = usePalette()
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary,
+        tabBarActiveTintColor: palette.textPrimary,
       }}
     >
       <Tabs.Screen
         name='index'
         options={{
           title: translate('tabs.one'),
-          // tabBarIcon: ({ color }) => <Atom color={color} />,
-          // headerRight: () => (
-          //   <Link
-          //     href='/'
-          //     style={{
-          //       marginRight: 24,
-          //       backgroundColor: theme.colors.card,
-          //       color: theme.colors.text,
-          //     }}
-          //     asChild
-          //   >
-          //     <Button title={'Hello!'} />
-          //   </Link>
-          // ),
+          tabBarIcon: ({ color }) => <Fontisto name='atom' size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name='colors'
         options={{
           title: 'colors',
-          // tabBarIcon: ({ color }) => <AudioWaveform color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name='multitrack-audio' size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name='typography'
         options={{
           title: translate('tabs.typography'),
-          // tabBarIcon: ({ color }) => <TextCursor color={color} />,
+          tabBarIcon: ({ color }) => <Octicons name='typography' size={24} color={color} />,
         }}
       />
     </Tabs>

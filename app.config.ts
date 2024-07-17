@@ -43,6 +43,12 @@ export default ({config}: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     [
+      'expo-asset',
+      {
+        assets: ['./assets']
+      }
+    ],
+      [
       'expo-font',
       {
         fonts: [
