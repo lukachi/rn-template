@@ -1,4 +1,4 @@
-/* eslint-disable max-lines-per-function */
+
 import type {ConfigContext, ExpoConfig} from '@expo/config';
 
 import {ClientEnv, Env} from './env';
@@ -24,7 +24,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ['**/*'],
   ios: {
-    supportsTablet: true,
+    // supportsTablet: true,
     bundleIdentifier: Env.BUNDLE_ID,
   },
   experiments: {
