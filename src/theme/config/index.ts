@@ -1,5 +1,2 @@
-export * from './animations'
-export * from './border-radius'
 export * from './colors'
-export * from './spacing'
 export * from './typography'

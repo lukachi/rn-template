@@ -1,11 +1,7 @@
 import {
-  animation,
-  borderRadius,
   colors,
   fontFamily,
   typography,
-  keyframes,
-  spacing,
   cssVars,
 } from './src/theme/config'
 import plugin from "tailwindcss/plugin";
@@ -23,10 +19,6 @@ module.exports = {
     extend: {
       colors,
       fontFamily,
-      borderRadius,
-      spacing,
-      keyframes,
-      animation,
     },
   },
   plugins: [

@@ -10,7 +10,7 @@ export default function LangSwitcher() {
 
   return (
     <View className={cn('flex flex-col items-center gap-4')}>
-      <Text>current lang: {language}</Text>
+      <Text className={cn('text-textPrimary')}>current lang: {language}</Text>
 
       <View className={cn('flex flex-row gap-2')}>
         {Object.keys(resources).map(el => (

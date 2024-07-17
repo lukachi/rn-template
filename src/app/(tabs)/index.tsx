@@ -10,13 +10,13 @@ export default function TabOneScreen() {
   return (
     <ScrollView>
       <View className={cn('text-h1 flex w-full flex-col items-center gap-10 px-10 py-5')}>
-        <Text className='text-center'>{translate('errors.default')}</Text>
+        <Text className='text-center text-textPrimary'>{translate('errors.default')}</Text>
 
         <LangSwitcher />
 
-        <Text className={cn('typography-body1 text=primary')}>{formatDateDMY(1720949121)}</Text>
-        <Text className={cn('typography-h2 text-primaryMain')}>{formatDateDMYT(1720949121)}</Text>
-        <Text className={cn('typography-h3 text-textPrimary')}>{formatDateDiff(1720949121)}</Text>
+        <Text className={cn('text-textPrimary typography-body1')}>{formatDateDMY(1720949121)}</Text>
+        <Text className={cn('text-primaryMain typography-h2')}>{formatDateDMYT(1720949121)}</Text>
+        <Text className={cn('text-textPrimary typography-h3')}>{formatDateDiff(1720949121)}</Text>
 
         <ThemeSwitcher />
 

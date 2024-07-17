@@ -60,8 +60,6 @@ export const lightPalette = {
 
   additionalLayerBorder: '#ffffff',
   additionalPureDark: '#000000',
-  additionalGradient1: 'linear-gradient(to right, #1d7f68, #136854)',
-  additionalGradient2: 'linear-gradient(to right, #e7c1fe, #d3a6ee)',
   additionalInverted: '#ffffff',
 }
 
@@ -118,8 +116,6 @@ export const darkPalette: BaseTheme = {
 
   additionalLayerBorder: getRgba('#FFFFFF', 0.05),
   additionalPureDark: getRgba('#FFFFFF', 0.1),
-  additionalGradient1: 'linear-gradient(to right, #1D7F68, #136854)',
-  additionalGradient2: 'linear-gradient(to right, #E7C1FE, #D3A6EE)',
   additionalInverted: '#444444',
 }
 
@@ -191,8 +187,6 @@ export const colorsScheme: BaseTheme = {
 
   additionalLayerBorder: 'var(--additional-layer-border)',
   additionalPureDark: 'var(--additional-pure-dark)',
-  additionalGradient1: 'var(--additional-gradient-1)',
-  additionalGradient2: 'var(--additional-gradient-2)',
   additionalInverted: 'var(--additional-inverted)',
 }
 
