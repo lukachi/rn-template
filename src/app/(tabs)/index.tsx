@@ -1,5 +1,5 @@
 import { Button, ScrollView, Text, View } from 'react-native'
-import Toast from 'react-native-root-toast'
+import Toast from 'react-native-toast-message'
 
 import LangSwitcher from '@/app/LangSwitcher'
 import ThemeSwitcher from '@/app/ThemeSwitcher'
@@ -9,13 +9,19 @@ import { cn } from '@/theme/utils'
 
 export default function TabOneScreen() {
   const showToast = () => {
-    Toast.show('Lorem ipsum dolor sit amet concestetur!', {
-      duration: Toast.durations.SHORT,
-      position: Toast.positions.CENTER,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0,
+    Toast.show({
+      type: 'success',
+      text1: 'Hello',
+      text2: 'Lorem ipsum dolor sit amet concestetur! 👋',
+    })
+  }
+  const showToastCustom = () => {
+    Toast.show({
+      type: 'myCustomToast',
+      props: {
+        title: 'Hello',
+        subtitle: 'Lorem ipsum dolor sit amet concestetur yopta! 👋',
+      },
     })
   }
 
@@ -23,6 +29,7 @@ export default function TabOneScreen() {
     <ScrollView>
       <View className={cn('text-h1 flex w-full flex-col items-center gap-10 px-10 py-5')}>
         <Button title={'show toast'} onPress={showToast} />
+        <Button title={'show toast custom'} onPress={showToastCustom} />
         <Text className='text-center text-textPrimary'>{translate('errors.default')}</Text>
 
         <LangSwitcher />

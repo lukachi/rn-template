@@ -3001,13 +3001,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native/normalize-color@npm:*":
-  version: 2.1.0
-  resolution: "@react-native/normalize-color@npm:2.1.0"
-  checksum: a72b98538e6b7e265fb0669b8767d5f788777fb1a0ac1df7b0c82d8b3a804c8122aa7b819688c5e36fcf90b5ba93050b0070e29d3f0d70ab9530c2abd2bb9f9e
-  languageName: node
-  linkType: hard
-
 "@react-native/normalize-colors@npm:0.74.84":
   version: 0.74.84
   resolution: "@react-native/normalize-colors@npm:0.74.84"
@@ -5778,17 +5771,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"deprecated-react-native-prop-types@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "deprecated-react-native-prop-types@npm:2.3.0"
-  dependencies:
-    "@react-native/normalize-color": "npm:*"
-    invariant: "npm:*"
-    prop-types: "npm:*"
-  checksum: 5abbad5b6d6830ca92151167f42611256ada1e8991b5066ed3659f3bbe909ae87949f3e7f075f1b685256138cad81423222220f4c6d5740376db19cb9f793312
-  languageName: node
-  linkType: hard
-
 "dequal@npm:^2.0.3":
   version: 2.0.3
   resolution: "dequal@npm:2.0.3"
@@ -6406,11 +6388,11 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-prettier@npm:^5.1.3":
-  version: 5.1.3
-  resolution: "eslint-plugin-prettier@npm:5.1.3"
+  version: 5.2.1
+  resolution: "eslint-plugin-prettier@npm:5.2.1"
   dependencies:
     prettier-linter-helpers: "npm:^1.0.0"
-    synckit: "npm:^0.8.6"
+    synckit: "npm:^0.9.1"
   peerDependencies:
     "@types/eslint": ">=8.0.0"
     eslint: ">=8.0.0"
@@ -6421,7 +6403,7 @@ __metadata:
       optional: true
     eslint-config-prettier:
       optional: true
-  checksum: 4f26a30444adc61ed692cdb5a9f7e8d9f5794f0917151051e66755ce032a08c3cc72c8b5d56101412e90f6d77035bd8194ea8731e9c16aacdd5ae345a8dae188
+  checksum: 10ddf68215237e327af09a47adab4c63f3885fda4fb28c4c42d1fc5f47d8a0cc45df6484799360ff1417a0aa3c77c3aaac49d7e9dfd145557b17e2d7ecc2a27c
   languageName: node
   linkType: hard
 
@@ -8142,7 +8124,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invariant@npm:*, invariant@npm:^2.2.4":
+"invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
@@ -11792,7 +11774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:*, prop-types@npm:^15.5.10, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -12075,26 +12057,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-root-siblings@npm:^4.0.0":
-  version: 4.1.1
-  resolution: "react-native-root-siblings@npm:4.1.1"
-  checksum: d57ad41e0f45feee0d2efe7db0938835e0e6bd1bc6d24ccf2e401cbb61fdfafed5c2cb475c6d14f47451ec70efe3e1e766ae5c61aa4e1f93adf64bf8c8eeed99
-  languageName: node
-  linkType: hard
-
-"react-native-root-toast@npm:^3.6.0":
-  version: 3.6.0
-  resolution: "react-native-root-toast@npm:3.6.0"
-  dependencies:
-    deprecated-react-native-prop-types: "npm:^2.3.0"
-    prop-types: "npm:^15.5.10"
-    react-native-root-siblings: "npm:^4.0.0"
-  peerDependencies:
-    react-native: ">=0.47.0"
-  checksum: 3755b4c56baa4ca99f862ad20e6ecbe1cc82df06e3ee7d16ea7aa9bc4628de4463bdaa54b323bb29bd8f2c62662215a80ab9e6e422def94f36d95a72b9e61b78
-  languageName: node
-  linkType: hard
-
 "react-native-safe-area-context@npm:4.10.1":
   version: 4.10.1
   resolution: "react-native-safe-area-context@npm:4.10.1"
@@ -12128,6 +12090,16 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 5042e1377b9d66679898ce812760691d01602efac27a32eed0914b518652c66d575dc7eb1493d3315a7db043d4974796d9107fe17f4b331b6bbbff16906016e9
+  languageName: node
+  linkType: hard
+
+"react-native-toast-message@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "react-native-toast-message@npm:2.2.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 5d4e18eb6bcdcf117c64242e09dd1fc791a51d614dcafc7ef685942dbf891010b8901cb5a6093088d65607f77b417cdc4053fb1bef7a8e119e2776063d32b78f
   languageName: node
   linkType: hard
 
@@ -13600,13 +13572,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synckit@npm:^0.8.6":
-  version: 0.8.8
-  resolution: "synckit@npm:0.8.8"
+"synckit@npm:^0.9.1":
+  version: 0.9.1
+  resolution: "synckit@npm:0.9.1"
   dependencies:
     "@pkgr/core": "npm:^0.1.0"
     tslib: "npm:^2.6.2"
-  checksum: 2864a5c3e689ad5b991bebbd8a583c5682c4fa08a4f39986b510b6b5d160c08fc3672444069f8f96ed6a9d12772879c674c1f61e728573eadfa90af40a765b74
+  checksum: bff3903976baf8b699b5483228116d70223781a93b17c70e685c277ee960cdfd1a09cb5a741e6a9ec35e2428f14f4664baec41ccc99a598f267608b2a54f529b
   languageName: node
   linkType: hard
 
@@ -13760,10 +13732,10 @@ __metadata:
     react-native-mmkv: "npm:^2.12.2"
     react-native-reanimated: "npm:^3.14.0"
     react-native-restart: "npm:^0.0.27"
-    react-native-root-toast: "npm:^3.6.0"
     react-native-safe-area-context: "npm:4.10.1"
     react-native-screens: "npm:~3.31.1"
     react-native-svg: "npm:15.2.0"
+    react-native-toast-message: "npm:^2.2.0"
     react-native-web: "npm:^0.19.12"
     tailwind-merge: "npm:^2.4.0"
     tailwindcss: "npm:^3.4.5"

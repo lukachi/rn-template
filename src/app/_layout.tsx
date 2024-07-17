@@ -8,9 +8,9 @@ export {
 } from 'expo-router'
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { RootSiblingParent } from 'react-native-root-siblings'
 
 import { AppTheme } from '@/theme'
+import { Toasts } from '@/ui'
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -54,18 +54,18 @@ export default function RootLayout() {
 function RootLayoutNav() {
   return (
     <GestureHandlerRootView>
-      <RootSiblingParent>
-        <AppTheme>
-          <Stack>
-            <Stack.Screen
-              name='(tabs)'
-              options={{
-                headerShown: false,
-              }}
-            />
-          </Stack>
-        </AppTheme>
-      </RootSiblingParent>
+      <AppTheme>
+        <Stack>
+          <Stack.Screen
+            name='(tabs)'
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack>
+
+        <Toasts />
+      </AppTheme>
     </GestureHandlerRootView>
   )
 }
