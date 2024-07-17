@@ -8,6 +8,7 @@ export {
 } from 'expo-router'
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { RootSiblingParent } from 'react-native-root-siblings'
 
 import { AppTheme } from '@/theme'
 
@@ -53,16 +54,18 @@ export default function RootLayout() {
 function RootLayoutNav() {
   return (
     <GestureHandlerRootView>
-      <AppTheme>
-        <Stack>
-          <Stack.Screen
-            name='(tabs)'
-            options={{
-              headerShown: false,
-            }}
-          />
-        </Stack>
-      </AppTheme>
+      <RootSiblingParent>
+        <AppTheme>
+          <Stack>
+            <Stack.Screen
+              name='(tabs)'
+              options={{
+                headerShown: false,
+              }}
+            />
+          </Stack>
+        </AppTheme>
+      </RootSiblingParent>
     </GestureHandlerRootView>
   )
 }

@@ -1,4 +1,5 @@
-import { ScrollView, Text, View } from 'react-native'
+import { Button, ScrollView, Text, View } from 'react-native'
+import Toast from 'react-native-root-toast'
 
 import LangSwitcher from '@/app/LangSwitcher'
 import ThemeSwitcher from '@/app/ThemeSwitcher'
@@ -7,9 +8,21 @@ import { formatDateDiff, formatDateDMY, formatDateDMYT } from '@/helpers'
 import { cn } from '@/theme/utils'
 
 export default function TabOneScreen() {
+  const showToast = () => {
+    Toast.show('Lorem ipsum dolor sit amet concestetur!', {
+      duration: Toast.durations.SHORT,
+      position: Toast.positions.CENTER,
+      shadow: true,
+      animation: true,
+      hideOnPress: true,
+      delay: 0,
+    })
+  }
+
   return (
     <ScrollView>
       <View className={cn('text-h1 flex w-full flex-col items-center gap-10 px-10 py-5')}>
+        <Button title={'show toast'} onPress={showToast} />
         <Text className='text-center text-textPrimary'>{translate('errors.default')}</Text>
 
         <LangSwitcher />

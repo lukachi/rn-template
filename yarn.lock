@@ -3001,6 +3001,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native/normalize-color@npm:*":
+  version: 2.1.0
+  resolution: "@react-native/normalize-color@npm:2.1.0"
+  checksum: a72b98538e6b7e265fb0669b8767d5f788777fb1a0ac1df7b0c82d8b3a804c8122aa7b819688c5e36fcf90b5ba93050b0070e29d3f0d70ab9530c2abd2bb9f9e
+  languageName: node
+  linkType: hard
+
 "@react-native/normalize-colors@npm:0.74.84":
   version: 0.74.84
   resolution: "@react-native/normalize-colors@npm:0.74.84"
@@ -5771,6 +5778,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"deprecated-react-native-prop-types@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "deprecated-react-native-prop-types@npm:2.3.0"
+  dependencies:
+    "@react-native/normalize-color": "npm:*"
+    invariant: "npm:*"
+    prop-types: "npm:*"
+  checksum: 5abbad5b6d6830ca92151167f42611256ada1e8991b5066ed3659f3bbe909ae87949f3e7f075f1b685256138cad81423222220f4c6d5740376db19cb9f793312
+  languageName: node
+  linkType: hard
+
 "dequal@npm:^2.0.3":
   version: 2.0.3
   resolution: "dequal@npm:2.0.3"
@@ -8124,7 +8142,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invariant@npm:^2.2.4":
+"invariant@npm:*, invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
@@ -11774,7 +11792,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:*, prop-types@npm:^15.5.10, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -12054,6 +12072,26 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 5226571a8c0e5bb7acebb77c58155740b09a158621ee4c7896b12f95720fb10742d4bb273ad9f01a1c8e76dd3bb6f77308f2384511e3b56274a017b4396b3ff8
+  languageName: node
+  linkType: hard
+
+"react-native-root-siblings@npm:^4.0.0":
+  version: 4.1.1
+  resolution: "react-native-root-siblings@npm:4.1.1"
+  checksum: d57ad41e0f45feee0d2efe7db0938835e0e6bd1bc6d24ccf2e401cbb61fdfafed5c2cb475c6d14f47451ec70efe3e1e766ae5c61aa4e1f93adf64bf8c8eeed99
+  languageName: node
+  linkType: hard
+
+"react-native-root-toast@npm:^3.6.0":
+  version: 3.6.0
+  resolution: "react-native-root-toast@npm:3.6.0"
+  dependencies:
+    deprecated-react-native-prop-types: "npm:^2.3.0"
+    prop-types: "npm:^15.5.10"
+    react-native-root-siblings: "npm:^4.0.0"
+  peerDependencies:
+    react-native: ">=0.47.0"
+  checksum: 3755b4c56baa4ca99f862ad20e6ecbe1cc82df06e3ee7d16ea7aa9bc4628de4463bdaa54b323bb29bd8f2c62662215a80ab9e6e422def94f36d95a72b9e61b78
   languageName: node
   linkType: hard
 
@@ -13722,6 +13760,7 @@ __metadata:
     react-native-mmkv: "npm:^2.12.2"
     react-native-reanimated: "npm:^3.14.0"
     react-native-restart: "npm:^0.0.27"
+    react-native-root-toast: "npm:^3.6.0"
     react-native-safe-area-context: "npm:4.10.1"
     react-native-screens: "npm:~3.31.1"
     react-native-svg: "npm:15.2.0"
