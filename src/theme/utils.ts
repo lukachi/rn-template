@@ -5,6 +5,7 @@ import { useMMKVString } from 'react-native-mmkv'
 import { extendTailwindMerge } from 'tailwind-merge'
 
 import { storage } from '@/core/storage'
+import { darkPalette, lightPalette, typography } from '@/theme/config'
 
 const SELECTED_THEME = 'SELECTED_THEME'
 export type ColorSchemeType = 'light' | 'dark' | 'system' // TODO: use from colors.ts
@@ -35,8 +36,25 @@ export const useSelectedTheme = () => {
 export const loadSelectedTheme = () => {
   const theme = storage.getString(SELECTED_THEME)
   if (theme !== undefined) {
-    console.log('theme', theme)
     colorScheme.set(theme as ColorSchemeType)
+  }
+}
+
+// TODO: refactoring
+export const useAppTheme = () => {
+  const { colorScheme } = useColorScheme()
+
+  const { selectedTheme } = useSelectedTheme()
+
+  const palette = {
+    system: colorScheme === 'dark' ? darkPalette : lightPalette,
+    light: lightPalette,
+    dark: darkPalette,
+  }[selectedTheme]
+
+  return {
+    palette,
+    typography,
   }
 }
 

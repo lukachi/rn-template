@@ -4,10 +4,10 @@ import Octicons from '@expo/vector-icons/Octicons'
 import { Tabs } from 'expo-router'
 
 import { translate } from '@/core'
-import { usePalette } from '@/theme'
+import { useAppTheme } from '@/theme'
 
 export default function TabLayout() {
-  const palette = usePalette()
+  const { palette } = useAppTheme()
 
   return (
     <Tabs

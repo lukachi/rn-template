@@ -10,19 +10,6 @@ import { cn, loadSelectedTheme, useSelectedTheme } from '@/theme/utils'
 
 loadSelectedTheme()
 
-// TODO: refactoring
-
-export const usePalette = () => {
-  const { colorScheme } = useColorScheme()
-
-  const { selectedTheme } = useSelectedTheme()
-
-  const themeToSet =
-    selectedTheme !== 'system' ? selectedTheme : colorScheme === 'dark' ? `dark` : 'light'
-
-  return themeToSet === 'dark' ? darkPalette : lightPalette
-}
-
 export const AppTheme = ({ children }: PropsWithChildren) => {
   const { colorScheme } = useColorScheme()
 
