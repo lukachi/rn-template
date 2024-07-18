@@ -8,7 +8,13 @@ import Sibling1 from '@/components/Homepage/Sibling1'
 import Sibling2 from '@/components/Homepage/Sibling2'
 import ThemeSwitcher from '@/components/Homepage/ThemeSwitcher'
 import { translate } from '@/core'
-import { formatDateDiff, formatDateDMY, formatDateDMYT } from '@/helpers'
+import {
+  formatAmount,
+  formatBalance,
+  formatDateDiff,
+  formatDateDMY,
+  formatDateDMYT,
+} from '@/helpers'
 import { cn, useAppTheme } from '@/theme'
 import { Icon } from '@/ui'
 
@@ -35,6 +41,27 @@ export default function Homepage() {
   return (
     <ScrollView>
       <View className={cn('text-h1 flex w-full flex-col items-center gap-10 px-10 py-5')}>
+        <Text className={cn('typography-subtitle1')}>format amount, decimals: 6</Text>
+
+        {Array.from({ length: 20 })
+          .fill(0)
+          .map((_, index) => (
+            <Text key={index}>{formatAmount(`1${Math.pow(10, index + 1).toString()}`, 6)}</Text>
+          ))}
+        <Text className={cn('typography-subtitle1')}>format balance, decimals: 6</Text>
+        {Array.from({ length: 20 })
+          .fill(0)
+          .map((_, index) => (
+            <Text key={index}>{formatBalance(`1${Math.pow(10, index + 1).toString()}`, 6)}</Text>
+          ))}
+
+        <Button
+          title={'test stacktrace'}
+          onPress={() => {
+            throw new Error('test')
+          }}
+        />
+
         <Button title={'show toast'} onPress={showToast} />
         <Button title={'show toast custom'} onPress={showToastCustom} />
         <Text className='text-center text-textPrimary'>{translate('errors.default')}</Text>
@@ -58,13 +85,6 @@ export default function Homepage() {
         <Text className={cn('text-textPrimary')}>{formatDateDMY(1720949121)}</Text>
         <Text className={cn('text-primaryMain')}>{formatDateDMYT(1720949121)}</Text>
         <Text className={cn('text-textPrimary')}>{formatDateDiff(1720949121)}</Text>
-        <Text
-        // style={{
-        //   ...typography['.typography-h1'],
-        // }}
-        >
-          imperative typography
-        </Text>
 
         <ThemeSwitcher />
 

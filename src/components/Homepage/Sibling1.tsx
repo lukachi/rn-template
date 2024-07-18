@@ -9,8 +9,6 @@ export default function Sibling1() {
 
   const nested = sampleStore.useSampleStore(state => state.nested)
 
-  console.log(nested)
-
   const getter1 = sampleStore.useState1Getter()
   const getter2 = sampleStore.useState2Getter()
 
