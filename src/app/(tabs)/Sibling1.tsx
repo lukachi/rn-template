@@ -7,6 +7,10 @@ export default function Sibling1() {
   const state1 = sampleStore.useSampleStore(state => state.state1)
   const state2 = sampleStore.useSampleStore(state => state.state2)
 
+  const nested = sampleStore.useSampleStore(state => state.nested)
+
+  console.log(nested)
+
   const getter1 = sampleStore.useState1Getter()
   const getter2 = sampleStore.useState2Getter()
 
@@ -15,6 +19,7 @@ export default function Sibling1() {
       <View>
         <Text className={cn('text-textPrimary')}>state1: {state1}</Text>
         <Text className={cn('text-textPrimary')}>state2: {state2}</Text>
+        <Text className={cn('text-textPrimary')}>nested: {JSON.stringify(nested)}</Text>
       </View>
 
       <View>
