@@ -6,3 +6,6 @@ coverage/
 ios/
 .expo
 .expo-shared
+*.d.ts
+*.config.ts
+*.config.js

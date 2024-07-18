@@ -18,7 +18,7 @@ export type ColorSchemeType = 'light' | 'dark' | 'system' // TODO: use from colo
  *
  */
 export const useSelectedTheme = () => {
-  const { colorScheme: _color, setColorScheme } = useColorScheme()
+  const { setColorScheme } = useColorScheme()
   const [theme, _setTheme] = useMMKVString(SELECTED_THEME, storage)
 
   const setSelectedTheme = React.useCallback(
@@ -42,12 +42,12 @@ export const loadSelectedTheme = () => {
 
 // TODO: refactoring
 export const useAppTheme = () => {
-  const { colorScheme } = useColorScheme()
+  const { colorScheme: color_ } = useColorScheme()
 
   const { selectedTheme } = useSelectedTheme()
 
   const palette = {
-    system: colorScheme === 'dark' ? darkPalette : lightPalette,
+    system: color_ === 'dark' ? darkPalette : lightPalette,
     light: lightPalette,
     dark: darkPalette,
   }[selectedTheme]

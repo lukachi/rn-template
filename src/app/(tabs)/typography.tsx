@@ -5,7 +5,7 @@ import { cn } from '@/theme'
 export default function TypographyScreen() {
   return (
     <ScrollView>
-      <View className='typography-h1 flex flex-col gap-6'>
+      <View className='flex flex-col gap-6 typography-h1'>
         {[
           'typography-h1',
           'typography-h2',

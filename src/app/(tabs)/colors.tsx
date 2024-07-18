@@ -16,7 +16,7 @@ export default function ColorsScreen() {
             )}
           >
             <View className={cn('bg-baseBlack p-4')}>
-              <Text className={cn('text-baseWhite text-center')}>{el}</Text>
+              <Text className={cn('text-center text-baseWhite')}>{el}</Text>
             </View>
           </View>
         ))}

@@ -17,12 +17,10 @@ export type TxKeyPath = RecursiveKeyOf<DefaultLocale>
 
 export const LOCAL = 'local'
 
-export const getLanguage = (): Language =>
-  (storage.getString(LOCAL) as Language) || 'en' // 'Marc' getItem<Language | undefined>(LOCAL);
+export const getLanguage = (): Language => (storage.getString(LOCAL) as Language) || 'en' // 'Marc' getItem<Language | undefined>(LOCAL);
 
 export const translate = memoize(
-  (key: TxKeyPath, options = undefined) =>
-    i18n.t(key, options) as unknown as string,
+  (key: TxKeyPath, options = undefined) => i18n.t(key, options) as unknown as string,
   (key: TxKeyPath, options: typeof TranslateOptions) =>
     options ? key + JSON.stringify(options) : key,
 )
