@@ -36,6 +36,7 @@
     "expo-linking": "~6.3.1",
     "expo-localization": "~15.0.3",
     "expo-router": "~3.5.18",
+    "expo-secure-store": "~13.0.2",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",

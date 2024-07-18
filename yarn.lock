@@ -5782,9 +5782,9 @@ __metadata:
   linkType: hard
 
 "dayjs@npm:^1.11.7, dayjs@npm:^1.8.15":
-  version: 1.11.11
-  resolution: "dayjs@npm:1.11.11"
-  checksum: f03948b172fbeed229837965988d1d5bac99c72a31c28731a457303259439f2f36289186489ae140adbeb10f591a926908c8de5d81eb449a2edbf5cbd6e9e30c
+  version: 1.11.12
+  resolution: "dayjs@npm:1.11.12"
+  checksum: 8ee7c1e14961fd08d40b788d0c0e930dc6288b3d32911bb911b2fb31bb703c262788164fbe678ee9e50e2a35268d667b8c8ba43fd1806771c1f404c300a2b428
   languageName: node
   linkType: hard
 
@@ -6150,7 +6150,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ejs@npm:^3.0.0":
+"ejs@npm:^3.1.10":
   version: 3.1.10
   resolution: "ejs@npm:3.1.10"
   dependencies:
@@ -7150,6 +7150,15 @@ __metadata:
     react-native-reanimated:
       optional: true
   checksum: 94aa615155ffb2efd706ae54c0c6398836b15e8a583762d132e0ab2286dccaacfd87331df00c458be1f0812af4e95559e5bae2787ead43048f856d93f44432c7
+  languageName: node
+  linkType: hard
+
+"expo-secure-store@npm:~13.0.2":
+  version: 13.0.2
+  resolution: "expo-secure-store@npm:13.0.2"
+  peerDependencies:
+    expo: "*"
+  checksum: 920a4ff94831bc327b08e0f429f3eecfc0fb896e6e865b8d3277c427ad58cec8506815cc094f6e0e8ceed97b33126e8b9d11c923839fcdac946d6eeb2c39cde1
   languageName: node
   linkType: hard
 
@@ -14004,6 +14013,7 @@ __metadata:
     expo-linking: "npm:~6.3.1"
     expo-localization: "npm:~15.0.3"
     expo-router: "npm:~3.5.18"
+    expo-secure-store: "npm:~13.0.2"
     expo-splash-screen: "npm:~0.27.5"
     expo-status-bar: "npm:~1.12.1"
     expo-system-ui: "npm:~3.0.7"
@@ -14268,11 +14278,11 @@ __metadata:
   linkType: hard
 
 "ts-jest@npm:^29.1.2":
-  version: 29.2.2
-  resolution: "ts-jest@npm:29.2.2"
+  version: 29.2.3
+  resolution: "ts-jest@npm:29.2.3"
   dependencies:
     bs-logger: "npm:0.x"
-    ejs: "npm:^3.0.0"
+    ejs: "npm:^3.1.10"
     fast-json-stable-stringify: "npm:2.x"
     jest-util: "npm:^29.0.0"
     json5: "npm:^2.2.3"
@@ -14300,7 +14310,7 @@ __metadata:
       optional: true
   bin:
     ts-jest: cli.js
-  checksum: 6523de2d78493a7901dfc37f2a491b259f5d30beac7a2179ddf8524da0c8e4a7f488aad2d22eca8d074bcc54d7b06a90153fdbf6e9c245f5fc1e484788f0c9d8
+  checksum: d3c3388cea8ea4a7f52c7c97e34a1abf1d83152fa0625ddea7b82c0e3599a786185b95d3e12a09eb27521adedc90780a3dc9df29156ca83f1094e163113ede62
   languageName: node
   linkType: hard
 

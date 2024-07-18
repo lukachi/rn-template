@@ -74,6 +74,12 @@ export default ({config}: ConfigContext): ExpoConfig => ({
     'expo-localization',
     'expo-router',
     [
+      "expo-secure-store",
+      {
+        "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+      }
+    ],
+    [
       'expo-build-properties',
       {
         android: {

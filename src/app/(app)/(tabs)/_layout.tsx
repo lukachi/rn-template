@@ -2,13 +2,15 @@ import { Fontisto } from '@expo/vector-icons'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Octicons from '@expo/vector-icons/Octicons'
 import { Link, Tabs } from 'expo-router'
-import { Pressable, Text } from 'react-native'
+import { Button, Pressable, Text } from 'react-native'
 
+import { useAuth } from '@/contexts/AuthProvider'
 import { translate } from '@/core'
 import { useAppTheme } from '@/theme'
 
 export default function TabLayout() {
   const { palette } = useAppTheme()
+  const { signOut } = useAuth()
 
   return (
     <Tabs
@@ -21,6 +23,14 @@ export default function TabLayout() {
         options={{
           title: translate('tabs.one'),
           tabBarIcon: ({ color }) => <Fontisto name='atom' size={24} color={color} />,
+          headerLeft: () => (
+            <Button
+              title='log out'
+              onPress={() => {
+                signOut()
+              }}
+            />
+          ),
           headerRight: () => (
             <Link href='/custom' asChild>
               <Pressable>
