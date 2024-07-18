@@ -9,8 +9,10 @@ import { translate } from '@/core'
 import { formatDateDiff, formatDateDMY, formatDateDMYT } from '@/helpers'
 import { usePalette } from '@/theme'
 import { cn } from '@/theme/utils'
+import { Icon } from '@/ui'
 
-import Icon from '../../ui/Icon'
+import Sibling1 from './Sibling1'
+import Sibling2 from './Sibling2'
 
 export default function TabOneScreen() {
   const palette = usePalette()
@@ -49,6 +51,9 @@ export default function TabOneScreen() {
         />
 
         <AntDesign name='stepforward' size={140} color={palette.secondaryMain} />
+
+        <Sibling1 />
+        <Sibling2 />
 
         <LangSwitcher />
 
