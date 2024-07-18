@@ -1,7 +1,8 @@
 import { Fontisto } from '@expo/vector-icons'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Octicons from '@expo/vector-icons/Octicons'
-import { Tabs } from 'expo-router'
+import { Link, Tabs } from 'expo-router'
+import { Pressable, Text } from 'react-native'
 
 import { translate } from '@/core'
 import { useAppTheme } from '@/theme'
@@ -20,6 +21,13 @@ export default function TabLayout() {
         options={{
           title: translate('tabs.one'),
           tabBarIcon: ({ color }) => <Fontisto name='atom' size={24} color={color} />,
+          headerRight: () => (
+            <Link href='/custom' asChild>
+              <Pressable>
+                <Text>custom</Text>
+              </Pressable>
+            </Link>
+          ),
         }}
       />
       <Tabs.Screen

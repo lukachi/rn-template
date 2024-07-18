@@ -62,6 +62,12 @@ function RootLayoutNav() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name='custom'
+            options={{
+              headerShown: false,
+            }}
+          />
         </Stack>
 
         <Toasts />

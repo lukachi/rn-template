@@ -9,3 +9,9 @@
 3. yarn
 4. manually run `npx expo prebuild --clean && npx pod-install`
 5. manually run `npx expo run:ios`
+
+
+### values & values-night
+Here is not solution yet to keep same assets with same name in both values & values-night folder.
+And then use it from one entry point automatically, so we need to keep both assets in different folders,
+and then use them separately in code.
