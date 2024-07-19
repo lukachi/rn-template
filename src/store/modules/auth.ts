@@ -20,11 +20,17 @@ const useAuthStore = create(
         logout: () => {
           set({ accessToken: '', refreshToken: '' })
         },
-        refresh: async () => {
+        refresh: async (): Promise<string> => {
           set({ isRefreshing: true })
           await sleep(1000)
-          set({ accessToken: 'my_new_access_token', refreshToken: 'my_new_refresh_token' })
+
+          const newAccessToken = 'my_new_access_token'
+          const newRefreshToken = 'my_new_refresh_token'
+
+          set({ accessToken: newAccessToken, refreshToken: newRefreshToken })
           set({ isRefreshing: false })
+
+          return newAccessToken
         },
       }),
     ),

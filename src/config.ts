@@ -1,3 +1,3 @@
 export const Config = {
-  API_URL: 'https://api.geo.stage.rarime.com', // env.API_URL,
+  API_URL: 'https://localhost:8000', // env.API_URL,
 }

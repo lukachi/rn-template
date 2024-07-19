@@ -9,37 +9,49 @@ export default function Custom() {
   const { data, isLoading, isError, error } = useJsonApiTest()
 
   if (isLoading) {
-    return <Text>Loading...</Text>
+    return (
+      <SafeAreaView>
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    )
   }
 
   if (isError) {
-    console.log(JSON.stringify(error))
-
-    return <Text>Error</Text>
+    return (
+      <SafeAreaView>
+        <Text>Error</Text>
+      </SafeAreaView>
+    )
   }
 
   if (!data) {
-    return <Text>No data</Text>
+    return (
+      <SafeAreaView>
+        <Text>No data</Text>
+      </SafeAreaView>
+    )
   }
 
   return (
     <SafeAreaView>
       <ScrollView>
         <View className={cn('flex items-start gap-4 p-4')}>
-          {router.canGoBack() && (
+          <View className={cn('flex w-full flex-row items-center justify-between')}>
+            {router.canGoBack() && (
+              <Button
+                title='Go back'
+                onPress={() => {
+                  router.back()
+                }}
+              />
+            )}
             <Button
-              title='Go back'
+              title={'log data'}
               onPress={() => {
-                router.back()
+                console.log(JSON.stringify(data))
               }}
             />
-          )}
-          <Button
-            title={'fetch shit'}
-            onPress={() => {
-              console.log(JSON.stringify(data))
-            }}
-          />
+          </View>
           <Text>{data && JSON.stringify(data)}</Text>
         </View>
       </ScrollView>

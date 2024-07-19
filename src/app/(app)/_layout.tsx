@@ -31,7 +31,14 @@ export default function AppLayout() {
         name='custom'
         options={{
           headerShown: false,
-          // presentation: 'modal',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name='custom-json-api'
+        options={{
+          headerShown: false,
+          presentation: 'modal',
         }}
       />
     </Stack>

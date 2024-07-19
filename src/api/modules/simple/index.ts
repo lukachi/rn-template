@@ -1,4 +1,13 @@
+import axios from 'axios'
 import { createQuery } from 'react-query-kit'
+
+// this is the copy of apiClient from src/api/client.tsx, for test purposes
+const apiClient = axios.create({
+  baseURL: 'https://dummyjson.com',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
 
 type Product = {
   id: number
@@ -45,13 +54,8 @@ type Variables = void // as react-query-kit is strongly typed, we need to specif
 
 export const useProducts = createQuery<Response, Variables, Error>({
   queryKey: ['products'],
-  fetcher: async (): Promise<Response> => {
-    const response = await fetch('https://dummyjson.com/products')
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-
-    return response.json()
+  fetcher: async () => {
+    let response = await apiClient.get('/products')
+    return await response.data
   },
 })
