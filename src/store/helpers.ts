@@ -1,6 +1,6 @@
 import type { StateStorage } from 'zustand/middleware'
 
-import { storage } from '@/core'
+import { getStorageItemAsync, setStorageItemAsync, storage } from '@/core'
 
 export const zustandStorage: StateStorage = {
   setItem: (name, value) => {
@@ -12,5 +12,19 @@ export const zustandStorage: StateStorage = {
   },
   removeItem: name => {
     return storage.delete(name)
+  },
+}
+
+export const zustandSecureStorage: StateStorage = {
+  setItem: async (name, value): Promise<void> => {
+    return await setStorageItemAsync(name, value)
+  },
+  getItem: async (name): Promise<string | null> => {
+    const value = await getStorageItemAsync(name)
+
+    return value ?? null
+  },
+  removeItem: async (name): Promise<void> => {
+    return await setStorageItemAsync(name, null)
   },
 }

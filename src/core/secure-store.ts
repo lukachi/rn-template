@@ -2,12 +2,6 @@ import * as SecureStore from 'expo-secure-store'
 import * as React from 'react'
 import { Platform } from 'react-native'
 
-export enum SecureStoreKeys {
-  Token = 'token',
-  Session = 'session',
-  Password = 'password',
-}
-
 type UseStateHook<T> = [[boolean, T | null], (value: T | null) => void]
 
 function useAsyncState<T>(initialValue: [boolean, T | null] = [true, null]): UseStateHook<T> {
@@ -17,7 +11,7 @@ function useAsyncState<T>(initialValue: [boolean, T | null] = [true, null]): Use
   ) as UseStateHook<T>
 }
 
-export async function getStorageItemAsync(key: SecureStoreKeys) {
+export async function getStorageItemAsync(key: string) {
   if (Platform.OS === 'web') {
     try {
       if (typeof localStorage !== 'undefined') {
@@ -33,7 +27,7 @@ export async function getStorageItemAsync(key: SecureStoreKeys) {
   }
 }
 
-export async function setStorageItemAsync(key: SecureStoreKeys, value: string | null) {
+export async function setStorageItemAsync(key: string, value: string | null) {
   if (Platform.OS === 'web') {
     try {
       if (value === null) {
@@ -53,7 +47,7 @@ export async function setStorageItemAsync(key: SecureStoreKeys, value: string | 
   }
 }
 
-export function useStorageState(key: SecureStoreKeys): UseStateHook<string> {
+export function useStorageState(key: string): UseStateHook<string> {
   // Public
   const [state, setState] = useAsyncState<string>()
 

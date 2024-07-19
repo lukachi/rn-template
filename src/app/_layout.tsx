@@ -1,3 +1,7 @@
+// polyfills
+// import '@react-native/js-polyfills'
+import 'react-native-get-random-values'
+
 import { sleepAsync } from 'expo-dev-launcher/bundle/functions/sleepAsync'
 import { Slot, SplashScreen } from 'expo-router'
 import { useEffect, useState } from 'react'
@@ -9,7 +13,8 @@ export {
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
-import { AuthProvider } from '@/contexts/AuthProvider'
+import { APIProvider } from '@/api/client'
+import { useIsHydrated } from '@/store'
 import { AppTheme } from '@/theme'
 import { Toasts } from '@/ui'
 
@@ -20,6 +25,7 @@ export default function RootLayout() {
   const [isAppInitialized, setIsAppInitialized] = useState(false)
   const [isAppInitializingFailed, setIsAppInitializingFailed] = useState(false)
   const [, setAppInitError] = useState<Error>()
+  const isAuthStoreHydrated = useIsHydrated()
 
   const initApp = async () => {
     try {
@@ -34,8 +40,10 @@ export default function RootLayout() {
   }
 
   useEffect(() => {
+    if (!isAuthStoreHydrated) return
+
     initApp()
-  }, [])
+  }, [isAuthStoreHydrated])
 
   if (!isAppInitialized) {
     return null
@@ -48,11 +56,10 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView>
       <AppTheme>
-        <AuthProvider>
+        <APIProvider>
           {/*It's imperative that the <Slot /> is mounted before any navigation events are triggered. Otherwise, a runtime error will be thrown.*/}
           <Slot />
-        </AuthProvider>
-
+        </APIProvider>
         <Toasts />
       </AppTheme>
     </GestureHandlerRootView>

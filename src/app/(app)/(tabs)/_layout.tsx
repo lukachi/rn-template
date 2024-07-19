@@ -4,13 +4,13 @@ import Octicons from '@expo/vector-icons/Octicons'
 import { Link, Tabs } from 'expo-router'
 import { Button, Pressable, Text } from 'react-native'
 
-import { useAuth } from '@/contexts/AuthProvider'
 import { translate } from '@/core'
+import { authStore } from '@/store'
 import { useAppTheme } from '@/theme'
 
 export default function TabLayout() {
   const { palette } = useAppTheme()
-  const { signOut } = useAuth()
+  const logout = authStore.useAuthStore(state => state.logout)
 
   return (
     <Tabs
@@ -27,7 +27,7 @@ export default function TabLayout() {
             <Button
               title='log out'
               onPress={() => {
-                signOut()
+                logout()
               }}
             />
           ),

@@ -65,10 +65,10 @@ function convertNumberWithPrefix(value: string) {
   const B_PREFIX_AMOUNT = 1_000_000_000
   const T_PREFIX_AMOUNT = 1_000_000_000_000
 
-  const getPrefix = (value: number): 'M' | 'B' | 'T' | '' => {
-    if (value >= T_PREFIX_AMOUNT) return 'T'
-    if (value >= B_PREFIX_AMOUNT) return 'B'
-    if (value >= M_PREFIX_AMOUNT) return 'M'
+  const getPrefix = (amount: number): 'M' | 'B' | 'T' | '' => {
+    if (amount >= T_PREFIX_AMOUNT) return 'T'
+    if (amount >= B_PREFIX_AMOUNT) return 'B'
+    if (amount >= M_PREFIX_AMOUNT) return 'M'
 
     return ''
   }

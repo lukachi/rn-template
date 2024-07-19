@@ -1,35 +1,30 @@
-import { Link, router } from 'expo-router'
-import { Button, Pressable, ScrollView, Text, View } from 'react-native'
+import { router } from 'expo-router'
+import { Button, ScrollView, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { useProducts } from '@/api/modules/simple'
+import { useJsonApiTest } from '@/api/modules/json-api'
 import { cn } from '@/theme'
 
 export default function Custom() {
-  const { data, isLoading, isError } = useProducts({
-    throwOnError: true,
-  })
+  const { data, isLoading, isError, error } = useJsonApiTest()
 
   if (isLoading) {
     return <Text>Loading...</Text>
   }
 
   if (isError) {
+    console.log(JSON.stringify(error))
+
     return <Text>Error</Text>
   }
 
-  if (!data?.products.length) {
+  if (!data) {
     return <Text>No data</Text>
   }
 
   return (
     <SafeAreaView>
       <ScrollView>
-        <Link href='/custom-json-api' asChild>
-          <Pressable>
-            <Text>JsonApi</Text>
-          </Pressable>
-        </Link>
         <View className={cn('flex items-start gap-4 p-4')}>
           {router.canGoBack() && (
             <Button
@@ -39,7 +34,13 @@ export default function Custom() {
               }}
             />
           )}
-          <Text>{JSON.stringify(data)}</Text>
+          <Button
+            title={'fetch shit'}
+            onPress={() => {
+              console.log(JSON.stringify(data))
+            }}
+          />
+          <Text>{data && JSON.stringify(data)}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
