@@ -42,12 +42,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
     bundler: 'metro',
   },
   plugins: [
-    [
-      'expo-asset',
-      {
-        assets: ['./assets']
-      }
-    ],
+    'expo-asset',
       [
       'expo-font',
       {
