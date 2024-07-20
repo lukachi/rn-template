@@ -19,6 +19,7 @@ import {
 } from '@/helpers'
 import { cn, useAppTheme } from '@/theme'
 import { UiIcon } from '@/ui'
+import { FileSystemUtil } from '@/utils'
 
 export default function Homepage() {
   const { palette } = useAppTheme()
@@ -124,6 +125,10 @@ export default function Homepage() {
 
         <ThemeSwitcher />
 
+        <Text className={cn('typography-subtitle1')}>File System</Text>
+
+        <TestFiles />
+
         {/*<Text>{translate('plurals.key', { count: 1 })}</Text>*/}
         {/*<Text>{translate('plurals.key', { count: 2 })}</Text>*/}
         {/*<Text>{translate('plurals.key', { count: 3 })}</Text>*/}
@@ -138,5 +143,47 @@ export default function Homepage() {
         {/*<Text>{translate('plurals.key', { count: 205 })}</Text>*/}
       </View>
     </ScrollView>
+  )
+}
+
+function TestFiles() {
+  const writeFile = async () => {
+    try {
+      let oldContent = ''
+      try {
+        oldContent = await FileSystemUtil.getFileContent(FileSystemUtil.appFiles.RuntimeLog)
+      } catch (error) {}
+
+      await FileSystemUtil.writeFile(
+        FileSystemUtil.appFiles.RuntimeLog,
+        oldContent + Date.now().toString() + '\n',
+      )
+    } catch (error) {
+      ErrorHandler.process(Error)
+    }
+  }
+
+  const logFile = async () => {
+    try {
+      console.log(await FileSystemUtil.getFileContent(FileSystemUtil.appFiles.RuntimeLog))
+    } catch (error) {
+      ErrorHandler.process(error)
+    }
+  }
+
+  const deleteFile = async () => {
+    try {
+      console.log(await FileSystemUtil.deleteFile(FileSystemUtil.appFiles.RuntimeLog))
+    } catch (error) {
+      ErrorHandler.process(error)
+    }
+  }
+
+  return (
+    <View>
+      <Button title={'write'} onPress={writeFile} />
+      <Button title={'log'} onPress={logFile} />
+      <Button title={'delete'} onPress={deleteFile} />
+    </View>
   )
 }
