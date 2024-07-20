@@ -7,7 +7,7 @@ import { DefaultBusEvents, translate } from '@/core'
 import { bus } from '@/core'
 import { sleep } from '@/helpers'
 import { cn, getAppTheme, useAppTheme } from '@/theme'
-import Icon from '@/ui/Icon'
+import UiIcon from '@/ui/UiIcon'
 
 const STATUS_MESSAGE_AUTO_HIDE_DURATION = 2 * 1000
 
@@ -36,19 +36,19 @@ const defaultMessages = {
 const defaultIcons = {
   [DefaultBusEvents.success]: () => {
     const { palette } = getAppTheme()
-    return <Icon componentName='checkIcon' color={palette.successMain} />
+    return <UiIcon componentName='checkIcon' color={palette.successMain} />
   },
   [DefaultBusEvents.error]: () => {
     const { palette } = getAppTheme()
-    return <Icon componentName='warningIcon' color={palette.errorMain} />
+    return <UiIcon componentName='warningIcon' color={palette.errorMain} />
   },
   [DefaultBusEvents.warning]: () => {
     const { palette } = getAppTheme()
-    return <Icon componentName='warningIcon' color={palette.warningMain} />
+    return <UiIcon componentName='warningIcon' color={palette.warningMain} />
   },
   [DefaultBusEvents.info]: () => {
     const { palette } = getAppTheme()
-    return <Icon componentName='infoIcon' color={palette.secondaryMain} />
+    return <UiIcon componentName='infoIcon' color={palette.secondaryMain} />
   },
 }
 

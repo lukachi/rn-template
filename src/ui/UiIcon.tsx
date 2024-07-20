@@ -194,7 +194,7 @@ type Props = {
   componentName: keyof typeof ICON_COMPONENTS
 } & ComponentProps<typeof View>
 
-export default function Icon({ size = 24, componentName, color = 'black', ...rest }: Props) {
+export default function UiIcon({ size = 24, componentName, color = 'black', ...rest }: Props) {
   const IconComponent = ICON_COMPONENTS[componentName]
 
   return (

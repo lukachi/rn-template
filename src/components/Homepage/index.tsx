@@ -17,7 +17,7 @@ import {
   formatDateDMYT,
 } from '@/helpers'
 import { cn, useAppTheme } from '@/theme'
-import { Icon } from '@/ui'
+import { UiIcon } from '@/ui'
 
 export default function Homepage() {
   const { palette } = useAppTheme()
@@ -97,7 +97,7 @@ export default function Homepage() {
 
         <Image source={require('@assets/images/stub.jpg')} style={{ width: 120, height: 120 }} />
 
-        <Icon
+        <UiIcon
           size={90}
           color={palette.primaryMain}
           className={cn('rotate-90')}

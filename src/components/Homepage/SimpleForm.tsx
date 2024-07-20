@@ -1,38 +1,84 @@
-import { Button, Text, TextInput, View } from 'react-native'
+import { Button, Text, View } from 'react-native'
 
-import { bus, DefaultBusEvents } from '@/core'
+import { bus, DefaultBusEvents, ErrorHandler } from '@/core'
+import { sleep } from '@/helpers'
+import { useForm } from '@/hooks'
 import { cn } from '@/theme'
+import { ControlledUiTextField, UiIcon } from '@/ui'
+
+enum FieldNames {
+  First = 'first',
+  Second = 'second',
+  Third = 'third',
+}
 
 export default function SimpleForm() {
+  const { formState, isFormDisabled, handleSubmit, disableForm, enableForm, control } = useForm(
+    {
+      [FieldNames.First]: '',
+      [FieldNames.Second]: '',
+      [FieldNames.Third]: '',
+    },
+    yup =>
+      yup.object().shape({
+        [FieldNames.First]: yup.string().required(),
+        [FieldNames.Second]: yup.number().required(),
+        [FieldNames.Third]: yup.string().email().required(),
+      }),
+  )
+
+  const submit = async () => {
+    disableForm()
+
+    try {
+      await sleep(12_000)
+      bus.emit(DefaultBusEvents.success, {
+        title: 'success submit',
+        message: JSON.stringify(formState),
+      })
+    } catch (error) {
+      ErrorHandler.process(error)
+    }
+    enableForm()
+  }
+
   return (
-    <View className={cn('flex gap-4')}>
+    <View className={cn('flex w-full gap-4')}>
       <Text className={cn('text-textPrimary')}>This is the simple form</Text>
 
       <View className={cn('flex gap-2 rounded-xl border-textPrimary')}>
-        <TextInput />
+        <ControlledUiTextField
+          name={FieldNames.First}
+          label={FieldNames.First}
+          placeholder={FieldNames.First}
+          control={control}
+          disabled={isFormDisabled}
+        />
       </View>
 
       <View className={cn('flex gap-2')}>
-        <TextInput />
+        <ControlledUiTextField
+          name={FieldNames.Second}
+          label={FieldNames.Second}
+          placeholder={FieldNames.Second}
+          control={control}
+          disabled={isFormDisabled}
+        />
       </View>
 
       <View className={cn('flex gap-2')}>
-        <TextInput />
+        <ControlledUiTextField
+          name={FieldNames.Third}
+          label={FieldNames.Third}
+          placeholder={FieldNames.Third}
+          control={control}
+          leadingContent={<UiIcon componentName={'arrowRightIcon'} size={14} />}
+          trailingContent={<UiIcon componentName={'arrowLeftIcon'} size={14} />}
+          disabled={isFormDisabled}
+        />
       </View>
 
-      <View className={cn('flex gap-2')}>
-        <TextInput />
-      </View>
-
-      <Button
-        title='submit'
-        onPress={() => {
-          bus.emit(DefaultBusEvents.success, {
-            title: 'success submit',
-            message: 'Lorem ipsum dolor sit amet concestetur',
-          })
-        }}
-      />
+      <Button title='submit' onPress={handleSubmit(submit)} disabled={isFormDisabled} />
     </View>
   )
 }
