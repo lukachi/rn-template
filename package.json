@@ -54,6 +54,7 @@
     "react-dom": "18.2.0",
     "react-i18next": "^14.1.2",
     "react-native": "0.74.3",
+    "react-native-avoid-softinput": "^5.0.0",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-get-random-values": "^1.11.0",
     "react-native-mmkv": "^2.12.2",

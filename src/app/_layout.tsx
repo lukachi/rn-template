@@ -3,7 +3,7 @@
 import 'react-native-get-random-values'
 
 import { sleepAsync } from 'expo-dev-launcher/bundle/functions/sleepAsync'
-import { Slot, SplashScreen } from 'expo-router'
+import { SplashScreen, Stack } from 'expo-router'
 import { useEffect, useState } from 'react'
 
 export {
@@ -57,8 +57,20 @@ export default function RootLayout() {
     <GestureHandlerRootView>
       <AppTheme>
         <APIProvider>
-          {/*It's imperative that the <Slot /> is mounted before any navigation events are triggered. Otherwise, a runtime error will be thrown.*/}
-          <Slot />
+          <Stack>
+            <Stack.Screen
+              name='(app)'
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name='sign-in'
+              options={{
+                headerShown: false,
+              }}
+            />
+          </Stack>
         </APIProvider>
         <Toasts />
       </AppTheme>

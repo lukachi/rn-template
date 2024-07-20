@@ -5,8 +5,9 @@ import { Button, ScrollView, Text, View } from 'react-native'
 import LangSwitcher from '@/components/Homepage/LangSwitcher'
 import Sibling1 from '@/components/Homepage/Sibling1'
 import Sibling2 from '@/components/Homepage/Sibling2'
+import SimpleForm from '@/components/Homepage/SimpleForm'
 import ThemeSwitcher from '@/components/Homepage/ThemeSwitcher'
-import { DefaultBusEvents, ErrorHandler, translate } from '@/core'
+import { DefaultBusEvents, ErrorHandler, translate, useSoftKeyboardEffect } from '@/core'
 import { bus } from '@/core/event-bus'
 import {
   formatAmount,
@@ -20,6 +21,8 @@ import { Icon } from '@/ui'
 
 export default function Homepage() {
   const { palette } = useAppTheme()
+
+  useSoftKeyboardEffect()
 
   return (
     <ScrollView>
@@ -107,6 +110,10 @@ export default function Homepage() {
         <Sibling2 />
 
         <LangSwitcher />
+
+        {/*FORM*/}
+        <SimpleForm />
+        {/*END FORM*/}
 
         <Text className={cn('text-textPrimary')}>{formatDateDMY(1720949121)}</Text>
         <Text className={cn('text-primaryMain')}>{formatDateDMYT(1720949121)}</Text>
