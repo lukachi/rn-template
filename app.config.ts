@@ -100,6 +100,12 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         ],
       },
     ],
+    [
+      "expo-local-authentication",
+      {
+        "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
+      }
+    ]
   ],
   extra: {
     ...ClientEnv,

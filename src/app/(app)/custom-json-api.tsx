@@ -18,15 +18,15 @@ export default function Custom() {
   })
 
   if (isLoading) {
-    return <Text>Loading...</Text>
+    return <Text className={cn('text-textPrimary')}>Loading...</Text>
   }
 
   if (isLoadingError) {
-    return <Text>Error</Text>
+    return <Text className={cn('text-textPrimary')}>Error</Text>
   }
 
   if (isEmpty) {
-    return <Text>No data</Text>
+    return <Text className={cn('text-textPrimary')}>No data</Text>
   }
 
   return (
@@ -49,7 +49,7 @@ export default function Custom() {
               }}
             />
           </View>
-          <Text>{data && JSON.stringify(data)}</Text>
+          <Text className={cn('text-textPrimary')}>{data && JSON.stringify(data)}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

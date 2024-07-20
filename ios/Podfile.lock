@@ -236,6 +236,8 @@ PODS:
     - SDWebImageWebPCoder (~> 0.14.6)
   - ExpoKeepAwake (13.0.2):
     - ExpoModulesCore
+  - ExpoLocalAuthentication (14.0.1):
+    - ExpoModulesCore
   - ExpoLocalization (15.0.3):
     - ExpoModulesCore
   - ExpoModulesCore (1.12.19):
@@ -1623,6 +1625,7 @@ DEPENDENCIES:
   - ExpoHead (from `../node_modules/expo-router/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
+  - ExpoLocalAuthentication (from `../node_modules/expo-local-authentication/ios`)
   - ExpoLocalization (from `../node_modules/expo-localization/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoSecureStore (from `../node_modules/expo-secure-store/ios`)
@@ -1744,6 +1747,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-image/ios"
   ExpoKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
+  ExpoLocalAuthentication:
+    :path: "../node_modules/expo-local-authentication/ios"
   ExpoLocalization:
     :path: "../node_modules/expo-localization/ios"
   ExpoModulesCore:
@@ -1900,6 +1905,7 @@ SPEC CHECKSUMS:
   ExpoHead: 7880300d9c1519420530cf591d333d3f96ff9f6e
   ExpoImage: cbe7617b4e0e7ba064cc4caa51bfc96262e51ef3
   ExpoKeepAwake: 3b8815d9dd1d419ee474df004021c69fdd316d08
+  ExpoLocalAuthentication: 9e02a56a4cf9868f0052656a93d4c94101a42ed7
   ExpoLocalization: f04eeec2e35bed01ab61c72ee1768ec04d093d01
   ExpoModulesCore: 734c1802786b23c9598f4d15273753a779969368
   ExpoSecureStore: 060cebcb956b80ddae09821610ac1aa9e1ac74cd

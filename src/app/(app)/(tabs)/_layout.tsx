@@ -6,7 +6,7 @@ import { Button, Pressable, Text } from 'react-native'
 
 import { translate } from '@/core'
 import { authStore } from '@/store'
-import { useAppTheme } from '@/theme'
+import { cn, useAppTheme } from '@/theme'
 
 export default function TabLayout() {
   const { palette } = useAppTheme()
@@ -34,7 +34,7 @@ export default function TabLayout() {
           headerRight: () => (
             <Link href='/custom' asChild>
               <Pressable>
-                <Text>custom</Text>
+                <Text className={cn('text-textPrimary')}>custom</Text>
               </Pressable>
             </Link>
           ),

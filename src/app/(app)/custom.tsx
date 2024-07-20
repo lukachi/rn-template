@@ -30,15 +30,15 @@ export default function Custom() {
   }, [])
 
   if (isLoading) {
-    return <Text>Loading...</Text>
+    return <Text className={cn('text-textPrimary')}>Loading...</Text>
   }
 
   if (isLoadFailed) {
-    return <Text>Error</Text>
+    return <Text className={cn('text-textPrimary')}>Error</Text>
   }
 
   if (!data?.length) {
-    return <Text>No data</Text>
+    return <Text className={cn('text-textPrimary')}>No data</Text>
   }
 
   return (
@@ -63,11 +63,11 @@ export default function Custom() {
 
           <Link href='/custom-json-api' asChild>
             <Pressable>
-              <Text>JsonApi</Text>
+              <Text className={cn('text-textPrimary')}>JsonApi</Text>
             </Pressable>
           </Link>
         </View>
-        <Text>{JSON.stringify(data)}</Text>
+        <Text className={cn('text-textPrimary')}>{JSON.stringify(data)}</Text>
       </View>
     </ScrollView>
   )

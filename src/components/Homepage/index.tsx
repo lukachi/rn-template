@@ -31,16 +31,20 @@ export default function Homepage() {
   return (
     <ScrollView>
       <View className={cn('text-h1 flex w-full flex-col items-center gap-10 px-10 py-5')}>
-        <Text className={cn('typography-subtitle1')}>format amount, decimals: 6</Text>
-        <Text>
+        <Text className={cn('text-textPrimary typography-subtitle1')}>
+          format amount, decimals: 6
+        </Text>
+        <Text className={cn('text-textPrimary')}>
           {Array.from({ length: 20 })
             .fill(0)
             .map((_, index) => formatAmount(`1${Math.pow(10, index + 1).toString()}`, 6))
             .join(' ; ')}
         </Text>
 
-        <Text className={cn('typography-subtitle1')}>format balance, decimals: 6</Text>
-        <Text>
+        <Text className={cn('text-textPrimary typography-subtitle1')}>
+          format balance, decimals: 6
+        </Text>
+        <Text className={cn('text-textPrimary')}>
           {Array.from({ length: 20 })
             .fill(0)
             .map((_, index) => formatBalance(`1${Math.pow(10, index + 1).toString()}`, 6))
@@ -54,7 +58,7 @@ export default function Homepage() {
           }}
         />
 
-        <Text className={cn('typography-subtitle1')}>Toasts</Text>
+        <Text className={cn('text-textPrimary typography-subtitle1')}>Toasts</Text>
         <View className={cn('flex flex-row flex-wrap gap-4')}>
           <Button
             title={'error'}
@@ -82,7 +86,7 @@ export default function Homepage() {
           />
         </View>
 
-        <Text className={cn('typography-subtitle1')}>ErrorHandler</Text>
+        <Text className={cn('text-textPrimary typography-subtitle1')}>ErrorHandler</Text>
         <View className={cn('flex flex-row flex-wrap gap-4')}>
           <Button
             title={'process'}
@@ -125,7 +129,7 @@ export default function Homepage() {
 
         <ThemeSwitcher />
 
-        <Text className={cn('typography-subtitle1')}>File System</Text>
+        <Text className={cn('text-textPrimary typography-subtitle1')}>File System</Text>
 
         <TestFiles />
 
@@ -180,7 +184,7 @@ function TestFiles() {
   }
 
   return (
-    <View>
+    <View className={cn('flex flex-row gap-4')}>
       <Button title={'write'} onPress={writeFile} />
       <Button title={'log'} onPress={logFile} />
       <Button title={'delete'} onPress={deleteFile} />
