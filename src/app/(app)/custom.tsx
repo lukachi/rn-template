@@ -14,8 +14,8 @@ export default function Custom() {
 
   const init = useCallback(async () => {
     try {
-      const { data } = await getProducts()
-      setData(data.products)
+      const response = await getProducts()
+      setData(response.data.products)
     } catch (error) {
       ErrorHandler.process(error)
       setIsLoadFailed(true)

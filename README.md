@@ -1,3 +1,16 @@
+### Getting started
+install:
+```bash
+npm install -g eas-cli
+```
+
+(unnecessary)
+```bash
+eas login
+```
+
+Node version: 20.15.0
+
 ### IOS build issue resolving
 
 #### Error message: `CommandError: Failed to build iOS project. "xcodebuild" exited with error code 65.`
