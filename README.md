@@ -20,3 +20,7 @@ and then use them separately in code.
 ### Environment variables
 After each change in .env file, you need to restart the server to apply changes.
 If changes are not applied, try to reopen app by pressing "i" or rebuild project with `yarn ios`
+
+
+### Fetching data from API
+Better to create function per endpoint, and then use useLoading hook to handle loading state in component or use react-query for more benefits as like as caching, ...etc

@@ -1,67 +1,74 @@
 import { Link, router } from 'expo-router'
+import { useCallback, useEffect, useState } from 'react'
 import { Button, Pressable, ScrollView, Text, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { useProducts } from '@/api/modules/simple'
+import { getProducts } from '@/api/modules/simple'
+import type { Product } from '@/api/modules/simple/types'
+import { ErrorHandler } from '@/core'
 import { cn } from '@/theme'
 
 export default function Custom() {
-  const { data, isLoading, isError } = useProducts()
+  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadFailed, setIsLoadFailed] = useState(false)
+  const [data, setData] = useState<Product[]>()
+
+  const init = useCallback(async () => {
+    try {
+      const { data } = await getProducts()
+      setData(data.products)
+    } catch (error) {
+      ErrorHandler.process(error)
+      setIsLoadFailed(true)
+    }
+
+    setIsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (isLoading) {
-    return (
-      <SafeAreaView>
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    )
+    return <Text>Loading...</Text>
   }
 
-  if (isError) {
-    return (
-      <SafeAreaView>
-        <Text>Error</Text>
-      </SafeAreaView>
-    )
+  if (isLoadFailed) {
+    return <Text>Error</Text>
   }
 
-  if (!data?.products.length) {
-    return (
-      <SafeAreaView>
-        <Text>No data</Text>
-      </SafeAreaView>
-    )
+  if (!data?.length) {
+    return <Text>No data</Text>
   }
 
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <View className={cn('flex items-start gap-4 p-4')}>
-          <View className={cn('flex w-full flex-row items-center justify-between')}>
-            {router.canGoBack() && (
-              <Button
-                title='Go back'
-                onPress={() => {
-                  router.back()
-                }}
-              />
-            )}
-
+    <ScrollView>
+      <View className={cn('flex items-start gap-4 p-4')}>
+        <View className={cn('flex w-full flex-row items-center justify-between')}>
+          {router.canGoBack() && (
             <Button
-              title='log data'
+              title='Go back'
               onPress={() => {
-                console.log(JSON.stringify(data))
+                router.back()
               }}
             />
+          )}
 
-            <Link href='/custom-json-api' asChild>
-              <Pressable>
-                <Text>JsonApi</Text>
-              </Pressable>
-            </Link>
-          </View>
-          <Text>{JSON.stringify(data)}</Text>
+          <Button
+            title='log data'
+            onPress={() => {
+              console.log(JSON.stringify(data))
+            }}
+          />
+
+          <Link href='/custom-json-api' asChild>
+            <Pressable>
+              <Text>JsonApi</Text>
+            </Pressable>
+          </Link>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+        <Text>{JSON.stringify(data)}</Text>
+      </View>
+    </ScrollView>
   )
 }

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import Jsona from 'jsona'
-import { createQuery } from 'react-query-kit'
+
+import type { EventType } from './types'
 
 const dataFormatter = new Jsona()
 
@@ -24,74 +25,8 @@ apiClient.interceptors.response.use(response => {
   }
 })
 
-type Product = {
-  links: {
-    self: string
-    next: string
-    last: string
-  }
-  data: Array<{
-    type: string
-    id: string
-    attributes: {
-      title: string
-    }
-    relationships: {
-      author: {
-        links: {
-          self: string
-          related: string
-        }
-        data: {
-          type: string
-          id: string
-        }
-      }
-      comments: {
-        links: {
-          self: string
-          related: string
-        }
-        data: Array<{
-          type: string
-          id: string
-        }>
-      }
-    }
-    links: {
-      self: string
-    }
-  }>
-  included: Array<{
-    type: string
-    id: string
-    attributes: {
-      firstName?: string
-      lastName?: string
-      twitter?: string
-      body?: string
-    }
-    links: {
-      self: string
-    }
-    relationships?: {
-      author: {
-        data: {
-          type: string
-          id: string
-        }
-      }
-    }
-  }>
+export const getEventTypes = async () => {
+  return apiClient.get<EventType[]>('/integrations/geo-points-svc/v1/public/event_types')
 }
 
-export type Response = { products: Product[]; total: number; skip: number; limit: number }
-type Variables = void // as react-query-kit is strongly typed, we need to specify the type of the variables as void in case we don't need them
-
-export const useJsonApiTest = createQuery<Response, Variables, Error>({
-  queryKey: ['json-api-test'],
-  fetcher: async () => {
-    const res = await apiClient.get('/integrations/geo-points-svc/v1/public/event_types')
-    return res.data
-  },
-})
+export * from './types'

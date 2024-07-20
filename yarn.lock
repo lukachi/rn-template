@@ -12703,18 +12703,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-query-kit@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "react-query-kit@npm:3.3.0"
-  peerDependencies:
-    "@tanstack/react-query": ^4 || ^5
-  peerDependenciesMeta:
-    "@tanstack/react-query":
-      optional: true
-  checksum: c2c38ea405e43aa0dd4ab7e1b16d8bda7ed602d2ef3b9e41c063e896d1a7cf5ba18dbff6f0126d0156b9f53311156fafd8a32e2406fd5a845e11f8360c4291ea
-  languageName: node
-  linkType: hard
-
 "react-refresh@npm:^0.14.0, react-refresh@npm:^0.14.2":
   version: 0.14.2
   resolution: "react-refresh@npm:0.14.2"
@@ -14347,7 +14335,6 @@ __metadata:
     react-native-svg-transformer: "npm:^1.5.0"
     react-native-toast-message: "npm:^2.2.0"
     react-native-web: "npm:^0.19.12"
-    react-query-kit: "npm:^3.3.0"
     tailwind-merge: "npm:^2.4.0"
     tailwind-variants: "npm:^0.2.1"
     tailwindcss: "npm:^3.4.5"

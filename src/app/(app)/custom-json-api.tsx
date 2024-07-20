@@ -2,34 +2,31 @@ import { router } from 'expo-router'
 import { Button, ScrollView, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { useJsonApiTest } from '@/api/modules/json-api'
+import { getEventTypes } from '@/api/modules/json-api'
+import { ErrorHandler } from '@/core'
+import { useLoading } from '@/hooks'
 import { cn } from '@/theme'
 
 export default function Custom() {
-  const { data, isLoading, isError, error } = useJsonApiTest()
+  const { data, isLoading, isLoadingError, isEmpty } = useLoading([], async () => {
+    try {
+      const response = await getEventTypes()
+      return response.data
+    } catch (error) {
+      ErrorHandler.process(error)
+    }
+  })
 
   if (isLoading) {
-    return (
-      <SafeAreaView>
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    )
+    return <Text>Loading...</Text>
   }
 
-  if (isError) {
-    return (
-      <SafeAreaView>
-        <Text>Error</Text>
-      </SafeAreaView>
-    )
+  if (isLoadingError) {
+    return <Text>Error</Text>
   }
 
-  if (!data) {
-    return (
-      <SafeAreaView>
-        <Text>No data</Text>
-      </SafeAreaView>
-    )
+  if (isEmpty) {
+    return <Text>No data</Text>
   }
 
   return (
