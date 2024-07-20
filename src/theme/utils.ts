@@ -40,6 +40,21 @@ export const loadSelectedTheme = () => {
   }
 }
 
+export const getAppTheme = () => {
+  const theme = storage.getString(SELECTED_THEME) as ColorSchemeType
+
+  const palette = {
+    system: colorScheme.get() === 'dark' ? darkPalette : lightPalette,
+    light: lightPalette,
+    dark: darkPalette,
+  }[theme]
+
+  return {
+    palette,
+    typography,
+  }
+}
+
 // TODO: refactoring
 export const useAppTheme = () => {
   const { colorScheme: color_ } = useColorScheme()

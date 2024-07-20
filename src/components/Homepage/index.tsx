@@ -1,13 +1,13 @@
 import { AntDesign } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { Button, ScrollView, Text, View } from 'react-native'
-import Toast from 'react-native-toast-message'
 
 import LangSwitcher from '@/components/Homepage/LangSwitcher'
 import Sibling1 from '@/components/Homepage/Sibling1'
 import Sibling2 from '@/components/Homepage/Sibling2'
 import ThemeSwitcher from '@/components/Homepage/ThemeSwitcher'
-import { translate } from '@/core'
+import { DefaultBusEvents, ErrorHandler, translate } from '@/core'
+import { bus } from '@/core/event-bus'
 import {
   formatAmount,
   formatBalance,
@@ -21,39 +21,24 @@ import { Icon } from '@/ui'
 export default function Homepage() {
   const { palette } = useAppTheme()
 
-  const showToast = () => {
-    Toast.show({
-      type: 'success',
-      text1: 'Hello',
-      text2: 'Lorem ipsum dolor sit amet concestetur! 👋',
-    })
-  }
-  const showToastCustom = () => {
-    Toast.show({
-      type: 'myCustomToast',
-      props: {
-        title: 'Hello',
-        subtitle: 'Lorem ipsum dolor sit amet concestetur yopta! 👋',
-      },
-    })
-  }
-
   return (
     <ScrollView>
       <View className={cn('text-h1 flex w-full flex-col items-center gap-10 px-10 py-5')}>
         <Text className={cn('typography-subtitle1')}>format amount, decimals: 6</Text>
+        <Text>
+          {Array.from({ length: 20 })
+            .fill(0)
+            .map((_, index) => formatAmount(`1${Math.pow(10, index + 1).toString()}`, 6))
+            .join(' ; ')}
+        </Text>
 
-        {Array.from({ length: 20 })
-          .fill(0)
-          .map((_, index) => (
-            <Text key={index}>{formatAmount(`1${Math.pow(10, index + 1).toString()}`, 6)}</Text>
-          ))}
         <Text className={cn('typography-subtitle1')}>format balance, decimals: 6</Text>
-        {Array.from({ length: 20 })
-          .fill(0)
-          .map((_, index) => (
-            <Text key={index}>{formatBalance(`1${Math.pow(10, index + 1).toString()}`, 6)}</Text>
-          ))}
+        <Text>
+          {Array.from({ length: 20 })
+            .fill(0)
+            .map((_, index) => formatBalance(`1${Math.pow(10, index + 1).toString()}`, 6))
+            .join(' ; ')}
+        </Text>
 
         <Button
           title={'test stacktrace'}
@@ -62,8 +47,49 @@ export default function Homepage() {
           }}
         />
 
-        <Button title={'show toast'} onPress={showToast} />
-        <Button title={'show toast custom'} onPress={showToastCustom} />
+        <Text className={cn('typography-subtitle1')}>Toasts</Text>
+        <View className={cn('flex flex-row flex-wrap gap-4')}>
+          <Button
+            title={'error'}
+            onPress={() => {
+              bus.emit(DefaultBusEvents.error, { title: 'error test', message: 'test' })
+            }}
+          />
+          <Button
+            title={'warning'}
+            onPress={() => {
+              bus.emit(DefaultBusEvents.warning, { title: 'warning test', message: 'test' })
+            }}
+          />
+          <Button
+            title={'success'}
+            onPress={() => {
+              bus.emit(DefaultBusEvents.success, { title: 'success test', message: 'test' })
+            }}
+          />
+          <Button
+            title={'info'}
+            onPress={() => {
+              bus.emit(DefaultBusEvents.info, { title: 'info test', message: 'test' })
+            }}
+          />
+        </View>
+
+        <Text className={cn('typography-subtitle1')}>ErrorHandler</Text>
+        <View className={cn('flex flex-row flex-wrap gap-4')}>
+          <Button
+            title={'process'}
+            onPress={() => {
+              ErrorHandler.process(new Error('test error'))
+            }}
+          />
+          <Button
+            title={'process without feedback'}
+            onPress={() => {
+              ErrorHandler.processWithoutFeedback(new Error('test error without feedback'))
+            }}
+          />
+        </View>
         <Text className='text-center text-textPrimary'>{translate('errors.default')}</Text>
 
         <Image source={require('@assets/images/stub.jpg')} style={{ width: 120, height: 120 }} />
