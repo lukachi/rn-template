@@ -1,3 +1,5 @@
+import { Env } from '@env'
+
 export const Config = {
-  API_URL: 'https://localhost:8000', // env.API_URL,
+  API_URL: Env.API_URL,
 }

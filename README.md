@@ -15,3 +15,8 @@
 Here is not solution yet to keep same assets with same name in both values & values-night folder.
 And then use it from one entry point automatically, so we need to keep both assets in different folders,
 and then use them separately in code.
+
+
+### Environment variables
+After each change in .env file, you need to restart the server to apply changes.
+If changes are not applied, try to reopen app by pressing "i" or rebuild project with `yarn ios`
