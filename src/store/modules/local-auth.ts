@@ -163,11 +163,11 @@ const useLocalAuthStore = create(
 
           return false
         },
-        tryUnlockWithBiometrics: async (): Promise<void> => {
+        tryUnlockWithBiometrics: async (): Promise<boolean> => {
           const result = await authenticateAsync()
 
           if (!result.success) {
-            return
+            return false
           }
 
           setState({
@@ -176,6 +176,8 @@ const useLocalAuthStore = create(
             failedAttempts: 0,
             lockDeadline: null,
           })
+
+          return true
         },
 
         resetLockDeadline: (): void => {
@@ -304,7 +306,6 @@ const useUserActionsInLocalAuth = (onDecided: (action: UserActionsInLocalAuth) =
   }
 }
 
-// TODO: add biometrics checks
 const useUserNeedToLocalAuth = () => {
   const passcodeStatus = useLocalAuthStore(state => state.passcodeStatus)
 
