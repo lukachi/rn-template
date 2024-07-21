@@ -7,7 +7,6 @@ import Sibling1 from '@/components/Homepage/Sibling1'
 import Sibling2 from '@/components/Homepage/Sibling2'
 import SimpleForm from '@/components/Homepage/SimpleForm'
 import ThemeSwitcher from '@/components/Homepage/ThemeSwitcher'
-import { Config } from '@/config'
 import { DefaultBusEvents, ErrorHandler, translate, useSoftKeyboardEffect } from '@/core'
 import { bus } from '@/core/event-bus'
 import {
@@ -25,8 +24,6 @@ export default function Homepage() {
   const { palette } = useAppTheme()
 
   useSoftKeyboardEffect()
-
-  console.log(Config.API_URL)
 
   return (
     <ScrollView>

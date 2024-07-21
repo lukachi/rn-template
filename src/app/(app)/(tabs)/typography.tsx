@@ -5,7 +5,7 @@ import { cn } from '@/theme'
 export default function TypographyScreen() {
   return (
     <ScrollView>
-      <View className='flex flex-col gap-6 typography-h1'>
+      <View className='flex flex-col gap-6'>
         {[
           'typography-h1',
           'typography-h2',
@@ -33,7 +33,7 @@ export default function TypographyScreen() {
           'typography-overline3',
         ].map(key => (
           <View key={key}>
-            <Text className={cn(key, 'typography-h1')}>This is a {key} text</Text>
+            <Text className={cn(key, 'text-textPrimary')}>This is a {key} text</Text>
           </View>
         ))}
       </View>

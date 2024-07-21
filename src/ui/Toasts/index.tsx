@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { View } from 'react-native'
 import Toast, { BaseToast } from 'react-native-toast-message'
 
-import { DefaultBusEvents, translate } from '@/core'
+import { DefaultBusEvents, ErrorHandler, translate } from '@/core'
 import { bus } from '@/core'
 import { sleep } from '@/helpers'
 import { cn, getAppTheme, useAppTheme } from '@/theme'
@@ -75,7 +75,7 @@ const showToast = async (messageType = DefaultBusEvents.info, payload: ToastPayl
       visibilityTime: STATUS_MESSAGE_AUTO_HIDE_DURATION,
     })
   } catch (e) {
-    console.log(e)
+    ErrorHandler.processWithoutFeedback(e)
   }
 }
 

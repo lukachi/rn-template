@@ -4,7 +4,7 @@ import 'react-native-get-random-values'
 
 import { sleepAsync } from 'expo-dev-launcher/bundle/functions/sleepAsync'
 import { SplashScreen, Stack } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -14,7 +14,7 @@ export {
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { APIProvider } from '@/api/client'
-import { useIsHydrated } from '@/store'
+import { authStore, localAuthStore } from '@/store'
 import { AppTheme } from '@/theme'
 import { Toasts } from '@/ui'
 
@@ -25,11 +25,18 @@ export default function RootLayout() {
   const [isAppInitialized, setIsAppInitialized] = useState(false)
   const [isAppInitializingFailed, setIsAppInitializingFailed] = useState(false)
   const [, setAppInitError] = useState<Error>()
-  const isAuthStoreHydrated = useIsHydrated()
+  const isAuthStoreHydrated = authStore.useIsHydrated()
+  const isLocalAuthStoreHydrated = localAuthStore.useIsHydrated()
+  const initLocalAuthStore = localAuthStore.useInitLocalAuthStore()
+
+  const isStoresHydrated = useMemo(() => {
+    return isAuthStoreHydrated && isLocalAuthStoreHydrated
+  }, [isAuthStoreHydrated, isLocalAuthStoreHydrated])
 
   const initApp = async () => {
     try {
       // verifyInstallation()
+      await initLocalAuthStore()
       await sleepAsync(1_000)
       setIsAppInitialized(true)
       await SplashScreen.hideAsync()
@@ -40,10 +47,11 @@ export default function RootLayout() {
   }
 
   useEffect(() => {
-    if (!isAuthStoreHydrated) return
+    if (!isStoresHydrated) return
 
     initApp()
-  }, [isAuthStoreHydrated])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStoresHydrated])
 
   if (!isAppInitialized) {
     return null
@@ -57,9 +65,15 @@ export default function RootLayout() {
     <GestureHandlerRootView>
       <AppTheme>
         <APIProvider>
-          <Stack>
+          <Stack initialRouteName='(app)'>
             <Stack.Screen
               name='(app)'
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name='(local-auth)'
               options={{
                 headerShown: false,
               }}

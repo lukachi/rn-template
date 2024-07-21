@@ -10,7 +10,7 @@ import { View } from 'react-native'
 import { tv } from 'tailwind-variants'
 import { v4 as uuid } from 'uuid'
 
-import { cn } from '@/theme'
+import { cn, useAppTheme } from '@/theme'
 
 const inputTv = tv({
   slots: {
@@ -62,6 +62,7 @@ export const UiTextField = forwardRef<TextInput, Props>(
     { label, errorMessage, disabled, id = uuid(), leadingContent, trailingContent, ...rest }: Props,
     ref,
   ) => {
+    const { palette } = useAppTheme()
     const [isFocussed, setIsFocussed] = useState(false)
 
     const styles = useMemo(
@@ -78,7 +79,7 @@ export const UiTextField = forwardRef<TextInput, Props>(
     const onFocus = useCallback(() => setIsFocussed(true), [])
 
     return (
-      <View className={cn('flex')}>
+      <View className={cn('w-full')}>
         {label && <Text className={styles.label()}>{label}</Text>}
 
         <View className={cn(styles.container())}>
@@ -91,6 +92,8 @@ export const UiTextField = forwardRef<TextInput, Props>(
             onFocus={onFocus}
             {...rest}
             className={styles.input()}
+            // not supported by NativeWind
+            placeholderTextColor={palette.textPlaceholder}
             style={StyleSheet.flatten([
               { writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' },
               { textAlign: I18nManager.isRTL ? 'right' : 'left' },

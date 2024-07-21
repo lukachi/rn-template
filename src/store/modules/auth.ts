@@ -45,7 +45,7 @@ const useAuthStore = create(
   ),
 )
 
-export const useIsHydrated = () => {
+const useIsHydrated = () => {
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
@@ -74,5 +74,6 @@ const useIsAuthorized = () => {
 
 export const authStore = {
   useAuthStore,
+  useIsHydrated,
   useIsAuthorized,
 }

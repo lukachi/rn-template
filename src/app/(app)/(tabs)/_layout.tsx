@@ -5,12 +5,14 @@ import { Link, Tabs } from 'expo-router'
 import { Button, Pressable, Text } from 'react-native'
 
 import { translate } from '@/core'
-import { authStore } from '@/store'
+import { authStore, localAuthStore } from '@/store'
 import { cn, useAppTheme } from '@/theme'
 
 export default function TabLayout() {
   const { palette } = useAppTheme()
   const logout = authStore.useAuthStore(state => state.logout)
+  // optional
+  const resetLocalAuthStore = localAuthStore.useLocalAuthStore(state => state.resetStore)
 
   return (
     <Tabs
@@ -26,8 +28,9 @@ export default function TabLayout() {
           headerLeft: () => (
             <Button
               title='log out'
-              onPress={() => {
+              onPress={async () => {
                 logout()
+                await resetLocalAuthStore()
               }}
             />
           ),
