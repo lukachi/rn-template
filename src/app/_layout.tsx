@@ -11,6 +11,7 @@ export {
   ErrorBoundary,
 } from 'expo-router'
 
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { APIProvider } from '@/api/client'
@@ -65,26 +66,28 @@ export default function RootLayout() {
     <GestureHandlerRootView>
       <AppTheme>
         <APIProvider>
-          <Stack initialRouteName='(app)'>
-            <Stack.Screen
-              name='(app)'
-              options={{
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name='(local-auth)'
-              options={{
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name='sign-in'
-              options={{
-                headerShown: false,
-              }}
-            />
-          </Stack>
+          <BottomSheetModalProvider>
+            <Stack initialRouteName='(app)'>
+              <Stack.Screen
+                name='(app)'
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name='(local-auth)'
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name='sign-in'
+                options={{
+                  headerShown: false,
+                }}
+              />
+            </Stack>
+          </BottomSheetModalProvider>
         </APIProvider>
         <Toasts />
       </AppTheme>

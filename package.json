@@ -22,6 +22,7 @@
     "@dev-plugins/react-navigation": "^0.0.6",
     "@dev-plugins/react-query": "^0.0.6",
     "@distributedlab/tools": "^1.0.0-rc.16",
+    "@gorhom/bottom-sheet": "^4.6.3",
     "@hookform/resolvers": "^3.9.0",
     "@react-native/js-polyfills": "^0.74.85",
     "@react-navigation/native": "^6.1.17",

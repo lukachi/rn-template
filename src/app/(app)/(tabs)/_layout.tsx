@@ -1,4 +1,5 @@
 import { Fontisto } from '@expo/vector-icons'
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Octicons from '@expo/vector-icons/Octicons'
 import { Link, Tabs } from 'expo-router'
@@ -57,6 +58,13 @@ export default function TabLayout() {
         options={{
           title: translate('tabs.typography'),
           tabBarIcon: ({ color }) => <Octicons name='typography' size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name='ui-kit'
+        options={{
+          title: 'ui-kit',
+          tabBarIcon: ({ color }) => <FontAwesome5 name='uikit' size={24} color={color} />,
         }}
       />
     </Tabs>
