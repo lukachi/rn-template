@@ -90,8 +90,8 @@ import WalletFilledIcon from '@assets/icons/wallet-filled-icon.svg'
 import WalletIcon from '@assets/icons/wallet-icon.svg'
 import WarningIcon from '@assets/icons/warning-icon.svg'
 import XCircleIcon from '@assets/icons/x-circle-icon.svg'
-import type { ComponentProps } from 'react'
-import { View } from 'react-native'
+import { cssInterop } from 'nativewind'
+import type { SvgProps } from 'react-native-svg'
 
 const ICON_COMPONENTS = {
   arrowCounterClockwiseIcon: ArrowCounterClockwiseIcon,
@@ -188,18 +188,29 @@ const ICON_COMPONENTS = {
   xCircleIcon: XCircleIcon,
 }
 
+export type UiIconName = keyof typeof ICON_COMPONENTS
+
 type Props = {
   color?: string
   size?: number
-  componentName: keyof typeof ICON_COMPONENTS
-} & ComponentProps<typeof View>
+  componentName: UiIconName
+} & SvgProps
 
-export default function UiIcon({ size = 24, componentName, color = 'black', ...rest }: Props) {
+export const UiIcon = ({ componentName, ...rest }: Props) => {
   const IconComponent = ICON_COMPONENTS[componentName]
 
-  return (
-    <View {...rest}>
-      <IconComponent width={size} height={size} color={color} />
-    </View>
-  )
+  return <IconComponent {...rest} />
 }
+
+cssInterop(UiIcon, {
+  className: {
+    target: 'style',
+    nativeStyleToProp: {
+      width: true,
+      height: true,
+      color: true,
+    },
+  },
+})
+
+export default UiIcon
