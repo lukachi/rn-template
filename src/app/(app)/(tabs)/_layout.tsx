@@ -1,13 +1,12 @@
-import { Fontisto } from '@expo/vector-icons'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Octicons from '@expo/vector-icons/Octicons'
-import { Link, Tabs } from 'expo-router'
-import { Button, Pressable, Text } from 'react-native'
+import { router, Tabs } from 'expo-router'
 
 import { translate } from '@/core'
 import { authStore, localAuthStore } from '@/store'
-import { cn, useAppTheme } from '@/theme'
+import { useAppTheme } from '@/theme'
+import { UiButton } from '@/ui'
 
 export default function TabLayout() {
   const { palette } = useAppTheme()
@@ -24,11 +23,13 @@ export default function TabLayout() {
       <Tabs.Screen
         name='index'
         options={{
-          title: translate('tabs.one'),
-          tabBarIcon: ({ color }) => <Fontisto name='atom' size={24} color={color} />,
+          title: 'ui-kit',
+          tabBarIcon: ({ color }) => <FontAwesome5 name='uikit' size={24} color={color} />,
           headerLeft: () => (
-            <Button
+            <UiButton
               title='log out'
+              variant='text'
+              color='error'
               onPress={async () => {
                 logout()
                 await resetLocalAuthStore()
@@ -36,11 +37,13 @@ export default function TabLayout() {
             />
           ),
           headerRight: () => (
-            <Link href='/custom' asChild>
-              <Pressable>
-                <Text className={cn('text-textPrimary')}>custom</Text>
-              </Pressable>
-            </Link>
+            <UiButton
+              title='simple fetch'
+              variant='text'
+              onPress={async () => {
+                router.push('/custom')
+              }}
+            />
           ),
         }}
       />
@@ -58,13 +61,6 @@ export default function TabLayout() {
         options={{
           title: translate('tabs.typography'),
           tabBarIcon: ({ color }) => <Octicons name='typography' size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name='ui-kit'
-        options={{
-          title: 'ui-kit',
-          tabBarIcon: ({ color }) => <FontAwesome5 name='uikit' size={24} color={color} />,
         }}
       />
     </Tabs>
