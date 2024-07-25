@@ -3,11 +3,6 @@ import { useState } from 'react'
 
 import { authStore, localAuthStore, UserActionsInLocalAuth } from '@/store'
 
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-}
-
 export default function AppLayout() {
   const isAuthorized = authStore.useIsAuthorized()
   const isUserNeedToLocalAuth = localAuthStore.useUserNeedToLocalAuth()
@@ -42,27 +37,33 @@ export default function AppLayout() {
 
   // This layout can be deferred because it's not the root layout.
   return (
-    <Stack>
-      <Stack.Screen
-        name='(tabs)'
-        options={{
+    <>
+      <Stack
+        screenOptions={{
           headerShown: false,
         }}
-      />
-      <Stack.Screen
-        name='custom'
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name='custom-json-api'
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
-    </Stack>
+      >
+        <Stack.Screen
+          name='(theme)'
+          options={{
+            title: 'theme',
+          }}
+        />
+        <Stack.Screen
+          name='fetching'
+          options={{
+            title: 'fetching',
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
+          name='localization'
+          options={{
+            title: 'localization',
+            presentation: 'modal',
+          }}
+        />
+      </Stack>
+    </>
   )
 }

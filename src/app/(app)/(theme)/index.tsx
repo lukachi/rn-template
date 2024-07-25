@@ -1,5 +1,5 @@
 import UiKit from '@/components/UiKit'
 
-export default function TabOneScreen() {
+export default function ThemeRoot() {
   return <UiKit />
 }

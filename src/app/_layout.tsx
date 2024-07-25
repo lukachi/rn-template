@@ -35,12 +35,14 @@ export default function RootLayout() {
   }, [isAuthStoreHydrated, isLocalAuthStoreHydrated])
 
   const initApp = async () => {
+    console.log('initApp')
     try {
       // verifyInstallation()
       await initLocalAuthStore()
       await sleepAsync(1_000)
       setIsAppInitialized(true)
       await SplashScreen.hideAsync()
+      console.log('splash screen hidden')
     } catch (e) {
       setAppInitError(e)
       setIsAppInitializingFailed(true)
@@ -67,25 +69,14 @@ export default function RootLayout() {
       <AppTheme>
         <APIProvider>
           <BottomSheetModalProvider>
-            <Stack initialRouteName='(app)'>
-              <Stack.Screen
-                name='(app)'
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name='(local-auth)'
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name='sign-in'
-                options={{
-                  headerShown: false,
-                }}
-              />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
+              <Stack.Screen name='(app)' />
+              <Stack.Screen name='(local-auth)' />
+              <Stack.Screen name='(auth)' />
             </Stack>
           </BottomSheetModalProvider>
         </APIProvider>

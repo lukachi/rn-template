@@ -441,7 +441,7 @@ export const UiButton = forwardRef<PressableRef, Props>(
       <Pressable {...rest} ref={ref} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <View className={cn(baseStyles.container())}>
           {leadingIcon && <UiIcon componentName={leadingIcon} className={cn(baseStyles.icon())} />}
-          <Text className={cn(baseStyles.text())}>{title}</Text>
+          {title && <Text className={cn(baseStyles.text())}>{title}</Text>}
           {trailingIcon && (
             <UiIcon componentName={trailingIcon} className={cn(baseStyles.icon())} />
           )}
