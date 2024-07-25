@@ -36,7 +36,7 @@ export const changeLanguage = (lang: Language) => {
   setDayjsLocale(lang)
 
   if (Platform.OS === 'ios' || Platform.OS === 'android') {
-    if (__DEV__) NativeModules.DevSettings.reload()
+    if (__DEV__) NativeModules.DevSettings?.reload() || RNRestart.restart()
     else RNRestart.restart()
   } else if (Platform.OS === 'web') {
     window.location.reload()
