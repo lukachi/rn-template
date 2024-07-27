@@ -109,7 +109,8 @@ export default ({config}: ConfigContext): ExpoConfig => ({
       {
         "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
       }
-    ]
+    ],
+    // 'react-native-webassembly'
   ],
   extra: {
     ...ClientEnv,

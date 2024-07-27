@@ -1,10 +1,7 @@
 // Learn more https://docs.expo.io/guides/customizing-metro
 const { getDefaultConfig } = require("expo/metro-config");
+const { mergeConfig } = require('metro-config')
 const { withNativeWind } = require('nativewind/metro');
-
-/**
- * @typedef {import('expo/metro-config').InputConfigT} InputConfigT // FIXME
- */
 
 /**
  *
@@ -12,12 +9,8 @@ const { withNativeWind } = require('nativewind/metro');
  * @returns {InputConfigT}
  */
 const withSvgTransformer = (config) => {
-  const { transformer, resolver } = config;
+  const { resolver } = config;
 
-  config.transformer = {
-    ...transformer,
-    babelTransformerPath: require.resolve("react-native-svg-transformer/expo")
-  };
   config.resolver = {
     ...resolver,
     assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
@@ -27,8 +20,49 @@ const withSvgTransformer = (config) => {
   return config;
 }
 
-let config = getDefaultConfig(__dirname, { isCSSEnabled: true })
+const withCircomFilesAndPolyfills = (config) => {
+  const { resolver } = config
 
-config = withSvgTransformer(config)
+  config.resolver = {
+    ...resolver,
+    assetExts: [
+      ...resolver.assetExts,
+      'wasm',
+      'zkey',
+    ],
+    extraNodeModules: {
+      crypto: require.resolve('react-native-crypto'),
+      // buffer: require.resolve('buffer/'),
+      fs: require.resolve('buffer/'),
+      http: require.resolve('stream-http'),
+      os: require.resolve('os-browserify/browser.js'),
+      constants: require.resolve('constants-browserify'),
+      path: require.resolve('path-browserify'),
+      stream: require.resolve('readable-stream'),
+    },
+  }
 
-module.exports = withNativeWind(config, { input: './src/theme/global.css' })
+  return config
+}
+
+module.exports = (async () => {
+  const config = getDefaultConfig(__dirname, { isCSSEnabled: true })
+
+  return mergeConfig(
+    withSvgTransformer(config),
+    withCircomFilesAndPolyfills(config),
+    {
+      transformer: {
+        getTransformOptions: async () => ({
+          transform: {
+            experimentalImportSupport: false,
+            inlineRequires: false,
+          },
+        }),
+
+        babelTransformerPath: require.resolve('./scripts/transformer'),
+      },
+    },
+    withNativeWind(config, { input: './src/theme/global.css' })
+  )
+})()

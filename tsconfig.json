@@ -7,7 +7,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@assets/*": ["./assets/*"],
-      "@env": ["./src/core/env.js"]
+      "@env": ["./src/core/env.js"],
+      "@modules/*": ["./modules/*"],
     },
     "types": ["lodash"]
   },

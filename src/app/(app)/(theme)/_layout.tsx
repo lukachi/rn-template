@@ -33,6 +33,12 @@ export default function ThemeLayout() {
             }}
           />
           <Stack.Screen
+            name='zkp'
+            options={{
+              title: 'zkp',
+            }}
+          />
+          <Stack.Screen
             name='typography'
             options={{
               title: 'typography',
@@ -57,6 +63,12 @@ export default function ThemeLayout() {
           leadingIcon='keyIcon'
           onPress={() => {
             router.navigate('(app)/(theme)')
+          }}
+        />
+        <UiButton
+          leadingIcon='slidersHorizontalIcon'
+          onPress={() => {
+            router.navigate('/zkp')
           }}
         />
         <UiButton
