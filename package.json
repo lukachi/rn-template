@@ -101,7 +101,6 @@
     "@types/lodash": "^4",
     "@types/path-browserify": "^1",
     "@types/react": "~18.2.79",
-    "@types/react-native": "^0.73.0",
     "@types/react-native-get-random-values": "^1",
     "@types/readable-stream": "^4",
     "@types/uuid": "^10",
