@@ -114,8 +114,8 @@ __metadata:
   linkType: hard
 
 "@babel/eslint-parser@npm:^7.18.2":
-  version: 7.25.0
-  resolution: "@babel/eslint-parser@npm:7.25.0"
+  version: 7.25.1
+  resolution: "@babel/eslint-parser@npm:7.25.1"
   dependencies:
     "@nicolo-ribaudo/eslint-scope-5-internals": "npm:5.1.1-v1"
     eslint-visitor-keys: "npm:^2.1.0"
@@ -123,7 +123,7 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.11.0
     eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
-  checksum: 8d636041e559547fedcc1b175a50199ab5df11354c34c4f27e21916196bdd7e22358abdfc10c3e678f65a24ea47888c489f4dae24290231a6e820679e22930f4
+  checksum: 9a2ddab3accd391a1eb95cb1ea655daa8603515d0f17081c542db8621c6bbbc65aa3b9b96b779854eed80cc8664a8969d7ac54479e8738876c0be5d26fd66efa
   languageName: node
   linkType: hard
 
@@ -859,15 +859,15 @@ __metadata:
   linkType: hard
 
 "@babel/plugin-transform-function-name@npm:^7.0.0":
-  version: 7.25.0
-  resolution: "@babel/plugin-transform-function-name@npm:7.25.0"
+  version: 7.25.1
+  resolution: "@babel/plugin-transform-function-name@npm:7.25.1"
   dependencies:
     "@babel/helper-compilation-targets": "npm:^7.24.8"
     "@babel/helper-plugin-utils": "npm:^7.24.8"
-    "@babel/traverse": "npm:^7.25.0"
+    "@babel/traverse": "npm:^7.25.1"
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: 97a4016ec02e56cad1f0a56411f74daa5cd32876b38a8144419f9383f0a8f177ff0f6d4ad16798a54cb8f390de39217823d5183033208d3e5428f4d21ea48d12
+  checksum: 1b4cd214c8523f7fa024fcda540ffe5503eda0e0be08b7c21405c96a870b5fe8bb1bda9e23a43a31467bf3dfc3a08edca250cf7f55f09dc40759a1ca6c6d6a4a
   languageName: node
   linkType: hard
 
@@ -1208,7 +1208,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.18.6, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.23.9, @babel/runtime@npm:^7.24.0, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.18.6, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.23.9, @babel/runtime@npm:^7.9.2":
   version: 7.25.0
   resolution: "@babel/runtime@npm:7.25.0"
   dependencies:
@@ -1246,9 +1246,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.20.0, @babel/traverse@npm:^7.23.0, @babel/traverse@npm:^7.24.5, @babel/traverse@npm:^7.24.7, @babel/traverse@npm:^7.24.8, @babel/traverse@npm:^7.25.0":
-  version: 7.25.0
-  resolution: "@babel/traverse@npm:7.25.0"
+"@babel/traverse@npm:^7.20.0, @babel/traverse@npm:^7.23.0, @babel/traverse@npm:^7.24.5, @babel/traverse@npm:^7.24.7, @babel/traverse@npm:^7.24.8, @babel/traverse@npm:^7.25.0, @babel/traverse@npm:^7.25.1":
+  version: 7.25.1
+  resolution: "@babel/traverse@npm:7.25.1"
   dependencies:
     "@babel/code-frame": "npm:^7.24.7"
     "@babel/generator": "npm:^7.25.0"
@@ -1257,7 +1257,7 @@ __metadata:
     "@babel/types": "npm:^7.25.0"
     debug: "npm:^4.3.1"
     globals: "npm:^11.1.0"
-  checksum: 0730e91caba2e94e614157c1c8ab11e19fd978938f4103f741e73f4916a910d5db0461e41329424475fda8fe03c2b7936df85d13716e77500f4db95765f02a04
+  checksum: 319397a4d32c76c28dba8d446ed3297df6c910e086ee766fb8d2024051bd1d6fbcb74718035c3d9cfd54c7aaa2f1eb48e404b9caac400fe065657071287f927e
   languageName: node
   linkType: hard
 
@@ -1976,9 +1976,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gorhom/bottom-sheet@npm:^4.6.3":
-  version: 4.6.3
-  resolution: "@gorhom/bottom-sheet@npm:4.6.3"
+"@gorhom/bottom-sheet@npm:^4.6.4":
+  version: 4.6.4
+  resolution: "@gorhom/bottom-sheet@npm:4.6.4"
   dependencies:
     "@gorhom/portal": "npm:1.0.14"
     invariant: "npm:^2.2.4"
@@ -1994,7 +1994,7 @@ __metadata:
       optional: true
     "@types/react-native":
       optional: true
-  checksum: 0478d4a2d6520db8e8c62ba52507caf5fdd88cc61b00e9765623752f8417d56fbc306c60238fa79b22e0f0764a636869dd0392a129743d760f6e254f0bc4be60
+  checksum: a437c5490c13c69100a7b605039a51064847b82202a985ec09acd7c6e6c39e735380c5e612b212c6466d95e3e3817e3ef50f54d18d489fcb2f1294370b4b5616
   languageName: node
   linkType: hard
 
@@ -2066,18 +2066,6 @@ __metadata:
   version: 2.0.3
   resolution: "@humanwhocodes/object-schema@npm:2.0.3"
   checksum: 05bb99ed06c16408a45a833f03a732f59bf6184795d4efadd33238ff8699190a8c871ad1121241bb6501589a9598dc83bf25b99dcbcf41e155cdf36e35e937a3
-  languageName: node
-  linkType: hard
-
-"@iden3/react-native-rapidsnark@npm:^0.0.1-alpha.4":
-  version: 0.0.1-alpha.4
-  resolution: "@iden3/react-native-rapidsnark@npm:0.0.1-alpha.4"
-  dependencies:
-    "@babel/runtime": "npm:^7.24.0"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: de6e53dbcbd3f5fc0188a937ad6a2a1dda1a6253f7c1c5261f06f1ab280218c0f61412ba99d12eba5fa12c07a51a391d6274095a2a78dcce807868fe6c40f49c
   languageName: node
   linkType: hard
 
@@ -3944,11 +3932,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 20.14.12
-  resolution: "@types/node@npm:20.14.12"
+  version: 22.0.0
+  resolution: "@types/node@npm:22.0.0"
   dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: 9205bf46ef6a99d99cdde9efeb8218cd15803cc407249c2336557cd630b006380dad68c03ee574934414639f8e450044f45530c92788a8e82078bae45ee40f93
+    undici-types: "npm:~6.11.1"
+  checksum: 7142a13ef1f884fde38f1e1499cbebcfe72755e8cb8657c4cb1ba1c2c91a3ae8656a72eb6e0a7d8189b0124c23c30e7c115324375d9c593435166da7a292e80e
   languageName: node
   linkType: hard
 
@@ -3986,15 +3974,6 @@ __metadata:
   version: 1.8.2
   resolution: "@types/react-native-get-random-values@npm:1.8.2"
   checksum: 08f3f82efbb5b6d9acd8f7f55a2dac9f228886323ac3018a1bab46cd1b45f24809d194fd2a3fe02a9ec4196606325e5cfffde0b0057ae785208b658fdc83c821
-  languageName: node
-  linkType: hard
-
-"@types/react-native@npm:^0.73.0":
-  version: 0.73.0
-  resolution: "@types/react-native@npm:0.73.0"
-  dependencies:
-    react-native: "npm:*"
-  checksum: a764ca5d876dae3c109da449f736c44271b3b236d0d6e836c078247af1419f6d851600c56bb0c26f3e0d1b4be6eaac56b65c1f74ad0f0d05baf8b65dd1d5c597
   languageName: node
   linkType: hard
 
@@ -8067,13 +8046,13 @@ __metadata:
   linkType: hard
 
 "fast-xml-parser@npm:^4.0.12, fast-xml-parser@npm:^4.2.4":
-  version: 4.4.0
-  resolution: "fast-xml-parser@npm:4.4.0"
+  version: 4.4.1
+  resolution: "fast-xml-parser@npm:4.4.1"
   dependencies:
     strnum: "npm:^1.0.5"
   bin:
     fxparser: src/cli/cli.js
-  checksum: f1592fa810d3923c46c7037d5adf1c309580d1d14780312019f33e4967f6ffcb5632168a5e889fe9d30794f6a087a0a095bb21cdf62320a96c6b304395212658
+  checksum: 0c05ab8703630d8c857fafadbd78d0020d3a8e54310c3842179cd4a0d9d97e96d209ce885e91241f4aa9dd8dfc2fd924a682741a423d65153cad34da2032ec44
   languageName: node
   linkType: hard
 
@@ -13090,6 +13069,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rapidsnark-wrp@link:./modules/rapidsnark-wrp::locator=template-v1%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "rapidsnark-wrp@link:./modules/rapidsnark-wrp::locator=template-v1%40workspace%3A."
+  languageName: node
+  linkType: soft
+
 "rc@npm:~1.2.7":
   version: 1.2.8
   resolution: "rc@npm:1.2.8"
@@ -13114,15 +13099,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:18.2.0":
-  version: 18.2.0
-  resolution: "react-dom@npm:18.2.0"
+"react-dom@npm:^18.3.1":
+  version: 18.3.1
+  resolution: "react-dom@npm:18.3.1"
   dependencies:
     loose-envify: "npm:^1.1.0"
-    scheduler: "npm:^0.23.0"
+    scheduler: "npm:^0.23.2"
   peerDependencies:
-    react: ^18.2.0
-  checksum: ca5e7762ec8c17a472a3605b6f111895c9f87ac7d43a610ab7024f68cd833d08eda0625ce02ec7178cc1f3c957cf0b9273cdc17aa2cd02da87544331c43b1d21
+    react: ^18.3.1
+  checksum: 3f4b73a3aa083091173b29812b10394dd06f4ac06aff410b74702cfb3aa29d7b0ced208aab92d5272919b612e5cda21aeb1d54191848cf6e46e9e354f3541f81
   languageName: node
   linkType: hard
 
@@ -13444,7 +13429,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:*, react-native@npm:0.74.3":
+"react-native@npm:0.74.3":
   version: 0.74.3
   resolution: "react-native@npm:0.74.3"
   dependencies:
@@ -14055,7 +14040,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.23.0":
+"scheduler@npm:^0.23.0, scheduler@npm:^0.23.2":
   version: 0.23.2
   resolution: "scheduler@npm:0.23.2"
   dependencies:
@@ -15102,9 +15087,8 @@ __metadata:
     "@expo/config": "npm:~9.0.2"
     "@expo/metro-config": "npm:~0.18.4"
     "@expo/metro-runtime": "npm:~3.2.1"
-    "@gorhom/bottom-sheet": "npm:^4.6.3"
+    "@gorhom/bottom-sheet": "npm:^4.6.4"
     "@hookform/resolvers": "npm:^3.9.0"
-    "@iden3/react-native-rapidsnark": "npm:^0.0.1-alpha.4"
     "@react-native-community/eslint-config": "npm:^3.2.0"
     "@react-native/js-polyfills": "npm:^0.74.85"
     "@tanstack/eslint-plugin-query": "npm:^5.51.10"
@@ -15115,7 +15099,6 @@ __metadata:
     "@types/lodash": "npm:^4"
     "@types/path-browserify": "npm:^1"
     "@types/react": "npm:~18.2.79"
-    "@types/react-native": "npm:^0.73.0"
     "@types/react-native-get-random-values": "npm:^1"
     "@types/readable-stream": "npm:^4"
     "@types/uuid": "npm:^10"
@@ -15167,8 +15150,9 @@ __metadata:
     path-browserify: "npm:^1.0.1"
     prettier: "npm:^3.3.3"
     prettier-plugin-tailwindcss: "npm:^0.6.5"
+    rapidsnark-wrp: "link:./modules/rapidsnark-wrp"
     react: "npm:18.2.0"
-    react-dom: "npm:18.2.0"
+    react-dom: "npm:^18.3.1"
     react-hook-form: "npm:^7.52.1"
     react-i18next: "npm:^14.1.2"
     react-native: "npm:0.74.3"
@@ -15679,6 +15663,13 @@ __metadata:
   version: 5.26.5
   resolution: "undici-types@npm:5.26.5"
   checksum: 0097779d94bc0fd26f0418b3a05472410408877279141ded2bd449167be1aed7ea5b76f756562cb3586a07f251b90799bab22d9019ceba49c037c76445f7cddd
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.11.1":
+  version: 6.11.1
+  resolution: "undici-types@npm:6.11.1"
+  checksum: bdee4c3d67626bf45f1502b817b96e328ff9c3c006ecafa3708bc39ba66d6cecc2d5d69d3148667bb833d3fb457c0e715bfeed0b7b6767fa4d3044f5c1036ba9
   languageName: node
   linkType: hard
 

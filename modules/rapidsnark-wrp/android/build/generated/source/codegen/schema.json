@@ -1,0 +1,274 @@
+{
+  "modules": {
+    "NativeRapidsnarkWrp": {
+      "type": "NativeModule",
+      "aliasMap": {},
+      "enumMap": {},
+      "spec": {
+        "properties": [
+          {
+            "name": "groth16Prove",
+            "optional": false,
+            "typeAnnotation": {
+              "type": "FunctionTypeAnnotation",
+              "returnTypeAnnotation": {
+                "type": "PromiseTypeAnnotation",
+                "elementType": {
+                  "type": "ObjectTypeAnnotation",
+                  "properties": [
+                    {
+                      "name": "proof",
+                      "optional": false,
+                      "typeAnnotation": {
+                        "type": "StringTypeAnnotation"
+                      }
+                    },
+                    {
+                      "name": "pub_signals",
+                      "optional": false,
+                      "typeAnnotation": {
+                        "type": "StringTypeAnnotation"
+                      }
+                    }
+                  ]
+                }
+              },
+              "params": [
+                {
+                  "name": "zkey",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "StringTypeAnnotation"
+                  }
+                },
+                {
+                  "name": "witness",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "StringTypeAnnotation"
+                  }
+                },
+                {
+                  "name": "proofBufferSize",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "NullableTypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "NumberTypeAnnotation"
+                    }
+                  }
+                },
+                {
+                  "name": "publicBufferSize",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "NullableTypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "NumberTypeAnnotation"
+                    }
+                  }
+                },
+                {
+                  "name": "errorBufferSize",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "NullableTypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "NumberTypeAnnotation"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "groth16ProveWithZKeyFilePath",
+            "optional": false,
+            "typeAnnotation": {
+              "type": "FunctionTypeAnnotation",
+              "returnTypeAnnotation": {
+                "type": "PromiseTypeAnnotation",
+                "elementType": {
+                  "type": "ObjectTypeAnnotation",
+                  "properties": [
+                    {
+                      "name": "proof",
+                      "optional": false,
+                      "typeAnnotation": {
+                        "type": "StringTypeAnnotation"
+                      }
+                    },
+                    {
+                      "name": "pub_signals",
+                      "optional": false,
+                      "typeAnnotation": {
+                        "type": "StringTypeAnnotation"
+                      }
+                    }
+                  ]
+                }
+              },
+              "params": [
+                {
+                  "name": "zkey_path",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "StringTypeAnnotation"
+                  }
+                },
+                {
+                  "name": "witness",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "StringTypeAnnotation"
+                  }
+                },
+                {
+                  "name": "proofBufferSize",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "NullableTypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "NumberTypeAnnotation"
+                    }
+                  }
+                },
+                {
+                  "name": "publicBufferSize",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "NullableTypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "NumberTypeAnnotation"
+                    }
+                  }
+                },
+                {
+                  "name": "errorBufferSize",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "NullableTypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "NumberTypeAnnotation"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "groth16Verify",
+            "optional": false,
+            "typeAnnotation": {
+              "type": "FunctionTypeAnnotation",
+              "returnTypeAnnotation": {
+                "type": "PromiseTypeAnnotation",
+                "elementType": {
+                  "type": "BooleanTypeAnnotation"
+                }
+              },
+              "params": [
+                {
+                  "name": "proof",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "StringTypeAnnotation"
+                  }
+                },
+                {
+                  "name": "publicSignals",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "StringTypeAnnotation"
+                  }
+                },
+                {
+                  "name": "verificationKey",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "StringTypeAnnotation"
+                  }
+                },
+                {
+                  "name": "errorBufferSize",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "NullableTypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "NumberTypeAnnotation"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "groth16PublicSizeForZkeyBuf",
+            "optional": false,
+            "typeAnnotation": {
+              "type": "FunctionTypeAnnotation",
+              "returnTypeAnnotation": {
+                "type": "PromiseTypeAnnotation",
+                "elementType": {
+                  "type": "NumberTypeAnnotation"
+                }
+              },
+              "params": [
+                {
+                  "name": "zkey",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "StringTypeAnnotation"
+                  }
+                },
+                {
+                  "name": "errorBufferSize",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "NullableTypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "NumberTypeAnnotation"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "groth16PublicSizeForZkeyFile",
+            "optional": false,
+            "typeAnnotation": {
+              "type": "FunctionTypeAnnotation",
+              "returnTypeAnnotation": {
+                "type": "PromiseTypeAnnotation",
+                "elementType": {
+                  "type": "NumberTypeAnnotation"
+                }
+              },
+              "params": [
+                {
+                  "name": "zkeyPath",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "StringTypeAnnotation"
+                  }
+                },
+                {
+                  "name": "errorBufferSize",
+                  "optional": false,
+                  "typeAnnotation": {
+                    "type": "NullableTypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "NumberTypeAnnotation"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "moduleName": "RapidsnarkWrp"
+    }
+  }
+}

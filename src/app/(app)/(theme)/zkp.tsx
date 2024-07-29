@@ -6,5 +6,6 @@ export default function ZKPScreen() {
     <WitnessCalcProvider>
       <ZKP />
     </WitnessCalcProvider>
+    // <TestIdentitySDK />
   )
 }

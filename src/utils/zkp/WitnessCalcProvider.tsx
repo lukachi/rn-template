@@ -1,13 +1,14 @@
 import type { PropsWithChildren } from 'react'
 import { useContext } from 'react'
 import { createContext } from 'react'
+import { View } from 'react-native'
 import { useWebViewMessage } from 'react-native-react-bridge'
 import { WebView } from 'react-native-webview'
 
 import { ErrorHandler } from '@/core'
+import { witnessStr } from '@/utils/zkp/witness'
 
 import { WitnessRequestTypes, WitnessResponseTypes } from './enums'
-import WebApp from './WebApp'
 
 const witnessCalcContext = createContext<{
   executeWitnessCalculator: <Inputs>(binary: Uint8Array, inputs: Inputs) => Promise<string>
@@ -34,13 +35,15 @@ export const WitnessCalcProvider = ({ children }: PropsWithChildren) => {
     binary: Uint8Array,
     inputs: Inputs,
   ): Promise<string> {
-    emit({
-      type: WitnessRequestTypes.WitnessCalculatorRequest,
-      data: {
-        binary,
-        inputs,
-      },
-    })
+    ref.current?.postMessage?.(
+      JSON.stringify({
+        type: WitnessRequestTypes.WitnessCalculatorRequest,
+        data: {
+          binary,
+          inputs,
+        },
+      }),
+    )
 
     return new Promise(resolve => {
       promiseResolver = resolve
@@ -53,12 +56,31 @@ export const WitnessCalcProvider = ({ children }: PropsWithChildren) => {
         executeWitnessCalculator,
       }}
     >
-      <WebView
-        ref={ref}
-        source={{ html: WebApp }}
-        onMessage={onMessage}
-        onError={ErrorHandler.process}
-      />
+      <View>
+        <WebView
+          ref={ref}
+          style={{ height: 0 }}
+          source={{
+            html: `
+              <html>
+                    <head>
+                      <meta name="viewport" content="width=device-width, initial-scale=1" />
+                    </head>
+                    <body>
+                      <h1>Silver area is a Webview</h1>
+                    </body>
+              </html>
+            `,
+          }}
+          injectedJavaScriptBeforeContentLoaded={witnessStr}
+          // source={{ html: WebApp }}
+          allowFileAccessFromFileURLs
+          allowUniversalAccessFromFileURLs
+          allowFileAccess
+          onMessage={onMessage}
+          onError={ErrorHandler.process}
+        />
+      </View>
       {children}
     </witnessCalcContext.Provider>
   )

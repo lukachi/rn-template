@@ -43,5 +43,5 @@ node_modules
 .env.production.local
 
 .expo
-android
-ios
+/android
+/ios

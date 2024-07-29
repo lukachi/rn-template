@@ -1,0 +1,19 @@
+{
+  "name": "react-native-rapidsnark-wrp",
+  "version": "0.0.0",
+  "description": "wrapper for rapidsnark methods",
+  "main": "src/index",
+  "codegenConfig": {
+    "name": "RNRapidsnarkWrpSpec",
+    "type": "modules",
+    "jsSrcsDir": "src"
+  },
+  "author": " <> ()",
+  "license": "UNLICENSED",
+  "homepage": "#readme",
+  "create-react-native-library": {
+    "type": "module-mixed",
+    "languages": "kotlin-objc",
+    "version": "0.39.0"
+  }
+}

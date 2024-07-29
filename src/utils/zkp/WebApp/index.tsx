@@ -12,7 +12,16 @@ function WebApp() {
     }
   })
 
-  return <></>
+  return (
+    <html>
+      <head>
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+      </head>
+      <body>
+        <h1>Silver area is a Webview</h1>
+      </body>
+    </html>
+  )
 }
 
 export default webViewRender(<WebApp />)

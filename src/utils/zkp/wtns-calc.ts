@@ -1,7 +1,6 @@
 import { fromByteArray } from 'react-native-quick-base64'
 
 let instance: any
-let module: any
 
 export const witnessCalculationNative = async (
   binary: Uint8Array,
