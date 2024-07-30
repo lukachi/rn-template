@@ -1,11 +1,9 @@
-import { useAssets } from 'expo-asset'
 import { useCallback } from 'react'
 import { View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { ErrorHandler } from '@/core'
 import { UiButton } from '@/ui'
-import { useWitnessCalc } from '@/utils/zkp/WitnessCalcProvider'
 
 const authInputs = {
   eventData: '0x8afdb6ca6860f199ebf60df54e6b36f77e51955aaec34b09a1316bd20bc445',
@@ -15,19 +13,20 @@ const authInputs = {
 }
 
 export default function ZKP() {
-  const [assets] = useAssets([
-    require('@assets/circuits/auth/auth.wasm'),
-    require('@assets/circuits/auth/circuit_final.zkey'),
-  ])
+  // const [assets] = useAssets([
+  // require('@assets/circuits/auth/auth.wasm'),
+  // require('@assets/circuits/auth/circuit_final.zkey'),
+  // require('@assets/circuits/auth/witness.wtns'),
+  // ])
 
-  const { executeWitnessCalculator } = useWitnessCalc()
+  // const { executeWitnessCalculator } = useWitnessCalc()
 
   const executeZKP = useCallback(async () => {
-    if (!assets?.[0] || !assets?.[1]) return
+    // if (!assets?.[0] || !assets?.[1]) return
 
     try {
-      const result = await executeWitnessCalculator(assets[0], authInputs)
-      console.log(result)
+      // const result = await executeWitnessCalculator(assets[0], authInputs)
+      // console.log(result)
       // console.log(rapidsnark)
       // const { proof, pub_signals } = await rapidsnark.groth16Prove(assets[1], result)
       // console.log(proof, pub_signals)
@@ -42,7 +41,7 @@ export default function ZKP() {
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
-  }, [assets, executeWitnessCalculator])
+  }, [])
 
   return (
     <View className='flex-1'>

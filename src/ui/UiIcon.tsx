@@ -90,6 +90,7 @@ import WalletFilledIcon from '@assets/icons/wallet-filled-icon.svg'
 import WalletIcon from '@assets/icons/wallet-icon.svg'
 import WarningIcon from '@assets/icons/warning-icon.svg'
 import XCircleIcon from '@assets/icons/x-circle-icon.svg'
+import isEmpty from 'lodash/isEmpty'
 import { cssInterop } from 'nativewind'
 import type { SvgProps } from 'react-native-svg'
 
@@ -198,6 +199,12 @@ type Props = {
 
 export const UiIcon = ({ componentName, ...rest }: Props) => {
   const IconComponent = ICON_COMPONENTS[componentName]
+
+  if (isEmpty(IconComponent)) {
+    console.warn('failed to load icon', componentName)
+
+    return null
+  }
 
   return <IconComponent {...rest} />
 }

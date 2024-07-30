@@ -3,7 +3,7 @@
 import 'react-native-get-random-values'
 
 import { sleepAsync } from 'expo-dev-launcher/bundle/functions/sleepAsync'
-import { SplashScreen, Stack } from 'expo-router'
+import { Slot, SplashScreen } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 
 export {
@@ -23,6 +23,7 @@ import { Toasts } from '@/ui'
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
+  console.log('RootLayout')
   const [isAppInitialized, setIsAppInitialized] = useState(false)
   const [isAppInitializingFailed, setIsAppInitializingFailed] = useState(false)
   const [, setAppInitError] = useState<Error>()
@@ -35,14 +36,12 @@ export default function RootLayout() {
   }, [isAuthStoreHydrated, isLocalAuthStoreHydrated])
 
   const initApp = async () => {
-    console.log('initApp')
     try {
       // verifyInstallation()
       await initLocalAuthStore()
       await sleepAsync(1_000)
       setIsAppInitialized(true)
       await SplashScreen.hideAsync()
-      console.log('splash screen hidden')
     } catch (e) {
       setAppInitError(e)
       setIsAppInitializingFailed(true)
@@ -69,15 +68,16 @@ export default function RootLayout() {
       <AppTheme>
         <APIProvider>
           <BottomSheetModalProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-            >
-              <Stack.Screen name='(app)' />
-              <Stack.Screen name='(local-auth)' />
-              <Stack.Screen name='(auth)' />
-            </Stack>
+            {/*<Stack*/}
+            {/*  screenOptions={{*/}
+            {/*    headerShown: false,*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  <Stack.Screen name='(app)' />*/}
+            {/*  <Stack.Screen name='(local-auth)' />*/}
+            {/*  <Stack.Screen name='(auth)' />*/}
+            {/*</Stack>*/}
+            <Slot />
           </BottomSheetModalProvider>
         </APIProvider>
         <Toasts />

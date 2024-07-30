@@ -110,13 +110,16 @@ function BiometricsLockScreen() {
   const biometricIcon = useMemo(() => {
     return {
       [AuthenticationType.FINGERPRINT]: (
-        <UiIcon componentName='fingerprintIcon' size={50} color={palette.primaryMain} />
+        <UiIcon componentName='fingerprintIcon' className={'size-[50px] text-primaryMain'} />
       ),
       [AuthenticationType.FACIAL_RECOGNITION]: (
-        <MaterialCommunityIcons name='face-recognition' size={50} color={palette.primaryMain} />
+        <MaterialCommunityIcons
+          name='face-recognition'
+          className={'size-[50px] text-primaryMain'}
+        />
       ),
       [AuthenticationType.IRIS]: (
-        <UiIcon componentName='fingerprintIcon' size={50} color={palette.primaryMain} />
+        <UiIcon componentName='fingerprintIcon' className={'size-[50px] text-primaryMain'} />
       ),
     }[biometricTypes[0]]
   }, [biometricTypes, palette.primaryMain])

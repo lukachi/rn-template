@@ -72,8 +72,8 @@ export default function SimpleForm() {
           label={FieldNames.Third}
           placeholder={FieldNames.Third}
           control={control}
-          leadingContent={<UiIcon componentName={'arrowRightIcon'} size={14} />}
-          trailingContent={<UiIcon componentName={'arrowLeftIcon'} size={14} />}
+          leadingContent={<UiIcon componentName={'arrowRightIcon'} className={'size-[14px]'} />}
+          trailingContent={<UiIcon componentName={'arrowLeftIcon'} className={'size-[14px]'} />}
           disabled={isFormDisabled}
         />
       </View>

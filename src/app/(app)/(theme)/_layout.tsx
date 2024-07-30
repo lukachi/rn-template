@@ -5,9 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { authStore, localAuthStore } from '@/store'
 import { UiBottomSheet, UiButton, useUiBottomSheet } from '@/ui'
 
-export const unstable_settings = {
-  initialRouteName: 'ui-kit',
-}
+// export const unstable_settings = {
+//   initialRouteName: 'ui-kit',
+// }
 
 export default function ThemeLayout() {
   const logout = authStore.useAuthStore(state => state.logout)

@@ -113,10 +113,8 @@ export default function UiKit() {
           <Image source={require('@assets/images/stub.jpg')} style={{ width: 120, height: 120 }} />
 
           <UiIcon
-            size={90}
-            color={palette.primaryMain}
-            className={cn('rotate-90')}
-            componentName='arrowCounterClockwiseIcon'
+            className={cn('size-[90px] rotate-90 text-primaryMain')}
+            componentName='arrowRightIcon'
           />
 
           <AntDesign name='stepforward' size={140} color={palette.secondaryMain} />
