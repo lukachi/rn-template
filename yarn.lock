@@ -7681,14 +7681,14 @@ __metadata:
   linkType: hard
 
 "expo-build-properties@npm:~0.12.3":
-  version: 0.12.3
-  resolution: "expo-build-properties@npm:0.12.3"
+  version: 0.12.4
+  resolution: "expo-build-properties@npm:0.12.4"
   dependencies:
     ajv: "npm:^8.11.0"
     semver: "npm:^7.6.0"
   peerDependencies:
     expo: "*"
-  checksum: c59a3f7d65f7542f4e44e0468efb156d667a984e218afc8f70df093a22e8f5f8dd13dd7afae1d7a6e3a44646f867a179be03cd1996c8dd41fd97b327e3c7bb90
+  checksum: 81319e32be79b3806ca33738dcb4e6046afa8a856899585f0caf3c2a897218df385291ce4921fe8ff6ac75104cd509ae8735c0ed3350bcafd3fd01c83f9a5083
   languageName: node
   linkType: hard
 
@@ -7869,8 +7869,8 @@ __metadata:
   linkType: hard
 
 "expo-router@npm:~3.5.19":
-  version: 3.5.19
-  resolution: "expo-router@npm:3.5.19"
+  version: 3.5.20
+  resolution: "expo-router@npm:3.5.20"
   dependencies:
     "@expo/metro-runtime": "npm:3.2.1"
     "@expo/server": "npm:^0.4.0"
@@ -7897,7 +7897,7 @@ __metadata:
       optional: true
     react-native-reanimated:
       optional: true
-  checksum: 2820488738bc68aec67a2d23c4de52c9b5d6ab709bffd4b69c4e85ae46a6fa5f83834951bb5e616b0ebd9b79de0811ecb29a0ee94868bd5aa02853789468c1b3
+  checksum: 73a28cdc90cad7cb95fb35a662fc974589d18aba8b50b15d9024c4b2aa6eea05bab51097e1c69a11c87ba97f8246efc9206ecc7d52bb627f6d6222ff97124cd0
   languageName: node
   linkType: hard
 
@@ -7959,8 +7959,8 @@ __metadata:
   linkType: hard
 
 "expo@npm:~51.0.23":
-  version: 51.0.23
-  resolution: "expo@npm:51.0.23"
+  version: 51.0.24
+  resolution: "expo@npm:51.0.24"
   dependencies:
     "@babel/runtime": "npm:^7.20.0"
     "@expo/cli": "npm:0.18.26"
@@ -7979,7 +7979,7 @@ __metadata:
     whatwg-url-without-unicode: "npm:8.0.0-3"
   bin:
     expo: bin/cli
-  checksum: 23bb39ed4362f3a035fe1f01179a394d1a910ea1fec6dfbb5bac9b9ba3ace7070820c6064449bb40910edaebddd9dae4ac3ee9f91b30af3f240aa0c735c87efe
+  checksum: ed1c3b846d49b1d93ccbc8013fd3a272eba908dea26c1f200482de1532d881d929f2e852651b44ccbc88960c0306855de103dd5778e34cac631a77dff1165fa8
   languageName: node
   linkType: hard
 
