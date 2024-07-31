@@ -6,9 +6,11 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { sleepAsync } from 'expo-dev-launcher/bundle/functions/sleepAsync'
 import * as SplashScreen from 'expo-splash-screen'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { APIProvider } from '@/api/client'
+import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
 import { authStore, localAuthStore } from '@/store'
 import { loadSelectedTheme } from '@/theme'
@@ -29,9 +31,13 @@ export default function App() {
   const isLocalAuthStoreHydrated = localAuthStore.useIsHydrated()
   const initLocalAuthStore = localAuthStore.useInitLocalAuthStore()
 
+  const { language } = useSelectedLanguage()
+
   const isStoresHydrated = useMemo(() => {
     return isAuthStoreHydrated && isLocalAuthStoreHydrated
   }, [isAuthStoreHydrated, isLocalAuthStoreHydrated])
+
+  console.log('isStoresHydrated', isStoresHydrated)
 
   useEffect(() => {
     if (!isStoresHydrated) return
@@ -41,6 +47,7 @@ export default function App() {
         // verifyInstallation()
         await initLocalAuthStore()
         await sleepAsync(1_000)
+        console.log('SplashScreen.hideAsync')
         await SplashScreen.hideAsync()
         setIsAppInitialized(true)
       } catch (e) {
@@ -69,13 +76,15 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView onLayout={onLayoutRootView}>
-      <APIProvider>
-        <BottomSheetModalProvider>
-          <AppRoutes />
-        </BottomSheetModalProvider>
-      </APIProvider>
-      <Toasts />
-    </GestureHandlerRootView>
+    <View style={{ flex: 1 }} key={language}>
+      <GestureHandlerRootView onLayout={onLayoutRootView}>
+        <APIProvider>
+          <BottomSheetModalProvider>
+            <AppRoutes />
+          </BottomSheetModalProvider>
+        </APIProvider>
+        <Toasts />
+      </GestureHandlerRootView>
+    </View>
   )
 }

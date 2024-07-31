@@ -27,6 +27,7 @@ export default function AppRoutes() {
 
   return (
     <View
+      key={themeToSet}
       style={{
         ...cssVarsToSet,
         flex: 1,

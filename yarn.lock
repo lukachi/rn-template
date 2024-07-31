@@ -3920,11 +3920,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 22.0.0
-  resolution: "@types/node@npm:22.0.0"
+  version: 22.0.2
+  resolution: "@types/node@npm:22.0.2"
   dependencies:
     undici-types: "npm:~6.11.1"
-  checksum: 7142a13ef1f884fde38f1e1499cbebcfe72755e8cb8657c4cb1ba1c2c91a3ae8656a72eb6e0a7d8189b0124c23c30e7c115324375d9c593435166da7a292e80e
+  checksum: 7f5937f22d5171df6d1764b838b64f03fd2686e0ebee15bb64eb609ee5280cfd8cbbb78efdf163bb49eee11c77de461ef8b85e2781e508d231777390ddf0e8ec
   languageName: node
   linkType: hard
 
@@ -7739,17 +7739,6 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: 3f45a6f96f28e1bb21ed4923fd340009f6abd5e414c4d1163c4650ad7da3700e9ed14d388eddc4c1184d0df18ceee37601ee4f51bca7109d6d87169883c36353
-  languageName: node
-  linkType: hard
-
-"expo-localization@npm:~15.0.3":
-  version: 15.0.3
-  resolution: "expo-localization@npm:15.0.3"
-  dependencies:
-    rtl-detect: "npm:^1.0.2"
-  peerDependencies:
-    expo: "*"
-  checksum: 33315abc13f1a4435a98f0252b6967cf0f8c4b5a6f52bbc4a23fcfee01c4c1b429964b526fcf6d6374c35e0664b9170fdec05ce156abfcc8ba5304e9cf0af52f
   languageName: node
   linkType: hard
 
@@ -13810,13 +13799,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rtl-detect@npm:^1.0.2":
-  version: 1.1.2
-  resolution: "rtl-detect@npm:1.1.2"
-  checksum: d19089c3b5f7a6fbabfa2c4724fcdf8694f313d196d44c8eee3625ba2e46418afe65b4da38e3e92822985291efd0656d85daa4b2ef296a46a65a702d0b156876
-  languageName: node
-  linkType: hard
-
 "run-parallel@npm:^1.1.9":
   version: 1.2.0
   resolution: "run-parallel@npm:1.2.0"
@@ -14964,7 +14946,6 @@ __metadata:
     expo-image: "npm:~1.12.13"
     expo-linking: "npm:~6.3.1"
     expo-local-authentication: "npm:~14.0.1"
-    expo-localization: "npm:~15.0.3"
     expo-secure-store: "npm:~13.0.2"
     expo-splash-screen: "npm:^0.27.5"
     expo-status-bar: "npm:~1.12.1"
