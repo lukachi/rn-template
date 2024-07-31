@@ -1,12 +1,13 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { useNavigation } from '@react-navigation/native'
 import { AuthenticationType } from 'expo-local-authentication'
-import { router } from 'expo-router'
 import { useCallback, useMemo } from 'react'
 import { Button, Text, View } from 'react-native'
 
 import { ErrorHandler } from '@/core'
+import { AppRoutesNames } from '@/root-route-names'
 import { localAuthStore } from '@/store'
-import { cn, useAppTheme } from '@/theme'
+import { cn } from '@/theme'
 import { UiIcon } from '@/ui'
 
 export default function EnableBiometrics() {
@@ -14,23 +15,23 @@ export default function EnableBiometrics() {
   const enableBiometrics = localAuthStore.useLocalAuthStore(state => state.enableBiometrics)
   const disableBiometrics = localAuthStore.useLocalAuthStore(state => state.disableBiometrics)
 
-  const { palette } = useAppTheme()
+  const navigation = useNavigation()
 
   const tryToEnableBiometrics = useCallback(async () => {
     try {
       await enableBiometrics()
 
-      router.replace('(app)')
+      navigation.navigate(AppRoutesNames.App) // TODO: replace
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
-  }, [enableBiometrics])
+  }, [enableBiometrics, navigation])
 
   const onSkip = useCallback(() => {
     disableBiometrics()
 
-    router.replace('(app)')
-  }, [disableBiometrics])
+    navigation.navigate(AppRoutesNames.App) // TODO: replace
+  }, [disableBiometrics, navigation])
 
   const biometricIcon = useMemo(() => {
     return {
@@ -44,7 +45,7 @@ export default function EnableBiometrics() {
         <UiIcon componentName='fingerprintIcon' className='size=[50px] text-primaryMain' />
       ),
     }[biometricTypes[0]]
-  }, [biometricTypes, palette.primaryMain])
+  }, [biometricTypes])
 
   return (
     <View className={cn('flex flex-1 items-center justify-center gap-4')}>

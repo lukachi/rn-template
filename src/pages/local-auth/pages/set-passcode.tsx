@@ -1,8 +1,10 @@
-import { router } from 'expo-router'
+import { useNavigation } from '@react-navigation/native'
 import { useCallback, useState } from 'react'
 import { Button, ScrollView, Text, View } from 'react-native'
 
 import { ErrorHandler, useSoftKeyboardEffect } from '@/core'
+import { LocalAuthRoutesNames } from '@/pages/local-auth/local-auth-routes-names'
+import { AppRoutesNames } from '@/root-route-names'
 import { BiometricStatuses, localAuthStore } from '@/store'
 import { cn } from '@/theme'
 import { UiTextField } from '@/ui'
@@ -11,6 +13,8 @@ export default function SetPasscode() {
   const [passcode, setPasscode] = useState('')
   const setPasscodeStore = localAuthStore.useLocalAuthStore(state => state.setPasscode)
   const biometricStatus = localAuthStore.useLocalAuthStore(state => state.biometricStatus)
+
+  const navigation = useNavigation()
 
   useSoftKeyboardEffect()
 
@@ -21,12 +25,12 @@ export default function SetPasscode() {
       setPasscodeStore(passcode)
 
       if (biometricStatus === BiometricStatuses.NotSet) {
-        router.replace('/enable-biometrics')
+        navigation.navigate(LocalAuthRoutesNames.EnableBiometrics) // TODO: replace
 
         return
       }
 
-      router.replace('(app)')
+      navigation.navigate(AppRoutesNames.App) // TODO: replace
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }

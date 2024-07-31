@@ -1,10 +1,11 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { useNavigation } from '@react-navigation/native'
 import { AuthenticationType } from 'expo-local-authentication'
-import { router } from 'expo-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Pressable, Text, View } from 'react-native'
 
 import { ErrorHandler } from '@/core'
+import { AppRoutesNames } from '@/root-route-names'
 import { authStore, BiometricStatuses, localAuthStore, MAX_ATTEMPTS } from '@/store'
 import { cn, useAppTheme } from '@/theme'
 import { UiIcon, UiTextField } from '@/ui'
@@ -23,26 +24,28 @@ export default function Lockscreen() {
     state => state.tryUnlockWithPasscode,
   )
 
+  const navigation = useNavigation()
+
   const submit = useCallback(async () => {
     if (!passcode) return
 
     if (tryUnlockWithPasscode(passcode)) {
-      router.replace('(app)')
+      navigation.navigate(AppRoutesNames.App) // TODO: replace
 
       return
     }
 
     console.log('resetting passcode')
     setPasscode('')
-  }, [passcode, tryUnlockWithPasscode])
+  }, [navigation, passcode, tryUnlockWithPasscode])
 
   const tryLogout = useCallback(async () => {
     logout()
 
     await resetLocalAuthStore()
 
-    router.replace('/sign-in')
-  }, [logout, resetLocalAuthStore])
+    navigation.navigate(AppRoutesNames.Auth) // TODO: replace
+  }, [logout, navigation, resetLocalAuthStore])
 
   if (biometricStatus === BiometricStatuses.Enabled) {
     return <BiometricsLockScreen />
@@ -107,6 +110,8 @@ function BiometricsLockScreen() {
 
   const { palette } = useAppTheme()
 
+  const navigation = useNavigation()
+
   const biometricIcon = useMemo(() => {
     return {
       [AuthenticationType.FINGERPRINT]: (
@@ -127,12 +132,12 @@ function BiometricsLockScreen() {
   const unlockWithBiometrics = useCallback(async () => {
     try {
       if (await tryUnlockWithBiometrics()) {
-        router.replace('(app)')
+        navigation.navigate(AppRoutesNames.App) // TODO: replace
       }
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
-  }, [tryUnlockWithBiometrics])
+  }, [navigation, tryUnlockWithBiometrics])
 
   useEffect(() => {
     unlockWithBiometrics()

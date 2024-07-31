@@ -1,15 +1,27 @@
-import { router, Stack } from 'expo-router'
+import { useNavigation } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { InAppRouteNames } from '@/pages/app/in-app-route-names'
 import { authStore, localAuthStore } from '@/store'
 import { UiBottomSheet, UiButton, useUiBottomSheet } from '@/ui'
 
-// export const unstable_settings = {
-//   initialRouteName: 'ui-kit',
-// }
+import ColorsScreen from './pages/colors'
+import CommonScreen from './pages/common'
+import TypographyScreen from './pages/typography'
+import ZKPScreen from './pages/zkp'
 
-export default function ThemeLayout() {
+const Stack = createNativeStackNavigator()
+
+export enum UiKitRouteNames {
+  Common = 'common',
+  Colors = 'colors',
+  Typography = 'typography',
+  Zkp = 'zkp',
+}
+
+export default function ThemeRoot() {
   const logout = authStore.useAuthStore(state => state.logout)
   // optional
   const resetLocalAuthStore = localAuthStore.useLocalAuthStore(state => state.resetStore)
@@ -18,39 +30,21 @@ export default function ThemeLayout() {
 
   const insets = useSafeAreaInsets()
 
+  const navigation = useNavigation()
+
   return (
     <View className='flex-1'>
       <View style={{ flex: 1 }}>
-        <Stack
+        <Stack.Navigator
           screenOptions={{
             headerShown: false,
           }}
         >
-          <Stack.Screen
-            name='index'
-            options={{
-              title: 'ui-kit',
-            }}
-          />
-          <Stack.Screen
-            name='zkp'
-            options={{
-              title: 'zkp',
-            }}
-          />
-          <Stack.Screen
-            name='typography'
-            options={{
-              title: 'typography',
-            }}
-          />
-          <Stack.Screen
-            name='colors'
-            options={{
-              title: 'colors',
-            }}
-          />
-        </Stack>
+          <Stack.Screen name={UiKitRouteNames.Common} component={CommonScreen} />
+          <Stack.Screen name={UiKitRouteNames.Zkp} component={ZKPScreen} />
+          <Stack.Screen name={UiKitRouteNames.Typography} component={TypographyScreen} />
+          <Stack.Screen name={UiKitRouteNames.Colors} component={ColorsScreen} />
+        </Stack.Navigator>
       </View>
 
       <View
@@ -62,25 +56,25 @@ export default function ThemeLayout() {
         <UiButton
           leadingIcon='keyIcon'
           onPress={() => {
-            router.navigate('(app)/(theme)')
+            navigation.navigate(UiKitRouteNames.Common)
           }}
         />
         <UiButton
           leadingIcon='slidersHorizontalIcon'
           onPress={() => {
-            router.navigate('/zkp')
+            navigation.navigate(UiKitRouteNames.Zkp)
           }}
         />
         <UiButton
           leadingIcon='walletFilledIcon'
           onPress={() => {
-            router.navigate('/colors')
+            navigation.navigate(UiKitRouteNames.Colors)
           }}
         />
         <UiButton
           leadingIcon='xCircleIcon'
           onPress={() => {
-            router.navigate('/typography')
+            navigation.navigate(UiKitRouteNames.Typography)
           }}
         />
 
@@ -96,14 +90,14 @@ export default function ThemeLayout() {
             <UiButton
               title='fetching'
               onPress={() => {
-                router.navigate('/fetching')
+                navigation.navigate(InAppRouteNames.Fetching)
                 bottomSheet.dismiss()
               }}
             />
             <UiButton
               title='localization'
               onPress={() => {
-                router.navigate('/localization')
+                navigation.navigate(InAppRouteNames.Localization)
                 bottomSheet.dismiss()
               }}
             />
@@ -117,12 +111,6 @@ export default function ThemeLayout() {
               }}
             />
           </View>
-          {/*<UiButton*/}
-          {/*  leadingIcon='xCircleIcon'*/}
-          {/*  onPress={() => {*/}
-          {/*    router.navigate('/typography')*/}
-          {/*  }}*/}
-          {/*/>*/}
         </UiBottomSheet>
       </View>
     </View>

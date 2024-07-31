@@ -1,6 +1,6 @@
 {
   "name": "template-v1",
-  "main": "expo-router/entry",
+  "main": "src/main.ts",
   "version": "1.0.0",
   "scripts": {
     "start": "npx expo start --clear",
@@ -25,6 +25,9 @@
     "@gorhom/bottom-sheet": "^4.6.4",
     "@hookform/resolvers": "^3.9.0",
     "@react-native/js-polyfills": "^0.74.85",
+    "@react-navigation/elements": "^2.0.0-rc.16",
+    "@react-navigation/native": "^7.0.0-rc.14",
+    "@react-navigation/native-stack": "^7.0.0-rc.18",
     "@tanstack/react-query": "^5.51.9",
     "app-icon-badge": "^0.0.15",
     "axios": "^1.7.2",
@@ -44,7 +47,6 @@
     "expo-linking": "~6.3.1",
     "expo-local-authentication": "~14.0.1",
     "expo-localization": "~15.0.3",
-    "expo-router": "~3.5.20",
     "expo-secure-store": "~13.0.2",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",

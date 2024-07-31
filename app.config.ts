@@ -67,7 +67,6 @@ export default ({config}: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-localization',
-    'expo-router',
     [
       "expo-secure-store",
       {

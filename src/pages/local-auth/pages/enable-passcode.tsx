@@ -1,22 +1,26 @@
-import { router } from 'expo-router'
+import { useNavigation } from '@react-navigation/native'
 import { useCallback } from 'react'
 import { Button, Text, View } from 'react-native'
 
+import { LocalAuthRoutesNames } from '@/pages/local-auth/local-auth-routes-names'
+import { AppRoutesNames } from '@/root-route-names'
 import { localAuthStore } from '@/store'
 import { cn } from '@/theme'
 
 export default function EnablePasscode() {
   const disablePasscode = localAuthStore.useLocalAuthStore(state => state.disablePasscode)
 
+  const navigation = useNavigation()
+
   const onConfirm = useCallback(() => {
-    router.push('set-passcode')
-  }, [])
+    navigation.navigate(LocalAuthRoutesNames.SetPasscode)
+  }, [navigation])
 
   const onSkip = useCallback(() => {
     disablePasscode()
 
-    router.replace('(app)')
-  }, [disablePasscode])
+    navigation.navigate(AppRoutesNames.App)
+  }, [disablePasscode, navigation])
 
   return (
     <View className={cn('flex flex-1 items-center justify-center')}>
