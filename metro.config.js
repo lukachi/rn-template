@@ -13,7 +13,7 @@ const withSvgTransformer = (config) => {
 
   config.transformer = {
     ...transformer,
-    babelTransformerPath: require.resolve("react-native-svg-transformer/react-native")
+    babelTransformerPath: require.resolve("react-native-svg-transformer")
   };
   config.resolver = {
     ...resolver,
