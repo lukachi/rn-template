@@ -1,22 +1,18 @@
 import { ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { colors } from '@/theme/config'
-import { cn } from '@/theme/utils'
+import { cn, useAppTheme } from '@/theme/utils'
 
 export default function ColorsScreen() {
   const insets = useSafeAreaInsets()
 
+  const { palette } = useAppTheme()
+
   return (
-    <View
-      style={{
-        flex: 1,
-        paddingTop: insets.top,
-      }}
-    >
+    <View style={{ paddingTop: insets.top }} className={cn('flex-1')}>
       <ScrollView>
         <View className={cn('flex flex-row flex-wrap items-center justify-center gap-4')}>
-          {Object.keys(colors).map(el => (
+          {Object.keys(palette).map(el => (
             <View
               key={el}
               className={cn(

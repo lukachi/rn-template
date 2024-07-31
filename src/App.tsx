@@ -11,8 +11,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { APIProvider } from '@/api/client'
 import AppRoutes from '@/routes'
 import { authStore, localAuthStore } from '@/store'
-import { AppTheme } from '@/theme'
+import { loadSelectedTheme } from '@/theme'
 import { Toasts } from '@/ui'
+
+loadSelectedTheme()
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync()
@@ -68,14 +70,12 @@ export default function App() {
 
   return (
     <GestureHandlerRootView onLayout={onLayoutRootView}>
-      <AppTheme>
-        <APIProvider>
-          <BottomSheetModalProvider>
-            <AppRoutes />
-          </BottomSheetModalProvider>
-        </APIProvider>
-        <Toasts />
-      </AppTheme>
+      <APIProvider>
+        <BottomSheetModalProvider>
+          <AppRoutes />
+        </BottomSheetModalProvider>
+      </APIProvider>
+      <Toasts />
     </GestureHandlerRootView>
   )
 }

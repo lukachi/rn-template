@@ -11,10 +11,10 @@ module.exports = {
   darkMode: 'class',
   // NOTE: Update this to include the paths to all of your component files.
   content: [
-    "./src/app/**/*.{js,jsx,ts,tsx}",
-    "./src/theme/**/*.{js,jsx,ts,tsx}",
-    "./src/ui/**/*.{js,jsx,ts,tsx}",
-    "./src/components/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
+    // "./src/theme/**/*.{js,jsx,ts,tsx}",
+    // "./src/ui/**/*.{js,jsx,ts,tsx}",
+    // "./src/components/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
   theme: {

@@ -29,7 +29,7 @@ export default function UiKit() {
 
   return (
     <View
-      className='flex-1 bg-primaryLighter'
+      className='flex-1'
       style={{
         paddingTop: insets.top,
       }}

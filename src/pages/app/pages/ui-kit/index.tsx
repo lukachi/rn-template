@@ -53,7 +53,7 @@ function CustomTapBar(props: BottomTabBarProps) {
       style={{
         paddingBottom: insets.bottom,
       }}
-      className='flex flex-row items-center justify-between gap-4 overflow-x-auto rounded-tl-xl rounded-tr-xl bg-componentPrimary px-2'
+      className='flex flex-row items-center justify-between gap-4 overflow-x-auto rounded-tl-xl rounded-tr-xl bg-componentPrimary px-2 pt-4'
     >
       {props.state.routes.map((el, index) => {
         const { options } = props.descriptors[el.key]
