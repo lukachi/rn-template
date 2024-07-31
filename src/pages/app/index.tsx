@@ -1,8 +1,7 @@
-import { useNavigation } from '@react-navigation/native'
+import { StackActions, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { InAppRouteNames } from '@/pages/app/in-app-route-names'
-import { AppRoutesNames } from '@/root-route-names'
+import { AppRouterNames } from '@/route-names'
 import { authStore, localAuthStore } from '@/store'
 
 import FetchingScreen from './pages/fetching'
@@ -19,34 +18,34 @@ export default function App() {
 
   // TODO: move to route guards
   if (!isAuthorized) {
-    navigation.navigate(AppRoutesNames.Auth)
+    navigation.dispatch(StackActions.replace(AppRouterNames.Auth.Root))
 
     return null
   }
 
   if (isUserNeedToLocalAuth) {
-    navigation.navigate(AppRoutesNames.LocalAuth)
+    navigation.dispatch(StackActions.replace(AppRouterNames.LocalAuth.Root))
 
     return null
   }
 
   return (
     <>
-      <Stack.Navigator initialRouteName={InAppRouteNames.UiKit}>
+      <Stack.Navigator initialRouteName={AppRouterNames.App.UiKit.Root}>
         <Stack.Screen
-          name={InAppRouteNames.UiKit}
+          name={AppRouterNames.App.UiKit.Root}
           component={UiKitScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name={InAppRouteNames.Fetching}
+          name={AppRouterNames.App.Fetching}
           component={FetchingScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, presentation: 'modal' }}
         />
         <Stack.Screen
-          name={InAppRouteNames.Localization}
+          name={AppRouterNames.App.Localization}
           component={LocalizationScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, presentation: 'modal' }}
         />
       </Stack.Navigator>
     </>

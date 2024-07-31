@@ -1,27 +1,43 @@
-import { useNavigation } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { StackActions, useNavigation } from '@react-navigation/native'
 import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { InAppRouteNames } from '@/pages/app/in-app-route-names'
+import { AppRouterNames } from '@/route-names'
 import { authStore, localAuthStore } from '@/store'
-import { UiBottomSheet, UiButton, useUiBottomSheet } from '@/ui'
+import { useUiBottomSheet } from '@/ui'
+import { UiBottomSheet, UiButton } from '@/ui'
 
 import ColorsScreen from './pages/colors'
 import CommonScreen from './pages/common'
 import TypographyScreen from './pages/typography'
 import ZKPScreen from './pages/zkp'
 
-const Stack = createNativeStackNavigator()
+const Tab = createBottomTabNavigator()
 
-export enum UiKitRouteNames {
-  Common = 'common',
-  Colors = 'colors',
-  Typography = 'typography',
-  Zkp = 'zkp',
+export default function UiKitRoot() {
+  return (
+    <View className='flex-1'>
+      <View style={{ flex: 1 }}>
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+          initialRouteName={AppRouterNames.App.UiKit.Common}
+          tabBar={props => <CustomTapBar {...props} />}
+        >
+          <Tab.Screen name={AppRouterNames.App.UiKit.Common} component={CommonScreen} />
+          <Tab.Screen name={AppRouterNames.App.UiKit.Zkp} component={ZKPScreen} />
+          <Tab.Screen name={AppRouterNames.App.UiKit.Typography} component={TypographyScreen} />
+          <Tab.Screen name={AppRouterNames.App.UiKit.Colors} component={ColorsScreen} />
+        </Tab.Navigator>
+      </View>
+    </View>
+  )
 }
 
-export default function ThemeRoot() {
+function CustomTapBar(props: BottomTabBarProps) {
   const logout = authStore.useAuthStore(state => state.logout)
   // optional
   const resetLocalAuthStore = localAuthStore.useLocalAuthStore(state => state.resetStore)
@@ -33,86 +49,96 @@ export default function ThemeRoot() {
   const navigation = useNavigation()
 
   return (
-    <View className='flex-1'>
-      <View style={{ flex: 1 }}>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
+    <View
+      style={{
+        paddingBottom: insets.bottom,
+      }}
+      className='flex flex-row items-center justify-between gap-4 overflow-x-auto rounded-tl-xl rounded-tr-xl bg-componentPrimary px-2'
+    >
+      {props.state.routes.map((el, index) => {
+        const { options } = props.descriptors[el.key]
+        const label =
+          options.tabBarLabel !== undefined && typeof options.tabBarLabel === 'string'
+            ? options.tabBarLabel
+            : options.title !== undefined
+              ? options.title
+              : el.name
+
+        const isFocused = props.state.index === index
+
+        const onPress = () => {
+          const event = props.navigation.emit({
+            type: 'tabPress',
+            target: el.key,
+            canPreventDefault: true,
+          })
+
+          if (!isFocused && !event.defaultPrevented) {
+            props.navigation.navigate(el.name, el.params)
+          }
+        }
+
+        const onLongPress = () => {
+          props.navigation.emit({
+            type: 'tabLongPress',
+            target: el.key,
+          })
+        }
+
+        return (
+          <UiButton
+            key={index}
+            title={label ?? el.name}
+            onPress={onPress}
+            onLongPress={onLongPress}
+            color={isFocused ? 'success' : 'primary'}
+            size={'small'}
+          />
+        )
+      })}
+
+      <UiButton
+        leadingIcon='userIcon'
+        size='small'
+        onPress={() => {
+          bottomSheet.present()
+        }}
+      />
+
+      <UiBottomSheet title='Bottom Sheet title' ref={bottomSheet.ref}>
+        <View
+          // FIXME: nativeWind not works here
+          style={{
+            flex: 1,
+            gap: 4,
+            paddingHorizontal: 4,
           }}
         >
-          <Stack.Screen name={UiKitRouteNames.Common} component={CommonScreen} />
-          <Stack.Screen name={UiKitRouteNames.Zkp} component={ZKPScreen} />
-          <Stack.Screen name={UiKitRouteNames.Typography} component={TypographyScreen} />
-          <Stack.Screen name={UiKitRouteNames.Colors} component={ColorsScreen} />
-        </Stack.Navigator>
-      </View>
-
-      <View
-        style={{
-          paddingBottom: insets.bottom,
-        }}
-        className='flex flex-row justify-between rounded-tl-xl rounded-tr-xl bg-componentPrimary p-2'
-      >
-        <UiButton
-          leadingIcon='keyIcon'
-          onPress={() => {
-            navigation.navigate(UiKitRouteNames.Common)
-          }}
-        />
-        <UiButton
-          leadingIcon='slidersHorizontalIcon'
-          onPress={() => {
-            navigation.navigate(UiKitRouteNames.Zkp)
-          }}
-        />
-        <UiButton
-          leadingIcon='walletFilledIcon'
-          onPress={() => {
-            navigation.navigate(UiKitRouteNames.Colors)
-          }}
-        />
-        <UiButton
-          leadingIcon='xCircleIcon'
-          onPress={() => {
-            navigation.navigate(UiKitRouteNames.Typography)
-          }}
-        />
-
-        <UiButton
-          leadingIcon='userIcon'
-          onPress={() => {
-            bottomSheet.present()
-          }}
-        />
-
-        <UiBottomSheet title='Bottom Sheet title' ref={bottomSheet.ref}>
-          <View className='flex flex-col gap-5 px-5 py-10'>
-            <UiButton
-              title='fetching'
-              onPress={() => {
-                navigation.navigate(InAppRouteNames.Fetching)
-                bottomSheet.dismiss()
-              }}
-            />
-            <UiButton
-              title='localization'
-              onPress={() => {
-                navigation.navigate(InAppRouteNames.Localization)
-                bottomSheet.dismiss()
-              }}
-            />
-            <UiButton
-              title='logout'
-              color='error'
-              onPress={() => {
-                logout()
-                resetLocalAuthStore()
-                bottomSheet.dismiss()
-              }}
-            />
-          </View>
-        </UiBottomSheet>
-      </View>
+          <UiButton
+            title='fetching'
+            onPress={() => {
+              navigation.dispatch(StackActions.push(AppRouterNames.App.Fetching))
+              bottomSheet.dismiss()
+            }}
+          />
+          <UiButton
+            title='localization'
+            onPress={() => {
+              navigation.dispatch(StackActions.push(AppRouterNames.App.Localization))
+              bottomSheet.dismiss()
+            }}
+          />
+          <UiButton
+            title='logout'
+            color='error'
+            onPress={() => {
+              logout()
+              resetLocalAuthStore()
+              bottomSheet.dismiss()
+            }}
+          />
+        </View>
+      </UiBottomSheet>
     </View>
   )
 }

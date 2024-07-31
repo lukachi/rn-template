@@ -1,13 +1,13 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { useNavigation } from '@react-navigation/native'
+import { StackActions, useNavigation } from '@react-navigation/native'
 import { AuthenticationType } from 'expo-local-authentication'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Pressable, Text, View } from 'react-native'
 
 import { ErrorHandler } from '@/core'
-import { AppRoutesNames } from '@/root-route-names'
+import { AppRouterNames } from '@/route-names'
 import { authStore, BiometricStatuses, localAuthStore, MAX_ATTEMPTS } from '@/store'
-import { cn, useAppTheme } from '@/theme'
+import { cn } from '@/theme'
 import { UiIcon, UiTextField } from '@/ui'
 
 export default function Lockscreen() {
@@ -30,7 +30,7 @@ export default function Lockscreen() {
     if (!passcode) return
 
     if (tryUnlockWithPasscode(passcode)) {
-      navigation.navigate(AppRoutesNames.App) // TODO: replace
+      navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
 
       return
     }
@@ -44,7 +44,7 @@ export default function Lockscreen() {
 
     await resetLocalAuthStore()
 
-    navigation.navigate(AppRoutesNames.Auth) // TODO: replace
+    navigation.dispatch(StackActions.replace(AppRouterNames.Auth.Root))
   }, [logout, navigation, resetLocalAuthStore])
 
   if (biometricStatus === BiometricStatuses.Enabled) {
@@ -108,8 +108,6 @@ function BiometricsLockScreen() {
     state => state.tryUnlockWithBiometrics,
   )
 
-  const { palette } = useAppTheme()
-
   const navigation = useNavigation()
 
   const biometricIcon = useMemo(() => {
@@ -127,12 +125,12 @@ function BiometricsLockScreen() {
         <UiIcon componentName='fingerprintIcon' className={'size-[50px] text-primaryMain'} />
       ),
     }[biometricTypes[0]]
-  }, [biometricTypes, palette.primaryMain])
+  }, [biometricTypes])
 
   const unlockWithBiometrics = useCallback(async () => {
     try {
       if (await tryUnlockWithBiometrics()) {
-        navigation.navigate(AppRoutesNames.App) // TODO: replace
+        navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
       }
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)

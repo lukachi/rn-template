@@ -201,7 +201,7 @@ export const UiIcon = ({ componentName, ...rest }: Props) => {
   const IconComponent = ICON_COMPONENTS[componentName]
 
   if (isEmpty(IconComponent)) {
-    console.warn('failed to load icon', componentName)
+    // console.warn('failed to load icon', componentName)
 
     return null
   }

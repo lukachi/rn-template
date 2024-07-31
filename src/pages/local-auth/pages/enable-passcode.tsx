@@ -1,9 +1,8 @@
-import { useNavigation } from '@react-navigation/native'
+import { StackActions, useNavigation } from '@react-navigation/native'
 import { useCallback } from 'react'
 import { Button, Text, View } from 'react-native'
 
-import { LocalAuthRoutesNames } from '@/pages/local-auth/local-auth-routes-names'
-import { AppRoutesNames } from '@/root-route-names'
+import { AppRouterNames } from '@/route-names'
 import { localAuthStore } from '@/store'
 import { cn } from '@/theme'
 
@@ -13,13 +12,13 @@ export default function EnablePasscode() {
   const navigation = useNavigation()
 
   const onConfirm = useCallback(() => {
-    navigation.navigate(LocalAuthRoutesNames.SetPasscode)
+    navigation.dispatch(StackActions.push(AppRouterNames.LocalAuth.SetPasscode))
   }, [navigation])
 
   const onSkip = useCallback(() => {
     disablePasscode()
 
-    navigation.navigate(AppRoutesNames.App)
+    navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
   }, [disablePasscode, navigation])
 
   return (

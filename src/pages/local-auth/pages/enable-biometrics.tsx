@@ -1,11 +1,11 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { useNavigation } from '@react-navigation/native'
+import { StackActions, useNavigation } from '@react-navigation/native'
 import { AuthenticationType } from 'expo-local-authentication'
 import { useCallback, useMemo } from 'react'
 import { Button, Text, View } from 'react-native'
 
 import { ErrorHandler } from '@/core'
-import { AppRoutesNames } from '@/root-route-names'
+import { AppRouterNames } from '@/route-names'
 import { localAuthStore } from '@/store'
 import { cn } from '@/theme'
 import { UiIcon } from '@/ui'
@@ -21,7 +21,7 @@ export default function EnableBiometrics() {
     try {
       await enableBiometrics()
 
-      navigation.navigate(AppRoutesNames.App) // TODO: replace
+      navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
@@ -30,7 +30,7 @@ export default function EnableBiometrics() {
   const onSkip = useCallback(() => {
     disableBiometrics()
 
-    navigation.navigate(AppRoutesNames.App) // TODO: replace
+    navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
   }, [disableBiometrics, navigation])
 
   const biometricIcon = useMemo(() => {

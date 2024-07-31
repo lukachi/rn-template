@@ -1,10 +1,9 @@
-import { useNavigation } from '@react-navigation/native'
+import { StackActions, useNavigation } from '@react-navigation/native'
 import { useCallback, useState } from 'react'
 import { Button, ScrollView, Text, View } from 'react-native'
 
 import { ErrorHandler, useSoftKeyboardEffect } from '@/core'
-import { LocalAuthRoutesNames } from '@/pages/local-auth/local-auth-routes-names'
-import { AppRoutesNames } from '@/root-route-names'
+import { AppRouterNames } from '@/route-names'
 import { BiometricStatuses, localAuthStore } from '@/store'
 import { cn } from '@/theme'
 import { UiTextField } from '@/ui'
@@ -25,16 +24,16 @@ export default function SetPasscode() {
       setPasscodeStore(passcode)
 
       if (biometricStatus === BiometricStatuses.NotSet) {
-        navigation.navigate(LocalAuthRoutesNames.EnableBiometrics) // TODO: replace
+        navigation.dispatch(StackActions.replace(AppRouterNames.LocalAuth.EnableBiometrics))
 
         return
       }
 
-      navigation.navigate(AppRoutesNames.App) // TODO: replace
+      navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
-  }, [biometricStatus, passcode, setPasscodeStore])
+  }, [biometricStatus, navigation, passcode, setPasscodeStore])
 
   return (
     <ScrollView

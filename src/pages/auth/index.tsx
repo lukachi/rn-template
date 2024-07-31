@@ -1,8 +1,8 @@
-import { useNavigation } from '@react-navigation/native'
+import { StackActions, useNavigation } from '@react-navigation/native'
 import { Pressable, Text, View } from 'react-native'
 
 import { useSoftKeyboardEffect } from '@/core'
-import { AppRoutesNames } from '@/root-route-names'
+import { AppRouterNames } from '@/route-names'
 import { authStore } from '@/store'
 import { cn } from '@/theme'
 
@@ -20,7 +20,7 @@ export default function SignIn() {
           login()
           // Navigate after signing in. You may want to tweak this to ensure sign-in is
           // successful before navigating.
-          navigation.navigate(AppRoutesNames.App) // TODO: replace
+          navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
         }}
       >
         <Text className={cn('text-textPrimary')}>Sign In</Text>
