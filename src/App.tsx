@@ -76,8 +76,8 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1 }} key={language}>
-      <GestureHandlerRootView onLayout={onLayoutRootView}>
+    <View style={{ flex: 1 }} key={language} onLayout={onLayoutRootView}>
+      <GestureHandlerRootView>
         <APIProvider>
           <BottomSheetModalProvider>
             <AppRoutes />
