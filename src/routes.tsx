@@ -7,6 +7,7 @@ import AppScreen from '@/pages/app'
 import AuthScreen from '@/pages/auth'
 import LocalAuthScreen from '@/pages/local-auth'
 import { AppRouterNames } from '@/route-names'
+import { authStore, localAuthStore } from '@/store'
 import { useSelectedTheme } from '@/theme'
 import { cssVars, darkPalette, lightPalette } from '@/theme/config'
 
@@ -24,6 +25,9 @@ export default function AppRoutes() {
   const cssVarsToSet = vars(cssVars[themeToSet])
 
   const palette = themeToSet === 'dark' ? darkPalette : lightPalette
+
+  const isAuthorized = authStore.useIsAuthorized()
+  const isUserNeedToLocalAuth = localAuthStore.useUserNeedToLocalAuth()
 
   return (
     <View
@@ -47,28 +51,36 @@ export default function AppRoutes() {
           fonts: DefaultTheme.fonts,
         }}
       >
-        <Stack.Navigator initialRouteName={AppRouterNames.App.Root}>
-          <Stack.Screen
-            name={AppRouterNames.App.Root}
-            component={AppScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name={AppRouterNames.Auth.Root}
-            component={AuthScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name={AppRouterNames.LocalAuth.Root}
-            component={LocalAuthScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
+        <Stack.Navigator>
+          {isAuthorized ? (
+            <>
+              {isUserNeedToLocalAuth ? (
+                <Stack.Screen
+                  name={AppRouterNames.LocalAuth.Root}
+                  component={LocalAuthScreen}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+              ) : (
+                <Stack.Screen
+                  name={AppRouterNames.App.Root}
+                  component={AppScreen}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+              )}
+            </>
+          ) : (
+            <Stack.Screen
+              name={AppRouterNames.Auth.Root}
+              component={AuthScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </View>

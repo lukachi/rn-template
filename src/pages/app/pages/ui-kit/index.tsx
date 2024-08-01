@@ -2,14 +2,13 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { StackActions, useNavigation } from '@react-navigation/native'
 import type { ReactNode } from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { AppRouterNames } from '@/route-names'
 import { authStore, localAuthStore } from '@/store'
 import { cn, useAppTheme } from '@/theme'
-import { UiIcon, useUiBottomSheet } from '@/ui'
-import { UiBottomSheet, UiButton } from '@/ui'
+import { UiBottomSheet, UiButton, UiIcon, useUiBottomSheet } from '@/ui'
 
 import ColorsScreen from './pages/colors'
 import CommonScreen from './pages/common'
@@ -33,19 +32,43 @@ export default function UiKitRoot() {
             name={AppRouterNames.App.UiKit.Common}
             component={CommonScreen}
             options={{
-              tabBarLabel: ({ color, children }) => {
+              tabBarLabel: ({ color }) => {
                 return (
                   <View className='flex flex-row items-center gap-2'>
-                    <Text className='text-baseWhite'>{children}</Text>
+                    {/*<Text className='text-baseWhite'>{children}</Text>*/}
                     <UiIcon componentName='arrowRightIcon' color={color} />
                   </View>
                 )
               },
             }}
           />
-          <Tab.Screen name={AppRouterNames.App.UiKit.Zkp} component={ZKPScreen} />
-          <Tab.Screen name={AppRouterNames.App.UiKit.Typography} component={TypographyScreen} />
-          <Tab.Screen name={AppRouterNames.App.UiKit.Colors} component={ColorsScreen} />
+          <Tab.Screen
+            name={AppRouterNames.App.UiKit.Zkp}
+            component={ZKPScreen}
+            options={{
+              tabBarLabel: ({ color }) => {
+                return <UiIcon componentName='chartBarIcon' color={color} />
+              },
+            }}
+          />
+          <Tab.Screen
+            name={AppRouterNames.App.UiKit.Typography}
+            component={TypographyScreen}
+            options={{
+              tabBarLabel: ({ color }) => {
+                return <UiIcon componentName='warningIcon' color={color} />
+              },
+            }}
+          />
+          <Tab.Screen
+            name={AppRouterNames.App.UiKit.Colors}
+            component={ColorsScreen}
+            options={{
+              tabBarLabel: ({ color }) => {
+                return <UiIcon componentName='slidersHorizontalIcon' color={color} />
+              },
+            }}
+          />
         </Tab.Navigator>
       </View>
     </View>

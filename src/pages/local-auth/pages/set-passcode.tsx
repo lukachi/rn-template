@@ -28,8 +28,6 @@ export default function SetPasscode() {
 
         return
       }
-
-      navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }

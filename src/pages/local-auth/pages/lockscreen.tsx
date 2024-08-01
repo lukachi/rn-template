@@ -30,8 +30,6 @@ export default function Lockscreen() {
     if (!passcode) return
 
     if (tryUnlockWithPasscode(passcode)) {
-      navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
-
       return
     }
 
@@ -108,8 +106,6 @@ function BiometricsLockScreen() {
     state => state.tryUnlockWithBiometrics,
   )
 
-  const navigation = useNavigation()
-
   const biometricIcon = useMemo(() => {
     return {
       [AuthenticationType.FINGERPRINT]: (
@@ -129,13 +125,11 @@ function BiometricsLockScreen() {
 
   const unlockWithBiometrics = useCallback(async () => {
     try {
-      if (await tryUnlockWithBiometrics()) {
-        navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
-      }
+      await tryUnlockWithBiometrics()
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
-  }, [navigation, tryUnlockWithBiometrics])
+  }, [tryUnlockWithBiometrics])
 
   useEffect(() => {
     unlockWithBiometrics()

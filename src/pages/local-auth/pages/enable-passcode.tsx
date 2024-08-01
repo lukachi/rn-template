@@ -17,9 +17,7 @@ export default function EnablePasscode() {
 
   const onSkip = useCallback(() => {
     disablePasscode()
-
-    navigation.dispatch(StackActions.replace(AppRouterNames.App.Root))
-  }, [disablePasscode, navigation])
+  }, [disablePasscode])
 
   return (
     <View className={cn('flex flex-1 items-center justify-center')}>

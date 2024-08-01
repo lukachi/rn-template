@@ -308,12 +308,20 @@ const useUserActionsInLocalAuth = (onDecided: (action: UserActionsInLocalAuth) =
 
 const useUserNeedToLocalAuth = () => {
   const passcodeStatus = useLocalAuthStore(state => state.passcodeStatus)
+  const biometricStatus = useLocalAuthStore(state => state.biometricStatus)
 
   const isUnlocked = useIsUnlocked()
   const isPasscodeEnabled = passcodeStatus === PasscodeStatuses.Enabled
   const isPasscodeNotSet = passcodeStatus === PasscodeStatuses.NotSet
+  const isBiometricNotSet = biometricStatus === BiometricStatuses.NotSet
+  const isBiometricEnabled = biometricStatus === BiometricStatuses.Enabled
 
-  if (isPasscodeNotSet || (isPasscodeEnabled && !isUnlocked)) return true
+  if (
+    isPasscodeNotSet ||
+    isBiometricNotSet ||
+    ((isPasscodeEnabled || isBiometricEnabled) && !isUnlocked)
+  )
+    return true
 
   return false
 }
