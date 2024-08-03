@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { ScrollView, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { multiply } from 'rn-wtnscalcs'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { generateAuthWtns, multiply, plus } from 'rn-wtnscalcs'
 
 import { ErrorHandler } from '@/core'
 import { UiButton } from '@/ui'
@@ -21,6 +21,8 @@ export default function ZKP() {
   // ])
 
   // const { executeWitnessCalculator } = useWitnessCalc()
+
+  const insets = useSafeAreaInsets()
 
   const executeZKP = useCallback(async () => {
     // if (!assets?.[0] || !assets?.[1]) return
@@ -44,20 +46,39 @@ export default function ZKP() {
     }
   }, [])
 
-  const runMethodFromWtnsCalcModule = async () => {
+  const runMultiply = async () => {
     console.log(multiply(2, 3))
   }
 
+  const runPlus = async () => {
+    console.log(plus(2, 3))
+  }
+
+  const runAuthCalc = async () => {
+    try {
+      const res = await generateAuthWtns(JSON.stringify(authInputs))
+      // console.log(Buffer.from(res).toString('hex'))
+      console.log(res)
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error)
+    }
+  }
+
   return (
-    <View className='flex-1'>
-      <SafeAreaView>
-        <ScrollView>
-          <View className='flex flex-1 items-center justify-center gap-4'>
-            <UiButton onPress={executeZKP} title='Execute ZKP' />
-            <UiButton onPress={runMethodFromWtnsCalcModule} title='Execute WtnsCalcModule' />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+    <View
+      style={{
+        paddingTop: insets.top,
+      }}
+      className='flex-1'
+    >
+      <ScrollView>
+        <View className='flex flex-1 items-center justify-center gap-4'>
+          <UiButton onPress={executeZKP} title='Execute ZKP' />
+          <UiButton onPress={runMultiply} title='runMultiply' />
+          <UiButton onPress={runPlus} title='runPlus' />
+          <UiButton onPress={runAuthCalc} title='runAuthCalc' />
+        </View>
+      </ScrollView>
     </View>
   )
 }

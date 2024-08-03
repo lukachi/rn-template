@@ -77,10 +77,10 @@ build CMakeFiles/rn-wtnscalcs.dir/cpp-adapter.cpp.o: CXX_COMPILER__rn-wtnscalcs_
 #############################################
 # Link the shared library ../../../../build/intermediates/cxx/Debug/4c5p3s4c/obj/x86/librn-wtnscalcs.so
 
-build ../../../../build/intermediates/cxx/Debug/4c5p3s4c/obj/x86/librn-wtnscalcs.so: CXX_SHARED_LIBRARY_LINKER__rn-wtnscalcs_Debug CMakeFiles/rn-wtnscalcs.dir/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/cpp/rn-wtnscalcs.cpp.o CMakeFiles/rn-wtnscalcs.dir/cpp-adapter.cpp.o
+build ../../../../build/intermediates/cxx/Debug/4c5p3s4c/obj/x86/librn-wtnscalcs.so: CXX_SHARED_LIBRARY_LINKER__rn-wtnscalcs_Debug CMakeFiles/rn-wtnscalcs.dir/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/cpp/rn-wtnscalcs.cpp.o CMakeFiles/rn-wtnscalcs.dir/cpp-adapter.cpp.o | ../../../../lib/libwitnesscalc_auth.so
   LANGUAGE_COMPILE_FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O2 -frtti -fexceptions -Wall -fstack-protector-all -fno-limit-debug-info
   LINK_FLAGS = -static-libstdc++ -Wl,--build-id=sha1 -Wl,--no-rosegment -Wl,--no-undefined-version -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments
-  LINK_LIBRARIES = -latomic -lm
+  LINK_LIBRARIES = -landroid  ../../../../lib/libwitnesscalc_auth.so  -latomic -lm
   OBJECT_DIR = CMakeFiles/rn-wtnscalcs.dir
   POST_BUILD = :
   PRE_LINK = :

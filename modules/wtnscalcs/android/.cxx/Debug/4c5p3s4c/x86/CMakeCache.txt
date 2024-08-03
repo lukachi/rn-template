@@ -248,6 +248,9 @@ RnWtnscalcs_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 RnWtnscalcs_SOURCE_DIR:STATIC=/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android
 
+//Dependencies for the target
+rn-wtnscalcs_LIB_DEPENDS:STATIC=general;android;general;auth;
+
 
 ########################
 # INTERNAL cache entries

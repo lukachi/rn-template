@@ -13,3 +13,12 @@ add_library(rn-wtnscalcs            SHARED
 include_directories(
             ../cpp
 )
+
+link_directories(lib)
+
+add_library(auth SHARED IMPORTED)
+set_target_properties(auth PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/libwitnesscalc_auth.so)
+
+target_link_libraries(rn-wtnscalcs
+        android
+        auth)
