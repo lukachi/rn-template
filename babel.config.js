@@ -17,7 +17,6 @@ module.exports = (api) => {
             '@': './src',
             '@assets': './assets',
             '@env': './src/core/env.js',
-            '@modules': './src/modules',
           },
           extensions: [
             '.ios.ts',

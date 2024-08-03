@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { multiply } from 'rn-wtnscalcs'
 
 import { ErrorHandler } from '@/core'
 import { UiButton } from '@/ui'
@@ -43,12 +44,19 @@ export default function ZKP() {
     }
   }, [])
 
+  const runMethodFromWtnsCalcModule = async () => {
+    console.log(multiply(2, 3))
+  }
+
   return (
     <View className='flex-1'>
-      <SafeAreaView className=''>
-        <View className='flex flex-1 items-center justify-center'>
-          <UiButton onPress={executeZKP} title='Execute ZKP' />
-        </View>
+      <SafeAreaView>
+        <ScrollView>
+          <View className='flex flex-1 items-center justify-center gap-4'>
+            <UiButton onPress={executeZKP} title='Execute ZKP' />
+            <UiButton onPress={runMethodFromWtnsCalcModule} title='Execute WtnsCalcModule' />
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </View>
   )

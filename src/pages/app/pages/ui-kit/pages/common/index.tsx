@@ -3,11 +3,6 @@ import { Image } from 'expo-image'
 import { Button, ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import LangSwitcher from '@/components/UiKit/components/LangSwitcher'
-import Sibling1 from '@/components/UiKit/components/Sibling1'
-import Sibling2 from '@/components/UiKit/components/Sibling2'
-import SimpleForm from '@/components/UiKit/components/SimpleForm'
-import ThemeSwitcher from '@/components/UiKit/components/ThemeSwitcher'
 import { bus, DefaultBusEvents, ErrorHandler, translate } from '@/core'
 import {
   formatAmount,
@@ -21,8 +16,13 @@ import { UiBottomSheet, UiIcon, useUiBottomSheet } from '@/ui'
 import { FileSystemUtil } from '@/utils'
 
 import { Buttons } from './components'
+import LangSwitcher from './components/LangSwitcher'
+import Sibling1 from './components/Sibling1'
+import Sibling2 from './components/Sibling2'
+import SimpleForm from './components/SimpleForm'
+import ThemeSwitcher from './components/ThemeSwitcher'
 
-export default function UiKit() {
+export default function Common() {
   const insets = useSafeAreaInsets()
   const bottomSheet = useUiBottomSheet()
   const { palette } = useAppTheme()

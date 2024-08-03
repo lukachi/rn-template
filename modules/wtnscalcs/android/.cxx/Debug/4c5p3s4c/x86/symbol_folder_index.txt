@@ -1,0 +1,1 @@
+/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/build/intermediates/cxx/Debug/4c5p3s4c/obj/x86
