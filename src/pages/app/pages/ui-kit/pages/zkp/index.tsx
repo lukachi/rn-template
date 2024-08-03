@@ -1,3 +1,5 @@
+// import { groth16Prove } from '@iden3/react-native-rapidsnark'
+import { Buffer } from 'buffer'
 import { useCallback } from 'react'
 import { ScrollView, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -14,11 +16,7 @@ const authInputs = {
 }
 
 export default function ZKP() {
-  // const [assets] = useAssets([
-  // require('@assets/circuits/auth/auth.wasm'),
-  // require('@assets/circuits/auth/circuit_final.zkey'),
-  // require('@assets/circuits/auth/witness.wtns'),
-  // ])
+  // const [assets] = useAssets([require('@assets/circuits/auth/circuit_final.zkey')])
 
   // const { executeWitnessCalculator } = useWitnessCalc()
 
@@ -28,19 +26,12 @@ export default function ZKP() {
     // if (!assets?.[0] || !assets?.[1]) return
 
     try {
-      // const result = await executeWitnessCalculator(assets[0], authInputs)
-      // console.log(result)
-      // console.log(rapidsnark)
-      // const { proof, pub_signals } = await rapidsnark.groth16Prove(assets[1], result)
+      // const res = await generateAuthWtns(JSON.stringify(authInputs))
+      //
+      // console.log(res)
+      // const { proof, pub_signals } = await groth16Prove(assets[0], res)
+      //
       // console.log(proof, pub_signals)
-      // const wtnsCalc = await wc(authWasm)
-      // const wtnsCalc = await wc(authWasm)
-      // const buff = await wtnsCalc.calculateWTNSBin(input, 0)
-      // console.log(buff)
-      // load wasm
-      // use witness calculator
-      // use groth16 prover
-      // log ZKProof
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
@@ -56,9 +47,9 @@ export default function ZKP() {
 
   const runAuthCalc = async () => {
     try {
+      // TODO: base64?
       const res = await generateAuthWtns(JSON.stringify(authInputs))
-      // console.log(Buffer.from(res).toString('hex'))
-      console.log(res)
+      console.log(Buffer.from(res, 'base64'))
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }

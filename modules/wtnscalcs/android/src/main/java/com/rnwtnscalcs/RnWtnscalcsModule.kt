@@ -1,5 +1,7 @@
 package com.rnwtnscalcs
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
@@ -7,6 +9,7 @@ import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableNativeArray
 import com.facebook.react.module.annotations.ReactModule
 import okhttp3.internal.EMPTY_BYTE_ARRAY
+import java.util.Base64
 
 @ReactModule(name = RnWtnscalcsModule.NAME)
 class RnWtnscalcsModule(reactContext: ReactApplicationContext) :
@@ -26,6 +29,7 @@ class RnWtnscalcsModule(reactContext: ReactApplicationContext) :
     return a + b
   }
 
+  @RequiresApi(Build.VERSION_CODES.O)
   override fun generateAuthWtns(inputsBuffer: String, promise: Promise) {
     val wtnsCalc = WtnsCalculator(
       reactApplicationContext,
@@ -38,7 +42,8 @@ class RnWtnscalcsModule(reactContext: ReactApplicationContext) :
         inputsBuffer.toByteArray(),
         WtnsUtil::auth
       ).let {
-        (String(it))
+        // base64
+        String(Base64.getEncoder().encode(it))
       }
 
       promise.resolve(res)
