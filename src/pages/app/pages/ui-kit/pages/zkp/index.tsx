@@ -47,8 +47,7 @@ export default function ZKP() {
 
   const runAuthCalc = async () => {
     try {
-      // TODO: base64?
-      const res = await generateAuthWtns(JSON.stringify(authInputs))
+      const res = await generateAuthWtns(Buffer.from(JSON.stringify(authInputs)).toString('base64'))
       console.log(Buffer.from(res, 'base64'))
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)

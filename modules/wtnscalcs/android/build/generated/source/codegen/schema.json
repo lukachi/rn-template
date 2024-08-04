@@ -71,7 +71,7 @@
               },
               "params": [
                 {
-                  "name": "jsonInputs",
+                  "name": "jsonInputsBase64",
                   "optional": false,
                   "typeAnnotation": {
                     "type": "StringTypeAnnotation"

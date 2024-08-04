@@ -22,7 +22,7 @@ protected:
 public:
   virtual double multiply(jsi::Runtime &rt, double a, double b) = 0;
   virtual double plus(jsi::Runtime &rt, double a, double b) = 0;
-  virtual jsi::Value generateAuthWtns(jsi::Runtime &rt, jsi::String jsonInputs) = 0;
+  virtual jsi::Value generateAuthWtns(jsi::Runtime &rt, jsi::String jsonInputsBase64) = 0;
 
 };
 
@@ -62,13 +62,13 @@ private:
       return bridging::callFromJs<double>(
           rt, &T::plus, jsInvoker_, instance_, std::move(a), std::move(b));
     }
-    jsi::Value generateAuthWtns(jsi::Runtime &rt, jsi::String jsonInputs) override {
+    jsi::Value generateAuthWtns(jsi::Runtime &rt, jsi::String jsonInputsBase64) override {
       static_assert(
           bridging::getParameterCount(&T::generateAuthWtns) == 2,
           "Expected generateAuthWtns(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::generateAuthWtns, jsInvoker_, instance_, std::move(jsonInputs));
+          rt, &T::generateAuthWtns, jsInvoker_, instance_, std::move(jsonInputsBase64));
     }
 
   private:

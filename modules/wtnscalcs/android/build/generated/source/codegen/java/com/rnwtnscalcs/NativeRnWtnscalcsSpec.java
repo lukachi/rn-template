@@ -42,5 +42,5 @@ public abstract class NativeRnWtnscalcsSpec extends ReactContextBaseJavaModule i
 
   @ReactMethod
   @DoNotStrip
-  public abstract void generateAuthWtns(String jsonInputs, Promise promise);
+  public abstract void generateAuthWtns(String jsonInputsBase64, Promise promise);
 }

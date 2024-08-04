@@ -8,6 +8,6 @@ export function plus(a: number, b: number): number {
   return RnWtnscalcs.plus(a, b)
 }
 
-export function generateAuthWtns(jsonInputs: string): Promise<string> {
-  return RnWtnscalcs.generateAuthWtns(jsonInputs)
+export function generateAuthWtns(jsonInputsBase64: string): Promise<string> {
+  return RnWtnscalcs.generateAuthWtns(jsonInputsBase64)
 }

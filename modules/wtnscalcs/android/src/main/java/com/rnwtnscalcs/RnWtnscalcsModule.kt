@@ -30,7 +30,7 @@ class RnWtnscalcsModule(reactContext: ReactApplicationContext) :
   }
 
   @RequiresApi(Build.VERSION_CODES.O)
-  override fun generateAuthWtns(inputsBuffer: String, promise: Promise) {
+  override fun generateAuthWtns(jsonInputsBase64: String, promise: Promise) {
     val wtnsCalc = WtnsCalculator(
       reactApplicationContext,
       reactApplicationContext.assets
@@ -39,7 +39,7 @@ class RnWtnscalcsModule(reactContext: ReactApplicationContext) :
     try {
       val res = wtnsCalc.calculateWtns(
         R.raw.auth,
-        inputsBuffer.toByteArray(),
+        Base64.getDecoder().decode(jsonInputsBase64),
         WtnsUtil::auth
       ).let {
         // base64
