@@ -1,2 +1,3 @@
 ninja: Entering directory `/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/.cxx/Debug/3i523o2x/arm64-v8a'
-[1/1] Linking CXX shared library ../../../../build/intermediates/cxx/Debug/3i523o2x/obj/arm64-v8a/librn-wtnscalcs.so
+[1/2] Building CXX object CMakeFiles/rn-wtnscalcs.dir/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/cpp/rn-wtnscalcs.cpp.o
+[2/2] Linking CXX shared library ../../../../build/intermediates/cxx/Debug/3i523o2x/obj/arm64-v8a/librn-wtnscalcs.so

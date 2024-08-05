@@ -1,5 +1,4 @@
 #include "rn-wtnscalcs.h"
-#include <jni.h>
 
 namespace rnwtnscalcs {
 	double multiply(double a, double b) {

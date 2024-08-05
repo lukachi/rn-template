@@ -13,8 +13,23 @@ Pod::Spec.new do |s|
 
   s.platforms    = { :ios => min_ios_version_supported }
   s.source       = { :git => ".git", :tag => "#{s.version}" }
+  
+  s.resource_bundles = {
+    'WtnsUtilsResources' => ['ios/Resources/*.dat']
+  }
 
-  s.source_files = "ios/**/*.{h,m,mm}", "cpp/**/*.{hpp,cpp,c,h}"
+  s.source_files = "ios/**/*.{h,m,mm,swift}", "cpp/**/*.{hpp,cpp,c,h}"
+
+  s.vendored_libraries = "cpp/*.a"
+
+  s.preserve_paths = ['cpp/*.a']
+  s.libraries = "gmp"
+
+  # Add GMP headers
+  s.public_header_files = 'cpp/*.h'
+  s.xcconfig = { 'HEADER_SEARCH_PATHS' => '"$(PODS_ROOT)/Headers/Public/rn-wtnscalcs/cpp"' }
+
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'OTHER_LINKING_FLAGS' => '-lc++' }
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
   # See https://github.com/facebook/react-native/blob/febf6b7f33fdb4904669f99d795eba4c0f95d7bf/scripts/cocoapods/new_architecture.rb#L79.
