@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => ".git", :tag => "#{s.version}" }
   
   s.resource_bundles = {
-    'WtnsUtilsResources' => ['ios/Resources/*.dat']
+    "RnWtnscalcsDatAssets" => ["ios/datAssets.xcassets"]
   }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}", "cpp/**/*.{hpp,cpp,c,h}"

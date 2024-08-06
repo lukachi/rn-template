@@ -20,21 +20,28 @@ static const unsigned long WITNESS_SIZE = 100 * 1024 * 1024;
 }
 
 + (NSData *)calcWtnsAuth:(NSData *)privateInputsJson error:(NSError **)error {
-    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"auth" ofType:@"dat" inDirectory:@"/cpp"];
-    if (!filePath) {
-        NSLog(@"auth.dat file not found");
-        return nil;
-    }
-    NSData *authDat = [NSData dataWithContentsOfFile:filePath];
+    NSBundle *bundle = [NSBundle bundleWithIdentifier:@"org.cocoapods.RnWtnscalcsDatAssets"];
     
-    if (!authDat) {
+    // Check if bundle is loaded correctly
+    if (!bundle) {
+        NSLog(@"Bundle not found");
         if (error) {
-            *error = [NSError errorWithDomain:@"WtnsUtilsErrorDomain" code:1 userInfo:@{NSLocalizedDescriptionKey: @"auth.dat file not found"}];
+            *error = [NSError errorWithDomain:@"WtnsUtilsErrorDomain" code:1 userInfo:@{NSLocalizedDescriptionKey: @"Resource bundle not found"}];
         }
         return nil;
     }
     
-    return [self _calcWtnsAuth:authDat privateInputsJson:privateInputsJson error:error];
+    // Attempt to load the data asset
+    NSDataAsset *authDat = [[NSDataAsset alloc] initWithName:@"authDat" bundle:bundle];
+    if (!authDat) {
+        NSLog(@"authDat file not found in bundle");
+        if (error) {
+            *error = [NSError errorWithDomain:@"WtnsUtilsErrorDomain" code:1 userInfo:@{NSLocalizedDescriptionKey: @"authDat file not found in bundle"}];
+        }
+        return nil;
+    }
+    
+    return [self _calcWtnsAuth:authDat.data privateInputsJson:privateInputsJson error:error];
 }
 
 + (NSData *)_calcWtnsAuth:(NSData *)descriptionFileData privateInputsJson:(NSData *)privateInputsJson error:(NSError **)error {

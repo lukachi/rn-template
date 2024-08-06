@@ -23,19 +23,17 @@ RCT_EXPORT_MODULE()
         return;
     }
     
-    resolve(@"test");
-    
-//    NSData *result = [WtnsUtils calcWtnsAuth:jsonData error:&error];
-//    
-//    if (error) {
-//        NSLog(@"Error: %@", error.localizedDescription);
-//        reject(@"error", error.localizedDescription, error);
-//    } else {
-//        // Encode result to base64 and resolve
-//        NSString *resultBase64 = [result base64EncodedStringWithOptions:0];
-//        
-//        resolve(resultBase64);
-//    }
+    NSData *result = [WtnsUtils calcWtnsAuth:jsonData error:&error];
+
+    if (error) {
+        NSLog(@"Error: %@", error.localizedDescription);
+        reject(@"error", error.localizedDescription, error);
+    } else {
+        // Encode result to base64 and resolve
+        NSString *resultBase64 = [result base64EncodedStringWithOptions:0];
+        
+        resolve(resultBase64);
+    }
 }
 
 
