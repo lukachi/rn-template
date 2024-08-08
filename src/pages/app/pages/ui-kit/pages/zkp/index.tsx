@@ -2,8 +2,8 @@
 import { Buffer } from 'buffer'
 import { useCallback } from 'react'
 import { ScrollView, View } from 'react-native'
-import { generatePrivateKey } from 'react-native-rmo-identity'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { generatePrivateKey } from 'rmo-identity'
 import { generateAuthWtns, multiply, plus } from 'rn-wtnscalcs'
 
 import { ErrorHandler } from '@/core'

@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/.cxx/Debug/2ww4bb85/arm64-v8a",
+  "command": "/Users/lukachisama/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=aarch64-none-linux-android24 --sysroot=/Users/lukachisama/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Drmo_identity_EXPORTS -I/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/../cpp -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O2 -frtti -fexceptions -Wall -fstack-protector-all -fno-limit-debug-info  -fPIC -std=gnu++14 -o CMakeFiles/rmo-identity.dir/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/cpp/rmo-identity.cpp.o -c /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/cpp/rmo-identity.cpp",
+  "file": "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/cpp/rmo-identity.cpp"
+},
+{
+  "directory": "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/.cxx/Debug/2ww4bb85/arm64-v8a",
+  "command": "/Users/lukachisama/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=aarch64-none-linux-android24 --sysroot=/Users/lukachisama/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Drmo_identity_EXPORTS -I/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/../cpp -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O2 -frtti -fexceptions -Wall -fstack-protector-all -fno-limit-debug-info  -fPIC -std=gnu++14 -o CMakeFiles/rmo-identity.dir/cpp-adapter.cpp.o -c /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/cpp-adapter.cpp",
+  "file": "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/cpp-adapter.cpp"
+}
+]

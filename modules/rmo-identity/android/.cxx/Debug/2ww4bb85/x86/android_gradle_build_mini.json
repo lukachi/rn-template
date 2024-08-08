@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/lukachisama/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/.cxx/Debug/2ww4bb85/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/lukachisama/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/.cxx/Debug/2ww4bb85/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "rmo-identity::@6890427a1f51a3e7e1df": {
+      "artifactName": "rmo-identity",
+      "abi": "x86",
+      "output": "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/build/intermediates/cxx/Debug/2ww4bb85/obj/x86/librmo-identity.so",
+      "runtimeFiles": []
+    }
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "react-native-rmo-identity",
+  "name": "rmo-identity",
   "version": "0.0.0",
   "description": "RMO Identity helpers",
   "main": "src/index",
@@ -13,7 +13,7 @@
   "homepage": "#readme",
   "create-react-native-library": {
     "type": "module-new",
-    "languages": "kotlin-objc",
+    "languages": "cpp",
     "version": "0.40.0"
   }
 }

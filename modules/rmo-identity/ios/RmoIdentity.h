@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+#import "rmo-identity.h"
+#endif
 
 #ifdef RCT_NEW_ARCH_ENABLED
 #import "RNRmoIdentitySpec.h"
