@@ -59,7 +59,7 @@ export default function ZKP() {
     try {
       const pk = await generatePrivateKey()
 
-      console.log(pk)
+      console.log(Buffer.from(pk, 'base64').toString('hex'))
     } catch (error) {
       ErrorHandler.process(error)
     }
