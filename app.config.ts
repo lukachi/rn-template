@@ -79,10 +79,10 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         android: {
           kotlinVersion: '1.7.22', // this is for softinput package
           minSdkVersion: 24,
-          newArchEnabled: true
+          // newArchEnabled: true
         },
         ios: {
-          newArchEnabled: true
+          // newArchEnabled: true
         },
       },
     ],

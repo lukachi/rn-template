@@ -8,7 +8,6 @@ export const AppRouterNames = {
       Common: 'common',
       Colors: 'colors',
       Typography: 'typography',
-      Zkp: 'zkp',
     },
     Fetching: 'fetching',
     Localization: 'localization',
