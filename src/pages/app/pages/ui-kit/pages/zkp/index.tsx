@@ -2,6 +2,7 @@
 import { Buffer } from 'buffer'
 import { useCallback } from 'react'
 import { ScrollView, View } from 'react-native'
+import { generatePrivateKey } from 'react-native-rmo-identity'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { generateAuthWtns, multiply, plus } from 'rn-wtnscalcs'
 
@@ -54,6 +55,16 @@ export default function ZKP() {
     }
   }
 
+  const genPK = async () => {
+    try {
+      const pk = await generatePrivateKey()
+
+      console.log(pk)
+    } catch (error) {
+      ErrorHandler.process(error)
+    }
+  }
+
   return (
     <View
       style={{
@@ -67,6 +78,7 @@ export default function ZKP() {
           <UiButton onPress={runMultiply} title='runMultiply' />
           <UiButton onPress={runPlus} title='runPlus' />
           <UiButton onPress={runAuthCalc} title='runAuthCalc' />
+          <UiButton onPress={genPK} title='genPK' />
         </View>
       </ScrollView>
     </View>

@@ -1,0 +1,19 @@
+{
+  "name": "react-native-rmo-identity",
+  "version": "0.0.0",
+  "description": "RMO Identity helpers",
+  "main": "src/index",
+  "codegenConfig": {
+    "name": "RNRmoIdentitySpec",
+    "type": "modules",
+    "jsSrcsDir": "src"
+  },
+  "author": " <> ()",
+  "license": "UNLICENSED",
+  "homepage": "#readme",
+  "create-react-native-library": {
+    "type": "module-new",
+    "languages": "kotlin-objc",
+    "version": "0.40.0"
+  }
+}
