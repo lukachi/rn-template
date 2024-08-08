@@ -1,3 +1,4 @@
+import type { ReactElement, ReactNode } from 'react'
 import { forwardRef, useCallback, useMemo, useState } from 'react'
 import type { GestureResponderEvent, PressableProps } from 'react-native'
 import { Pressable, Text, View } from 'react-native'
@@ -404,17 +405,19 @@ const buttonBaseTv = tv({
   },
 })
 
-type Props = PressableProps & {
+type Props = Omit<PressableProps, 'children'> & {
   title?: string
   leadingIcon?: UiIconName
   trailingIcon?: UiIconName
+
+  children?: string | ReactElement | ReactNode
 } & VariantProps<typeof buttonBaseTv>
 
 // pressable forwards ref to view under the hood
 type PressableRef = View
 
 export const UiButton = forwardRef<PressableRef, Props>(
-  ({ title, size, variant, color, leadingIcon, trailingIcon, ...rest }: Props, ref) => {
+  ({ title, size, variant, color, leadingIcon, trailingIcon, children, ...rest }: Props, ref) => {
     const [isPressed, setIsPressed] = useState(false)
 
     const baseStyles = useMemo(
@@ -437,11 +440,21 @@ export const UiButton = forwardRef<PressableRef, Props>(
       [rest],
     )
 
+    const btnContent = useMemo(() => {
+      if (children && typeof children !== 'string') {
+        return children
+      }
+
+      return (
+        (children || title) && <Text className={cn(baseStyles.text())}>{children || title}</Text>
+      )
+    }, [baseStyles, children, title])
+
     return (
       <Pressable {...rest} ref={ref} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <View className={cn(baseStyles.container())}>
           {leadingIcon && <UiIcon componentName={leadingIcon} className={cn(baseStyles.icon())} />}
-          <Text className={cn(baseStyles.text())}>{title}</Text>
+          {btnContent}
           {trailingIcon && (
             <UiIcon componentName={trailingIcon} className={cn(baseStyles.icon())} />
           )}

@@ -43,7 +43,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-asset',
-      [
+    [
       'expo-font',
       {
         fonts: [
@@ -66,8 +66,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         ],
       },
     ],
-    'expo-localization',
-    'expo-router',
+    // 'expo-localization',
     [
       "expo-secure-store",
       {
@@ -79,6 +78,11 @@ export default ({config}: ConfigContext): ExpoConfig => ({
       {
         android: {
           kotlinVersion: '1.7.22', // this is for softinput package
+          minSdkVersion: 24,
+          // newArchEnabled: true
+        },
+        ios: {
+          // newArchEnabled: true
         },
       },
     ],
@@ -105,7 +109,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
       {
         "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
       }
-    ]
+    ],
   ],
   extra: {
     ...ClientEnv,

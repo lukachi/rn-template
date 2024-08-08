@@ -28,15 +28,18 @@ export const translate = memoize(
 export const changeLanguage = (lang: Language) => {
   i18n.changeLanguage(lang)
   if (lang === 'ar') {
+    I18nManager.allowRTL(true)
     I18nManager.forceRTL(true)
   } else {
+    I18nManager.allowRTL(false)
     I18nManager.forceRTL(false)
   }
 
   setDayjsLocale(lang)
 
+  // TODO: mb remove after fix rtl in ios
   if (Platform.OS === 'ios' || Platform.OS === 'android') {
-    if (__DEV__) NativeModules.DevSettings.reload()
+    if (__DEV__) NativeModules.DevSettings?.reload?.()
     else RNRestart.restart()
   } else if (Platform.OS === 'web') {
     window.location.reload()

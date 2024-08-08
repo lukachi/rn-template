@@ -6,7 +6,7 @@ import Toast, { BaseToast } from 'react-native-toast-message'
 import { DefaultBusEvents, ErrorHandler, translate } from '@/core'
 import { bus } from '@/core'
 import { sleep } from '@/helpers'
-import { cn, getAppTheme, useAppTheme } from '@/theme'
+import { cn, useAppTheme } from '@/theme'
 import UiIcon from '@/ui/UiIcon'
 
 const STATUS_MESSAGE_AUTO_HIDE_DURATION = 2 * 1000
@@ -35,20 +35,16 @@ const defaultMessages = {
 
 const defaultIcons = {
   [DefaultBusEvents.success]: () => {
-    const { palette } = getAppTheme()
-    return <UiIcon componentName='checkIcon' color={palette.successMain} />
+    return <UiIcon componentName='checkIcon' className={cn('text-successMain')} />
   },
   [DefaultBusEvents.error]: () => {
-    const { palette } = getAppTheme()
-    return <UiIcon componentName='warningIcon' color={palette.errorMain} />
+    return <UiIcon componentName='warningIcon' className={cn('text-errorMain')} />
   },
   [DefaultBusEvents.warning]: () => {
-    const { palette } = getAppTheme()
-    return <UiIcon componentName='warningIcon' color={palette.warningMain} />
+    return <UiIcon componentName='warningIcon' className={cn('text-warningMain')} />
   },
   [DefaultBusEvents.info]: () => {
-    const { palette } = getAppTheme()
-    return <UiIcon componentName='infoIcon' color={palette.secondaryMain} />
+    return <UiIcon componentName='infoIcon' className={cn('text-secondaryMain')} />
   },
 }
 
