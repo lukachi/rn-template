@@ -114,7 +114,18 @@ const useLocalAuthStore = create(
           setState({ passcode, passcodeStatus: PasscodeStatuses.Enabled })
         },
         disablePasscode: (): void => {
-          setState({ passcode: '', passcodeStatus: PasscodeStatuses.Disabled })
+          const biometricStatus = getState().biometricStatus
+
+          const isBiometricStatusNotSet = biometricStatus === BiometricStatuses.NotSet
+          const isBiometricStatusEnabled = biometricStatus === BiometricStatuses.Enabled
+
+          setState({
+            passcode: '',
+            passcodeStatus: PasscodeStatuses.Disabled,
+            ...((isBiometricStatusNotSet || isBiometricStatusEnabled) && {
+              biometricStatus: BiometricStatuses.Disabled,
+            }),
+          })
         },
 
         setLockStatus: (lockStatus: AppLockStatuses): void => {

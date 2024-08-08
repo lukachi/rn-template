@@ -37,8 +37,6 @@ export default function App() {
     return isAuthStoreHydrated && isLocalAuthStoreHydrated
   }, [isAuthStoreHydrated, isLocalAuthStoreHydrated])
 
-  console.log('isStoresHydrated', isStoresHydrated)
-
   useEffect(() => {
     if (!isStoresHydrated) return
 
@@ -47,7 +45,6 @@ export default function App() {
         // verifyInstallation()
         await initLocalAuthStore()
         await sleepAsync(1_000)
-        console.log('SplashScreen.hideAsync')
         await SplashScreen.hideAsync()
         setIsAppInitialized(true)
       } catch (e) {

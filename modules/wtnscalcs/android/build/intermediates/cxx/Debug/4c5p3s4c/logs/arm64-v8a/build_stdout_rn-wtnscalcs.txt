@@ -1,0 +1,2 @@
+ninja: Entering directory `/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/.cxx/Debug/4c5p3s4c/arm64-v8a'
+[1/1] Linking CXX shared library ../../../../build/intermediates/cxx/Debug/4c5p3s4c/obj/arm64-v8a/librn-wtnscalcs.so

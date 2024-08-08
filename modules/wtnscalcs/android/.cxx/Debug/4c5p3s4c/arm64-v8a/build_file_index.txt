@@ -1,0 +1,1 @@
+/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/CMakeLists.txt

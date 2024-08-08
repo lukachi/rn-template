@@ -33,9 +33,8 @@ export default function Lockscreen() {
       return
     }
 
-    console.log('resetting passcode')
     setPasscode('')
-  }, [navigation, passcode, tryUnlockWithPasscode])
+  }, [passcode, tryUnlockWithPasscode])
 
   const tryLogout = useCallback(async () => {
     logout()

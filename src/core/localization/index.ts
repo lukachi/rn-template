@@ -17,8 +17,6 @@ try {
         NativeModules?.SettingsManager?.settings?.AppleLanguages?.[0] //iOS 13
       : I18nManager?.getConstants?.()?.localeIdentifier) as string | undefined
   )?.substring(0, 2)
-
-  console.log('systemLanguage', systemLanguage)
 } catch (error) {
   console.error('Error getting system language', error)
 }

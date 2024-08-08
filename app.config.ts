@@ -78,6 +78,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
       {
         android: {
           kotlinVersion: '1.7.22', // this is for softinput package
+          minSdkVersion: 24,
           newArchEnabled: true
         },
         ios: {
@@ -109,7 +110,6 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
       }
     ],
-    // 'react-native-webassembly'
   ],
   extra: {
     ...ClientEnv,

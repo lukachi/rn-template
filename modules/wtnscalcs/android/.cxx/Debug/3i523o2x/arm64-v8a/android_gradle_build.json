@@ -1,0 +1,40 @@
+{
+  "buildFiles": [
+    "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/lukachisama/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/.cxx/Debug/3i523o2x/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/lukachisama/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/.cxx/Debug/3i523o2x/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "rn-wtnscalcs::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "rn-wtnscalcs",
+      "output": "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/build/intermediates/cxx/Debug/3i523o2x/obj/arm64-v8a/librn-wtnscalcs.so",
+      "runtimeFiles": [
+        "/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/lib/libwitnesscalc_auth.so"
+      ]
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/Users/lukachisama/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/Users/lukachisama/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}
