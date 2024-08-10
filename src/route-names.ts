@@ -15,6 +15,8 @@ export const AppRouterNames = {
   },
   Auth: {
     Root: 'auth',
+    Intro: 'intro',
+    CreateWallet: 'create-wallet',
   },
   LocalAuth: {
     Root: 'local-auth',

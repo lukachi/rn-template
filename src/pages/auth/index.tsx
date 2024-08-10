@@ -1,23 +1,28 @@
-import { Pressable, Text, View } from 'react-native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { useSoftKeyboardEffect } from '@/core'
-import { authStore } from '@/store'
-import { cn } from '@/theme'
+import { AppRouterNames } from '@/route-names'
 
-export default function SignIn() {
-  const login = authStore.useAuthStore(state => state.login)
+import { CreateWallet, Intro } from './components'
 
-  useSoftKeyboardEffect()
+const Stack = createNativeStackNavigator()
 
+export default function Auth() {
   return (
-    <View className={cn('flex-1 items-center justify-center gap-4')}>
-      <Pressable
-        onPress={() => {
-          login()
+    <Stack.Navigator initialRouteName={AppRouterNames.Auth.Intro}>
+      <Stack.Screen
+        name={AppRouterNames.Auth.Intro}
+        component={Intro}
+        options={{
+          headerShown: false,
         }}
-      >
-        <Text className={cn('text-textPrimary')}>Sign In</Text>
-      </Pressable>
-    </View>
+      />
+      <Stack.Screen
+        name={AppRouterNames.Auth.CreateWallet}
+        component={CreateWallet}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
   )
 }

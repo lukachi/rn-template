@@ -1,5 +1,6 @@
 export { default as Toasts } from './Toasts'
 export { renderBackdrop, UiBottomSheet, useUiBottomSheet } from './UiBottomSheet'
 export { UiButton } from './UiButton'
+export { default as UiHorizontalDivider } from './UiHorizontalDivider'
 export { default as UiIcon, type UiIconName } from './UiIcon'
 export { ControlledUiTextField, UiTextField } from './UiTextField'
