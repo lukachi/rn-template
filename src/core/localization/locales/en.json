@@ -1,4 +1,25 @@
 {
+  "auth": {
+    "intro": {
+      "next-btn": "Create wallet",
+      "step-1": {
+        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
+        "title": "Welcome to the app"
+      },
+      "step-2": {
+        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
+        "title": "Second intro step"
+      },
+      "step-3": {
+        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
+        "title": "Third intro step"
+      },
+      "step-4": {
+        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
+        "title": "Fourth intro step"
+      }
+    }
+  },
   "errors": {
     "default": "Something went wrong"
   },
@@ -31,27 +52,5 @@
     "field-error_maxLength": "This field must contain maximum {{maxLength}} symbols",
     "field-error_minLength": "This field must contain minimum {{minLength}} symbols",
     "field-error_required": "Please fill out this field"
-  },
-  "auth": {
-    "intro": {
-      "step-1": {
-        "title": "Welcome to the app",
-        "subtitle": "Lorem ipsum dolor sit amet concestetur!"
-      },
-      "step-2": {
-        "title": "Second intro step",
-        "subtitle": "Lorem ipsum dolor sit amet concestetur!"
-      },
-      "step-3": {
-        "title": "Third intro step",
-        "subtitle": "Lorem ipsum dolor sit amet concestetur!"
-      },
-      "step-4": {
-        "title": "Fourth intro step",
-        "subtitle": "Lorem ipsum dolor sit amet concestetur!"
-      },
-
-      "next-btn": "Create wallet"
-    }
   }
 }

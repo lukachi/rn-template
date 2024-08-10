@@ -82,7 +82,9 @@ export default function Intro() {
         />
       </View>
 
-      <UiHorizontalDivider className='m-5' />
+      <View className='p-5'>
+        <UiHorizontalDivider />
+      </View>
 
       <View style={{ paddingBottom: insets.bottom }} className='flex flex-col px-5'>
         <UiButton
