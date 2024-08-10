@@ -1,4 +1,6 @@
+import { Buffer } from 'buffer'
 import { useEffect, useState } from 'react'
+import { generatePrivateKey } from 'rmo-identity'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -48,7 +50,19 @@ const useIsHydrated = () => {
   return hydrated
 }
 
+const useGeneratePrivateKey = () => {
+  return async () => {
+    const pkBase64 = await generatePrivateKey()
+
+    const decodedPk = Buffer.from(pkBase64, 'base64').toString('hex')
+
+    return decodedPk
+  }
+}
+
 export const walletStore = {
   useWalletStore,
+
+  useGeneratePrivateKey,
   useIsHydrated,
 }

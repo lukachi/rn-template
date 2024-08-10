@@ -387,6 +387,24 @@ const buttonBaseTv = tv({
       },
     },
 
+    // text-warning
+    {
+      variant: 'text',
+      color: 'text',
+      class: {
+        text: cn('text-textPrimary'),
+        icon: cn('text-textPrimary'),
+      },
+    },
+    {
+      variant: 'text',
+      color: 'text',
+      pressed: true,
+      class: {
+        container: cn('bg-componentHovered'),
+      },
+    },
+
     // text-disabled
     {
       variant: 'text',
