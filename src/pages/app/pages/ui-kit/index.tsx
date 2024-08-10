@@ -1,11 +1,11 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { StackActions, useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native'
 import type { ReactNode } from 'react'
 import { ScrollView, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { AppRouterNames } from '@/route-names'
+import type { AppStackScreenProps, UiKitTabParamList } from '@/route-types'
 import { authStore, localAuthStore } from '@/store'
 import { cn, useAppTheme } from '@/theme'
 import { UiBottomSheet, UiButton, UiIcon, useUiBottomSheet } from '@/ui'
@@ -15,9 +15,9 @@ import CommonScreen from './pages/common'
 import TypographyScreen from './pages/typography'
 import ZKPScreen from './pages/zkp'
 
-const Tab = createBottomTabNavigator()
+const Tab = createBottomTabNavigator<UiKitTabParamList>()
 
-export default function UiKitRoot() {
+export default function UiKitRoot({}: AppStackScreenProps<'UiKit'>) {
   return (
     <View className='flex-1'>
       <View style={{ flex: 1 }}>
@@ -25,11 +25,11 @@ export default function UiKitRoot() {
           screenOptions={{
             headerShown: false,
           }}
-          initialRouteName={AppRouterNames.App.UiKit.Common}
+          initialRouteName={'Common'}
           tabBar={props => <CustomTapBar {...props} />}
         >
           <Tab.Screen
-            name={AppRouterNames.App.UiKit.Common}
+            name={'Common'}
             component={CommonScreen}
             options={{
               tabBarLabel: ({ color }) => {
@@ -43,7 +43,7 @@ export default function UiKitRoot() {
             }}
           />
           <Tab.Screen
-            name={AppRouterNames.App.UiKit.Zkp}
+            name={'Zkp'}
             component={ZKPScreen}
             options={{
               tabBarLabel: ({ color }) => {
@@ -52,7 +52,7 @@ export default function UiKitRoot() {
             }}
           />
           <Tab.Screen
-            name={AppRouterNames.App.UiKit.Typography}
+            name={'Typography'}
             component={TypographyScreen}
             options={{
               tabBarLabel: ({ color }) => {
@@ -61,7 +61,7 @@ export default function UiKitRoot() {
             }}
           />
           <Tab.Screen
-            name={AppRouterNames.App.UiKit.Colors}
+            name={'Colors'}
             component={ColorsScreen}
             options={{
               tabBarLabel: ({ color }) => {
@@ -163,14 +163,18 @@ function CustomTapBar(props: BottomTabBarProps) {
           <UiButton
             title='fetching'
             onPress={() => {
-              navigation.dispatch(StackActions.push(AppRouterNames.App.Fetching))
+              navigation.navigate('App', {
+                screen: 'Fetching',
+              })
               bottomSheet.dismiss()
             }}
           />
           <UiButton
             title='localization'
             onPress={() => {
-              navigation.dispatch(StackActions.push(AppRouterNames.App.Localization))
+              navigation.navigate('App', {
+                screen: 'Localization',
+              })
               bottomSheet.dismiss()
             }}
           />

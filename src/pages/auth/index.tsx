@@ -1,23 +1,23 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { AppRouterNames } from '@/route-names'
+import type { AuthStackParamsList, RootStackScreenProps } from '@/route-types'
 
 import { CreateWallet, Intro } from './components'
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator<AuthStackParamsList>()
 
-export default function Auth() {
+export default function Auth({}: RootStackScreenProps<'Auth'>) {
   return (
-    <Stack.Navigator initialRouteName={AppRouterNames.Auth.Intro}>
+    <Stack.Navigator initialRouteName={'Intro'}>
       <Stack.Screen
-        name={AppRouterNames.Auth.Intro}
+        name={'Intro'}
         component={Intro}
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name={AppRouterNames.Auth.CreateWallet}
+        name={'CreateWallet'}
         component={CreateWallet}
         options={{
           headerShown: false,

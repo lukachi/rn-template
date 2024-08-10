@@ -1,11 +1,10 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { StackActions, useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native'
 import { AuthenticationType } from 'expo-local-authentication'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Pressable, Text, View } from 'react-native'
 
 import { ErrorHandler } from '@/core'
-import { AppRouterNames } from '@/route-names'
 import { authStore, BiometricStatuses, localAuthStore, MAX_ATTEMPTS } from '@/store'
 import { cn } from '@/theme'
 import { UiIcon, UiTextField } from '@/ui'
@@ -41,7 +40,9 @@ export default function Lockscreen() {
 
     await resetLocalAuthStore()
 
-    navigation.dispatch(StackActions.replace(AppRouterNames.Auth.Root))
+    navigation.navigate('Auth', {
+      screen: 'Intro',
+    })
   }, [logout, navigation, resetLocalAuthStore])
 
   if (biometricStatus === BiometricStatuses.Enabled) {

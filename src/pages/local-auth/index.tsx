@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useState } from 'react'
 
-import { AppRouterNames } from '@/route-names'
+import type { LocalAuthStackParamsList, RootStackScreenProps } from '@/route-types'
 import { localAuthStore, UserActionsInLocalAuth } from '@/store'
 
 import EnableBiometricsScreen from './pages/enable-biometrics'
@@ -9,20 +9,21 @@ import EnablePasscodeScreen from './pages/enable-passcode'
 import LockscreenScreen from './pages/lockscreen'
 import SetPasscodeScreen from './pages/set-passcode'
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator<LocalAuthStackParamsList>()
 
-export default function LocalAuthLayout() {
-  const [localAuthNextRouteName, setLocalAuthNextRouteName] = useState<string>()
+export default function LocalAuthLayout({}: RootStackScreenProps<'LocalAuth'>) {
+  const [localAuthNextRouteName, setLocalAuthNextRouteName] =
+    useState<keyof LocalAuthStackParamsList>()
 
   localAuthStore.useUserActionsInLocalAuth(action => {
     if (localAuthNextRouteName) return
 
     setLocalAuthNextRouteName(
       {
-        [UserActionsInLocalAuth.NeedToUnlock]: AppRouterNames.LocalAuth.Lockscreen,
-        [UserActionsInLocalAuth.NeedToEnablePasscode]: AppRouterNames.LocalAuth.EnablePasscode,
-        [UserActionsInLocalAuth.NeedToEnableBiometrics]: AppRouterNames.LocalAuth.EnableBiometrics,
-      }[action],
+        [UserActionsInLocalAuth.NeedToUnlock]: 'Lockscreen',
+        [UserActionsInLocalAuth.NeedToEnablePasscode]: 'EnablePasscode',
+        [UserActionsInLocalAuth.NeedToEnableBiometrics]: 'EnableBiometrics',
+      }[action] as keyof LocalAuthStackParamsList,
     )
   })
 
@@ -31,28 +32,28 @@ export default function LocalAuthLayout() {
   return (
     <Stack.Navigator initialRouteName={localAuthNextRouteName}>
       <Stack.Screen
-        name={AppRouterNames.LocalAuth.EnablePasscode}
+        name={'EnablePasscode'}
         component={EnablePasscodeScreen}
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name={AppRouterNames.LocalAuth.SetPasscode}
+        name={'SetPasscode'}
         component={SetPasscodeScreen}
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name={AppRouterNames.LocalAuth.EnableBiometrics}
+        name={'EnableBiometrics'}
         component={EnableBiometricsScreen}
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name={AppRouterNames.LocalAuth.Lockscreen}
+        name={'Lockscreen'}
         component={LockscreenScreen}
         options={{
           headerShown: false,

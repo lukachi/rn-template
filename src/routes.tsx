@@ -6,12 +6,12 @@ import { View } from 'react-native'
 import AppScreen from '@/pages/app'
 import AuthScreen from '@/pages/auth'
 import LocalAuthScreen from '@/pages/local-auth'
-import { AppRouterNames } from '@/route-names'
+import type { RootStackParamList } from '@/route-types'
 import { authStore, localAuthStore } from '@/store'
 import { useSelectedTheme } from '@/theme'
 import { cssVars, darkPalette, lightPalette } from '@/theme/config'
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator<RootStackParamList>()
 
 // TODO: mv theme to apropriate place
 export default function AppRoutes() {
@@ -56,7 +56,7 @@ export default function AppRoutes() {
             <>
               {isUserNeedToLocalAuth ? (
                 <Stack.Screen
-                  name={AppRouterNames.LocalAuth.Root}
+                  name={'LocalAuth'}
                   component={LocalAuthScreen}
                   options={{
                     headerShown: false,
@@ -64,7 +64,7 @@ export default function AppRoutes() {
                 />
               ) : (
                 <Stack.Screen
-                  name={AppRouterNames.App.Root}
+                  name={'App'}
                   component={AppScreen}
                   options={{
                     headerShown: false,
@@ -74,7 +74,7 @@ export default function AppRoutes() {
             </>
           ) : (
             <Stack.Screen
-              name={AppRouterNames.Auth.Root}
+              name={'Auth'}
               component={AuthScreen}
               options={{
                 headerShown: false,
