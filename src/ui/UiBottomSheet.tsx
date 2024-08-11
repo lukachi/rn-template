@@ -1,3 +1,24 @@
+/**
+ * By default UiBottomSheet has a full height
+ *
+ * UiBottomSheet default example with content height
+ *
+ * <UiBottomSheet title='Authorization' ref={bottomSheet.ref} enableDynamicSizing={true}>
+ *   <BottomSheetView style={{ paddingBottom: insets.bottom }}>
+ *     <View className={cn('flex flex-col items-center gap-4 p-5 py-0')}>
+ *       <UiHorizontalDivider />
+ *
+ *       <Text className='text-textSecondary typography-body2'>Choose a preferred method</Text>
+ *
+ *       <View className='mt-auto flex w-full flex-col gap-2'>
+ *         <UiButton size='large' title='Create a new profile' />
+ *         <UiButton size='large' title='Re-activate old profile' />
+ *       </View>
+ *     </View>
+ *   </BottomSheetView>
+ * </UiBottomSheet>
+ */
+
 import AntDesign from '@expo/vector-icons/AntDesign'
 import type { BottomSheetBackdropProps, BottomSheetModalProps } from '@gorhom/bottom-sheet'
 import { useBottomSheet } from '@gorhom/bottom-sheet'
@@ -9,6 +30,7 @@ import { useMemo } from 'react'
 import { forwardRef, useCallback, useRef } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useAppTheme } from '@/theme'
 
@@ -39,23 +61,30 @@ export const useUiBottomSheet = () => {
  * In case the Bottom sheet is detached, we need to add some extra props to the Bottom sheet to make it look like a detached Bottom sheet.
  */
 
-const getDetachedProps = (detached: boolean) => {
-  if (detached) {
-    return {
-      detached: true,
-      bottomInset: 46,
-      style: { marginHorizontal: 16, overflow: 'hidden' },
-    } as Partial<BottomSheetModalProps>
-  }
-  return {} as Partial<BottomSheetModalProps>
+const useDetachedProps = () => {
+  const insets = useSafeAreaInsets()
+
+  return {
+    detached: true,
+    bottomInset: insets.bottom,
+    style: { marginHorizontal: 20, overflow: 'hidden' },
+  } as Partial<BottomSheetModalProps>
 }
 
 export const UiBottomSheet = forwardRef(
   (
-    { snapPoints: _snapPoints = ['60%'], title, detached = false, ...rest }: UiBottomSheetProps,
+    {
+      snapPoints: _snapPoints = ['100%'],
+      title,
+      detached = false,
+      children,
+      ...rest
+    }: UiBottomSheetProps,
     ref: ForwardedRef<BottomSheetModal>,
   ) => {
-    const detachedProps = useMemo(() => getDetachedProps(detached), [detached])
+    const insets = useSafeAreaInsets()
+
+    const detachedProps = useDetachedProps()
 
     const uiBottomSheet = useUiBottomSheet()
 
@@ -76,12 +105,14 @@ export const UiBottomSheet = forwardRef(
     return (
       <BottomSheetModal
         {...rest}
-        {...detachedProps}
+        {...(detached && detachedProps)}
         ref={uiBottomSheet.ref}
         index={0}
         snapPoints={snapPoints}
         backdropComponent={rest.backdropComponent || renderBackdrop}
         handleComponent={renderHandleComponent}
+        topInset={insets.top}
+        children={children}
       />
     )
   },
@@ -124,7 +155,9 @@ const BottomSheetHeader = memo(({ title, dismiss }: BottomSheetHeaderProps) => {
       {title && (
         <View className='flex-row px-2 py-4'>
           <View className='flex-1'>
-            <Text className='text-center text-[16px] font-bold text-textPrimary'>{title}</Text>
+            <Text className='text-center text-[16px] font-bold text-textPrimary typography-h5'>
+              {title}
+            </Text>
           </View>
         </View>
       )}

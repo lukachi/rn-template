@@ -1,9 +1,8 @@
-import { StackActions, useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native'
 import { useCallback, useState } from 'react'
 import { Button, ScrollView, Text, View } from 'react-native'
 
 import { ErrorHandler, useSoftKeyboardEffect } from '@/core'
-import { AppRouterNames } from '@/route-names'
 import { BiometricStatuses, localAuthStore } from '@/store'
 import { cn } from '@/theme'
 import { UiTextField } from '@/ui'
@@ -24,7 +23,9 @@ export default function SetPasscode() {
       setPasscodeStore(passcode)
 
       if (biometricStatus === BiometricStatuses.NotSet) {
-        navigation.dispatch(StackActions.replace(AppRouterNames.LocalAuth.EnableBiometrics))
+        navigation.navigate('LocalAuth', {
+          screen: 'EnableBiometrics',
+        })
 
         return
       }

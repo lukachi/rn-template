@@ -1,4 +1,25 @@
 {
+  "auth": {
+    "intro": {
+      "next-btn": "Create wallet",
+      "step-1": {
+        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
+        "title": "Welcome to the app"
+      },
+      "step-2": {
+        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
+        "title": "Second intro step"
+      },
+      "step-3": {
+        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
+        "title": "Third intro step"
+      },
+      "step-4": {
+        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
+        "title": "Fourth intro step"
+      }
+    }
+  },
   "errors": {
     "default": "Something went wrong"
   },
