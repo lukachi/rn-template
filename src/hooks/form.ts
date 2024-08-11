@@ -9,6 +9,7 @@ import type {
   UseFormHandleSubmit,
   UseFormRegister,
   UseFormSetError,
+  UseFormSetValue,
 } from 'react-hook-form'
 import { useForm as useFormHook } from 'react-hook-form'
 import * as Yup from 'yup'
@@ -23,6 +24,7 @@ export type Form<T extends FieldValues> = {
   register: UseFormRegister<T>
   handleSubmit: UseFormHandleSubmit<T>
   setError: UseFormSetError<T>
+  setValue: UseFormSetValue<T>
   control: Control<T>
 }
 
@@ -38,6 +40,7 @@ export const useForm = <T extends Yup.AnyObjectSchema, R extends FieldValues>(
     handleSubmit,
     watch,
     setError,
+    setValue,
     formState: { errors },
   } = useFormHook<R>({
     mode: 'onTouched',
@@ -70,6 +73,7 @@ export const useForm = <T extends Yup.AnyObjectSchema, R extends FieldValues>(
     register,
     handleSubmit,
     setError,
+    setValue,
     control,
   }
 }

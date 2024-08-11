@@ -1,16 +1,16 @@
 import { useNavigation } from '@react-navigation/native'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { ViewProps } from 'react-native'
 import { ScrollView } from 'react-native'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ErrorHandler, useSoftKeyboardEffect } from '@/core'
-import { useCopyToClipboard, useLoading } from '@/hooks'
+import { useCopyToClipboard, useForm, useLoading } from '@/hooks'
 import type { AuthStackScreenProps } from '@/route-types'
 import { walletStore } from '@/store'
 import { cn } from '@/theme'
-import { UiButton, UiCard, UiHorizontalDivider, UiIcon, UiTextField } from '@/ui'
+import { ControlledUiTextField, UiButton, UiCard, UiHorizontalDivider, UiIcon } from '@/ui'
 
 type Props = ViewProps & AuthStackScreenProps<'CreateWallet'>
 
@@ -28,20 +28,33 @@ export default function CreateWallet({ route }: Props) {
 
   const { isCopied, copy, fetchFromClipboard } = useCopyToClipboard()
 
-  const [localPK, setLocalPK] = useState('')
+  const { formState, isFormDisabled, handleSubmit, disableForm, enableForm, control, setValue } =
+    useForm(
+      {
+        privateKey: '',
+      },
+      yup =>
+        yup.object().shape({
+          privateKey: yup.string().test('is-valid-pk', 'Invalid Private Key', value => {
+            return value?.length === 64 || value?.length === 32
+          }),
+        }),
+    )
 
   const submit = useCallback(async () => {
+    disableForm()
     try {
-      setPrivateKey(localPK)
+      setPrivateKey(formState.privateKey)
     } catch (error) {
       ErrorHandler.process(error)
     }
-  }, [localPK, setPrivateKey])
+    enableForm()
+  }, [disableForm, enableForm, formState.privateKey, setPrivateKey])
 
   const pasteFromClipboard = useCallback(async () => {
     const res = await fetchFromClipboard()
-    setLocalPK(res)
-  }, [fetchFromClipboard])
+    setValue('privateKey', res)
+  }, [fetchFromClipboard, setValue])
 
   useSoftKeyboardEffect()
 
@@ -54,7 +67,7 @@ export default function CreateWallet({ route }: Props) {
 
       const pk = await generatePrivateKey()
 
-      setLocalPK(pk)
+      setValue('privateKey', pk)
 
       return true
     },
@@ -90,24 +103,25 @@ export default function CreateWallet({ route }: Props) {
             <UiCard className={cn('mt-5 flex gap-4')}>
               {isImporting ? (
                 <>
-                  <UiTextField
-                    value={localPK}
-                    onChangeText={setLocalPK}
+                  <ControlledUiTextField
+                    name={'privateKey'}
                     placeholder={'Your private key'}
+                    control={control}
+                    disabled={isFormDisabled}
                   />
 
                   <UiButton
                     variant='text'
                     color='text'
                     leadingIcon={isCopied ? 'checkIcon' : 'copySimpleIcon'}
-                    title='Copy to Clipboard'
+                    title='Paste From Clipboard'
                     onPress={pasteFromClipboard}
                   />
                 </>
               ) : (
                 <>
                   <UiCard className='bg-backgroundPrimary'>
-                    <Text>{localPK}</Text>
+                    <Text>{formState.privateKey}</Text>
                   </UiCard>
 
                   <UiButton
@@ -115,7 +129,7 @@ export default function CreateWallet({ route }: Props) {
                     color='text'
                     leadingIcon={isCopied ? 'checkIcon' : 'copySimpleIcon'}
                     title='Copy to Clipboard'
-                    onPress={() => copy(localPK)}
+                    onPress={() => copy(formState.privateKey)}
                   />
                 </>
               )}
@@ -128,7 +142,8 @@ export default function CreateWallet({ route }: Props) {
             <UiButton
               title={isImporting ? 'Import Key' : 'Create Key'}
               className='mt-auto w-full'
-              onPress={submit}
+              onPress={handleSubmit(submit)}
+              disabled={isFormDisabled}
             />
           </View>
         </View>
