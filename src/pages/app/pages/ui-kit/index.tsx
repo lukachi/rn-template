@@ -13,7 +13,6 @@ import { UiBottomSheet, UiButton, UiIcon, useUiBottomSheet } from '@/ui'
 import ColorsScreen from './pages/colors'
 import CommonScreen from './pages/common'
 import TypographyScreen from './pages/typography'
-import ZKPScreen from './pages/zkp'
 
 const Tab = createBottomTabNavigator<UiKitTabParamList>()
 
@@ -39,15 +38,6 @@ export default function UiKitRoot({}: AppStackScreenProps<'UiKit'>) {
                     <UiIcon componentName='arrowRightIcon' color={color} />
                   </View>
                 )
-              },
-            }}
-          />
-          <Tab.Screen
-            name={'Zkp'}
-            component={ZKPScreen}
-            options={{
-              tabBarLabel: ({ color }) => {
-                return <UiIcon componentName='chartBarIcon' color={color} />
               },
             }}
           />

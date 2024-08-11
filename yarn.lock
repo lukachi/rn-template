@@ -12723,13 +12723,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-mmkv@npm:^3.0.0-beta.7":
-  version: 3.0.0-beta.7
-  resolution: "react-native-mmkv@npm:3.0.0-beta.7"
+"react-native-mmkv@npm:^2.12.2":
+  version: 2.12.2
+  resolution: "react-native-mmkv@npm:2.12.2"
   peerDependencies:
     react: "*"
-    react-native: "*"
-  checksum: 7b153d5d4022acf641c413453b0e5a205e4f330411d146658bc7095c3999b9131f1ceb017753f795ff78bfaa9aaff1aa8b336933ceedf632b56ee8c8d3df05c0
+    react-native: ">=0.71.0"
+  checksum: c1ebb8e81905ee8ce17858ff6096525cbdd0e51892dca80a3cd6e26feb5e979a9c7d609c5a55886150efb0136c5899de174c71115f81607019ed7af68678797b
   languageName: node
   linkType: hard
 
@@ -13347,18 +13347,6 @@ __metadata:
   checksum: 006accc40578ee2beae382757c4ce2908a826b27e2b079efdcd2959ee544ddf210b7b5d7d5e80467807604244e7388427330f5c6d4cd61e6edaddc5773ccc393
   languageName: node
   linkType: hard
-
-"rmo-identity@link:./modules/rmo-identity::locator=template-v1%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "rmo-identity@link:./modules/rmo-identity::locator=template-v1%40workspace%3A."
-  languageName: node
-  linkType: soft
-
-"rn-wtnscalcs@link:./modules/wtnscalcs::locator=template-v1%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "rn-wtnscalcs@link:./modules/wtnscalcs::locator=template-v1%40workspace%3A."
-  languageName: node
-  linkType: soft
 
 "run-parallel@npm:^1.1.9":
   version: 1.2.0
@@ -14520,7 +14508,7 @@ __metadata:
     react-native-crypto: "npm:^2.2.0"
     react-native-gesture-handler: "npm:~2.16.1"
     react-native-get-random-values: "npm:^1.11.0"
-    react-native-mmkv: "npm:^3.0.0-beta.7"
+    react-native-mmkv: "npm:^2.12.2"
     react-native-quick-base64: "npm:^2.1.2"
     react-native-reanimated: "npm:^3.15.0"
     react-native-reanimated-carousel: "npm:^3.5.1"
@@ -14531,8 +14519,6 @@ __metadata:
     react-native-svg-transformer: "npm:^1.5.0"
     react-native-toast-message: "npm:^2.2.0"
     readable-stream: "npm:^4.5.2"
-    rmo-identity: "link:./modules/rmo-identity"
-    rn-wtnscalcs: "link:./modules/wtnscalcs"
     stream-http: "npm:^3.2.0"
     tailwind-merge: "npm:^2.4.0"
     tailwind-variants: "npm:^0.2.1"

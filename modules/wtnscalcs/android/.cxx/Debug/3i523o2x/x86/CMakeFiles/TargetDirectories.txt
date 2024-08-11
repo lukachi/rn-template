@@ -1,3 +1,0 @@
-/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/.cxx/Debug/3i523o2x/x86/CMakeFiles/rn-wtnscalcs.dir
-/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/.cxx/Debug/3i523o2x/x86/CMakeFiles/edit_cache.dir
-/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rn-wtnscalcs/android/.cxx/Debug/3i523o2x/x86/CMakeFiles/rebuild_cache.dir

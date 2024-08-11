@@ -1,1 +1,0 @@
-/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/CMakeLists.txt
