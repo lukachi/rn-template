@@ -27,8 +27,8 @@ export default function App() {
 
   const [, setAppInitError] = useState<Error>()
 
-  const isAuthStoreHydrated = authStore.useIsHydrated()
-  const isLocalAuthStoreHydrated = localAuthStore.useIsHydrated()
+  const isAuthStoreHydrated = authStore.useAuthStore(state => state._hasHydrated)
+  const isLocalAuthStoreHydrated = localAuthStore.useLocalAuthStore(state => state._hasHydrated)
   const initLocalAuthStore = localAuthStore.useInitLocalAuthStore()
 
   const { language } = useSelectedLanguage()

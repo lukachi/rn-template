@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -12,8 +11,16 @@ const useAuthStore = create(
         accessToken: '',
         refreshToken: '',
         isRefreshing: false,
+
+        _hasHydrated: false,
       },
       set => ({
+        setHasHydrated: (value: boolean) => {
+          set({
+            _hasHydrated: value,
+          })
+        },
+
         login: async () => {
           set({ accessToken: 'my_access_token', refreshToken: 'my_refresh_token' })
         },
@@ -40,31 +47,14 @@ const useAuthStore = create(
       // TODO: add web support? checking device?
       storage: createJSONStorage(() => zustandSecureStorage),
 
+      onRehydrateStorage: () => state => {
+        state?.setHasHydrated(true)
+      },
+
       partialize: state => ({ accessToken: state.accessToken, refreshToken: state.refreshToken }),
     },
   ),
 )
-
-const useIsHydrated = () => {
-  const [hydrated, setHydrated] = useState(false)
-
-  useEffect(() => {
-    // Note: This is just in case you want to take into account manual rehydration.
-    // You can remove the following line if you don't need it.
-    const unsubHydrate = useAuthStore.persist.onHydrate(() => setHydrated(false))
-
-    const unsubFinishHydration = useAuthStore.persist.onFinishHydration(() => setHydrated(true))
-
-    setHydrated(useAuthStore.persist.hasHydrated())
-
-    return () => {
-      unsubHydrate()
-      unsubFinishHydration()
-    }
-  }, [])
-
-  return hydrated
-}
 
 const useIsAuthorized = () => {
   const accessToken = useAuthStore(state => state.accessToken)
@@ -74,6 +64,5 @@ const useIsAuthorized = () => {
 
 export const authStore = {
   useAuthStore,
-  useIsHydrated,
   useIsAuthorized,
 }
