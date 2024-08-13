@@ -16,6 +16,8 @@ type Props = ViewProps & AuthStackScreenProps<'CreateWallet'>
 
 export default function CreateWallet({ route }: Props) {
   const generatePrivateKey = walletStore.useGeneratePrivateKey()
+  const generateAuthWtns = walletStore.useGenerateAuthWtns()
+  const generateAuthProof = walletStore.useGenerateAuthProof()
   const setPrivateKey = walletStore.useWalletStore(state => state.setPrivateKey)
 
   const isImporting = useMemo(() => {
@@ -44,12 +46,17 @@ export default function CreateWallet({ route }: Props) {
   const submit = useCallback(async () => {
     disableForm()
     try {
-      setPrivateKey(formState.privateKey)
+      // setPrivateKey(formState.privateKey)
+      const res = await generateAuthWtns()
+
+      const proof = await generateAuthProof(res)
+
+      console.log(proof)
     } catch (error) {
       ErrorHandler.process(error)
     }
     enableForm()
-  }, [disableForm, enableForm, formState.privateKey, setPrivateKey])
+  }, [disableForm, enableForm, generateAuthProof, generateAuthWtns])
 
   const pasteFromClipboard = useCallback(async () => {
     const res = await fetchFromClipboard()

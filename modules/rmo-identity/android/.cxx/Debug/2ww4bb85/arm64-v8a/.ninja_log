@@ -1,7 +1,5 @@
 # ninja log v5
-0	20	1723149049109349832	CMakeFiles/rmo-identity.dir/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/cpp/rmo-identity.cpp.o	89ef8a790e75c07b
-0	31	1723149049120138006	CMakeFiles/rmo-identity.dir/cpp-adapter.cpp.o	9b53e83ef45b72b7
-31	65	1723149049154037980	../../../../build/intermediates/cxx/Debug/2ww4bb85/obj/arm64-v8a/librmo-identity.so	fe3effc48e3db7de
-0	49	1723149212544397271	../../../../build/intermediates/cxx/Debug/2ww4bb85/obj/arm64-v8a/librmo-identity.so	fe3effc48e3db7de
-0	36	1723149398871565747	../../../../build/intermediates/cxx/Debug/2ww4bb85/obj/arm64-v8a/librmo-identity.so	fe3effc48e3db7de
-1	38	1723154392014595746	../../../../build/intermediates/cxx/Debug/2ww4bb85/obj/arm64-v8a/librmo-identity.so	fe3effc48e3db7de
+0	26	1723395903173594470	CMakeFiles/rmo-identity.dir/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/cpp/rmo-identity.cpp.o	89ef8a790e75c07b
+0	36	1723395903183025469	CMakeFiles/rmo-identity.dir/cpp-adapter.cpp.o	9b53e83ef45b72b7
+36	64	1723395903220154420	../../../../build/intermediates/cxx/Debug/2ww4bb85/obj/arm64-v8a/librmo-identity.so	fe3effc48e3db7de
+0	42	1723571212744138748	../../../../build/intermediates/cxx/Debug/2ww4bb85/obj/arm64-v8a/librmo-identity.so	fe3effc48e3db7de
