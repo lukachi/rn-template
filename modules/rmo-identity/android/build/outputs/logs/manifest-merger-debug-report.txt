@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/react-native-rmo-identity/android/src/main/AndroidManifestNew.xml:1:1-2:12
-INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/react-native-rmo-identity/android/src/main/AndroidManifestNew.xml:1:1-2:12
+ADDED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/src/main/AndroidManifestNew.xml:1:1-2:12
+INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/src/main/AndroidManifestNew.xml:1:1-2:12
 	package
-		INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/react-native-rmo-identity/android/src/main/AndroidManifestNew.xml
+		INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/src/main/AndroidManifestNew.xml
 	xmlns:android
-		ADDED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/react-native-rmo-identity/android/src/main/AndroidManifestNew.xml:1:11-69
+		ADDED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/src/main/AndroidManifestNew.xml:1:11-69
 uses-sdk
-INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/react-native-rmo-identity/android/src/main/AndroidManifestNew.xml reason: use-sdk injection requested
-INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/react-native-rmo-identity/android/src/main/AndroidManifestNew.xml
-INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/react-native-rmo-identity/android/src/main/AndroidManifestNew.xml
+INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/src/main/AndroidManifestNew.xml reason: use-sdk injection requested
+INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/src/main/AndroidManifestNew.xml
+INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/src/main/AndroidManifestNew.xml
 	android:targetSdkVersion
-		INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/react-native-rmo-identity/android/src/main/AndroidManifestNew.xml
+		INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/src/main/AndroidManifestNew.xml
 	android:minSdkVersion
-		INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/react-native-rmo-identity/android/src/main/AndroidManifestNew.xml
+		INJECTED from /Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/src/main/AndroidManifestNew.xml
