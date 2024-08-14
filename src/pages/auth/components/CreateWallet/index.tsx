@@ -1,4 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
+import { Buffer } from 'buffer'
 import { useCallback, useMemo } from 'react'
 import type { ViewProps } from 'react-native'
 import { ScrollView } from 'react-native'
@@ -51,7 +52,7 @@ export default function CreateWallet({ route }: Props) {
 
       const proof = await generateAuthProof(res)
 
-      console.log(proof)
+      console.log(Buffer.from(proof, 'base64').toString())
     } catch (error) {
       ErrorHandler.process(error)
     }

@@ -1,13 +1,13 @@
 import { Buffer } from 'buffer'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
-// import { groth16Prove } from 'rapidsnark-wrp'
 import { useEffect, useState } from 'react'
 import { generatePrivateKey } from 'rmo-identity'
 import { generateAuthWtns } from 'rn-wtnscalcs'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
+import { groth16Prove } from '@/../modules/rapidsnark-wrp'
 import { zustandSecureStorage } from '@/store/helpers'
 
 const useWalletStore = create(
@@ -93,9 +93,9 @@ const useGenerateAuthProof = () => {
       encoding: FileSystem.EncodingType.Base64,
     })
 
-    // const authProofBase64 = await groth16Prove(wtnsBase64, zkeyBase64)
+    const authProofBase64 = await groth16Prove(wtnsBase64, zkeyBase64)
 
-    return 'authProofBase64'
+    return authProofBase64
   }
 }
 
