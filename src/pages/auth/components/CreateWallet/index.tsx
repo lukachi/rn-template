@@ -1,11 +1,11 @@
 import { useNavigation } from '@react-navigation/native'
-import { Buffer } from 'buffer'
 import { useCallback, useMemo } from 'react'
 import type { ViewProps } from 'react-native'
 import { ScrollView } from 'react-native'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { authorize } from '@/api/modules/auth'
 import { ErrorHandler, useSoftKeyboardEffect } from '@/core'
 import { useCopyToClipboard, useForm, useLoading } from '@/hooks'
 import type { AuthStackScreenProps } from '@/route-types'
@@ -18,6 +18,7 @@ type Props = ViewProps & AuthStackScreenProps<'CreateWallet'>
 export default function CreateWallet({ route }: Props) {
   const generatePrivateKey = walletStore.useGeneratePrivateKey()
   const generateAuthProof = walletStore.useGenerateAuthProof()
+  const getPointsNullifierHex = walletStore.usePointsNullifierHex()
 
   const isImporting = useMemo(() => {
     return route?.params?.isImporting
@@ -45,15 +46,21 @@ export default function CreateWallet({ route }: Props) {
   const submit = useCallback(async () => {
     disableForm()
     try {
-      const proof = await generateAuthProof(formState.privateKey)
+      const zkProof = await generateAuthProof(formState.privateKey)
 
-      console.log(Buffer.from(proof, 'base64').toString())
+      const pointsNullifierHex = await getPointsNullifierHex(formState.privateKey)
+
+      // TODO: auth module, types, store, tokens, interceptors, jsona
+      const resp = await authorize(pointsNullifierHex, JSON.parse(zkProof))
+
+      console.log(resp)
       // setPrivateKey(formState.privateKey)
     } catch (error) {
+      // TODO: network inspector
       ErrorHandler.process(error)
     }
     enableForm()
-  }, [disableForm, enableForm, formState.privateKey, generateAuthProof])
+  }, [disableForm, enableForm, formState.privateKey, generateAuthProof, getPointsNullifierHex])
 
   const pasteFromClipboard = useCallback(async () => {
     const res = await fetchFromClipboard()

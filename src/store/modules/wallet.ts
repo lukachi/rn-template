@@ -7,6 +7,7 @@ import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
 import { groth16Prove } from '@/../modules/rapidsnark-wrp'
+import { getChallenge } from '@/api/modules/auth'
 import { Config } from '@/config'
 import { zustandSecureStorage } from '@/store/helpers'
 
@@ -58,7 +59,7 @@ const usePointsNullifierHex = () => {
 
     const eventNullifierBN = BigInt(eventNullifierInt)
 
-    return `0x${eventNullifierBN.toString(16).slice(-62)}`
+    return `0x${eventNullifierBN.toString(16).padStart(64, '0')}`
   }
 }
 
@@ -74,8 +75,13 @@ const useGenerateAuthProof = () => {
 
     const hexString = await getPointsNullifierHex(privateKey)
 
+    const { data } = await getChallenge(hexString)
+
+    // fixme: types
+    const challenge = Buffer.from(data.data.attributes.challenge, 'base64').toString('hex')
+
     const inputs = {
-      eventData: hexString,
+      eventData: `0x${challenge}`,
       eventID: Config.POINTS_SVC_ID,
       revealPkIdentityHash: 0,
       skIdentity: pkHex,
@@ -91,7 +97,9 @@ const useGenerateAuthProof = () => {
       encoding: FileSystem.EncodingType.Base64,
     })
 
-    return await groth16Prove(authWtnsBase64, zkeyBase64)
+    const zkProofBase64 = await groth16Prove(authWtnsBase64, zkeyBase64)
+
+    return Buffer.from(zkProofBase64, 'base64').toString()
   }
 }
 
@@ -99,5 +107,6 @@ export const walletStore = {
   useWalletStore,
 
   useGeneratePrivateKey,
+  usePointsNullifierHex,
   useGenerateAuthProof,
 }

@@ -17,14 +17,7 @@ export const apiClient = axios.create({
   },
 })
 
-export const authApiClient = axios.create({
-  baseURL: Config.API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-
-authApiClient.interceptors.request.use(
+apiClient.interceptors.request.use(
   async config => {
     const accessToken = getAccessToken()
 
@@ -39,7 +32,7 @@ authApiClient.interceptors.request.use(
   },
 )
 
-authApiClient.interceptors.response.use(
+apiClient.interceptors.response.use(
   response => response, // Directly return successful responses.
   async error => {
     const originalRequest = error.config
@@ -51,9 +44,9 @@ authApiClient.interceptors.response.use(
         const newAacessToken = await refreshAuthTokens()
 
         // Update the authorization header with the new access token.
-        authApiClient.defaults.headers.common.Authorization = `Bearer ${newAacessToken}`
+        apiClient.defaults.headers.common.Authorization = `Bearer ${newAacessToken}`
 
-        return authApiClient(originalRequest) // Retry the original request with the new access token.
+        return apiClient(originalRequest) // Retry the original request with the new access token.
       } catch (refreshError) {
         // Handle refresh token errors by clearing stored tokens and redirecting to the login page.
         console.error('Token refresh failed:', refreshError)
