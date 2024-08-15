@@ -72,7 +72,7 @@ const useGenerateAuthProof = () => {
 
     const pkHex = `0x${privateKey}`
 
-    const hexString = await getPointsNullifierHex(pkHex)
+    const hexString = await getPointsNullifierHex(privateKey)
 
     const inputs = {
       eventData: hexString,
