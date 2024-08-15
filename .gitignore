@@ -45,3 +45,5 @@ node_modules
 .expo
 /android
 /ios
+modules/**/*/build
+modules/**/*/.cxx

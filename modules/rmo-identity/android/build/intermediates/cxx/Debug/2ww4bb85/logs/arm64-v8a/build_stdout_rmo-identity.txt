@@ -1,2 +1,0 @@
-ninja: Entering directory `/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/.cxx/Debug/2ww4bb85/arm64-v8a'
-[1/1] Linking CXX shared library ../../../../build/intermediates/cxx/Debug/2ww4bb85/obj/arm64-v8a/librmo-identity.so

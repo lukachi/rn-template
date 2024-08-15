@@ -1,3 +1,0 @@
-/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/.cxx/Debug/2ww4bb85/x86/CMakeFiles/rmo-identity.dir
-/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/.cxx/Debug/2ww4bb85/x86/CMakeFiles/edit_cache.dir
-/Users/lukachisama/Documents/LEARNING/REACT_NATIVE/template-v1/node_modules/rmo-identity/android/.cxx/Debug/2ww4bb85/x86/CMakeFiles/rebuild_cache.dir

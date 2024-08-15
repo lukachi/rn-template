@@ -46,7 +46,6 @@ export type AppStackScreenProps<T extends keyof AppStackParamsList> = NativeStac
 
 export type UiKitTabParamList = {
   Common: undefined
-  Zkp: undefined
   Colors: undefined
   Typography: undefined
 }

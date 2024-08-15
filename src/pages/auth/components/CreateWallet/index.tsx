@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native'
 import { Buffer } from 'buffer'
 import { useCallback, useMemo } from 'react'
 import type { ViewProps } from 'react-native'
+import { NativeModules } from 'react-native'
 import { ScrollView } from 'react-native'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -51,6 +52,8 @@ export default function CreateWallet({ route }: Props) {
       const res = await generateAuthWtns()
 
       const proof = await generateAuthProof(res)
+
+      console.log(NativeModules)
 
       console.log(Buffer.from(proof, 'base64').toString())
     } catch (error) {
