@@ -12,7 +12,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { APIProvider } from '@/api/client'
 import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
-import { authStore, localAuthStore } from '@/store'
+import { authStore, localAuthStore, walletStore } from '@/store'
 import { loadSelectedTheme } from '@/theme'
 import { Toasts } from '@/ui'
 
@@ -29,13 +29,14 @@ export default function App() {
 
   const isAuthStoreHydrated = authStore.useAuthStore(state => state._hasHydrated)
   const isLocalAuthStoreHydrated = localAuthStore.useLocalAuthStore(state => state._hasHydrated)
+  const isWalletStoreHydrated = walletStore.useWalletStore(state => state._hasHydrated)
   const initLocalAuthStore = localAuthStore.useInitLocalAuthStore()
 
   const { language } = useSelectedLanguage()
 
   const isStoresHydrated = useMemo(() => {
-    return isAuthStoreHydrated && isLocalAuthStoreHydrated
-  }, [isAuthStoreHydrated, isLocalAuthStoreHydrated])
+    return isAuthStoreHydrated && isLocalAuthStoreHydrated && isWalletStoreHydrated
+  }, [isAuthStoreHydrated, isLocalAuthStoreHydrated, isWalletStoreHydrated])
 
   useEffect(() => {
     if (!isStoresHydrated) return

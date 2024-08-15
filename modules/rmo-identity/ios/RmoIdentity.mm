@@ -22,6 +22,50 @@ RCT_EXPORT_MODULE()
     }
 }
 
+- (NSData *)dataFromHexString:(NSString *)hexString {
+    NSMutableData *data = [[NSMutableData alloc] init];
+    unsigned char wholeByte;
+    char byteChars[3] = {'\0','\0','\0'};
+    int i;
+    for (i = 0; i < [hexString length] / 2; i++) {
+        byteChars[0] = [hexString characterAtIndex:i * 2];
+        byteChars[1] = [hexString characterAtIndex:i * 2 + 1];
+        wholeByte = strtol(byteChars, NULL, 16);
+        [data appendBytes:&wholeByte length:1];
+    }
+    return data;
+}
+
+- (void)calculateEventNullifierInt:(NSString *)event secretKey:(NSString *)secretKey resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+    NSError *error = nil;
+
+    // Convert secretKey from NSString to NSData
+    NSData *secretKeyData = [self dataFromHexString:secretKey];
+
+    // Create an instance of IdentityProfile
+    IdentityProfile *profile = [[IdentityProfile alloc] init];
+
+    // Initialize the profile with the secret key
+    IdentityProfile *newProfile = [profile newProfile:secretKeyData error:&error];
+    
+    if (error) {
+        NSLog(@"Error: %@", error.localizedDescription);
+        reject(@"profile_error", @"There was an error creating the profile", error);
+    }
+
+    NSString *eventID = event;
+    NSString *result = [newProfile calculateEventNullifierInt:eventID error:&error];
+
+    if (error) {
+        NSLog(@"Error: %@", error.localizedDescription);
+        reject(@"event_nullifier_error", @"There was an error calculating the event nullifier", error);
+    } else {
+        NSLog(@"Result: %@", result);
+        resolve(result);
+    }
+}
+
+
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params

@@ -2,7 +2,6 @@ import { useNavigation } from '@react-navigation/native'
 import { Buffer } from 'buffer'
 import { useCallback, useMemo } from 'react'
 import type { ViewProps } from 'react-native'
-import { NativeModules } from 'react-native'
 import { ScrollView } from 'react-native'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -18,9 +17,7 @@ type Props = ViewProps & AuthStackScreenProps<'CreateWallet'>
 
 export default function CreateWallet({ route }: Props) {
   const generatePrivateKey = walletStore.useGeneratePrivateKey()
-  const generateAuthWtns = walletStore.useGenerateAuthWtns()
   const generateAuthProof = walletStore.useGenerateAuthProof()
-  const setPrivateKey = walletStore.useWalletStore(state => state.setPrivateKey)
 
   const isImporting = useMemo(() => {
     return route?.params?.isImporting
@@ -35,7 +32,7 @@ export default function CreateWallet({ route }: Props) {
   const { formState, isFormDisabled, handleSubmit, disableForm, enableForm, control, setValue } =
     useForm(
       {
-        privateKey: '',
+        privateKey: '0ae3584bb3028e79639b743f41bb119a9a80821443e1ac5532a8fa9b5d0a6646',
       },
       yup =>
         yup.object().shape({
@@ -48,19 +45,15 @@ export default function CreateWallet({ route }: Props) {
   const submit = useCallback(async () => {
     disableForm()
     try {
-      // setPrivateKey(formState.privateKey)
-      const res = await generateAuthWtns()
-
-      const proof = await generateAuthProof(res)
-
-      console.log(NativeModules)
+      const proof = await generateAuthProof(formState.privateKey)
 
       console.log(Buffer.from(proof, 'base64').toString())
+      // setPrivateKey(formState.privateKey)
     } catch (error) {
       ErrorHandler.process(error)
     }
     enableForm()
-  }, [disableForm, enableForm, generateAuthProof, generateAuthWtns])
+  }, [disableForm, enableForm, formState.privateKey, generateAuthProof])
 
   const pasteFromClipboard = useCallback(async () => {
     const res = await fetchFromClipboard()
