@@ -44,7 +44,7 @@ const switchTv = tv({
   },
 })
 
-// FIXME: on props value change, actual switch-rn value not changing
+// FIXME: on props value change, actual switch-rn value not changing(iOS only)
 export const UiSwitcher = forwardRef<ElementRef<typeof RNSwitch>, Props>(
   ({ id = uuid(), label, errorMessage, disabled, value, ...rest }, ref) => {
     const styles = useMemo(
