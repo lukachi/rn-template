@@ -1,6 +1,7 @@
 import { useReactQueryDevTools } from '@dev-plugins/react-query'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import axios from 'axios'
+import Jsona from 'jsona'
 import type { PropsWithChildren } from 'react'
 
 import { Config } from '@/config'
@@ -15,6 +16,20 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+})
+
+const dataFormatter = new Jsona()
+
+apiClient.interceptors.response.use(response => {
+  try {
+    return {
+      ...response,
+      data: dataFormatter.deserialize(response.data),
+    }
+  } catch (error) {
+    console.error('Could not deserialize data', error)
+    return response
+  }
 })
 
 apiClient.interceptors.request.use(

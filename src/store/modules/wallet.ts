@@ -1,13 +1,8 @@
 import { Buffer } from 'buffer'
-import { useAssets } from 'expo-asset'
-import * as FileSystem from 'expo-file-system'
 import { calculateEventNullifierInt, generatePrivateKey } from 'rmo-identity'
-import { generateAuthWtns } from 'rn-wtnscalcs'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
-import { groth16Prove } from '@/../modules/rapidsnark-wrp'
-import { getChallenge } from '@/api/modules/auth'
 import { Config } from '@/config'
 import { zustandSecureStorage } from '@/store/helpers'
 
@@ -63,50 +58,9 @@ const usePointsNullifierHex = () => {
   }
 }
 
-const useGenerateAuthProof = () => {
-  const [assets] = useAssets([require('@assets/circuits/auth/circuit_final.zkey')])
-  const getPointsNullifierHex = usePointsNullifierHex()
-
-  // TODO: change to state?
-  return async (privateKey: string) => {
-    const zkeyAsset = assets?.[0]
-
-    const pkHex = `0x${privateKey}`
-
-    const hexString = await getPointsNullifierHex(privateKey)
-
-    const { data } = await getChallenge(hexString)
-
-    // fixme: types
-    const challenge = Buffer.from(data.data.attributes.challenge, 'base64').toString('hex')
-
-    const inputs = {
-      eventData: `0x${challenge}`,
-      eventID: Config.POINTS_SVC_ID,
-      revealPkIdentityHash: 0,
-      skIdentity: pkHex,
-    }
-
-    const authWtnsBase64 = await generateAuthWtns(
-      Buffer.from(JSON.stringify(inputs)).toString('base64'),
-    )
-
-    if (!zkeyAsset?.localUri) throw new TypeError('Zkey asset not found')
-
-    const zkeyBase64 = await FileSystem.readAsStringAsync(zkeyAsset.localUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    })
-
-    const zkProofBase64 = await groth16Prove(authWtnsBase64, zkeyBase64)
-
-    return Buffer.from(zkProofBase64, 'base64').toString()
-  }
-}
-
 export const walletStore = {
   useWalletStore,
 
   useGeneratePrivateKey,
   usePointsNullifierHex,
-  useGenerateAuthProof,
 }

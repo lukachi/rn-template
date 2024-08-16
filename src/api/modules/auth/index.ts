@@ -2,7 +2,18 @@ import { apiClient } from '@/api/client'
 
 // fixme: ZkProof type
 export const authorize = async (nullifierHex: string, zkProof: any) => {
-  return apiClient.post('/integrations/geo-auth-svc/v1/authorize', {
+  return apiClient.post<{
+    access_token: {
+      token: string
+      token_type: 'access'
+    }
+    id: string
+    refresh_token: {
+      token: string
+      token_type: 'refresh'
+    }
+    type: 'token'
+  }>('/integrations/geo-auth-svc/v1/authorize', {
     data: {
       id: nullifierHex,
       type: 'authorize',
@@ -15,5 +26,9 @@ export const authorize = async (nullifierHex: string, zkProof: any) => {
 }
 
 export const getChallenge = async (nullifierHex: string) => {
-  return apiClient.get(`/integrations/geo-auth-svc/v1/authorize/${nullifierHex}/challenge`)
+  return apiClient.get<{
+    challenge: string
+    id: string
+    type: 'challenge'
+  }>(`/integrations/geo-auth-svc/v1/authorize/${nullifierHex}/challenge`)
 }

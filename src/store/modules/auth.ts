@@ -1,7 +1,15 @@
+import { Buffer } from 'buffer'
+import { useAssets } from 'expo-asset'
+import * as FileSystem from 'expo-file-system'
+import { generateAuthWtns } from 'rn-wtnscalcs'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
+import { groth16Prove } from '@/../modules/rapidsnark-wrp'
+import { authorize, getChallenge } from '@/api/modules/auth'
+import { Config } from '@/config'
 import { sleep } from '@/helpers'
+import { walletStore } from '@/store'
 import { zustandSecureStorage } from '@/store/helpers'
 
 const useAuthStore = create(
@@ -21,8 +29,8 @@ const useAuthStore = create(
           })
         },
 
-        login: async () => {
-          set({ accessToken: 'my_access_token', refreshToken: 'my_refresh_token' })
+        setTokens: async (accessToken: string, refreshToken: string) => {
+          set({ accessToken: accessToken, refreshToken: refreshToken })
         },
         logout: () => {
           set({ accessToken: '', refreshToken: '' })
@@ -62,7 +70,53 @@ const useIsAuthorized = () => {
   return accessToken !== ''
 }
 
+const useLogin = () => {
+  const [assets] = useAssets([require('@assets/circuits/auth/circuit_final.zkey')])
+  const getPointsNullifierHex = walletStore.usePointsNullifierHex()
+  const setTokens = useAuthStore(state => state.setTokens)
+
+  // TODO: change to state?
+  return async (privateKey: string) => {
+    const zkeyAsset = assets?.[0]
+
+    const pkHex = `0x${privateKey}`
+
+    const pointsNullifierHex = await getPointsNullifierHex(privateKey)
+
+    const { data } = await getChallenge(pointsNullifierHex)
+
+    const challenge = Buffer.from(data.challenge, 'base64').toString('hex')
+
+    const inputs = {
+      eventData: `0x${challenge}`,
+      eventID: Config.POINTS_SVC_ID,
+      revealPkIdentityHash: 0,
+      skIdentity: pkHex,
+    }
+
+    const authWtnsBase64 = await generateAuthWtns(
+      Buffer.from(JSON.stringify(inputs)).toString('base64'),
+    )
+
+    if (!zkeyAsset?.localUri) throw new TypeError('Zkey asset not found')
+
+    const zkeyBase64 = await FileSystem.readAsStringAsync(zkeyAsset.localUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    })
+
+    const zkProofBase64 = await groth16Prove(authWtnsBase64, zkeyBase64)
+
+    const zkProof = Buffer.from(zkProofBase64, 'base64').toString()
+
+    const { data: authTokens } = await authorize(pointsNullifierHex, JSON.parse(zkProof))
+
+    setTokens(authTokens.access_token.token, authTokens.refresh_token.token)
+  }
+}
+
 export const authStore = {
-  useAuthStore,
-  useIsAuthorized,
+  useAuthStore: useAuthStore,
+
+  useLogin: useLogin,
+  useIsAuthorized: useIsAuthorized,
 }

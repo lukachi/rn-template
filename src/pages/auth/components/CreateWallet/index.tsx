@@ -5,11 +5,10 @@ import { ScrollView } from 'react-native'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { authorize } from '@/api/modules/auth'
 import { ErrorHandler, useSoftKeyboardEffect } from '@/core'
 import { useCopyToClipboard, useForm, useLoading } from '@/hooks'
 import type { AuthStackScreenProps } from '@/route-types'
-import { walletStore } from '@/store'
+import { authStore, walletStore } from '@/store'
 import { cn } from '@/theme'
 import { ControlledUiTextField, UiButton, UiCard, UiHorizontalDivider, UiIcon } from '@/ui'
 
@@ -17,8 +16,8 @@ type Props = ViewProps & AuthStackScreenProps<'CreateWallet'>
 
 export default function CreateWallet({ route }: Props) {
   const generatePrivateKey = walletStore.useGeneratePrivateKey()
-  const generateAuthProof = walletStore.useGenerateAuthProof()
-  const getPointsNullifierHex = walletStore.usePointsNullifierHex()
+  const setPrivateKey = walletStore.useWalletStore(state => state.setPrivateKey)
+  const login = authStore.useLogin()
 
   const isImporting = useMemo(() => {
     return route?.params?.isImporting
@@ -46,21 +45,14 @@ export default function CreateWallet({ route }: Props) {
   const submit = useCallback(async () => {
     disableForm()
     try {
-      const zkProof = await generateAuthProof(formState.privateKey)
-
-      const pointsNullifierHex = await getPointsNullifierHex(formState.privateKey)
-
-      // TODO: auth module, types, store, tokens, interceptors, jsona
-      const resp = await authorize(pointsNullifierHex, JSON.parse(zkProof))
-
-      console.log(resp)
-      // setPrivateKey(formState.privateKey)
+      setPrivateKey(formState.privateKey)
+      await login(formState.privateKey)
     } catch (error) {
       // TODO: network inspector
       ErrorHandler.process(error)
     }
     enableForm()
-  }, [disableForm, enableForm, formState.privateKey, generateAuthProof, getPointsNullifierHex])
+  }, [disableForm, enableForm, formState.privateKey, login, setPrivateKey])
 
   const pasteFromClipboard = useCallback(async () => {
     const res = await fetchFromClipboard()
