@@ -23,13 +23,13 @@ const useAuthStore = create(
         _hasHydrated: false,
       },
       set => ({
-        setHasHydrated: (value: boolean) => {
+        setHasHydrated: (value: boolean): void => {
           set({
             _hasHydrated: value,
           })
         },
 
-        setTokens: async (accessToken: string, refreshToken: string) => {
+        setTokens: async (accessToken: string, refreshToken: string): Promise<void> => {
           set({ accessToken: accessToken, refreshToken: refreshToken })
         },
         logout: () => {
@@ -114,9 +114,20 @@ const useLogin = () => {
   }
 }
 
+const useLogout = () => {
+  const logout = useAuthStore(state => state.logout)
+  const deletePrivateKey = walletStore.useDeletePrivateKey()
+
+  return () => {
+    logout()
+    deletePrivateKey()
+  }
+}
+
 export const authStore = {
   useAuthStore: useAuthStore,
 
   useLogin: useLogin,
   useIsAuthorized: useIsAuthorized,
+  useLogout: useLogout,
 }

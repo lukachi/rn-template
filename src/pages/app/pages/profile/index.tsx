@@ -5,7 +5,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelectedLanguage } from '@/core'
 import { type Language, resources } from '@/core/localization/resources'
 import { useCopyToClipboard } from '@/hooks'
-import { BiometricStatuses, localAuthStore, PasscodeStatuses, walletStore } from '@/store'
+import {
+  authStore,
+  BiometricStatuses,
+  localAuthStore,
+  PasscodeStatuses,
+  walletStore,
+} from '@/store'
 import { cn, useSelectedTheme } from '@/theme'
 import { UiButton, UiCard, UiSwitcher } from '@/ui'
 
@@ -19,8 +25,8 @@ export default function ProfileScreen() {
           <WalletCard />
           <LangCard />
           <ThemeCard />
-          <UiCard />
           <LocalAuthMethodCard />
+          <LogoutCard />
         </View>
       </ScrollView>
     </View>
@@ -148,6 +154,21 @@ function LocalAuthMethodCard() {
           disabled={!isPasscodeEnabled}
         />
       )}
+    </UiCard>
+  )
+}
+
+function LogoutCard() {
+  const logout = authStore.useLogout()
+
+  return (
+    <UiCard>
+      <UiButton
+        color='error'
+        title='delete account'
+        trailingIcon='trashSimpleIcon'
+        onPress={logout}
+      />
     </UiCard>
   )
 }

@@ -20,7 +20,7 @@ const useWalletStore = create(
             _hasHydrated: value,
           })
         },
-        setPrivateKey: async (value: string) => {
+        setPrivateKey: (value: string): void => {
           set({ privateKey: value })
         },
       }),
@@ -58,9 +58,18 @@ const usePointsNullifierHex = () => {
   }
 }
 
+const useDeletePrivateKey = () => {
+  const setPrivateKey = useWalletStore(state => state.setPrivateKey)
+
+  return () => {
+    return setPrivateKey('')
+  }
+}
+
 export const walletStore = {
   useWalletStore,
 
   useGeneratePrivateKey,
   usePointsNullifierHex,
+  useDeletePrivateKey,
 }
