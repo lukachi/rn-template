@@ -116,7 +116,13 @@ const useLocalAuthStore = create(
         disableBiometrics: (): void => {
           setState({ biometricStatus: BiometricStatuses.Disabled })
         },
+        setBiometricsStatus: (biometricStatus: BiometricStatuses): void => {
+          setState({ biometricStatus: biometricStatus })
+        },
 
+        setPasscodeStatus: (passcodeStatus: PasscodeStatuses): void => {
+          setState({ passcodeStatus: passcodeStatus })
+        },
         setPasscode: (passcode: string): void => {
           setState({ passcode, passcodeStatus: PasscodeStatuses.Enabled })
         },
@@ -292,13 +298,13 @@ const useUserActionsInLocalAuth = (onDecided: (action: UserActionsInLocalAuth) =
     return
   }
 
+  if (biometricStatus === BiometricStatuses.NotSet) {
+    onDecided(UserActionsInLocalAuth.NeedToEnableBiometrics)
+
+    return
+  }
+
   if (passcodeStatus === PasscodeStatuses.Enabled) {
-    if (biometricStatus === BiometricStatuses.NotSet) {
-      onDecided(UserActionsInLocalAuth.NeedToEnableBiometrics)
-
-      return
-    }
-
     onDecided(UserActionsInLocalAuth.NeedToUnlock)
 
     return

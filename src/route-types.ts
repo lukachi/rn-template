@@ -37,6 +37,7 @@ export type AppStackParamsList = {
   UiKit: undefined
   Fetching: undefined
   Localization: undefined
+  Profile: undefined
 }
 
 export type AppStackScreenProps<T extends keyof AppStackParamsList> = NativeStackScreenProps<

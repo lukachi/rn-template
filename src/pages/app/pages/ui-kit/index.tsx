@@ -142,7 +142,9 @@ function CustomTapBar(props: BottomTabBarProps) {
             leadingIcon='userIcon'
             size='small'
             onPress={() => {
-              bottomSheet.present()
+              navigation.navigate('App', {
+                screen: 'Profile',
+              })
             }}
           />
         </View>
