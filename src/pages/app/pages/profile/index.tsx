@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelectedLanguage } from '@/core'
 import { type Language, resources } from '@/core/localization/resources'
 import { useCopyToClipboard } from '@/hooks'
+import type { AppTabScreenProps } from '@/route-types'
 import {
   authStore,
   BiometricStatuses,
@@ -15,7 +16,7 @@ import {
 import { cn, useSelectedTheme } from '@/theme'
 import { UiButton, UiCard, UiSwitcher } from '@/ui'
 
-export default function ProfileScreen() {
+export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
   const insets = useSafeAreaInsets()
 
   return (
