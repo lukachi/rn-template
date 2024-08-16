@@ -34,6 +34,7 @@ export type LocalAuthStackScreenProps<T extends keyof LocalAuthStackParamsList> 
   NativeStackScreenProps<LocalAuthStackParamsList, T>
 
 export type AppTabParamsList = {
+  Home: undefined
   Profile: undefined
 }
 
