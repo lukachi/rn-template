@@ -1,0 +1,4 @@
+module WtnsCalcs {
+    header "witnesscalc_auth.h"
+    export *
+}

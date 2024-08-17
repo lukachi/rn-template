@@ -10,7 +10,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "../cpp/witnesscalc_auth.h"
+#import "witnesscalc_auth.h"
 
 //NS_ASSUME_NONNULL_BEGIN
 

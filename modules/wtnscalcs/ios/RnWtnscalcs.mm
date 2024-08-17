@@ -14,15 +14,15 @@ RCT_EXPORT_MODULE()
 
 - (void)generateAuthWtns:(NSString *)jsonInputsBase64 resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     NSError *error = nil;
-    
+
     // Convert base64 encoded string to NSData
     NSData *jsonData = [[NSData alloc] initWithBase64EncodedString:jsonInputsBase64 options:0];
-    
+
     if (!jsonData) {
         reject(@"error", @"Failed to decode base64 string", nil);
         return;
     }
-    
+
     NSData *result = [WtnsUtils calcWtnsAuth:jsonData error:&error];
 
     if (error) {
@@ -31,7 +31,7 @@ RCT_EXPORT_MODULE()
     } else {
         // Encode result to base64 and resolve
         NSString *resultBase64 = [result base64EncodedStringWithOptions:0];
-        
+
         resolve(resultBase64);
     }
 }
@@ -39,7 +39,7 @@ RCT_EXPORT_MODULE()
 
 - (NSNumber *)plus:(double)a b:(double)b {
     NSNumber *result = @(rnwtnscalcs::plus(a, b));
-    
+
     return result;
 }
 
