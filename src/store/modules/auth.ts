@@ -1,11 +1,11 @@
 import { Buffer } from 'buffer'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
-import { generateAuthWtns } from 'rn-wtnscalcs'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
 import { groth16Prove } from '@/../modules/rapidsnark-wrp'
+import { calcWtnsAuth } from '@/../modules/witnesscalculator'
 import { authorize, getChallenge } from '@/api/modules/auth'
 import { Config } from '@/config'
 import { sleep } from '@/helpers'
@@ -71,13 +71,23 @@ const useIsAuthorized = () => {
 }
 
 const useLogin = () => {
-  const [assets] = useAssets([require('@assets/circuits/auth/circuit_final.zkey')])
+  const [assets] = useAssets([
+    require('@assets/circuits/auth/circuit_final.zkey'),
+    require('@assets/circuits/auth/auth.dat'),
+  ])
   const getPointsNullifierHex = walletStore.usePointsNullifierHex()
   const setTokens = useAuthStore(state => state.setTokens)
 
   // TODO: change to state?
   return async (privateKey: string) => {
     const zkeyAsset = assets?.[0]
+    const datAsset = assets?.[1]
+
+    if (!datAsset?.localUri) throw new TypeError('Dat asset not found')
+
+    const datBase64 = await FileSystem.readAsStringAsync(datAsset.localUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    })
 
     const pkHex = `0x${privateKey}`
 
@@ -94,7 +104,8 @@ const useLogin = () => {
       skIdentity: pkHex,
     }
 
-    const authWtnsBase64 = await generateAuthWtns(
+    const authWtnsBase64 = await calcWtnsAuth(
+      datBase64,
       Buffer.from(JSON.stringify(inputs)).toString('base64'),
     )
 

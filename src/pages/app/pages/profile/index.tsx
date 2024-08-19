@@ -41,7 +41,7 @@ function WalletCard() {
   return (
     <UiCard>
       <UiCard className='bg-backgroundPrimary'>
-        <Text>{privateKey}</Text>
+        <Text className='text-textPrimary typography-body3'>{privateKey}</Text>
       </UiCard>
 
       <UiButton
@@ -141,7 +141,7 @@ function LocalAuthMethodCard() {
 
   return (
     <UiCard className='flex flex-col gap-4'>
-      <Text className='mb-4 text-center typography-subtitle3'>Auth methods</Text>
+      <Text className='mb-4 text-center text-textPrimary typography-subtitle3'>Auth methods</Text>
       <UiSwitcher
         label='Passcode'
         value={isPasscodeEnabled}

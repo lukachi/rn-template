@@ -33,6 +33,7 @@ const withCircomFilesAndPolyfills = (config) => {
       ...resolver.assetExts,
       'wasm',
       'zkey',
+      'dat',
     ],
     extraNodeModules: {
       crypto: require.resolve('react-native-crypto'),
@@ -50,7 +51,7 @@ const withCircomFilesAndPolyfills = (config) => {
 }
 
 module.exports = (() => {
-  let config = getDefaultConfig(__dirname, { isCSSEnabled: true })
+  let config = getDefaultConfig(__dirname)
 
   return mergeConfig(
     withSvgTransformer(config),

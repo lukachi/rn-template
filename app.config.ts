@@ -84,7 +84,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
           newArchEnabled: true
         },
         ios: {
-          newArchEnabled: true
+          newArchEnabled: true,
         },
       },
     ],

@@ -97,8 +97,11 @@ export default function Intro() {
       </View>
 
       <UiBottomSheet title='Authorization' ref={bottomSheet.ref} enableDynamicSizing={true}>
-        <BottomSheetView style={{ paddingBottom: insets.bottom }}>
-          <View className={cn('flex flex-col items-center gap-4 p-5 py-0')}>
+        <BottomSheetView
+          style={{ paddingBottom: insets.bottom }}
+          className='bg-backgroundContainer'
+        >
+          <View className={cn('py-0, flex flex-col items-center gap-4 p-5')}>
             <UiHorizontalDivider />
 
             <Text className='text-textSecondary typography-body2'>Choose a preferred method</Text>
