@@ -1,5 +1,7 @@
 package expo.modules.witnesscalculator
 
+import com.example.rmocalcs.WtnsUtils
+import java.util.Base64
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
@@ -15,9 +17,66 @@ class WitnesscalculatorModule : Module() {
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("calcWtnsAuth") { descriptionFileData: ByteArray, privateInputsJson: ByteArray ->
-      // Send an event to JavaScript.
-      return@AsyncFunction "Not implemented"
+    AsyncFunction("calcWtnsAuth") { descriptionFileData: String, privateInputsJson: String ->
+      val witnessCalculator = WtnsCalculator()
+
+      val res = witnessCalculator.calculateWtns(
+        Base64.getDecoder().decode(descriptionFileData),
+        Base64.getDecoder().decode(privateInputsJson),
+        WtnsUtils::auth
+      ).let {
+        // base64
+        String(Base64.getEncoder().encode(it))
+      }
+
+      return@AsyncFunction res
     }
+  }
+}
+
+class WtnsCalculator {
+  fun calculateWtns(
+    datFile: ByteArray,
+    inputs: ByteArray,
+    wtnsCalcFunction: (
+      circuitBuffer: ByteArray,
+      circuitSize: Long,
+      jsonBuffer: ByteArray,
+      jsonSize: Long,
+      wtnsBuffer: ByteArray,
+      wtnsSize: LongArray,
+      errorMsg: ByteArray,
+      errorMsgMaxSize: Long
+    ) -> Int
+  ): ByteArray {
+    val msg = ByteArray(256)
+
+    val witnessLen = LongArray(1)
+    witnessLen[0] = 100 * 1024 * 1024
+
+    val byteArr = ByteArray(100 * 1024 * 1024)
+
+    val res = wtnsCalcFunction(
+      datFile,
+      datFile.size.toLong(),
+      inputs,
+      inputs.size.toLong(),
+      byteArr,
+      witnessLen,
+      msg,
+      256
+    )
+
+    if (res == 2) {
+      throw Exception("Not enough memory for wtns calculation")
+    }
+
+    if (res == 1) {
+      throw Exception("Error during wtns calculation ${msg.decodeToString()}")
+    }
+
+    val witnessData = byteArr.copyOfRange(0, witnessLen[0].toInt())
+
+    return witnessData
   }
 }

@@ -41,3 +41,7 @@ android {
     abortOnError false
   }
 }
+
+dependencies {
+  implementation fileTree(dir: "libs", include: ["*.aar"])
+}
