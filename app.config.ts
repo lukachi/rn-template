@@ -22,14 +22,14 @@ export default ({config}: ConfigContext): ExpoConfig => ({
   updates: {
     fallbackToCacheTimeout: 0,
   },
-  assetBundlePatterns: ['**/*'],
+  // assetBundlePatterns: ['**/*'],
   ios: {
     // supportsTablet: true,
     bundleIdentifier: Env.BUNDLE_ID,
   },
-  experiments: {
-    typedRoutes: true,
-  },
+  // experiments: {
+  //   typedRoutes: true,
+  // },
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',

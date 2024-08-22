@@ -9,8 +9,8 @@ import { calcWtnsAuth } from '@/../modules/witnesscalculator'
 import { authorize, getChallenge } from '@/api/modules/auth'
 import { Config } from '@/config'
 import { sleep } from '@/helpers'
-import { walletStore } from '@/store'
 import { zustandSecureStorage } from '@/store/helpers'
+import { walletStore } from '@/store/modules/wallet'
 
 const useAuthStore = create(
   persist(

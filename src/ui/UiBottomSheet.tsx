@@ -23,7 +23,7 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import type { BottomSheetBackdropProps, BottomSheetModalProps } from '@gorhom/bottom-sheet'
 import { useBottomSheet } from '@gorhom/bottom-sheet'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
-import type { ForwardedRef, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { memo } from 'react'
 import { useImperativeHandle } from 'react'
 import { useMemo } from 'react'
@@ -43,13 +43,13 @@ type UiBottomSheetProps = BottomSheetModalProps & {
 export const useUiBottomSheet = () => {
   const ref = useRef<BottomSheetModal>(null)
 
-  const present = useCallback(() => {
+  const present = () => {
     ref.current?.present()
-  }, [])
+  }
 
-  const dismiss = useCallback(() => {
+  const dismiss = () => {
     ref.current?.dismiss()
-  }, [])
+  }
 
   return { ref, present, dismiss }
 }
@@ -73,7 +73,7 @@ const useDetachedProps = () => {
   } as Partial<BottomSheetModalProps>
 }
 
-export const UiBottomSheet = forwardRef(
+export const UiBottomSheet = forwardRef<BottomSheetModal, UiBottomSheetProps>(
   (
     {
       snapPoints: _snapPoints = ['100%'],
@@ -82,8 +82,8 @@ export const UiBottomSheet = forwardRef(
       headerComponent,
       children,
       ...rest
-    }: UiBottomSheetProps,
-    ref: ForwardedRef<BottomSheetModal>,
+    },
+    ref,
   ) => {
     const insets = useSafeAreaInsets()
 

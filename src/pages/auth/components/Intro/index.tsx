@@ -1,6 +1,6 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet'
 import { useNavigation } from '@react-navigation/native'
-import { useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { Dimensions, Text, View } from 'react-native'
 import type { ICarouselInstance } from 'react-native-reanimated-carousel'
 import Carousel from 'react-native-reanimated-carousel'
@@ -52,6 +52,23 @@ export default function Intro() {
       },
     ]
   }, [])
+
+  const handleCreatePK = useCallback(() => {
+    bottomSheet.dismiss()
+    navigation.navigate('Auth', {
+      screen: 'CreateWallet',
+    })
+  }, [bottomSheet, navigation])
+
+  const handleImportPK = useCallback(() => {
+    bottomSheet.dismiss()
+    navigation.navigate('Auth', {
+      screen: 'CreateWallet',
+      params: {
+        isImporting: true,
+      },
+    })
+  }, [bottomSheet, navigation])
 
   return (
     <View
@@ -107,29 +124,8 @@ export default function Intro() {
             <Text className='text-textSecondary typography-body2'>Choose a preferred method</Text>
 
             <View className='mt-auto flex w-full flex-col gap-2'>
-              <UiButton
-                size='large'
-                title='Create a new profile'
-                onPress={() => {
-                  bottomSheet.dismiss()
-                  navigation.navigate('Auth', {
-                    screen: 'CreateWallet',
-                  })
-                }}
-              />
-              <UiButton
-                size='large'
-                title='Re-activate old profile'
-                onPress={() => {
-                  bottomSheet.dismiss()
-                  navigation.navigate('Auth', {
-                    screen: 'CreateWallet',
-                    params: {
-                      isImporting: true,
-                    },
-                  })
-                }}
-              />
+              <UiButton size='large' title='Create a new profile' onPress={handleCreatePK} />
+              <UiButton size='large' title='Re-activate old profile' onPress={handleImportPK} />
             </View>
           </View>
         </BottomSheetView>

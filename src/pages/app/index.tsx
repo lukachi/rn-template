@@ -18,7 +18,10 @@ export default function App({}: RootStackScreenProps<'App'>) {
         options={{
           title: 'Home',
           tabBarIcon: ({ focused }) => (
-            <UiIcon componentName='houseSimpleIcon' className={cn(focused && 'text-primaryMain')} />
+            <UiIcon
+              componentName='houseSimpleIcon'
+              className={cn(focused ? 'text-primaryMain' : 'text-textSecondary')}
+            />
           ),
         }}
       />
@@ -28,7 +31,10 @@ export default function App({}: RootStackScreenProps<'App'>) {
         options={{
           title: 'Profile',
           tabBarIcon: ({ focused }) => (
-            <UiIcon componentName='userIcon' className={cn(focused && 'text-primaryMain')} />
+            <UiIcon
+              componentName='userIcon'
+              className={cn(focused ? 'text-primaryMain' : 'text-textSecondary')}
+            />
           ),
         }}
       />
