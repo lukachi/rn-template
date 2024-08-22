@@ -48,14 +48,9 @@ public class RapidsnarkWrpModule: Module {
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-      AsyncFunction("groth16Prove") { (wtnsBase64: String, zkeyBase64: String) in
+      AsyncFunction("groth16Prove") { (wtns: Data, zkey: Data) -> Data in
           do {
-              guard let decodedWtnsData = base64StringToData(wtnsBase64),
-                    let decodedZKeyData = base64StringToData(zkeyBase64) else {
-                  throw RapidsnarkUtilsError.invalidBase64String;
-              }
-  
-              let (proof, inputs) = try rapidsnark.groth16Prove(zkey: decodedZKeyData, witness: decodedWtnsData)
+              let (proof, inputs) = try rapidsnark.groth16Prove(zkey: zkey, witness: wtns)
 
               // Convert proof string to Data
               guard let proofData = proof.data(using: .utf8),
@@ -79,7 +74,7 @@ public class RapidsnarkWrpModule: Module {
 
               let zkProof = ZkProof(proof: proofJson, pubSignals: pubSignalsJson)
   
-              let result = try JSONEncoder().encode(zkProof).base64EncodedString()
+              let result = try JSONEncoder().encode(zkProof)
   
               return result
           } catch {

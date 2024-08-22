@@ -104,9 +104,9 @@ const useLogin = () => {
       skIdentity: pkHex,
     }
 
-    const authWtnsBase64 = await calcWtnsAuth(
-      datBase64,
-      Buffer.from(JSON.stringify(inputs)).toString('base64'),
+    const authWtns = await calcWtnsAuth(
+      Buffer.from(datBase64, 'base64'),
+      Buffer.from(JSON.stringify(inputs)),
     )
 
     if (!zkeyAsset?.localUri) throw new TypeError('Zkey asset not found')
@@ -115,9 +115,9 @@ const useLogin = () => {
       encoding: FileSystem.EncodingType.Base64,
     })
 
-    const zkProofBase64 = await groth16Prove(authWtnsBase64, zkeyBase64)
+    const zkProofBytes = await groth16Prove(authWtns, Buffer.from(zkeyBase64, 'base64'))
 
-    const zkProof = Buffer.from(zkProofBase64, 'base64').toString()
+    const zkProof = Buffer.from(zkProofBytes).toString()
 
     const { data: authTokens } = await authorize(pointsNullifierHex, JSON.parse(zkProof))
 

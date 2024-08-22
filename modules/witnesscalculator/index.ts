@@ -1,11 +1,11 @@
 import WitnesscalculatorModule from './src/WitnesscalculatorModule'
 
 export async function calcWtnsAuth(
-  descriptionFileDataBase64: String,
-  privateInputsJsonBase64: String,
-): Promise<string> {
+  descriptionFileDataBase64: Uint8Array,
+  privateInputsJsonBase64: Uint8Array,
+): Promise<Uint8Array> {
   return await WitnesscalculatorModule.calcWtnsAuth(
-    descriptionFileDataBase64,
-    privateInputsJsonBase64,
+    new Uint8Array(descriptionFileDataBase64),
+    new Uint8Array(privateInputsJsonBase64),
   )
 }

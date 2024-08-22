@@ -12,21 +12,12 @@ public class WitnesscalculatorModule: Module {
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("calcWtnsAuth") { (descriptionFileDataBase64: String, privateInputsJsonBase64: String) in
-        do {
-            guard let descriptionFileData = Data(base64Encoded: descriptionFileDataBase64) else {
-                throw "Invalid base64 encoded descriptionFileData"
-            }
-            guard let privateInputsJson = Data(base64Encoded: privateInputsJsonBase64) else {
-                throw "Invalid base64 encoded privateInputsJson"
-            }
+    AsyncFunction("calcWtnsAuth") { (dat: Data, inputs: Data) -> Data in
+        NSLog("calcWtnsAuth called with dat: \(dat) and inputs: \(inputs)")
+        
+        let result = try WtnsUtils.calcWtnsAuth(dat, inputs)
 
-            let result = try WtnsUtils.calcWtnsAuth(descriptionFileData, privateInputsJson)
-
-            return result.base64EncodedString()
-        } catch {
-            throw error;
-        }
+        return result
     }
   }
 }

@@ -42,11 +42,8 @@ class RapidsnarkWrpModule : Module() {
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("groth16Prove") { wtnsBase64: String, zkeyBase64: String ->
-      val decodedWtnsData = base64StringToData(wtnsBase64)
-      val decodedZkeyData = base64StringToData(zkeyBase64)
-
-      val (proof, publicSignals) = groth16Prove(decodedZkeyData, decodedWtnsData)
+    AsyncFunction("groth16Prove") { wtns: ByteArray, zkey: ByteArray ->
+      val (proof, publicSignals) = groth16Prove(zkey, wtns)
 
       val proofInstance = Proof.fromJson(proof)
 
@@ -61,7 +58,7 @@ class RapidsnarkWrpModule : Module() {
 
       val zkProofJson = gson.toJson(zkProof)
 
-      return@AsyncFunction Base64.encodeToString(zkProofJson.toByteArray(), Base64.DEFAULT)
+      return@AsyncFunction zkProofJson
     }
   }
 }

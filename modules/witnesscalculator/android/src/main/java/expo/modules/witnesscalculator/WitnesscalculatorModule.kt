@@ -17,17 +17,10 @@ class WitnesscalculatorModule : Module() {
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("calcWtnsAuth") { descriptionFileData: String, privateInputsJson: String ->
+    AsyncFunction("calcWtnsAuth") { dat: ByteArray, inputs: ByteArray ->
       val witnessCalculator = WtnsCalculator()
 
-      val res = witnessCalculator.calculateWtns(
-        Base64.getDecoder().decode(descriptionFileData),
-        Base64.getDecoder().decode(privateInputsJson),
-        WtnsUtils::auth
-      ).let {
-        // base64
-        String(Base64.getEncoder().encode(it))
-      }
+      val res = witnessCalculator.calculateWtns(dat, inputs, WtnsUtils::auth)
 
       return@AsyncFunction res
     }
