@@ -13373,12 +13373,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rmo-identity@link:./modules/rmo-identity::locator=template-v1%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "rmo-identity@link:./modules/rmo-identity::locator=template-v1%40workspace%3A."
-  languageName: node
-  linkType: soft
-
 "run-parallel@npm:^1.1.9":
   version: 1.2.0
   resolution: "run-parallel@npm:1.2.0"
@@ -14550,7 +14544,6 @@ __metadata:
     react-native-svg-transformer: "npm:^1.5.0"
     react-native-toast-message: "npm:^2.2.0"
     readable-stream: "npm:^4.5.2"
-    rmo-identity: "link:./modules/rmo-identity"
     stream-http: "npm:^3.2.0"
     tailwind-merge: "npm:^2.4.0"
     tailwind-variants: "npm:^0.2.1"

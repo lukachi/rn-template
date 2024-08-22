@@ -1,6 +1,7 @@
 // polyfills
 // import '@react-native/js-polyfills'
 import 'react-native-get-random-values'
+import '@/api/interceptors'
 
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { sleepAsync } from 'expo-dev-launcher/bundle/functions/sleepAsync'
@@ -10,7 +11,6 @@ import { View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { APIProvider } from '@/api/client'
-import { initInterceptors } from '@/api/interceptors'
 import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
 import { authStore, localAuthStore, walletStore } from '@/store'
@@ -18,7 +18,6 @@ import { loadSelectedTheme } from '@/theme'
 import { Toasts } from '@/ui'
 
 loadSelectedTheme()
-initInterceptors()
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync()

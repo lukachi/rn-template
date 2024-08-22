@@ -1,5 +1,5 @@
+import { calculateEventNullifierInt, generatePrivateKey } from '@modules/rarime-sdk'
 import { Buffer } from 'buffer'
-import { calculateEventNullifierInt, generatePrivateKey } from 'rmo-identity'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -42,17 +42,17 @@ const useWalletStore = create(
 
 const useGeneratePrivateKey = () => {
   return async () => {
-    const pkBase64 = await generatePrivateKey()
+    const pkBytes = await generatePrivateKey()
 
-    return Buffer.from(pkBase64, 'base64').toString('hex')
+    return Buffer.from(pkBytes).toString('hex')
   }
 }
 
 const usePointsNullifierHex = () => {
   return async (pkHex: string) => {
-    const eventNullifierInt = await calculateEventNullifierInt(Config.POINTS_SVC_ID, pkHex)
+    const eventNullifierIntStr = await calculateEventNullifierInt(Config.POINTS_SVC_ID, pkHex)
 
-    const eventNullifierBN = BigInt(eventNullifierInt)
+    const eventNullifierBN = BigInt(eventNullifierIntStr)
 
     return `0x${eventNullifierBN.toString(16).padStart(64, '0')}`
   }
