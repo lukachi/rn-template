@@ -32,8 +32,11 @@ module.exports = (api) => {
           ],
         },
       ],
+      ['react-native-worklets-core/plugin'],
       // NOTE: this is only necessary if you are using reanimated for animations
-      'react-native-reanimated/plugin',
+      ['react-native-reanimated/plugin', {
+        processNestedWorklets: true
+      }],
     ],
   }
 }

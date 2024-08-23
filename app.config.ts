@@ -111,6 +111,9 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
       }
     ],
+    [ "react-native-vision-camera", {
+      "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+    }]
   ],
   extra: {
     ...ClientEnv,
