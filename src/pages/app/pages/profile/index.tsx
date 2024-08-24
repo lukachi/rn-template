@@ -1,3 +1,4 @@
+import { parse } from 'mrz'
 import { useCallback, useMemo } from 'react'
 import { Button, ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -19,10 +20,25 @@ import { UiButton, UiCard, UiSwitcher } from '@/ui'
 export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
   const insets = useSafeAreaInsets()
 
+  const test = () => {
+    const mrzLines = []
+
+    try {
+      const result = parse(mrzLines, {
+        autocorrect: true,
+      })
+
+      console.log(JSON.stringify(result))
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <View style={{ paddingBottom: insets.bottom }} className='flex flex-1 flex-col'>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View className='flex flex-1 flex-col gap-4 p-5'>
+          <UiButton onPress={test} title='Test MRZ' />
           <WalletCard />
           <LangCard />
           <ThemeCard />

@@ -1,10 +1,12 @@
 import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
+import type { FieldRecords } from 'mrz'
 import { parse } from 'mrz'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Text, View } from 'react-native'
 import {
   Camera,
+  runAsync,
   useCameraDevice,
   useCameraPermission,
   useFrameProcessor,
@@ -20,25 +22,62 @@ export default function CameraWrapper() {
   const device = useCameraDevice('back')
   const { hasPermission, requestPermission } = useCameraPermission()
 
+  const [parseResult, setParseResult] = useState<FieldRecords>()
+
   const { scanText } = useTextRecognition({
     language: 'latin',
   })
 
-  const frameProcessor = useFrameProcessor(frame => {
-    'worklet'
+  const frameProcessor = useFrameProcessor(
+    frame => {
+      'worklet'
 
-    const data = scanText(frame)
-    const lines = data?.resultText?.split('\n')
-    const possibleMRZLines = lines?.slice(-2)
-    console.log('possibleMRZLines', possibleMRZLines)
-    var result = parse(possibleMRZLines)
-    console.log('result', result)
-    // try {
-    //   console.log(possibleMRZLines)
-    // } catch (error) {
-    //   console.log('Error:', error)
-    // }
-  }, [])
+      runAsync(frame, async () => {
+        'worklet'
+
+        const data = scanText(frame)
+
+        const lines = data?.resultText?.split('\n') as string[]
+        const possibleMRZLines = lines?.slice(-2)
+
+        if (!possibleMRZLines?.length || possibleMRZLines.length !== 2) return
+
+        const sanitizedMRZLines = possibleMRZLines.map(el =>
+          el
+            .replaceAll('«', '<<')
+            // .replaceAll('O', '0')
+            .replaceAll(' ', '')
+            .padEnd(44, '<')
+            .toUpperCase(),
+        )
+
+        console.log('sanitizedMRZLines:\n', sanitizedMRZLines)
+
+        const result = parse(sanitizedMRZLines, {
+          autocorrect: true,
+        })
+
+        console.log(JSON.stringify(result))
+        if (!parseResult && result.valid) {
+          console.log('setting parseResult')
+          setParseResult(result.fields)
+        }
+
+        //
+        // try {
+        //   const result = parse(sanitizedMRZLines, {
+        //     autocorrect: true,
+        //   })
+        //   if (!parseResult && result.valid) {
+        //     setParseResult(result.fields)
+        //   }
+        // } catch (error) {
+        //   console.error(error)
+        // }
+      })
+    },
+    [parseResult, scanText],
+  )
 
   const isActive = useMemo(() => {
     return isFocused && currentAppState === 'active'
@@ -61,6 +100,10 @@ export default function CameraWrapper() {
         <Text className='text-textPrimary typography-h4'>Loading Camera</Text>
       </View>
     )
+  }
+
+  if (parseResult) {
+    return <Text>{JSON.stringify(parseResult)}</Text>
   }
 
   return (
