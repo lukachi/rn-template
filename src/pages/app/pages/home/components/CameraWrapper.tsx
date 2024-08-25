@@ -12,6 +12,7 @@ import {
   useFrameProcessor,
 } from 'react-native-vision-camera'
 import { useTextRecognition } from 'react-native-vision-camera-text-recognition'
+import { Worklets } from 'react-native-worklets-core'
 
 import { UiButton } from '@/ui'
 
@@ -28,6 +29,23 @@ export default function CameraWrapper() {
     language: 'latin',
   })
 
+  const onMRZDetected = Worklets.createRunOnJS((lines: string[]) => {
+    try {
+      const result = parse(lines, {
+        autocorrect: true,
+      })
+
+      console.log('result:\n', JSON.stringify(result))
+
+      if (!parseResult && result.valid) {
+        console.log('setting parseResult')
+        setParseResult(result.fields)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  })
+
   const frameProcessor = useFrameProcessor(
     frame => {
       'worklet'
@@ -42,38 +60,22 @@ export default function CameraWrapper() {
 
         if (!possibleMRZLines?.length || possibleMRZLines.length !== 2) return
 
-        const sanitizedMRZLines = possibleMRZLines.map(el =>
-          el
-            .replaceAll('«', '<<')
-            // .replaceAll('O', '0')
-            .replaceAll(' ', '')
-            .padEnd(44, '<')
-            .toUpperCase(),
-        )
+        // const tdLength = possibleMRZLines[1].length
+        const tdLength = 44
 
-        console.log('sanitizedMRZLines:\n', sanitizedMRZLines)
-
-        const result = parse(sanitizedMRZLines, {
-          autocorrect: true,
+        const sanitizedMRZLines = possibleMRZLines.map(el => {
+          return (
+            el
+              .replaceAll('«', '<<')
+              // .replaceAll('O', '0')
+              .replaceAll(' ', '')
+              .toUpperCase()
+          )
         })
 
-        console.log(JSON.stringify(result))
-        if (!parseResult && result.valid) {
-          console.log('setting parseResult')
-          setParseResult(result.fields)
-        }
+        sanitizedMRZLines[0] = sanitizedMRZLines[0].padEnd(tdLength, '<').toUpperCase()
 
-        //
-        // try {
-        //   const result = parse(sanitizedMRZLines, {
-        //     autocorrect: true,
-        //   })
-        //   if (!parseResult && result.valid) {
-        //     setParseResult(result.fields)
-        //   }
-        // } catch (error) {
-        //   console.error(error)
-        // }
+        onMRZDetected(sanitizedMRZLines)
       })
     },
     [parseResult, scanText],

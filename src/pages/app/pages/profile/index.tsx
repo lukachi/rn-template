@@ -21,7 +21,12 @@ export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
   const insets = useSafeAreaInsets()
 
   const test = () => {
-    const mrzLines = []
+    const mrzLines = [
+      // 'P<UKRNHO<<ZA<FAT<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+      // 'FV560290<0UKRO003300M29062652000033005896<86',
+      'P<UKRNHO<<ZA<FAT<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+      'FV560290<0UKROO03300M29062652000033005896<86',
+    ]
 
     try {
       const result = parse(mrzLines, {
