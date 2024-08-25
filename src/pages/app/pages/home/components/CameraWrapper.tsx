@@ -2,7 +2,7 @@ import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
 import type { FieldRecords } from 'mrz'
 import { parse } from 'mrz'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Text, View } from 'react-native'
 import {
   Camera,
@@ -16,14 +16,16 @@ import { Worklets } from 'react-native-worklets-core'
 
 import { UiButton } from '@/ui'
 
-export default function CameraWrapper() {
+export default function CameraWrapper({
+  setParseResult,
+}: {
+  setParseResult: (result: FieldRecords) => void
+}) {
   const isFocused = useIsFocused()
   const currentAppState = useAppState()
 
   const device = useCameraDevice('back')
   const { hasPermission, requestPermission } = useCameraPermission()
-
-  const [parseResult, setParseResult] = useState<FieldRecords>()
 
   const { scanText } = useTextRecognition({
     language: 'latin',
@@ -35,10 +37,7 @@ export default function CameraWrapper() {
         autocorrect: true,
       })
 
-      console.log('result:\n', JSON.stringify(result))
-
-      if (!parseResult && result.valid) {
-        console.log('setting parseResult')
+      if (result.valid) {
         setParseResult(result.fields)
       }
     } catch (error) {
@@ -64,13 +63,7 @@ export default function CameraWrapper() {
         const tdLength = 44
 
         const sanitizedMRZLines = possibleMRZLines.map(el => {
-          return (
-            el
-              .replaceAll('«', '<<')
-              // .replaceAll('O', '0')
-              .replaceAll(' ', '')
-              .toUpperCase()
-          )
+          return el.replaceAll('«', '<<').replaceAll(' ', '').toUpperCase()
         })
 
         sanitizedMRZLines[0] = sanitizedMRZLines[0].padEnd(tdLength, '<').toUpperCase()
@@ -78,7 +71,7 @@ export default function CameraWrapper() {
         onMRZDetected(sanitizedMRZLines)
       })
     },
-    [parseResult, scanText],
+    [scanText],
   )
 
   const isActive = useMemo(() => {
@@ -102,10 +95,6 @@ export default function CameraWrapper() {
         <Text className='text-textPrimary typography-h4'>Loading Camera</Text>
       </View>
     )
-  }
-
-  if (parseResult) {
-    return <Text>{JSON.stringify(parseResult)}</Text>
   }
 
   return (

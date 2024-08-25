@@ -32,5 +32,11 @@ class RarimeSdkModule : Module() {
 
       return@AsyncFunction profile.calculateEventNullifierInt(eventId)
     }
+
+    AsyncFunction("registrationChallenge") { userPK: String ->
+      val profile = Profile().newProfile(userPK.decodeHexString())
+
+      return@AsyncFunction profile.registrationChallenge
+    }
   }
 }

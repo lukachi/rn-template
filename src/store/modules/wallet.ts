@@ -70,6 +70,6 @@ export const walletStore = {
   useWalletStore,
 
   useGeneratePrivateKey,
-  usePointsNullifierHex,
+  usePointsNullifierHex: usePointsNullifierHex,
   useDeletePrivateKey,
 }
