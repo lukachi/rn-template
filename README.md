@@ -37,3 +37,6 @@ If changes are not applied, try to reopen app by pressing "i" or rebuild project
 
 ### Fetching data from API
 Better to create function per endpoint, and then use useLoading hook to handle loading state in component or use react-query for more benefits as like as caching, ...etc
+
+### E-Document module
+On first install - go to ./modules/e-document/plugin and run `tsc` to compile expo-plugin

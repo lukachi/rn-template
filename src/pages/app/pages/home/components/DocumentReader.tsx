@@ -44,5 +44,7 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
     )
   }
 
+  console.log(eDocument)
+
   return <Text className='text-textPrimary typography-body3'>{eDocument}</Text>
 }

@@ -36,7 +36,6 @@ export default ({config}: ConfigContext): ExpoConfig => ({
       backgroundColor: '#2E3C4B',
     },
     package: Env.PACKAGE,
-    permissions: ["android.hardware.nfc"]
   },
   web: {
     favicon: './assets/favicon.png',
@@ -114,7 +113,8 @@ export default ({config}: ConfigContext): ExpoConfig => ({
     ],
     [ "react-native-vision-camera", {
       "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
-    }]
+    }],
+    ['./modules/e-document/app.plugin.js']
   ],
   extra: {
     ...ClientEnv,
