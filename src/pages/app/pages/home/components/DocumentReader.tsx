@@ -1,27 +1,30 @@
+import type { EDocument } from '@modules/e-document'
 import { scanDocument } from '@modules/e-document'
 import { registrationChallenge } from '@modules/rarime-sdk'
-import { Buffer } from 'buffer'
+import { Image } from 'expo-image'
 import type { FieldRecords } from 'mrz'
 import { useCallback, useState } from 'react'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 
 import { walletStore } from '@/store'
 import { UiButton } from '@/ui'
 
 export default function DocumentReader({ fields }: { fields: FieldRecords }) {
-  const [eDocument, setEDocument] = useState<string>()
+  const [eDocument, setEDocument] = useState<EDocument>()
 
   const pk = walletStore.useWalletStore(state => state.privateKey)
 
   const startScanListener = useCallback(async () => {
     if (!fields.birthDate || !fields.documentNumber || !fields.expirationDate || !pk) return
 
+    console.log('fields', JSON.stringify(fields))
+
     try {
       const challenge = await registrationChallenge(pk)
 
       console.log(challenge)
 
-      const eDocumentBytes = await scanDocument(
+      const eDocumentResponse = await scanDocument(
         {
           dateOfBirth: fields.birthDate,
           dateOfExpiry: fields.expirationDate,
@@ -30,7 +33,7 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
         challenge,
       )
 
-      setEDocument(Buffer.from(eDocumentBytes).toString())
+      setEDocument(eDocumentResponse)
     } catch (error) {
       console.log(error)
     }
@@ -44,7 +47,19 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
     )
   }
 
-  console.log(eDocument)
-
-  return <Text className='text-textPrimary typography-body3'>{eDocument}</Text>
+  try {
+    return (
+      <View>
+        <Image
+          style={{ width: 120, height: 120 }}
+          source={{
+            uri: `${eDocument.personDetails?.passportImageRaw}`,
+          }}
+        />
+      </View>
+    )
+  } catch (error) {
+    console.log(error)
+    return <View />
+  }
 }

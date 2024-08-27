@@ -2,6 +2,7 @@
 // and on native platforms to EDocument.ts
 
 import EDocumentModule from './src/EDocumentModule'
+import type { EDocument } from './src/types'
 
 export async function scanDocument(
   bacKeyParameters: {
@@ -10,9 +11,13 @@ export async function scanDocument(
     documentNumber: string
   },
   challenge: Uint8Array,
-) {
-  return await EDocumentModule.scanDocument(
+): Promise<EDocument> {
+  const eDocumentString = await EDocumentModule.scanDocument(
     JSON.stringify(bacKeyParameters),
     new Uint8Array(challenge),
   )
+
+  return JSON.parse(eDocumentString)
 }
+
+export * from './src/types'

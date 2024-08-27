@@ -80,8 +80,8 @@ class EDocumentModule : Module() {
     val eDocument = docScanner.scanPassport()
 
 
-    val eDocumentBytes = Gson().toJson(eDocument) // FIXME: error, can't convert ByteArray and Bitmap to JSON
-    promise.resolve(eDocumentBytes)
+    val eDocumentJson = Gson().toJson(eDocument)
+    promise.resolve(eDocumentJson)
   }
 
   private fun enableNfcForegroundDispatch(activity: Activity) {

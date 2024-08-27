@@ -1,7 +1,9 @@
 package expo.modules.edocument
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.nfc.tech.IsoDep
+import com.gemalto.jp2.JP2Decoder
 import net.sf.scuba.smartcards.CardService
 import org.bouncycastle.asn1.cms.SignedData
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -17,6 +19,11 @@ import org.jmrtd.lds.icao.DG1File
 import org.jmrtd.lds.icao.DG2File
 import org.jmrtd.lds.iso19794.FaceImageInfo
 import org.jmrtd.protocol.AAResult
+import org.jnbis.WsqDecoder
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.DataInputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.StringWriter
 import java.security.MessageDigest
@@ -25,6 +32,8 @@ import java.security.Security
 import java.security.cert.X509Certificate
 import java.util.Arrays
 import java.util.Base64
+import java.util.Locale
+
 
 fun String.addCharAtIndex(char: Char, index: Int) =
   StringBuilder(this).apply { insert(index, char) }.toString()
@@ -57,6 +66,61 @@ fun PublicKey.publicKeyToPem(): String {
     "\n-----END PUBLIC KEY-----\n"
 }
 
+@Throws(IOException::class)
+fun FaceImageInfo.decodeImage(mimeType: String, inputStream: InputStream?): Bitmap {
+  val mimeTypeLower = mimeType.lowercase(Locale.getDefault())
+  return when (mimeTypeLower) {
+    "image/jp2", "image/jpeg2000" -> {
+      JP2Decoder(inputStream).decode()
+    }
+
+    "image/x-wsq" -> {
+      val wsqDecoder = WsqDecoder()
+      val bitmap = wsqDecoder.decode(inputStream)
+      val byteData = bitmap.pixels
+      val intData = IntArray(byteData.size)
+      for (j in byteData.indices) {
+        intData[j] = -0x1000000 or
+          (byteData[j].toInt() and (0xFF shl 16)) or
+          (byteData[j].toInt() and (0xFF shl 8)) or (byteData[j].toInt() and 0xFF)
+      }
+      Bitmap.createBitmap(
+        intData,
+        0,
+        bitmap.width,
+        bitmap.width,
+        bitmap.height,
+        Bitmap.Config.ARGB_8888
+      )
+    }
+
+    else -> {
+      BitmapFactory.decodeStream(inputStream)
+    }
+  }
+}
+
+fun FaceImageInfo.toBase64Image(): String? {
+  try {
+    val imageLength = this.imageLength
+    val dataInputStream = DataInputStream(this.imageInputStream)
+    val buffer = ByteArray(imageLength)
+    dataInputStream.readFully(buffer, 0, imageLength)
+    val inputStream: InputStream = ByteArrayInputStream(buffer, 0, imageLength)
+    val bitmap = this.decodeImage(this.mimeType, inputStream)
+
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, byteArrayOutputStream)
+    val byteArray = byteArrayOutputStream.toByteArray()
+
+    val JPEG_DATA_URI_PREFIX = "data:image/jpeg;base64,"
+    return JPEG_DATA_URI_PREFIX + android.util.Base64.encodeToString(byteArray, android.util.Base64.NO_WRAP)
+  } catch (e: IOException) {
+    e.printStackTrace()
+  }
+  return null
+}
+
 data class AdditionalPersonDetails(
   var custodyInformation: String? = null,
   var fullDateOfBirth: String? = null,
@@ -85,26 +149,24 @@ data class PersonDetails(
   var serialNumber: String? = null,
   var nationality: String? = null,
   var issuerAuthority: String? = null,
-  var faceImageInfo: FaceImageInfo? = null,
-  var portraitImage: Bitmap? = null,
-  var portraitImageBase64: String? = null,
-  var signature: Bitmap? = null,
-  var signatureBase64: String? = null,
-  var fingerprints: List<Bitmap>? = null
+  var passportImageRaw: String? = null,
 )
 
 data class EDocument(
-//  var docType: DocType? = null,
   var personDetails: PersonDetails? = null,
-  var additionalPersonDetails: AdditionalPersonDetails? = null,
-  var isPassiveAuth: Boolean = false,
-  var isActiveAuth: Boolean = false,
-  var isChipAuth: Boolean = false,
   var sod: String? = null,
   var dg1: String? = null,
   var dg15: String? = null,
   var dg11: String? = null,
+
+  // unused, only initialized
+  var additionalPersonDetails: AdditionalPersonDetails? = null,
+  var isPassiveAuth: Boolean = false,
+  var isActiveAuth: Boolean = false,
+  var isChipAuth: Boolean = false,
   var dg15Pem: String? = null,
+
+  // for revocation purposes
   var aaSignature: ByteArray? = null,
   var aaResponse: String? = null,
 )
@@ -249,7 +311,7 @@ class DocumentScanner(
     }
     if (!allFaceImageInfos.isEmpty()) {
       val faceImageInfo = allFaceImageInfos.iterator().next()
-      personDetails!!.faceImageInfo = faceImageInfo
+      personDetails.passportImageRaw = faceImageInfo.toBase64Image()
     }
 
     val additionalPersonDetails: AdditionalPersonDetails? = try {
@@ -312,7 +374,6 @@ class DocumentScanner(
       eDocument.isActiveAuth = false
 //      ErrorHandler.logError("Nfc scan", "AA is NOT available")
     }
-    eDocument.aaSignature = response?.response
 
     val index = pemFile.indexOf("-----END CERTIFICATE-----")
     val pemFileEnded = pemFile.addCharAtIndex('\n', index)
