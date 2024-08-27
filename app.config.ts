@@ -80,10 +80,18 @@ export default ({config}: ConfigContext): ExpoConfig => ({
           kotlinVersion: '1.7.22', // this is for softinput package
           minSdkVersion: 27,
           targetSdkVersion: 34,
-          newArchEnabled: true
+          // newArchEnabled: true
         },
         ios: {
-          newArchEnabled: true,
+          // newArchEnabled: true,
+          deploymentTarget: '16.0',
+
+          extraPods: [
+            {
+              name: 'NFCPassportReader',
+              git: 'https://github.com/rarimo/NFCPassportReader.git',
+            }
+          ],
         },
       },
     ],

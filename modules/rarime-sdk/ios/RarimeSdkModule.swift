@@ -52,6 +52,18 @@ public class RarimeSdkModule: Module {
         
         return privateKeyData
     }
+    
+    
+      
+    AsyncFunction("registrationChallenge") { (userPK: String) in
+        guard let userPKData = userPK.hexadecimal else {
+            throw "Invalid userPK"
+        }
+        
+        let profile = try IdentityProfile().newProfile(userPKData)
+
+        return try profile.getRegistrationChallenge()
+    }
 
     AsyncFunction("calculateEventNullifierInt") { (eventId: String, userPK: String) in
         var error: NSError?

@@ -1,4 +1,5 @@
 import ExpoModulesCore
+import NFCPassportReader
 
 public class EDocumentModule: Module {
   // Each module class must implement the definition function. The definition consists of components
@@ -10,35 +11,24 @@ public class EDocumentModule: Module {
     // The module will be accessible from `requireNativeModule('EDocument')` in JavaScript.
     Name("EDocument")
 
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
-    Constants([
-      "PI": Double.pi
-    ])
-
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
-
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      return "Hello world! 👋"
-    }
-
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { (value: String) in
-      // Send an event to JavaScript.
-      self.sendEvent("onChange", [
-        "value": value
-      ])
-    }
+    AsyncFunction("scanDocument") { (bacKeyParametersJson: String, challenge: Data) in
+        let bacKeyParameters = try JSONDecoder().decode(BacKeyParameters.self, from: bacKeyParametersJson.data(using: .utf8)!)
+        
+        let mrzKey = PassportUtils.getMRZKey(passportNumber: bacKeyParameters.documentNumber, dateOfBirth: bacKeyParameters.dateOfBirth, dateOfExpiry: bacKeyParameters.dateOfExpiry)
+        
+        let nfcPassport = try await PassportReader()
+            .readPassport(
+                mrzKey: mrzKey,
+                tags: [.DG1, .DG2, .DG11, .DG15, .SOD],
+                customDisplayMessage: nil,
+                activeAuthenticationChallenge: [UInt8](challenge)
+            )
+        
+        let passport = Passport.fromNFCPassportModel(nfcPassport)
 
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(EDocumentView.self) {
-      // Defines a setter for the `name` prop.
-      Prop("name") { (view: EDocumentView, prop: String) in
-        print(prop)
-      }
+        return try passport.serialize()
     }
   }
 }
