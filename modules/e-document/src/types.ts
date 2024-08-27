@@ -29,6 +29,11 @@ export type PersonDetails = {
   passportImageRaw?: string | null
 }
 
+export enum DocType {
+  ID = 'ID',
+  PASSPORT = 'PASSPORT',
+}
+
 export type EDocument = {
   personDetails?: PersonDetails | null
   sod?: string | null

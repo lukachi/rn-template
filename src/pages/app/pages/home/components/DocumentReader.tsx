@@ -37,7 +37,7 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
     } catch (error) {
       console.log(error)
     }
-  }, [fields.birthDate, fields.documentNumber, fields.expirationDate, pk])
+  }, [fields, pk])
 
   if (!eDocument) {
     return (
@@ -46,6 +46,8 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
       </View>
     )
   }
+
+  console.log(eDocument)
 
   try {
     return (

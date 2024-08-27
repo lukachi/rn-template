@@ -246,6 +246,7 @@ class DocumentScanner(
     val byteLen = sodIn1.read(byteArray)
 
     val sod = cropByteArray(byteArray, byteLen).toHexString()
+    eDocument.sod = sod
 
     val sodIn = service.getInputStream(PassportService.EF_SOD)
 
