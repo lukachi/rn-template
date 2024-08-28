@@ -15,17 +15,20 @@ struct BacKeyParameters: Codable {
     var dateOfExpiry: String
 }
 
-struct Passport: Codable {
+struct PersonDetails : Codable {
     var firstName: String
     var lastName: String
     var gender: String
     var passportImageRaw: String?
-    var documentType: String
     var issuingAuthority: String
     var documentNumber: String
     var documentExpiryDate: String
     var dateOfBirth: String
     var nationality: String
+}
+
+struct Passport: Codable {
+    var personDetails: PersonDetails
     let dg1: Data
     let dg15: Data
     let sod: Data
@@ -33,11 +36,11 @@ struct Passport: Codable {
     let dg11: Data?
     
     var fullName: String {
-        "\(firstName) \(lastName)"
+        "\(personDetails.firstName) \(personDetails.lastName)"
     }
 
     var passportImage: UIImage? {
-        guard let passportImageRaw = passportImageRaw else {
+        guard let passportImageRaw = personDetails.passportImageRaw else {
             return nil
         }
 
@@ -53,7 +56,7 @@ struct Passport: Codable {
             return try String(
                 Calendar.current.dateComponents(
                     [.year],
-                    from: DateUtil.parsePassportDate(dateOfBirth),
+                    from: DateUtil.parsePassportDate(personDetails.dateOfBirth),
                     to: Date()
                 ).year!
             )
@@ -63,7 +66,7 @@ struct Passport: Codable {
     }
     
     var birthDayReadable: String {
-        (try? DateUtil.parsePassportDate(dateOfBirth).formatted(date: .numeric, time: .omitted)) ?? ""
+        (try? DateUtil.parsePassportDate(personDetails.dateOfBirth).formatted(date: .numeric, time: .omitted)) ?? ""
     }
     
     var encapsulatedContentSize: Int {
@@ -129,19 +132,22 @@ struct Passport: Codable {
         let nameParts = model.lastName.components(separatedBy: " ")
         let hasJoinedName = model.firstName.isEmpty && nameParts.count == 2
         
-        return Passport(
+        let personDetails = PersonDetails(
             firstName: hasJoinedName ? nameParts[0] : model.firstName,
             lastName: hasJoinedName ? nameParts[1] : model.lastName,
             gender: model.gender,
             passportImageRaw: model.passportImage?
                 .pngData()?
                 .base64EncodedString(options: .endLineWithLineFeed),
-            documentType: "P",
             issuingAuthority: model.issuingAuthority,
             documentNumber: model.documentNumber,
             documentExpiryDate: model.documentExpiryDate,
             dateOfBirth: model.dateOfBirth,
-            nationality: model.nationality,
+            nationality: model.nationality
+        )
+        
+        return Passport(
+            personDetails: personDetails,
             dg1: Data(dg1),
             dg15: Data(dg15),
             sod: Data(sod),
@@ -158,16 +164,17 @@ struct Passport: Codable {
 
 extension Passport {
     static let sample = Passport(
-        firstName: "Zurab",
-        lastName: "Gelashvili",
-        gender: "M",
-        passportImageRaw: nil,
-        documentType: "P",
-        issuingAuthority: "GEO",
-        documentNumber: "00AA00000",
-        documentExpiryDate: "900314",
-        dateOfBirth: "970314",
-        nationality: "GEO",
+        personDetails: PersonDetails(
+            firstName: "Zurab",
+            lastName: "Gelashvili",
+            gender: "M",
+            passportImageRaw: nil,
+            issuingAuthority: "GEO",
+            documentNumber: "00AA00000",
+            documentExpiryDate: "900314",
+            dateOfBirth: "970314",
+            nationality: "GEO"
+        ),
         dg1: Data(),
         dg15: Data(),
         sod: Data(),
@@ -209,6 +216,42 @@ class PassportUtils {
         }
         
         return sum % 10
+    }
+    
+    static let customDisplayMessage: (NFCViewDisplayMessage) -> String? = { displayMessage in
+        // Forked from NFCViewDisplayMessage
+        func drawProgressBar(_ progress: Int) -> String {
+            let itemsCount = (progress / 20)
+            let full = String(repeating: "🟢 ", count: itemsCount)
+            let empty = String(repeating: "⚪️ ", count: 5 - itemsCount)
+            return "\(full)\(empty)"
+        }
+        
+        let message: LocalizedStringResource?
+        switch displayMessage {
+        case .requestPresentPassport:
+            message = "Hold your iPhone near an NFC enabled passport.\n"
+        case .authenticatingWithPassport(let progress):
+            message = "Authenticating with passport...\n\n\(drawProgressBar(progress))"
+        case .activeAuthentication:
+            message = "Authenticating with passport..."
+        case .readingDataGroupProgress(let dataGroup, let progress):
+            message = "Reading passport data (\(dataGroup.getName()))...\n\n\(drawProgressBar(progress))"
+        case .error(let tagError):
+            switch tagError {
+            case .TagNotValid: message = "Tag not valid."
+            case .MoreThanOneTagFound: message = "More than 1 tag was found. Please present only 1 tag."
+            case .ConnectionError: message = "Connection error. Please try again."
+            case .InvalidMRZKey: message = "MRZ Key not valid for this document."
+            case .ResponseError(let reason, let sw1, let sw2):
+                message = "Sorry, there was a problem reading the passport. \(reason). Error codes: [0x\(sw1), 0x\(sw2)]"
+            default: message = "Sorry, there was a problem reading the passport. Please try again"
+            }
+        case .successfulRead:
+            message = "Passport read successfully"
+        }
+        
+        return message == nil ? nil : String(localized: message!)
     }
 }
 

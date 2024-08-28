@@ -17,15 +17,14 @@ export type AdditionalPersonDetails = {
 }
 
 export type PersonDetails = {
-  name?: string | null
-  surname?: string | null
-  personalNumber?: string | null
+  firstName?: string | null
+  lastName?: string | null
   gender?: string | null
   birthDate?: string | null
   expiryDate?: string | null
-  serialNumber?: string | null
+  documentNumber?: string | null
   nationality?: string | null
-  issuerAuthority?: string | null
+  issuingAuthority?: string | null
   passportImageRaw?: string | null
 }
 
@@ -40,15 +39,14 @@ export type EDocument = {
   dg1?: string | null
   dg15?: string | null
   dg11?: string | null
-
-  // unused, only initialized
-  additionalPersonDetails?: AdditionalPersonDetails | null
-  isPassiveAuth?: boolean
-  isActiveAuth?: boolean
-  isChipAuth?: boolean
-  dg15Pem?: string | null
-
   // for revocation purposes
-  aaSignature?: Uint8Array | null
-  aaResponse?: string | null
+  signature?: string | null
+
+  // // unused, only initialized
+  // additionalPersonDetails?: AdditionalPersonDetails | null
+  // isPassiveAuth?: boolean
+  // isActiveAuth?: boolean
+  // isChipAuth?: boolean
+  // dg15Pem?: string | null
+  // aaResponse?: string | null
 }

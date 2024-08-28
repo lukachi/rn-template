@@ -87,7 +87,16 @@ function withIosNfcSelectIdentifiers(
       config.modResults,
       // https://developer.apple.com/documentation/bundleresources/information_property_list/select-identifiers
       'com.apple.developer.nfc.readersession.iso7816.select-identifiers',
-      selectIdentifiers || [],
+      selectIdentifiers || [
+        'A0000002471001',
+        'A0000002472001',
+        'E80704007F00070302',
+        'A000000167455349474E',
+        'A0000002480100',
+        'A0000002480200',
+        'A0000002480300',
+        'A00000045645444C2D3031',
+      ],
     )
 
     return config

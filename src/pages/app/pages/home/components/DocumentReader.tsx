@@ -3,11 +3,11 @@ import { scanDocument } from '@modules/e-document'
 import { registrationChallenge } from '@modules/rarime-sdk'
 import { Image } from 'expo-image'
 import type { FieldRecords } from 'mrz'
-import { useCallback, useState } from 'react'
-import { View } from 'react-native'
+import { useCallback, useEffect, useState } from 'react'
+import { Text, View } from 'react-native'
 
 import { walletStore } from '@/store'
-import { UiButton } from '@/ui'
+import { UiButton, UiCard } from '@/ui'
 
 export default function DocumentReader({ fields }: { fields: FieldRecords }) {
   const [eDocument, setEDocument] = useState<EDocument>()
@@ -17,12 +17,8 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
   const startScanListener = useCallback(async () => {
     if (!fields.birthDate || !fields.documentNumber || !fields.expirationDate || !pk) return
 
-    console.log('fields', JSON.stringify(fields))
-
     try {
       const challenge = await registrationChallenge(pk)
-
-      console.log(challenge)
 
       const eDocumentResponse = await scanDocument(
         {
@@ -33,11 +29,28 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
         challenge,
       )
 
+      const { personDetails, ...restEDoc } = eDocumentResponse
+      const { passportImageRaw: _, ...restPersonDetails } = personDetails!
+
+      console.log({
+        ...restEDoc,
+        personDetails: {
+          ...restPersonDetails,
+        },
+      })
+
       setEDocument(eDocumentResponse)
     } catch (error) {
       console.log(error)
     }
   }, [fields, pk])
+
+  useEffect(() => {
+    if (eDocument) return
+
+    startScanListener()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (!eDocument) {
     return (
@@ -47,17 +60,24 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
     )
   }
 
-  console.log(eDocument)
-
   try {
     return (
       <View>
-        <Image
-          style={{ width: 120, height: 120 }}
-          source={{
-            uri: `${eDocument.personDetails?.passportImageRaw}`,
-          }}
-        />
+        <UiCard>
+          <View className='flex flex-row'>
+            <View className='flex flex-1 flex-col gap-2'>
+              <Text className='text-textPrimary'>{`${eDocument?.personDetails?.firstName} ${eDocument?.personDetails?.lastName}`}</Text>
+              <Text className='text-textPrimary'>{eDocument?.personDetails?.gender}</Text>
+            </View>
+
+            <Image
+              style={{ width: 120, height: 120 }}
+              source={{
+                uri: `data:image/png;base64,${eDocument?.personDetails?.passportImageRaw}`,
+              }}
+            />
+          </View>
+        </UiCard>
       </View>
     )
   } catch (error) {

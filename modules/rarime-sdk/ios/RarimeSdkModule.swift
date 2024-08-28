@@ -52,8 +52,6 @@ public class RarimeSdkModule: Module {
         
         return privateKeyData
     }
-    
-    
       
     AsyncFunction("registrationChallenge") { (userPK: String) in
         guard let userPKData = userPK.hexadecimal else {

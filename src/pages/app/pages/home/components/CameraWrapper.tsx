@@ -1,8 +1,9 @@
+import { DocType } from '@modules/e-document'
 import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
 import type { FieldRecords } from 'mrz'
 import { parse } from 'mrz'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Text, View } from 'react-native'
 import {
   Camera,
@@ -16,10 +17,61 @@ import { Worklets } from 'react-native-worklets-core'
 
 import { UiButton } from '@/ui'
 
+const useMrzParser = (docType: DocType) => {
+  const idCardParser = useCallback((lines: string[]) => {
+    const numlinesToCheck = 3
+
+    const possibleMRZLines = lines?.slice(-numlinesToCheck)
+
+    if (!possibleMRZLines?.length || possibleMRZLines.length !== numlinesToCheck) return
+
+    // const tdLength = possibleMRZLines[1].length
+    const tdLength = 30
+
+    const sanitizedMRZLines = possibleMRZLines.map(el => {
+      return el.replaceAll('«', '<<').replaceAll(' ', '').toUpperCase()
+    })
+
+    sanitizedMRZLines[2] = sanitizedMRZLines[2].padEnd(tdLength, '<').toUpperCase()
+
+    return parse(sanitizedMRZLines, {
+      autocorrect: true,
+    })
+  }, [])
+
+  const passportParser = useCallback((lines: string[]) => {
+    const numlinesToCheck = 2
+
+    const possibleMRZLines = lines?.slice(-numlinesToCheck)
+
+    if (!possibleMRZLines?.length || possibleMRZLines.length !== numlinesToCheck) return
+
+    // const tdLength = possibleMRZLines[1].length
+    const tdLength = 44
+
+    const sanitizedMRZLines = possibleMRZLines.map(el => {
+      return el.replaceAll('«', '<<').replaceAll(' ', '').toUpperCase()
+    })
+
+    sanitizedMRZLines[0] = sanitizedMRZLines[0].padEnd(tdLength, '<').toUpperCase()
+
+    return parse(sanitizedMRZLines, {
+      autocorrect: true,
+    })
+  }, [])
+
+  return {
+    [DocType.ID]: idCardParser,
+    [DocType.PASSPORT]: passportParser,
+  }[docType]
+}
+
 export default function CameraWrapper({
   setParseResult,
+  docType,
 }: {
   setParseResult: (result: FieldRecords) => void
+  docType: DocType
 }) {
   const isFocused = useIsFocused()
   const currentAppState = useAppState()
@@ -31,13 +83,15 @@ export default function CameraWrapper({
     language: 'latin',
   })
 
+  const mrzParser = useMrzParser(docType)
+
+  console.log(mrzParser)
+
   const onMRZDetected = Worklets.createRunOnJS((lines: string[]) => {
     try {
-      const result = parse(lines, {
-        autocorrect: true,
-      })
+      const result = mrzParser(lines)
 
-      if (result.valid) {
+      if (result?.valid) {
         setParseResult(result.fields)
       }
     } catch (error) {
@@ -55,23 +109,11 @@ export default function CameraWrapper({
         const data = scanText(frame)
 
         const lines = data?.resultText?.split('\n') as string[]
-        const possibleMRZLines = lines?.slice(-2)
 
-        if (!possibleMRZLines?.length || possibleMRZLines.length !== 2) return
-
-        // const tdLength = possibleMRZLines[1].length
-        const tdLength = 44
-
-        const sanitizedMRZLines = possibleMRZLines.map(el => {
-          return el.replaceAll('«', '<<').replaceAll(' ', '').toUpperCase()
-        })
-
-        sanitizedMRZLines[0] = sanitizedMRZLines[0].padEnd(tdLength, '<').toUpperCase()
-
-        onMRZDetected(sanitizedMRZLines)
+        await onMRZDetected(lines)
       })
     },
-    [scanText],
+    [scanText, onMRZDetected],
   )
 
   const isActive = useMemo(() => {

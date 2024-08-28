@@ -22,13 +22,15 @@ public class EDocumentModule: Module {
             .readPassport(
                 mrzKey: mrzKey,
                 tags: [.DG1, .DG2, .DG11, .DG15, .SOD],
-                customDisplayMessage: nil,
+                customDisplayMessage: PassportUtils.customDisplayMessage,
                 activeAuthenticationChallenge: [UInt8](challenge)
             )
         
         let passport = Passport.fromNFCPassportModel(nfcPassport)
 
-        return try passport.serialize()
+        let passportJsonBytes = try passport.serialize()
+        
+        return String(data: passportJsonBytes, encoding: .utf8)!
     }
   }
 }

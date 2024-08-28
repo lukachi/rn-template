@@ -77,8 +77,9 @@ class EDocumentModule : Module() {
       scanChallenge!!
     )
 
-    val eDocument = docScanner.scanPassport()
+    val nfcDocument = docScanner.scanPassport()
 
+    val eDocument = EDocument.fromNfcDocumentModel(nfcDocument)
 
     val eDocumentJson = Gson().toJson(eDocument)
     promise.resolve(eDocumentJson)
