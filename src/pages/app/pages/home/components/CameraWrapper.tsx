@@ -85,8 +85,6 @@ export default function CameraWrapper({
 
   const mrzParser = useMrzParser(docType)
 
-  console.log(mrzParser)
-
   const onMRZDetected = Worklets.createRunOnJS((lines: string[]) => {
     try {
       const result = mrzParser(lines)
