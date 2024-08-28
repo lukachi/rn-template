@@ -9,6 +9,7 @@ import type { EDocument } from './src/types'
 import { DocType } from './src/types'
 
 export async function scanDocument(
+  documentCode: string,
   bacKeyParameters: {
     dateOfBirth: string
     dateOfExpiry: string
@@ -16,6 +17,12 @@ export async function scanDocument(
   },
   challenge: Uint8Array,
 ): Promise<EDocument> {
+  const docType = getDocType(documentCode)
+
+  if (!docType) {
+    throw new TypeError('Unsupported document type')
+  }
+
   const eDocumentString = await EDocumentModule.scanDocument(
     JSON.stringify(bacKeyParameters),
     new Uint8Array(challenge),
@@ -24,9 +31,9 @@ export async function scanDocument(
   const eDocumentJson = JSON.parse(eDocumentString)
 
   if (Platform.OS === 'ios') {
-    return parseDocumentIOS(eDocumentJson)
+    return parseDocumentIOS(eDocumentJson, docType)
   } else if (Platform.OS === 'android') {
-    return parseDocumentAndroid(eDocumentJson)
+    return parseDocumentAndroid(eDocumentJson, docType)
   }
 
   throw new TypeError('Unsupported platform')
@@ -44,8 +51,9 @@ export function getDocType(documentCode: string): DocType | null {
   return null
 }
 
-function parseDocumentIOS(object: any): EDocument {
+function parseDocumentIOS(object: any, docType: DocType): EDocument {
   const eDocument: EDocument = {
+    docType: docType,
     personDetails: {
       firstName: get(object, 'personDetails.firstName', null),
       lastName: get(object, 'personDetails.lastName', null),
@@ -67,8 +75,9 @@ function parseDocumentIOS(object: any): EDocument {
   return eDocument
 }
 
-function parseDocumentAndroid(object: any): EDocument {
+function parseDocumentAndroid(object: any, docType: DocType): EDocument {
   const eDocument: EDocument = {
+    docType: docType,
     personDetails: {
       firstName: get(object, 'personDetails.primaryIdentifier', null),
       lastName: get(object, 'personDetails.secondaryIdentifier', null),

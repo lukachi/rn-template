@@ -28,7 +28,6 @@ const useWalletStore = create(
     {
       name: 'wallet',
       version: 1,
-      // TODO: add web support? checking device?
       storage: createJSONStorage(() => zustandSecureStorage),
 
       onRehydrateStorage: () => state => {

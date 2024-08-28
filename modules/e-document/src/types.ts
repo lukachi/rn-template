@@ -34,6 +34,7 @@ export enum DocType {
 }
 
 export type EDocument = {
+  docType: DocType
   personDetails?: PersonDetails | null
   sod?: string | null
   dg1?: string | null

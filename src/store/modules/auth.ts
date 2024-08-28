@@ -52,7 +52,6 @@ const useAuthStore = create(
     {
       name: 'auth-store',
       version: 1,
-      // TODO: add web support? checking device?
       storage: createJSONStorage(() => zustandSecureStorage),
 
       onRehydrateStorage: () => state => {

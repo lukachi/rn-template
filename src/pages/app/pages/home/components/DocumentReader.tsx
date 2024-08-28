@@ -15,12 +15,20 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
   const pk = walletStore.useWalletStore(state => state.privateKey)
 
   const startScanListener = useCallback(async () => {
-    if (!fields.birthDate || !fields.documentNumber || !fields.expirationDate || !pk) return
+    if (
+      !fields.birthDate ||
+      !fields.documentNumber ||
+      !fields.expirationDate ||
+      !pk ||
+      !fields.documentCode
+    )
+      return
 
     try {
       const challenge = await registrationChallenge(pk)
 
       const eDocumentResponse = await scanDocument(
+        fields.documentCode,
         {
           dateOfBirth: fields.birthDate,
           dateOfExpiry: fields.expirationDate,
@@ -28,16 +36,6 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
         },
         challenge,
       )
-
-      const { personDetails, ...restEDoc } = eDocumentResponse
-      const { passportImageRaw: _, ...restPersonDetails } = personDetails!
-
-      console.log({
-        ...restEDoc,
-        personDetails: {
-          ...restPersonDetails,
-        },
-      })
 
       setEDocument(eDocumentResponse)
     } catch (error) {
@@ -71,13 +69,27 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
             </View>
 
             <Image
-              style={{ width: 120, height: 120 }}
+              style={{ width: 120, height: 120, borderRadius: 1000 }}
               source={{
                 uri: `data:image/png;base64,${eDocument?.personDetails?.passportImageRaw}`,
               }}
             />
           </View>
         </UiCard>
+
+        <View className='mt-6 flex flex-col gap-4'>
+          {eDocument.personDetails &&
+            Object.keys(eDocument.personDetails).map(key => {
+              return (
+                <View key={key} className='flex flex-row items-center justify-between gap-2'>
+                  <Text className='capitalize text-textPrimary typography-body3'>{key}</Text>
+                  <Text className='text-textPrimary typography-subtitle4'>
+                    {eDocument.personDetails?.[key as keyof typeof eDocument.personDetails]}
+                  </Text>
+                </View>
+              )
+            })}
+        </View>
       </View>
     )
   } catch (error) {

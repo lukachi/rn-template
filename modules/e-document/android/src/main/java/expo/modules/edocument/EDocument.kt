@@ -1,5 +1,7 @@
 package expo.modules.edocument
 
+import android.util.Base64
+
 data class PersonDetails(
   var secondaryIdentifier: String? = null,
   var primaryIdentifier: String? = null,
@@ -15,10 +17,10 @@ data class PersonDetails(
 data class EDocument(
   var personDetails: PersonDetails? = null,
   var sod: String? = null,
-  var dg1: String? = null, // should be encoded hex string
-  var dg15: String? = null, // should be encoded hex string
-  var dg11: String? = null, // should be encoded hex string
-  var signature: String? = null, // should be encoded hex string
+  var dg1: String? = null, // should be encoded base64 string
+  var dg15: String? = null, // should be encoded base64 string
+  var dg11: String? = null, // should be encoded base64 string
+  var signature: String? = null, // should be encoded base64 string
 ) {
   companion object {
     @OptIn(ExperimentalStdlibApi::class)
@@ -39,11 +41,11 @@ data class EDocument(
 
       return EDocument(
         personDetails = personDetails,
-        dg1 = nfcDocumentModel.dg1?.toHexString(),
-        dg11 = nfcDocumentModel.dg11?.toHexString(),
-        dg15 = nfcDocumentModel.dg15?.toHexString(),
-        sod = nfcDocumentModel.sod?.toHexString(),
-        signature = nfcDocumentModel.activeAuthenticationSignature?.toHexString(),
+        dg1 = Base64.encodeToString(nfcDocumentModel.dg1, Base64.DEFAULT),
+        dg11 = Base64.encodeToString(nfcDocumentModel.dg11, Base64.DEFAULT),
+        dg15 = Base64.encodeToString(nfcDocumentModel.dg15, Base64.DEFAULT),
+        sod = Base64.encodeToString(nfcDocumentModel.sod, Base64.DEFAULT),
+        signature = Base64.encodeToString(nfcDocumentModel.activeAuthenticationSignature, Base64.DEFAULT),
       )
     }
   }

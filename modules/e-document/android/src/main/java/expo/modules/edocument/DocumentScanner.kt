@@ -24,14 +24,13 @@ import java.io.DataInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.security.PublicKey
-import java.util.Base64
+import android.util.Base64
 import java.util.Locale
 
 fun String.addCharAtIndex(char: Char, index: Int) =
   StringBuilder(this).apply { insert(index, char) }.toString()
 
-fun ByteArray.toBase64(): String =
-  String(Base64.getEncoder().encode(this))
+fun ByteArray.toBase64(): String = Base64.encodeToString(this, Base64.DEFAULT)
 
 fun String.toFixedPersonalNumberMrzData(personalNumber: String?): String {
   if (personalNumber.isNullOrEmpty()) {
@@ -51,7 +50,7 @@ fun String.toFixedPersonalNumberMrzData(personalNumber: String?): String {
 }
 
 fun PublicKey.publicKeyToPem(): String {
-  val base64PubKey = Base64.getEncoder().encodeToString(this.encoded)
+  val base64PubKey = Base64.encodeToString(this.encoded, Base64.DEFAULT)
 
   return "-----BEGIN PUBLIC KEY-----\n" +
     base64PubKey.replace("(.{64})".toRegex(), "$1\n") +
@@ -102,10 +101,10 @@ fun FaceImageInfo.toBase64Image(): String? {
     val bitmap = this.decodeImage(this.mimeType, inputStream)
 
     val byteArrayOutputStream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, byteArrayOutputStream)
+    bitmap.compress(Bitmap.CompressFormat.PNG, this.quality, byteArrayOutputStream)
     val byteArray = byteArrayOutputStream.toByteArray()
 
-    return android.util.Base64.encodeToString(byteArray, android.util.Base64.NO_WRAP)
+    return Base64.encodeToString(byteArray, Base64.NO_WRAP)
   } catch (e: IOException) {
     e.printStackTrace()
   }
@@ -142,7 +141,50 @@ data class NFCDocumentModel(
   val dg11: ByteArray? = null,
   val dg15: ByteArray? = null,
   val sod: ByteArray? = null,
-)
+) {
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as NFCDocumentModel
+
+    if (mrzInfo != other.mrzInfo) return false
+    if (passportImageRaw != other.passportImageRaw) return false
+    if (activeAuthenticationSignature != null) {
+      if (other.activeAuthenticationSignature == null) return false
+      if (!activeAuthenticationSignature.contentEquals(other.activeAuthenticationSignature)) return false
+    } else if (other.activeAuthenticationSignature != null) return false
+    if (dg1 != null) {
+      if (other.dg1 == null) return false
+      if (!dg1.contentEquals(other.dg1)) return false
+    } else if (other.dg1 != null) return false
+    if (dg11 != null) {
+      if (other.dg11 == null) return false
+      if (!dg11.contentEquals(other.dg11)) return false
+    } else if (other.dg11 != null) return false
+    if (dg15 != null) {
+      if (other.dg15 == null) return false
+      if (!dg15.contentEquals(other.dg15)) return false
+    } else if (other.dg15 != null) return false
+    if (sod != null) {
+      if (other.sod == null) return false
+      if (!sod.contentEquals(other.sod)) return false
+    } else if (other.sod != null) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = mrzInfo?.hashCode() ?: 0
+    result = 31 * result + (passportImageRaw?.hashCode() ?: 0)
+    result = 31 * result + (activeAuthenticationSignature?.contentHashCode() ?: 0)
+    result = 31 * result + (dg1?.contentHashCode() ?: 0)
+    result = 31 * result + (dg11?.contentHashCode() ?: 0)
+    result = 31 * result + (dg15?.contentHashCode() ?: 0)
+    result = 31 * result + (sod?.contentHashCode() ?: 0)
+    return result
+  }
+}
 
 class DocumentScanner(
   private val isoDep: IsoDep,

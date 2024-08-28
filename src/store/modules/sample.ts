@@ -22,7 +22,6 @@ const useSampleStore = create(
     ),
     {
       name: 'sample-store',
-      // TODO: add web support? checking device?
       storage: createJSONStorage(() => zustandStorage),
 
       partialize: state => ({ state1: state.state1 }),
