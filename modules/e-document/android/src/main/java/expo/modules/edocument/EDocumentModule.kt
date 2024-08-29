@@ -73,7 +73,7 @@ class EDocumentModule : Module() {
       val publicKey = sodFile.docSigningCertificate.publicKey
       val publicKeyPem = publicKey.publicKeyToPem()
 
-      return@AsyncFunction publicKeyPem
+      return@AsyncFunction publicKeyPem.toByteArray()
     }
 
     AsyncFunction("getSlaveCertificatePem") { sod: ByteArray ->

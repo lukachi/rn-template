@@ -172,5 +172,3 @@ export const documentsStore = {
 
   useIdentityRegistration,
 }
-
-// swift code:

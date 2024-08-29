@@ -27,6 +27,12 @@ data class EDocument(
     fun fromNfcDocumentModel(nfcDocumentModel: NFCDocumentModel): EDocument {
       val mrzInfo = nfcDocumentModel.mrzInfo ?: throw IllegalStateException("MRZ info is missing")
 
+      val dg1 = nfcDocumentModel.dg1?.let { Base64.encodeToString(it, Base64.DEFAULT) }
+      val dg11 = nfcDocumentModel.dg11?.let { Base64.encodeToString(it, Base64.DEFAULT) }
+      val dg15 = nfcDocumentModel.dg15?.let { Base64.encodeToString(it, Base64.DEFAULT) }
+      val sod = nfcDocumentModel.sod?.let { Base64.encodeToString(it, Base64.DEFAULT) }
+      val signature = nfcDocumentModel.activeAuthenticationSignature?.let { Base64.encodeToString(it, Base64.DEFAULT) }
+
       val personDetails = PersonDetails(
         secondaryIdentifier = mrzInfo.secondaryIdentifier, //.replace("<", " ").trim { it <= ' ' },
         primaryIdentifier = mrzInfo.primaryIdentifier, //.replace("<", " ").trim { it <= ' ' },
@@ -41,11 +47,11 @@ data class EDocument(
 
       return EDocument(
         personDetails = personDetails,
-        dg1 = Base64.encodeToString(nfcDocumentModel.dg1, Base64.DEFAULT),
-        dg11 = Base64.encodeToString(nfcDocumentModel.dg11, Base64.DEFAULT),
-        dg15 = Base64.encodeToString(nfcDocumentModel.dg15, Base64.DEFAULT),
-        sod = Base64.encodeToString(nfcDocumentModel.sod, Base64.DEFAULT),
-        signature = Base64.encodeToString(nfcDocumentModel.activeAuthenticationSignature, Base64.DEFAULT),
+        dg1 = dg1,
+        dg11 = dg11,
+        dg15 = dg15,
+        sod = sod,
+        signature = signature,
       )
     }
   }
