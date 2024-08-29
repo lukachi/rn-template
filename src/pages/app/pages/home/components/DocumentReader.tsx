@@ -6,8 +6,9 @@ import type { FieldRecords } from 'mrz'
 import { useCallback, useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 
+import GenerateRegProof from '@/pages/app/pages/home/components/GenerateRegProof'
 import { walletStore } from '@/store'
-import { UiButton, UiCard } from '@/ui'
+import { UiButton, UiCard, UiHorizontalDivider } from '@/ui'
 
 export default function DocumentReader({ fields }: { fields: FieldRecords }) {
   const [eDocument, setEDocument] = useState<EDocument>()
@@ -58,38 +59,44 @@ export default function DocumentReader({ fields }: { fields: FieldRecords }) {
     )
   }
 
+  const { firstName, lastName, gender, passportImageRaw, ...restDetails } = eDocument.personDetails!
+
   try {
     return (
-      <View>
+      <View className={'flex-1'}>
         <UiCard>
           <View className='flex flex-row'>
             <View className='flex flex-1 flex-col gap-2'>
-              <Text className='text-textPrimary'>{`${eDocument?.personDetails?.firstName} ${eDocument?.personDetails?.lastName}`}</Text>
-              <Text className='text-textPrimary'>{eDocument?.personDetails?.gender}</Text>
+              <Text className='text-textPrimary'>{`${firstName} ${lastName}`}</Text>
+              <Text className='text-textPrimary'>{gender}</Text>
             </View>
 
             <Image
               style={{ width: 120, height: 120, borderRadius: 1000 }}
               source={{
-                uri: `data:image/png;base64,${eDocument?.personDetails?.passportImageRaw}`,
+                uri: `data:image/png;base64,${passportImageRaw}`,
               }}
             />
           </View>
         </UiCard>
 
         <View className='mt-6 flex flex-col gap-4'>
-          {eDocument.personDetails &&
-            Object.keys(eDocument.personDetails).map(key => {
+          {restDetails &&
+            Object.keys(restDetails).map(key => {
               return (
                 <View key={key} className='flex flex-row items-center justify-between gap-2'>
                   <Text className='capitalize text-textPrimary typography-body3'>{key}</Text>
                   <Text className='text-textPrimary typography-subtitle4'>
-                    {eDocument.personDetails?.[key as keyof typeof eDocument.personDetails]}
+                    {restDetails?.[key as keyof typeof eDocument.personDetails]}
                   </Text>
                 </View>
               )
             })}
         </View>
+
+        <UiHorizontalDivider className={'mb-5 mt-auto'} />
+
+        {eDocument && <GenerateRegProof eDocument={eDocument} />}
       </View>
     )
   } catch (error) {

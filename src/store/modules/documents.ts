@@ -80,7 +80,7 @@ const useDocumentsStore = create(
 //   }
 // }
 
-const useIdentityRegistration = async (eDoc: EDocument) => {
+const useIdentityRegistration = (eDoc: EDocument) => {
   const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
 
   // const { loadCircuit, ...restCircuit } = useCircuit()
@@ -134,12 +134,14 @@ const useIdentityRegistration = async (eDoc: EDocument) => {
     const sodBytes = Buffer.from(eDoc.sod, 'base64')
 
     const publicKeyPem = await getPublicKeyPem(sodBytes)
+    console.log('publicKeyPem', publicKeyPem)
     const pubKeySize = await getX509RSASize(publicKeyPem)
+    console.log('pubKeySize', pubKeySize)
 
     const slaveCertPem: Uint8Array = await getSlaveCertificatePem(sodBytes)
+    console.log('slaveCertPem', slaveCertPem)
     const slaveCertIdx = await getSlaveCertIndex(slaveCertPem, icaoBytes)
-
-    console.log(pubKeySize, slaveCertPem, slaveCertIdx)
+    console.log('slaveCertIdx', slaveCertIdx)
 
     // try {
     //   await registerCertificate(slaveCertPem, slaveCertIdx)
@@ -167,6 +169,8 @@ const useIdentityRegistration = async (eDoc: EDocument) => {
 
 export const documentsStore = {
   useDocumentsStore,
+
+  useIdentityRegistration,
 }
 
 // swift code:

@@ -34,6 +34,7 @@ const withCircomFilesAndPolyfills = (config) => {
       'wasm',
       'zkey',
       'dat',
+      'pem',
     ],
     extraNodeModules: {
       crypto: require.resolve('react-native-crypto'),

@@ -1,5 +1,7 @@
-import { CircuitType, DocType, type EDocument } from '@modules/e-document'
 import get from 'lodash/get'
+
+import { CircuitType } from './enums'
+import { DocType, type EDocument } from './types'
 
 export function getDocType(documentCode: string): DocType | null {
   if (documentCode.includes('I')) {

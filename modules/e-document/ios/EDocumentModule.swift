@@ -42,7 +42,7 @@ public class EDocumentModule: Module {
             
             let publicKeyPem = OpenSSLUtils.pubKeyToPEM(pubKey: publicKey)
             
-            return publicKeyPem
+            return publicKeyPem.data(using: .utf8) ?? Data()
         }
         
         AsyncFunction("getSlaveCertificatePem") { (sod: Data) in

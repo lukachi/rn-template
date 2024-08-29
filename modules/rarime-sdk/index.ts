@@ -21,9 +21,12 @@ export async function getSlaveCertIndex(
   slaveCertPem: Uint8Array,
   icaoBytes: Uint8Array,
 ): Promise<string> {
-  return await RarimeSdkModule.getSlaveCertIndex(slaveCertPem, icaoBytes)
+  return await RarimeSdkModule.getSlaveCertIndex(
+    new Uint8Array(slaveCertPem),
+    new Uint8Array(icaoBytes),
+  )
 }
 
 export async function getX509RSASize(publicKeyPem: Uint8Array): Promise<number> {
-  return await RarimeSdkModule.getX509RSASize(publicKeyPem)
+  return await RarimeSdkModule.getX509RSASize(new Uint8Array(publicKeyPem))
 }

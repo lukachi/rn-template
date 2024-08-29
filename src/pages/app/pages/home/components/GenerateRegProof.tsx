@@ -1,15 +1,24 @@
 import type { EDocument } from '@modules/e-document'
-import { Text, View } from 'react-native'
+import { useCallback } from 'react'
+import { View } from 'react-native'
 
-export default function GenerateRegProof(eDocument: EDocument) {
-  // TODO:
-  //  1) load zk file
-  //  2) show zk loading status
-  //  3) generate zk proof
+import { documentsStore } from '@/store'
+import { UiButton } from '@/ui'
+
+export default function GenerateRegProof({ eDocument }: { eDocument: EDocument }) {
+  const { registerIdentity } = documentsStore.useIdentityRegistration(eDocument)
+
+  const tryRegisterIdentity = useCallback(async () => {
+    try {
+      await registerIdentity()
+    } catch (error) {
+      console.log(error)
+    }
+  }, [registerIdentity])
 
   return (
     <View>
-      <Text />
+      <UiButton title='Register' onPress={tryRegisterIdentity} />
     </View>
   )
 }

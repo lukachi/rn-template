@@ -39,11 +39,11 @@ export async function scanDocument(
 }
 
 export async function getPublicKeyPem(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getPublicKeyPem(sod)
+  return await EDocumentModule.getPublicKeyPem(new Uint8Array(sod))
 }
 
 export async function getSlaveCertificatePem(sod: Uint8Array) {
-  return await EDocumentModule.getSlaveCertificatePem(sod)
+  return await EDocumentModule.getSlaveCertificatePem(new Uint8Array(sod))
 }
 
 export * from './src/enums'

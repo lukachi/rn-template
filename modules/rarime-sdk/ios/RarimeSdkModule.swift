@@ -85,6 +85,8 @@ public class RarimeSdkModule: Module {
           let x509Utils = IdentityX509Util()
           
           let slaveCertificateIndex = try x509Utils.getSlaveCertificateIndex(slaveCertPem, mastersPem: mastersPem)
+          
+            return slaveCertificateIndex
       }
 
       AsyncFunction("getX509RSASize") {(publicKeyPem: Data) in
