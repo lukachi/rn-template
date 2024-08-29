@@ -7,10 +7,32 @@ import android.content.IntentFilter
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
+import android.util.Base64
 import com.google.gson.Gson
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter
+import org.jmrtd.lds.SODFile
+import java.io.StringWriter
+import java.security.PublicKey
+import java.security.cert.X509Certificate
+
+fun X509Certificate.convertToPem(): String {
+  val stringWriter = StringWriter()
+  JcaPEMWriter(stringWriter).use { pemWriter ->
+    pemWriter.writeObject(this)
+  }
+  return stringWriter.toString()
+}
+
+fun PublicKey.publicKeyToPem(): String {
+  val base64PubKey = Base64.encodeToString(this.encoded, Base64.DEFAULT)
+
+  return "-----BEGIN PUBLIC KEY-----\n" +
+    base64PubKey.replace("(.{64})".toRegex(), "$1\n") +
+    "\n-----END PUBLIC KEY-----\n"
+}
 
 class EDocumentModule : Module() {
   private var nfcAdapter: NfcAdapter? = null
@@ -43,6 +65,24 @@ class EDocumentModule : Module() {
       scanChallenge = challenge
 
       scanPromise = promise
+    }
+
+    AsyncFunction("getPublicKeyPem") { sod: ByteArray ->
+      val sodFile = SODFile(sod.inputStream())
+
+      val publicKey = sodFile.docSigningCertificate.publicKey
+      val publicKeyPem = publicKey.publicKeyToPem()
+
+      return@AsyncFunction publicKeyPem
+    }
+
+    AsyncFunction("getSlaveCertificatePem") { sod: ByteArray ->
+      val sodFile = SODFile(sod.inputStream())
+
+      val cert = sodFile.docSigningCertificate
+      val certPem = cert.convertToPem()
+
+      return@AsyncFunction certPem.toByteArray()
     }
 
     OnNewIntent { intent ->

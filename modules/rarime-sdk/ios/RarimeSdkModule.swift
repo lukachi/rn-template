@@ -80,5 +80,18 @@ public class RarimeSdkModule: Module {
 
         return result
     }
+      
+      AsyncFunction("getSlaveCertIndex") {(slaveCertPem: Data, mastersPem: Data) in
+          let x509Utils = IdentityX509Util()
+          
+          let slaveCertificateIndex = try x509Utils.getSlaveCertificateIndex(slaveCertPem, mastersPem: mastersPem)
+      }
+
+      AsyncFunction("getX509RSASize") {(publicKeyPem: Data) in
+          var publicKeySize: Int = 0
+          try IdentityX509Util().getRSASize(publicKeyPem, ret0_: &publicKeySize)
+          
+          return publicKeySize
+      }
   }
 }

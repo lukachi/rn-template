@@ -16,3 +16,14 @@ export async function calculateEventNullifierInt(
 export async function registrationChallenge(secretKey: string): Promise<Uint8Array> {
   return await RarimeSdkModule.registrationChallenge(secretKey)
 }
+
+export async function getSlaveCertIndex(
+  slaveCertPem: Uint8Array,
+  icaoBytes: Uint8Array,
+): Promise<string> {
+  return await RarimeSdkModule.getSlaveCertIndex(slaveCertPem, icaoBytes)
+}
+
+export async function getX509RSASize(publicKeyPem: Uint8Array): Promise<number> {
+  return await RarimeSdkModule.getX509RSASize(publicKeyPem)
+}

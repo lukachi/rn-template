@@ -4,6 +4,7 @@ import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import identity.Identity
 import identity.Profile
+import identity.X509Util
 
 fun String.decodeHexString(): ByteArray {
   check(length % 2 == 0) {
@@ -37,6 +38,14 @@ class RarimeSdkModule : Module() {
       val profile = Profile().newProfile(userPK.decodeHexString())
 
       return@AsyncFunction profile.registrationChallenge
+    }
+
+    AsyncFunction("getSlaveCertIndex") { slaveCertPem: ByteArray, mastersPem: ByteArray ->
+      return@AsyncFunction X509Util().getSlaveCertificateIndex(slaveCertPem, mastersPem)
+    }
+
+    AsyncFunction("getX509RSASize") { publicKeyPem: ByteArray ->
+      return@AsyncFunction X509Util().getRSASize(publicKeyPem)
     }
   }
 }

@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.IOException
 import java.io.InputStream
-import java.security.PublicKey
 import android.util.Base64
 import java.util.Locale
 
@@ -47,14 +46,6 @@ fun String.toFixedPersonalNumberMrzData(personalNumber: String?): String {
     restPart = restPart.substring(1)
   }
   return firstPart + personalNumber + restPart
-}
-
-fun PublicKey.publicKeyToPem(): String {
-  val base64PubKey = Base64.encodeToString(this.encoded, Base64.DEFAULT)
-
-  return "-----BEGIN PUBLIC KEY-----\n" +
-    base64PubKey.replace("(.{64})".toRegex(), "$1\n") +
-    "\n-----END PUBLIC KEY-----\n"
 }
 
 @Throws(IOException::class)
