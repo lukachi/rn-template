@@ -2,6 +2,7 @@ package expo.modules.rarimesdk
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import identity.CallDataBuilder
 import identity.Identity
 import identity.Profile
 import identity.X509Util
@@ -46,6 +47,19 @@ class RarimeSdkModule : Module() {
 
     AsyncFunction("getX509RSASize") { publicKeyPem: ByteArray ->
       return@AsyncFunction X509Util().getRSASize(publicKeyPem)
+    }
+
+    AsyncFunction("buildRegisterCertificateCallData") { cosmosAddr: String, slavePem: ByteArray, masterCertificatesBucketName: String, masterCertificatesFilename: String ->
+      val callDataBuilder = CallDataBuilder()
+
+      val callData = callDataBuilder.buildRegisterCertificateCalldata(
+        cosmosAddr,
+        slavePem,
+        masterCertificatesBucketName,
+        masterCertificatesFilename
+      )
+
+      return@AsyncFunction callData
     }
   }
 }

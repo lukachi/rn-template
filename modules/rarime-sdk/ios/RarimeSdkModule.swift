@@ -95,5 +95,18 @@ public class RarimeSdkModule: Module {
           
           return publicKeySize
       }
+      
+      AsyncFunction("buildRegisterCertificateCallData") {(cosmosAddr: String, slavePem: Data, masterCertificatesBucketName: String, masterCertificatesFilename: String) in
+          let calldataBuilder = IdentityCallDataBuilder()
+          
+          let calldata = try calldataBuilder.buildRegisterCertificateCalldata(
+            cosmosAddr,
+            slavePem: slavePem,
+            masterCertificatesBucketname: masterCertificatesBucketName,
+            masterCertificatesFilename: masterCertificatesFilename
+          )
+          
+          return calldata
+      }
   }
 }

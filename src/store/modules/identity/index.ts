@@ -1,7 +1,12 @@
 import type { EDocument } from '@modules/e-document'
 import { getCircuitType } from '@modules/e-document'
 import { getPublicKeyPem, getSlaveCertificatePem } from '@modules/e-document'
-import { getSlaveCertIndex, getX509RSASize } from '@modules/rarime-sdk'
+import {
+  buildRegisterCertificateCallData,
+  getSlaveCertIndex,
+  getX509RSASize,
+} from '@modules/rarime-sdk'
+import type { AxiosError } from 'axios'
 import { Buffer } from 'buffer'
 import { JsonRpcProvider } from 'ethers'
 import { useAssets } from 'expo-asset'
@@ -10,6 +15,7 @@ import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
+import { register } from '@/api/modules/registration'
 import { Config } from '@/config'
 import { createPoseidonSMTContract } from '@/helpers'
 import { zustandSecureStorage } from '@/store/helpers'
@@ -108,14 +114,33 @@ const useIdentityRegistration = (eDoc: EDocument) => {
       throw new CertificateAlreadyRegisteredError()
     }
 
-    // // icaoCosmosRpc, masterCertificatesBucketName, masterCertificatesFileName
-    // const RegisterCertificateCallData = buildRegisterCertificateCalldata(slaveCertPem)
-    //
-    // const { txHash } = await relayerApi.register(RegisterCertificateCallData)
-    //
-    // const tx = getTxByHash(txHash)
-    //
-    // await tx.wait()
+    try {
+      const callData = await buildRegisterCertificateCallData(
+        Config.ICAO_COSMOS_GRPC,
+        slaveCertPem,
+        Config.MASTER_CERTIFICATES_BUCKETNAME,
+        Config.MASTER_CERTIFICATES_FILENAME,
+      )
+
+      const { data } = await register(
+        '0x' + Buffer.from(callData).toString('hex'),
+        Config.REGISTRATION_CONTRACT_ADDRESS,
+      )
+
+      const tx = await jsonRpcProvider.getTransaction(data.tx_hash)
+
+      if (!tx) throw new TypeError('Transaction not found')
+
+      await tx.wait()
+    } catch (error) {
+      const axiosError = error as AxiosError
+
+      if (JSON.stringify(axiosError.response?.data?.errors)?.includes('the key already exists')) {
+        throw new CertificateAlreadyRegisteredError()
+      }
+
+      throw axiosError
+    }
   }
   //
   // const generateRegisterIdentityProof = async (
@@ -164,10 +189,10 @@ const useIdentityRegistration = (eDoc: EDocument) => {
     try {
       await registerCertificate(slaveCertPem, slaveCertIdx)
     } catch (error) {
+      console.log(error)
       if (error instanceof CertificateAlreadyRegisteredError) {
         console.log('Certificate already registered') // TODO
       }
-      // TODO: handle errors
     }
 
     try {

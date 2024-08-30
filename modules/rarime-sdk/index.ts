@@ -30,3 +30,17 @@ export async function getSlaveCertIndex(
 export async function getX509RSASize(publicKeyPem: Uint8Array): Promise<number> {
   return await RarimeSdkModule.getX509RSASize(new Uint8Array(publicKeyPem))
 }
+
+export async function buildRegisterCertificateCallData(
+  cosmosAddr: string,
+  slavePem: Uint8Array,
+  masterCertificatesBucketName: string,
+  masterCertificatesFilename: string,
+): Promise<Uint8Array> {
+  return await RarimeSdkModule.buildRegisterCertificateCallData(
+    cosmosAddr,
+    new Uint8Array(slavePem),
+    masterCertificatesBucketName,
+    masterCertificatesFilename,
+  )
+}
