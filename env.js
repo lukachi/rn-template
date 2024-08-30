@@ -78,17 +78,23 @@ const client = z.object({
   VERSION: z.string(),
 
   // ADD YOUR CLIENT ENV VARS HERE
-  API_URL: z.string().url(),
+  RELAYER_API_URL: z.string().url(),
+
+  RMO_CHAIN_ID: z.string().url(),
+
+  REGISTRATION_CONTRACT_ADDRESS: z.string(),
+  STATE_KEEPER_CONTRACT_ADDRESS: z.string(),
+
+  CERT_POSEIDON_SMT_CONTRACT_ADDRESS: z.string(),
+  REGISTRATION_POSEIDON_SMT_CONTRACT_ADDRESS: z.string(),
+
   POINTS_SVC_ID: z.string(),
-  // VAR_NUMBER: z.number(),
-  // VAR_BOOL: z.boolean(),
 })
 
 const buildTime = z.object({
   EXPO_ACCOUNT_OWNER: z.string(),
   EAS_PROJECT_ID: z.string(),
   // ADD YOUR BUILD TIME ENV VARS HERE
-  // SECRET_KEY: z.string(),
 })
 
 /**
@@ -103,10 +109,17 @@ const _clientEnv = {
   VERSION: packageJSON.version,
 
   // ADD YOUR ENV VARS HERE TOO
-  API_URL: process.env.API_URL,
+  RELAYER_API_URL: process.env.RELAYER_API_URL,
+
+  RMO_CHAIN_ID: process.env.RMO_CHAIN_ID,
+
+  REGISTRATION_CONTRACT_ADDRESS: process.env.REGISTRATION_CONTRACT_ADDRESS,
+  STATE_KEEPER_CONTRACT_ADDRESS: process.env.STATE_KEEPER_CONTRACT_ADDRESS,
+
+  CERT_POSEIDON_SMT_CONTRACT_ADDRESS: process.env.CERT_POSEIDON_SMT_CONTRACT_ADDRESS,
+  REGISTRATION_POSEIDON_SMT_CONTRACT_ADDRESS: process.env.REGISTRATION_POSEIDON_SMT_CONTRACT_ADDRESS,
+
   POINTS_SVC_ID: process.env.POINTS_SVC_ID,
-  // VAR_NUMBER: Number(process.env.VAR_NUMBER),
-  // VAR_BOOL: process.env.VAR_BOOL === 'true',
 }
 
 /**

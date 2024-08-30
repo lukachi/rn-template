@@ -2,11 +2,11 @@ import type { EDocument } from '@modules/e-document'
 import { useCallback } from 'react'
 import { View } from 'react-native'
 
-import { documentsStore } from '@/store'
+import { identityStore } from '@/store'
 import { UiButton } from '@/ui'
 
 export default function GenerateRegProof({ eDocument }: { eDocument: EDocument }) {
-  const { registerIdentity } = documentsStore.useIdentityRegistration(eDocument)
+  const { registerIdentity } = identityStore.useIdentityRegistration(eDocument)
 
   const tryRegisterIdentity = useCallback(async () => {
     console.log('tryRegisterIdentity')

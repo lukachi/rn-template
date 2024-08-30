@@ -1,7 +1,9 @@
+import type { ZKProof } from '@modules/rapidsnark-wrp'
+
 import { apiClient } from '@/api/client'
 
 // fixme: ZkProof type
-export const authorize = async (nullifierHex: string, zkProof: any) => {
+export const authorize = async (nullifierHex: string, zkProof: ZKProof) => {
   return apiClient.post<{
     access_token: {
       token: string
