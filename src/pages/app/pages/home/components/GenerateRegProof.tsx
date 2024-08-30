@@ -9,6 +9,7 @@ export default function GenerateRegProof({ eDocument }: { eDocument: EDocument }
   const { registerIdentity } = documentsStore.useIdentityRegistration(eDocument)
 
   const tryRegisterIdentity = useCallback(async () => {
+    console.log('tryRegisterIdentity')
     try {
       await registerIdentity()
     } catch (error) {

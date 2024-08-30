@@ -13,7 +13,8 @@
     "lint": "eslint . --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
     "lint:fix": "eslint . --fix --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
     "format": "prettier . --check --cache --cache-location='node_modules/.cache/.prettiercache'",
-    "format:fix": "prettier . --write --cache --cache-location='node_modules/.cache/.prettiercache' --log-level=warn"
+    "format:fix": "prettier . --write --cache --cache-location='node_modules/.cache/.prettiercache' --log-level=warn",
+    "generate:ethers-types": "typechain --target=ethers-v6 'abis/**/*.json' --out-dir src/types/contracts"
   },
   "jest": {
     "preset": "jest-expo"
@@ -38,6 +39,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "constants-browserify": "^1.0.0",
+    "ethers": "^6.13.2",
     "expo": "51.0.26",
     "expo-asset": "~10.0.10",
     "expo-build-properties": "~0.12.3",
@@ -101,6 +103,7 @@
     "@react-native-community/eslint-config": "^3.2.0",
     "@tanstack/eslint-plugin-query": "^5.51.10",
     "@testing-library/jest-dom": "^6.4.6",
+    "@typechain/ethers-v6": "^0.5.1",
     "@types/eslint": "^8.56.10",
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4",
@@ -131,6 +134,7 @@
     "react-native-svg": "15.2.0",
     "react-native-svg-transformer": "^1.5.0",
     "ts-jest": "^29.1.2",
+    "typechain": "^8.3.2",
     "typescript": "~5.3.3"
   },
   "private": true,

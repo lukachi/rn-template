@@ -20,7 +20,7 @@ export async function registrationChallenge(secretKey: string): Promise<Uint8Arr
 export async function getSlaveCertIndex(
   slaveCertPem: Uint8Array,
   icaoBytes: Uint8Array,
-): Promise<string> {
+): Promise<Uint8Array> {
   return await RarimeSdkModule.getSlaveCertIndex(
     new Uint8Array(slaveCertPem),
     new Uint8Array(icaoBytes),
