@@ -1,15 +1,20 @@
 import type { EDocument } from '@modules/e-document'
 import { useCallback } from 'react'
-import { View } from 'react-native'
+import { Text, View } from 'react-native'
 
 import { identityStore } from '@/store'
 import { UiButton } from '@/ui'
 
 export default function GenerateRegProof({ eDocument }: { eDocument: EDocument }) {
-  const { registerIdentity } = identityStore.useIdentityRegistration(eDocument)
+  const {
+    isCircuitsLoaded,
+    isCircuitsLoadFailed,
+    circuitsDownloadingProgress,
+
+    registerIdentity,
+  } = identityStore.useIdentityRegistration(eDocument)
 
   const tryRegisterIdentity = useCallback(async () => {
-    console.log('tryRegisterIdentity')
     try {
       await registerIdentity()
     } catch (error) {
@@ -19,6 +24,15 @@ export default function GenerateRegProof({ eDocument }: { eDocument: EDocument }
 
   return (
     <View>
+      <Text className={'text-textPrimary typography-subtitle4'}>Downloading Progress:</Text>
+      <Text className={'text-textPrimary typography-body3'}>{circuitsDownloadingProgress}</Text>
+
+      <Text className={'text-textPrimary typography-subtitle4'}>isLoaded:</Text>
+      <Text className={'text-textPrimary typography-body3'}>{String(isCircuitsLoaded)}</Text>
+
+      <Text className={'text-textPrimary typography-subtitle4'}>isCircuitsLoadFailed:</Text>
+      <Text className={'text-textPrimary typography-body3'}>{String(isCircuitsLoadFailed)}</Text>
+
       <UiButton title='Register' onPress={tryRegisterIdentity} />
     </View>
   )

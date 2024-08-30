@@ -1,4 +1,5 @@
 import type { EDocument } from '@modules/e-document'
+import { CircuitType } from '@modules/e-document'
 import { getCircuitType } from '@modules/e-document'
 import { getPublicKeyPem, getSlaveCertificatePem } from '@modules/e-document'
 import {
@@ -11,6 +12,9 @@ import { Buffer } from 'buffer'
 import { JsonRpcProvider } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
+import get from 'lodash/get'
+import { useCallback, useState } from 'react'
+import { unzip } from 'react-native-zip-archive'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -52,52 +56,125 @@ const useIdentityStore = create(
   ),
 )
 
-// const useCircuit = () => {
-//   const [isLoaded, setIsLoaded] = useState(false)
-//   const [isLoadFailed, setIsLoadFailed] = useState(false)
-//
-//   const [downloadingProgress, setDownloadingProgress] = useState(0)
-//
-//   const loadCircuit = useCallback(
-//     async (
-//       circuitType: CircuitType,
-//     ): Promise<{
-//       zkey: Uint8Array
-//       dat: Uint8Array
-//     } | null> => {
-//       setIsLoaded(false)
-//       setIsLoadFailed(false)
-//
-//       try {
-//         const zkey = await downloadZKeyOrGetFromCache()
-//         const dat = await downloadZKeyOrGetFromCache()
-//
-//         return { zkey, dat }
-//       } catch (error) {
-//         setIsLoadFailed(true)
-//       }
-//
-//       setIsLoaded(true)
-//
-//       return null
-//     },
-//     [],
-//   )
-//
-//   return {
-//     isLoaded,
-//     isLoadFailed,
-//     downloadingProgress,
-//
-//     loadCircuit,
-//   }
-// }
+const useCircuit = () => {
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isLoadFailed, setIsLoadFailed] = useState(false)
+  const [downloadingProgress, setDownloadingProgress] = useState('')
+
+  const loadCircuit = useCallback(
+    async (
+      circuitType: CircuitType,
+    ): Promise<{
+      zKey: Uint8Array
+      dat: Uint8Array
+    } | null> => {
+      setDownloadingProgress('')
+      setIsLoaded(false)
+      setIsLoadFailed(false)
+
+      try {
+        const circuitDownloadUrl = {
+          [CircuitType.RegisterIdentityUniversalRSA2048]:
+            'https://storage.googleapis.com/rarimo-store/passport-zk-circuits/v0.1.0-alpha/registerIdentityUniversalRSA2048-download.zip',
+          [CircuitType.RegisterIdentityUniversalRSA4096]:
+            'https://storage.googleapis.com/rarimo-store/passport-zk-circuits/v0.1.0-alpha/registerIdentityUniversalRSA4096-download.zip',
+        }[circuitType]
+
+        const fileUri = `${FileSystem.documentDirectory}${circuitType}.zip`
+        const targetPath = `${FileSystem.documentDirectory}${circuitType}`
+        const zkeyPath = `${targetPath}/circuit_final.zkey`
+        const datPath = `${targetPath}/${circuitType}.dat`
+
+        console.log('Downloading circuit from ', circuitDownloadUrl)
+        console.log('Saving to ', fileUri)
+        console.log('Unzipping to ', targetPath)
+
+        console.log('zkeyPath', zkeyPath)
+        console.log('datPath', datPath)
+
+        // Check if the zkey and dat files already exist
+        const zkeyInfo = await FileSystem.getInfoAsync(zkeyPath)
+        const datInfo = await FileSystem.getInfoAsync(datPath)
+        console.log('zkeyInfo', zkeyInfo)
+        console.log('datInfo', datInfo)
+
+        if (zkeyInfo.exists && datInfo.exists) {
+          console.log('Files already exist, loading from cache.')
+
+          const zkey = await FileSystem.readAsStringAsync(zkeyPath, {
+            encoding: FileSystem.EncodingType.Base64,
+          })
+          const dat = await FileSystem.readAsStringAsync(datPath, {
+            encoding: FileSystem.EncodingType.Base64,
+          })
+
+          setIsLoaded(true)
+
+          return {
+            zKey: Buffer.from(zkey, 'base64'),
+            dat: Buffer.from(dat, 'base64'),
+          }
+        }
+
+        const downloadResumable = FileSystem.createDownloadResumable(
+          circuitDownloadUrl,
+          fileUri,
+          {},
+          downloadProgress => {
+            setDownloadingProgress(
+              `${downloadProgress.totalBytesWritten} / ${downloadProgress.totalBytesExpectedToWrite}`,
+            )
+          },
+        )
+
+        const downloadResult = await downloadResumable.downloadAsync()
+
+        if (!downloadResult) {
+          throw new TypeError('Download failed')
+        }
+
+        console.log('Finished downloading to ', downloadResult.uri)
+
+        await unzip(downloadResult.uri, targetPath)
+        console.log('Unzipped to ', targetPath)
+
+        const zkey = await FileSystem.readAsStringAsync(zkeyPath, {
+          encoding: FileSystem.EncodingType.Base64,
+        })
+        const dat = await FileSystem.readAsStringAsync(datPath, {
+          encoding: FileSystem.EncodingType.Base64,
+        })
+
+        setIsLoaded(true)
+
+        return {
+          zKey: Buffer.from(zkey, 'base64'),
+          dat: Buffer.from(dat, 'base64'),
+        }
+      } catch (error) {
+        console.error('Error in loadCircuit: ', error)
+        setIsLoadFailed(true)
+      }
+
+      setIsLoaded(false)
+      return null
+    },
+    [],
+  )
+
+  return {
+    isLoaded,
+    isLoadFailed,
+    downloadingProgress,
+    loadCircuit,
+  }
+}
 
 const useIdentityRegistration = (eDoc: EDocument) => {
   const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
 
-  // const { loadCircuit, ...restCircuit } = useCircuit()
-  //
+  const { loadCircuit, ...restCircuit } = useCircuit()
+
   const registerCertificate = async (slaveCertPem: Uint8Array, slaveCertIdx: Uint8Array) => {
     const evmRpcUrl = RARIMO_CHAINS[Config.RMO_CHAIN_ID].rpcEvm
 
@@ -135,14 +212,18 @@ const useIdentityRegistration = (eDoc: EDocument) => {
     } catch (error) {
       const axiosError = error as AxiosError
 
-      if (JSON.stringify(axiosError.response?.data?.errors)?.includes('the key already exists')) {
+      if (
+        JSON.stringify(get(axiosError, 'response.data.errors', {}))?.includes(
+          'the key already exists',
+        )
+      ) {
         throw new CertificateAlreadyRegisteredError()
       }
 
       throw axiosError
     }
   }
-  //
+
   // const generateRegisterIdentityProof = async (
   //   eDoc: EDocument,
   //   zkey: Uint8Array,
@@ -187,6 +268,7 @@ const useIdentityRegistration = (eDoc: EDocument) => {
     if (!circuitType) throw new TypeError('Unsupported public key size')
 
     try {
+      console.log('Registering certificate')
       await registerCertificate(slaveCertPem, slaveCertIdx)
     } catch (error) {
       console.log(error)
@@ -196,16 +278,21 @@ const useIdentityRegistration = (eDoc: EDocument) => {
     }
 
     try {
-      // const { zkey, dat } = await loadCircuit(circuitType)
-      //
+      console.log('Loading circuit for ', circuitType)
+      const circuitsLoadingResult = await loadCircuit(circuitType)
+
+      if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
+
       // const zkProof = await generateRegisterIdentityProof(eDoc, zkey, dat)
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return {
-    // isCircuitsLoaded: restCircuit.isLoaded,
-    // isCircuitsLoadFailed: restCircuit.isLoadFailed,
-    // circuitsDownloadingProgress: restCircuit.downloadingProgress,
+    isCircuitsLoaded: restCircuit.isLoaded,
+    isCircuitsLoadFailed: restCircuit.isLoadFailed,
+    circuitsDownloadingProgress: restCircuit.downloadingProgress,
 
     registerIdentity,
   }
@@ -214,5 +301,5 @@ const useIdentityRegistration = (eDoc: EDocument) => {
 export const identityStore = {
   useIdentityStore,
 
-  useIdentityRegistration,
+  useIdentityRegistration: useIdentityRegistration,
 }
