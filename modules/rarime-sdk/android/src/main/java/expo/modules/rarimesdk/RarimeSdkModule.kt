@@ -61,5 +61,22 @@ class RarimeSdkModule : Module() {
 
       return@AsyncFunction callData
     }
+
+
+    AsyncFunction("buildRegisterIdentityInputs") { userPK: String, encapsulatedContent: ByteArray, signedAttributes: ByteArray, sodSignature: ByteArray, dg1: ByteArray, dg15: ByteArray, pubKeyPem: ByteArray, smtProofJsonData: ByteArray ->
+      val profile = Profile().newProfile(userPK.decodeHexString())
+
+      val inputs = profile.buildRegisterIdentityInputs(
+        encapsulatedContent,
+        signedAttributes,
+        dg1,
+        dg15,
+        pubKeyPem,
+        sodSignature,
+        smtProofJsonData
+      )
+
+      return@AsyncFunction inputs
+    }
   }
 }

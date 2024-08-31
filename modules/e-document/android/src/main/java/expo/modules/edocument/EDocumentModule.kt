@@ -85,6 +85,24 @@ class EDocumentModule : Module() {
       return@AsyncFunction certPem.toByteArray()
     }
 
+    AsyncFunction("getSodEncapsulatedContent") { sod: ByteArray ->
+      val sodFile = SODFile(sod.inputStream())
+
+      return@AsyncFunction sodFile.readASN1Data()
+    }
+
+    AsyncFunction("getSodSignedAttributes") { sod: ByteArray ->
+      val sodFile = SODFile(sod.inputStream())
+
+      return@AsyncFunction sodFile.eContent
+    }
+
+    AsyncFunction("getSodSignature") { sod: ByteArray ->
+      val sodFile = SODFile(sod.inputStream())
+
+      return@AsyncFunction sodFile.encryptedDigest
+    }
+
     OnNewIntent { intent ->
       scanPromise?.let { handleNfcIntent(intent, it) }
     }
