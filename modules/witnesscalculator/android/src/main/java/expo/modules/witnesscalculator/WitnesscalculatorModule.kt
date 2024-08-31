@@ -1,7 +1,6 @@
 package expo.modules.witnesscalculator
 
 import com.example.rmocalcs.WtnsUtils
-import java.util.Base64
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
@@ -15,8 +14,23 @@ class WitnesscalculatorModule : Module() {
     // The module will be accessible from `requireNativeModule('Witnesscalculator')` in JavaScript.
     Name("Witnesscalculator")
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
+    AsyncFunction("calcWtnsRegisterIdentityUniversalRSA4096") { dat: ByteArray, inputs: ByteArray ->
+      val witnessCalculator = WtnsCalculator()
+
+      val res = witnessCalculator.calculateWtns(dat, inputs, WtnsUtils::registerIdentityUniversalRSA4096)
+
+      return@AsyncFunction res
+    }
+
+    AsyncFunction("calcWtnsRegisterIdentityUniversalRSA2048") { dat: ByteArray, inputs: ByteArray ->
+      val witnessCalculator = WtnsCalculator()
+
+      val res = witnessCalculator.calculateWtns(dat, inputs, WtnsUtils::registerIdentityUniversalRSA2048)
+
+      return@AsyncFunction res
+    }
+
+
     AsyncFunction("calcWtnsAuth") { dat: ByteArray, inputs: ByteArray ->
       val witnessCalculator = WtnsCalculator()
 
