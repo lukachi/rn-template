@@ -1,11 +1,13 @@
 import type { EDocument } from '@modules/e-document'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Text, View } from 'react-native'
 
 import { identityStore } from '@/store'
 import { UiButton } from '@/ui'
 
 export default function GenerateRegProof({ eDocument }: { eDocument: EDocument }) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const {
     isCircuitsLoaded,
     isCircuitsLoadFailed,
@@ -15,11 +17,13 @@ export default function GenerateRegProof({ eDocument }: { eDocument: EDocument }
   } = identityStore.useIdentityRegistration(eDocument)
 
   const tryRegisterIdentity = useCallback(async () => {
+    setIsSubmitting(true)
     try {
       await registerIdentity()
     } catch (error) {
       console.log(error)
     }
+    setIsSubmitting(false)
   }, [registerIdentity])
 
   return (
@@ -33,7 +37,7 @@ export default function GenerateRegProof({ eDocument }: { eDocument: EDocument }
       <Text className={'text-textPrimary typography-subtitle4'}>isCircuitsLoadFailed:</Text>
       <Text className={'text-textPrimary typography-body3'}>{String(isCircuitsLoadFailed)}</Text>
 
-      <UiButton title='Register' onPress={tryRegisterIdentity} />
+      <UiButton title='Register' onPress={tryRegisterIdentity} disabled={isSubmitting} />
     </View>
   )
 }

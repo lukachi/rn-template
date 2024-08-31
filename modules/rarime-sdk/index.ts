@@ -62,7 +62,7 @@ export async function buildRegisterIdentityInputs({
   dg1: Uint8Array
   dg15: Uint8Array
   pubKeyPem: Uint8Array
-  smtProofJson: string
+  smtProofJson: Uint8Array
 }): Promise<Uint8Array> {
   // FIXME: [Error: The data couldn’t be read because it isn’t in the correct format.]
   return await RarimeSdkModule.buildRegisterIdentityInputs(
@@ -73,6 +73,6 @@ export async function buildRegisterIdentityInputs({
     new Uint8Array(dg1),
     new Uint8Array(dg15),
     new Uint8Array(pubKeyPem),
-    smtProofJson,
+    new Uint8Array(smtProofJson),
   )
 }

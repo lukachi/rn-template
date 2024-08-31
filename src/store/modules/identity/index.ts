@@ -11,9 +11,13 @@ import {
   getSlaveCertIndex,
   getX509RSASize,
 } from '@modules/rarime-sdk'
+import {
+  calcWtnsRegisterIdentityUniversalRSA2048,
+  calcWtnsRegisterIdentityUniversalRSA4096,
+} from '@modules/witnesscalculator'
 import type { AxiosError } from 'axios'
 import { Buffer } from 'buffer'
-import { ethers, JsonRpcProvider } from 'ethers'
+import { JsonRpcProvider } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import get from 'lodash/get'
@@ -222,26 +226,20 @@ const useIdentityRegistration = (eDoc: EDocument) => {
     [rmoEvmJsonRpcProvider],
   )
 
-  const generateRegisterIdentityProof = useCallback(
+  const generateRegisterIdentityInputs = useCallback(
     async ({
       sod,
       pubKeyPem,
       smtProofJson,
       dg1,
       dg15,
-
-      zkeyUri,
-      dat,
     }: {
       sod: Uint8Array
       pubKeyPem: Uint8Array
-      smtProofJson: string
+      smtProofJson: Uint8Array
       dg1: Uint8Array
       dg15: Uint8Array
-
-      zkeyUri: string
-      dat: Uint8Array
-    }): Promise<any> => {
+    }): Promise<Uint8Array> => {
       const encapsulatedContent = await getSodEncapsulatedContent(sod)
       const signedAttributes = await getSodSignedAttributes(sod)
       const sodSignature = await getSodSignature(sod)
@@ -254,12 +252,10 @@ const useIdentityRegistration = (eDoc: EDocument) => {
         dg1,
         dg15,
         pubKeyPem,
-        smtProofJson: smtProofJson,
+        smtProofJson,
       })
 
-      console.log(inputsBytes)
-      console.log('\n\n\n')
-      console.log(Buffer.from(inputsBytes).toString())
+      return inputsBytes
     },
     [privateKey],
   )
@@ -304,22 +300,43 @@ const useIdentityRegistration = (eDoc: EDocument) => {
 
       if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
 
-      const zkProof = await generateRegisterIdentityProof({
+      const registerIdentityInputs = await generateRegisterIdentityInputs({
         sod: sodBytes,
         pubKeyPem: publicKeyPem,
-        smtProofJson: JSON.stringify({
-          root: ethers.getBytes(smtProof.root),
-          siblings: smtProof.siblings.map(el => ethers.getBytes(el, 'hex')),
-          // existence: smtProof.existence,
-        }),
+        smtProofJson: Buffer.from(
+          JSON.stringify({
+            root: Buffer.from(smtProof.root).toString('base64'),
+            siblings: smtProof.siblings.map(el => Buffer.from(el).toString('base64')),
+            // existence: smtProof.existence,
+          }),
+        ),
         dg1: Buffer.from(eDoc.dg1!, 'base64'),
         dg15: Buffer.from(eDoc.dg15!, 'base64'),
 
-        zkeyUri: circuitsLoadingResult.zKeyUri,
-        dat: circuitsLoadingResult.dat,
+        // zkeyUri: circuitsLoadingResult.zKeyUri,
+        // dat: circuitsLoadingResult.dat,
       })
 
-      console.log(zkProof)
+      const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
+
+      const registerIdentityWtnsCalc = {
+        [CircuitType.RegisterIdentityUniversalRSA2048]: calcWtnsRegisterIdentityUniversalRSA2048,
+        [CircuitType.RegisterIdentityUniversalRSA4096]: calcWtnsRegisterIdentityUniversalRSA4096,
+      }[circuitType]
+
+      const registerIdentityWtnsBytes = await registerIdentityWtnsCalc(
+        circuitsLoadingResult.dat,
+        Buffer.from(registerIdentityInputsJson, 'base64'),
+      )
+
+      console.log(registerIdentityWtnsBytes)
+
+      // const registerIdentityZkProof = await groth16ProveWithZKeyFilePath(
+      //   registerIdentityWtnsBytes,
+      //   circuitsLoadingResult.zKeyUri,
+      // )
+      //
+      // console.log(Buffer.from(registerIdentityZkProof).toString())
     } catch (error) {
       console.log(error)
     }
@@ -328,7 +345,7 @@ const useIdentityRegistration = (eDoc: EDocument) => {
     eDoc.dg1,
     eDoc.dg15,
     eDoc.sod,
-    generateRegisterIdentityProof,
+    generateRegisterIdentityInputs,
     loadCircuit,
     registerCertificate,
     sertPoseidonSMTContract.contractInstance,
