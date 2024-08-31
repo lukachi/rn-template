@@ -73,26 +73,78 @@ public class RapidsnarkWrpModule: Module {
     Name("RapidsnarkWrp")
       
       AsyncFunction("groth16ProveWithZKeyFilePath") { (wtns: Data, zkeyFilePath: String, proofBufferSize: Int?, publicBufferSize: Int?, errorBufferSize: Int? ) in
-          let _proofBufferSize = proofBufferSize ?? rapidsnark.defaultProofBufferSize
-          let _publicBufferSize = publicBufferSize ?? nil
-          let _errorBufferSize = errorBufferSize ?? rapidsnark.defaultErrorBufferSize
-          
-          
-          let (proof, inputs) = try rapidsnark.groth16ProveWithZKeyFilePath(zkeyPath: zkeyFilePath, witness: wtns, proofBufferSize: _proofBufferSize, publicBufferSize: _publicBufferSize, errorBufferSize: _errorBufferSize)
+          do {
+              let fileExists = FileManager.default.fileExists(atPath: zkeyFilePath)
+              
+              if (!fileExists) {
+                  throw RapidsnarkUtilsError.zkProofError("Zkey file does not exist")
+              }
+              
+              let currentProofBufferSize : Int;
+              if let proofBufferSize {
+                  currentProofBufferSize = proofBufferSize;
+              } else {
+                  currentProofBufferSize = rapidsnark.defaultProofBufferSize;
+              }
+              
+              var currentPublicBufferSize : Int;
+              if let publicBufferSize {
+                  currentPublicBufferSize = publicBufferSize;
+              } else {
+                  currentPublicBufferSize = try groth16PublicSizeForZkeyFile(zkeyPath: zkeyFilePath);
+              }
 
-          let zkProof = try createZkProof(proof: proof, pubSignals: inputs)
+              var currentErrorBufferSize : Int;
+              if let errorBufferSize {
+                  currentErrorBufferSize = errorBufferSize;
+              } else {
+                  currentErrorBufferSize = rapidsnark.defaultErrorBufferSize;
+              }
+              
 
-          return try JSONEncoder().encode(zkProof)
+              let (proof, inputs) = try rapidsnark.groth16ProveWithZKeyFilePath(zkeyPath: zkeyFilePath, witness: wtns, proofBufferSize: currentProofBufferSize, publicBufferSize: currentPublicBufferSize, errorBufferSize: currentErrorBufferSize)
+
+              let zkProof = try createZkProof(proof: proof, pubSignals: inputs)
+
+              return try JSONEncoder().encode(zkProof)
+          } catch {
+              throw error
+          }
       }
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-      AsyncFunction("groth16Prove") { (wtns: Data, zkey: Data) -> Data in
-          let (proof, inputs) = try rapidsnark.groth16Prove(zkey: zkey, witness: wtns)
+      AsyncFunction("groth16Prove") { (wtns: Data, zkey: Data, proofBufferSize: Int?, publicBufferSize: Int?, errorBufferSize: Int?) -> Data in
+          do {
+              let currentProofBufferSize : Int;
+              if let proofBufferSize {
+                  currentProofBufferSize = proofBufferSize;
+              } else {
+                  currentProofBufferSize = rapidsnark.defaultProofBufferSize;
+              }
+              
+              var currentPublicBufferSize : Int;
+              if let publicBufferSize {
+                  currentPublicBufferSize = publicBufferSize;
+              } else {
+                  currentPublicBufferSize = try groth16PublicSizeForZkeyBuf(zkey: zkey);
+              }
 
-          let zkProof = try createZkProof(proof: proof, pubSignals: inputs)
+              var currentErrorBufferSize : Int;
+              if let errorBufferSize {
+                  currentErrorBufferSize = errorBufferSize;
+              } else {
+                  currentErrorBufferSize = rapidsnark.defaultErrorBufferSize;
+              }
 
-          return try JSONEncoder().encode(zkProof)
+              let (proof, inputs) = try rapidsnark.groth16Prove(zkey: zkey, witness: wtns, proofBufferSize: currentProofBufferSize, publicBufferSize: currentPublicBufferSize, errorBufferSize: currentErrorBufferSize)
+
+              let zkProof = try createZkProof(proof: proof, pubSignals: inputs)
+
+              return try JSONEncoder().encode(zkProof)
+          } catch {
+              throw RapidsnarkUtilsError.zkProofError(error.localizedDescription)
+          }
       }
   }
 }

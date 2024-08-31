@@ -5,6 +5,7 @@ import { getSodEncapsulatedContent } from '@modules/e-document'
 import { CircuitType } from '@modules/e-document'
 import { getCircuitType } from '@modules/e-document'
 import { getPublicKeyPem, getSlaveCertificatePem } from '@modules/e-document'
+import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
 import {
   buildRegisterCertificateCallData,
   buildRegisterIdentityInputs,
@@ -245,7 +246,7 @@ const useIdentityRegistration = (eDoc: EDocument) => {
       const sodSignature = await getSodSignature(sod)
 
       const inputsBytes = await buildRegisterIdentityInputs({
-        privateKeyHex: `0x${privateKey}`,
+        privateKeyHex: privateKey,
         encapsulatedContent,
         signedAttributes,
         sodSignature,
@@ -324,19 +325,21 @@ const useIdentityRegistration = (eDoc: EDocument) => {
         [CircuitType.RegisterIdentityUniversalRSA4096]: calcWtnsRegisterIdentityUniversalRSA4096,
       }[circuitType]
 
+      console.log(registerIdentityInputsJson)
+
       const registerIdentityWtnsBytes = await registerIdentityWtnsCalc(
         circuitsLoadingResult.dat,
-        Buffer.from(registerIdentityInputsJson, 'base64'),
+        Buffer.from(registerIdentityInputsJson),
       )
 
       console.log(registerIdentityWtnsBytes)
 
-      // const registerIdentityZkProof = await groth16ProveWithZKeyFilePath(
-      //   registerIdentityWtnsBytes,
-      //   circuitsLoadingResult.zKeyUri,
-      // )
-      //
-      // console.log(Buffer.from(registerIdentityZkProof).toString())
+      const registerIdentityZkProof = await groth16ProveWithZKeyFilePath(
+        registerIdentityWtnsBytes,
+        circuitsLoadingResult.zKeyUri.replace('file://', ''),
+      )
+
+      console.log(Buffer.from(registerIdentityZkProof).toString())
     } catch (error) {
       console.log(error)
     }

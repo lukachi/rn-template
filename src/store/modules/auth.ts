@@ -1,10 +1,10 @@
+import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
 import { Buffer } from 'buffer'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
-import { groth16Prove } from '@/../modules/rapidsnark-wrp'
 import { calcWtnsAuth } from '@/../modules/witnesscalculator'
 import { authorize, getChallenge } from '@/api/modules/auth'
 import { Config } from '@/config'
@@ -110,11 +110,10 @@ const useLogin = () => {
 
     if (!zkeyAsset?.localUri) throw new TypeError('Zkey asset not found')
 
-    const zkeyBase64 = await FileSystem.readAsStringAsync(zkeyAsset.localUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    })
-
-    const zkProofBytes = await groth16Prove(authWtns, Buffer.from(zkeyBase64, 'base64'))
+    const zkProofBytes = await groth16ProveWithZKeyFilePath(
+      authWtns,
+      zkeyAsset.localUri.replace('file://', ''),
+    )
 
     const zkProof = Buffer.from(zkProofBytes).toString()
 

@@ -40,3 +40,12 @@ Better to create function per endpoint, and then use useLoading hook to handle l
 
 ### E-Document module
 On first install - go to ./modules/e-document/plugin and run `tsc` to compile expo-plugin
+
+### groth16ProveWithZKeyFilePath
+if u got file uri from expo file system, don't forget to remove `file://` from uri before passing it to `groth16ProveWithZKeyFilePath` function
+```typescript
+const zkProofBytes = await groth16ProveWithZKeyFilePath(
+  authWtns,
+  zkeyAsset.localUri.replace('file://', ''),
+)
+```
