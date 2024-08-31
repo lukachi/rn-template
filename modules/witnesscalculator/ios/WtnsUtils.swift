@@ -21,6 +21,48 @@ class WtnsUtils {
     static let PROOF_SIZE = UInt(4 * 1024 * 1024)
     static let PUB_SIGNALS_SIZE = UInt(4 * 1024 * 1024)
     
+    static public func calcWtnsRegisterIdentityUniversalRSA4096(
+            _ descriptionFileData: Data,
+            _ privateInputsJson: Data
+    ) throws -> Data {
+        let wtnsSize = UnsafeMutablePointer<UInt>.allocate(capacity: Int(1));
+        wtnsSize.initialize(to: WITNESS_SIZE)
+        let wtnsBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(WITNESS_SIZE))
+        let errorBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(ERROR_SIZE))
+        
+        let result = witnesscalc_registerIdentityUniversalRSA4096(
+            (descriptionFileData as NSData).bytes, UInt(descriptionFileData.count),
+            (privateInputsJson as NSData).bytes, UInt(privateInputsJson.count),
+            wtnsBuffer, wtnsSize,
+            errorBuffer, ERROR_SIZE
+        )
+        
+        try handleWitnessError(result, errorBuffer, wtnsSize)
+        
+        return Data(bytes: wtnsBuffer, count: Int(wtnsSize.pointee))
+    }
+    
+    static public func calcWtnsRegisterIdentityUniversalRSA2048(
+            _ descriptionFileData: Data,
+            _ privateInputsJson: Data
+    ) throws -> Data {
+        let wtnsSize = UnsafeMutablePointer<UInt>.allocate(capacity: Int(1));
+        wtnsSize.initialize(to: WITNESS_SIZE)
+        let wtnsBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(WITNESS_SIZE))
+        let errorBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(ERROR_SIZE))
+        
+        let result = witnesscalc_registerIdentityUniversalRSA2048(
+            (descriptionFileData as NSData).bytes, UInt(descriptionFileData.count),
+            (privateInputsJson as NSData).bytes, UInt(privateInputsJson.count),
+            wtnsBuffer, wtnsSize,
+            errorBuffer, ERROR_SIZE
+        )
+        
+        try handleWitnessError(result, errorBuffer, wtnsSize)
+        
+        return Data(bytes: wtnsBuffer, count: Int(wtnsSize.pointee))
+    }
+    
     static public func calcWtnsAuth(_ descriptionFileData: Data, _ privateInputsJson: Data) throws -> Data {
         return try _calcWtnsAuth(descriptionFileData, privateInputsJson)
     }

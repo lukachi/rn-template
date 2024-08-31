@@ -42,8 +42,20 @@ export async function getPublicKeyPem(sod: Uint8Array): Promise<Uint8Array> {
   return await EDocumentModule.getPublicKeyPem(new Uint8Array(sod))
 }
 
-export async function getSlaveCertificatePem(sod: Uint8Array) {
+export async function getSlaveCertificatePem(sod: Uint8Array): Promise<Uint8Array> {
   return await EDocumentModule.getSlaveCertificatePem(new Uint8Array(sod))
+}
+
+export async function getSodEncapsulatedContent(sod: Uint8Array): Promise<Uint8Array> {
+  return await EDocumentModule.getSodEncapsulatedContent(new Uint8Array(sod))
+}
+
+export async function getSodSignedAttributes(sod: Uint8Array): Promise<Uint8Array> {
+  return await EDocumentModule.getSodSignedAttributes(new Uint8Array(sod))
+}
+
+export async function getSodSignature(sod: Uint8Array): Promise<Uint8Array> {
+  return await EDocumentModule.getSodSignature(new Uint8Array(sod))
 }
 
 export * from './src/enums'

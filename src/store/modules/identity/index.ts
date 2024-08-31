@@ -1,19 +1,23 @@
 import type { EDocument } from '@modules/e-document'
+import { getSodSignature } from '@modules/e-document'
+import { getSodSignedAttributes } from '@modules/e-document'
+import { getSodEncapsulatedContent } from '@modules/e-document'
 import { CircuitType } from '@modules/e-document'
 import { getCircuitType } from '@modules/e-document'
 import { getPublicKeyPem, getSlaveCertificatePem } from '@modules/e-document'
 import {
   buildRegisterCertificateCallData,
+  buildRegisterIdentityInputs,
   getSlaveCertIndex,
   getX509RSASize,
 } from '@modules/rarime-sdk'
 import type { AxiosError } from 'axios'
 import { Buffer } from 'buffer'
-import { JsonRpcProvider } from 'ethers'
+import { ethers, JsonRpcProvider } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import get from 'lodash/get'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { unzip } from 'react-native-zip-archive'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
@@ -23,6 +27,7 @@ import { register } from '@/api/modules/registration'
 import { Config } from '@/config'
 import { createPoseidonSMTContract } from '@/helpers'
 import { zustandSecureStorage } from '@/store/helpers'
+import { walletStore } from '@/store/modules/wallet'
 
 import { CertificateAlreadyRegisteredError } from './errors'
 
@@ -61,13 +66,20 @@ const useCircuit = () => {
   const [isLoadFailed, setIsLoadFailed] = useState(false)
   const [downloadingProgress, setDownloadingProgress] = useState('')
 
+  const checkCircuitsLoaded = useCallback(async (zkeyPath: string, datPath: string) => {
+    const zkeyInfo = await FileSystem.getInfoAsync(zkeyPath)
+    const datInfo = await FileSystem.getInfoAsync(datPath)
+
+    return zkeyInfo.exists && datInfo.exists
+  }, [])
+
   const loadCircuit = useCallback(
     async (
       circuitType: CircuitType,
     ): Promise<{
-      zKey: Uint8Array
+      zKeyUri: string
       dat: Uint8Array
-    } | null> => {
+    }> => {
       setDownloadingProgress('')
       setIsLoaded(false)
       setIsLoadFailed(false)
@@ -82,28 +94,14 @@ const useCircuit = () => {
 
         const fileUri = `${FileSystem.documentDirectory}${circuitType}.zip`
         const targetPath = `${FileSystem.documentDirectory}${circuitType}`
-        const zkeyPath = `${targetPath}/circuit_final.zkey`
-        const datPath = `${targetPath}/${circuitType}.dat`
 
-        console.log('Downloading circuit from ', circuitDownloadUrl)
-        console.log('Saving to ', fileUri)
-        console.log('Unzipping to ', targetPath)
+        const circuitDirSubpath = `${circuitType}-download`
+        const zkeyPath = `${targetPath}/${circuitDirSubpath}/circuit_final.zkey`
+        const datPath = `${targetPath}/${circuitDirSubpath}/${circuitType}.dat`
 
-        console.log('zkeyPath', zkeyPath)
-        console.log('datPath', datPath)
+        const isCircuitsLoaded = await checkCircuitsLoaded(zkeyPath, datPath)
 
-        // Check if the zkey and dat files already exist
-        const zkeyInfo = await FileSystem.getInfoAsync(zkeyPath)
-        const datInfo = await FileSystem.getInfoAsync(datPath)
-        console.log('zkeyInfo', zkeyInfo)
-        console.log('datInfo', datInfo)
-
-        if (zkeyInfo.exists && datInfo.exists) {
-          console.log('Files already exist, loading from cache.')
-
-          const zkey = await FileSystem.readAsStringAsync(zkeyPath, {
-            encoding: FileSystem.EncodingType.Base64,
-          })
+        if (isCircuitsLoaded) {
           const dat = await FileSystem.readAsStringAsync(datPath, {
             encoding: FileSystem.EncodingType.Base64,
           })
@@ -111,7 +109,7 @@ const useCircuit = () => {
           setIsLoaded(true)
 
           return {
-            zKey: Buffer.from(zkey, 'base64'),
+            zKeyUri: zkeyPath,
             dat: Buffer.from(dat, 'base64'),
           }
         }
@@ -130,7 +128,7 @@ const useCircuit = () => {
         const downloadResult = await downloadResumable.downloadAsync()
 
         if (!downloadResult) {
-          throw new TypeError('Download failed')
+          throw new TypeError('Download failed: downloadResult is undefined')
         }
 
         console.log('Finished downloading to ', downloadResult.uri)
@@ -138,9 +136,6 @@ const useCircuit = () => {
         await unzip(downloadResult.uri, targetPath)
         console.log('Unzipped to ', targetPath)
 
-        const zkey = await FileSystem.readAsStringAsync(zkeyPath, {
-          encoding: FileSystem.EncodingType.Base64,
-        })
         const dat = await FileSystem.readAsStringAsync(datPath, {
           encoding: FileSystem.EncodingType.Base64,
         })
@@ -148,7 +143,7 @@ const useCircuit = () => {
         setIsLoaded(true)
 
         return {
-          zKey: Buffer.from(zkey, 'base64'),
+          zKeyUri: zkeyPath,
           dat: Buffer.from(dat, 'base64'),
         }
       } catch (error) {
@@ -157,9 +152,9 @@ const useCircuit = () => {
       }
 
       setIsLoaded(false)
-      return null
+      throw new TypeError('Circuit loading failed without error')
     },
-    [],
+    [checkCircuitsLoaded],
   )
 
   return {
@@ -171,77 +166,105 @@ const useCircuit = () => {
 }
 
 const useIdentityRegistration = (eDoc: EDocument) => {
+  const privateKey = walletStore.useWalletStore(state => state.privateKey)
+
   const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
 
   const { loadCircuit, ...restCircuit } = useCircuit()
 
-  const registerCertificate = async (slaveCertPem: Uint8Array, slaveCertIdx: Uint8Array) => {
+  const rmoEvmJsonRpcProvider = useMemo(() => {
     const evmRpcUrl = RARIMO_CHAINS[Config.RMO_CHAIN_ID].rpcEvm
 
-    const jsonRpcProvider = new JsonRpcProvider(evmRpcUrl)
+    return new JsonRpcProvider(evmRpcUrl)
+  }, [])
 
-    const { contractInstance } = createPoseidonSMTContract(
+  const sertPoseidonSMTContract = useMemo(() => {
+    return createPoseidonSMTContract(
       Config.CERT_POSEIDON_SMT_CONTRACT_ADDRESS,
-      jsonRpcProvider,
+      rmoEvmJsonRpcProvider,
     )
+  }, [rmoEvmJsonRpcProvider])
 
-    const proof = await contractInstance.getProof(slaveCertIdx)
-
-    if (proof.existence) {
-      throw new CertificateAlreadyRegisteredError()
-    }
-
-    try {
-      const callData = await buildRegisterCertificateCallData(
-        Config.ICAO_COSMOS_GRPC,
-        slaveCertPem,
-        Config.MASTER_CERTIFICATES_BUCKETNAME,
-        Config.MASTER_CERTIFICATES_FILENAME,
-      )
-
-      const { data } = await register(
-        '0x' + Buffer.from(callData).toString('hex'),
-        Config.REGISTRATION_CONTRACT_ADDRESS,
-      )
-
-      const tx = await jsonRpcProvider.getTransaction(data.tx_hash)
-
-      if (!tx) throw new TypeError('Transaction not found')
-
-      await tx.wait()
-    } catch (error) {
-      const axiosError = error as AxiosError
-
-      if (
-        JSON.stringify(get(axiosError, 'response.data.errors', {}))?.includes(
-          'the key already exists',
+  const registerCertificate = useCallback(
+    async (slaveCertPem: Uint8Array) => {
+      try {
+        const callData = await buildRegisterCertificateCallData(
+          Config.ICAO_COSMOS_GRPC,
+          slaveCertPem,
+          Config.MASTER_CERTIFICATES_BUCKETNAME,
+          Config.MASTER_CERTIFICATES_FILENAME,
         )
-      ) {
-        throw new CertificateAlreadyRegisteredError()
+
+        const { data } = await register(
+          '0x' + Buffer.from(callData).toString('hex'),
+          Config.REGISTRATION_CONTRACT_ADDRESS,
+        )
+
+        const tx = await rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
+
+        if (!tx) throw new TypeError('Transaction not found')
+
+        await tx.wait()
+      } catch (error) {
+        const axiosError = error as AxiosError
+
+        if (
+          JSON.stringify(get(axiosError, 'response.data.errors', {}))?.includes(
+            'the key already exists',
+          )
+        ) {
+          throw new CertificateAlreadyRegisteredError()
+        }
+
+        throw axiosError
       }
+    },
+    [rmoEvmJsonRpcProvider],
+  )
 
-      throw axiosError
-    }
-  }
+  const generateRegisterIdentityProof = useCallback(
+    async ({
+      sod,
+      pubKeyPem,
+      smtProofJson,
+      dg1,
+      dg15,
 
-  // const generateRegisterIdentityProof = async (
-  //   eDoc: EDocument,
-  //   zkey: Uint8Array,
-  //   dat: Uint8Array,
-  // ): Promise<any> => {
-  //   // FIXME: ZkProof type
-  //   const inputs = rarimeSdk.buildRegisterIdentityInputs(
-  //     sod.getEncapsulatedContent(),
-  //     sod.getSignedAttributes(),
-  //     eDoc.dg1,
-  //     eDoc.dg15,
-  //     publicKeyPem,
-  //     sod.getSignature(),
-  //     JSON.stringify(certificatesSMTContract.getProof(slaveCertificateIndex)),
-  //   )
-  // }
+      zkeyUri,
+      dat,
+    }: {
+      sod: Uint8Array
+      pubKeyPem: Uint8Array
+      smtProofJson: string
+      dg1: Uint8Array
+      dg15: Uint8Array
 
-  const registerIdentity = async () => {
+      zkeyUri: string
+      dat: Uint8Array
+    }): Promise<any> => {
+      const encapsulatedContent = await getSodEncapsulatedContent(sod)
+      const signedAttributes = await getSodSignedAttributes(sod)
+      const sodSignature = await getSodSignature(sod)
+
+      const inputsBytes = await buildRegisterIdentityInputs({
+        privateKeyHex: `0x${privateKey}`,
+        encapsulatedContent,
+        signedAttributes,
+        sodSignature,
+        dg1,
+        dg15,
+        pubKeyPem,
+        smtProofJson: smtProofJson,
+      })
+
+      console.log(inputsBytes)
+      console.log('\n\n\n')
+      console.log(Buffer.from(inputsBytes).toString())
+    },
+    [privateKey],
+  )
+
+  const registerIdentity = useCallback(async () => {
     if (!eDoc.sod) throw new TypeError('SOD not found')
 
     const icaoAsset = assets?.[0]
@@ -256,38 +279,60 @@ const useIdentityRegistration = (eDoc: EDocument) => {
     const sodBytes = Buffer.from(eDoc.sod, 'base64')
 
     const publicKeyPem = await getPublicKeyPem(sodBytes)
-
     const pubKeySize = await getX509RSASize(publicKeyPem)
-
-    const slaveCertPem: Uint8Array = await getSlaveCertificatePem(sodBytes)
-
+    const slaveCertPem = await getSlaveCertificatePem(sodBytes)
     const slaveCertIdx = await getSlaveCertIndex(slaveCertPem, icaoBytes)
-
     const circuitType = getCircuitType(pubKeySize)
 
     if (!circuitType) throw new TypeError('Unsupported public key size')
 
-    try {
-      console.log('Registering certificate')
-      await registerCertificate(slaveCertPem, slaveCertIdx)
-    } catch (error) {
-      console.log(error)
-      if (error instanceof CertificateAlreadyRegisteredError) {
-        console.log('Certificate already registered') // TODO
+    const smtProof = await sertPoseidonSMTContract.contractInstance.getProof(slaveCertIdx)
+
+    if (!smtProof.existence) {
+      try {
+        await registerCertificate(slaveCertPem)
+      } catch (error) {
+        console.log(error)
+        if (error instanceof CertificateAlreadyRegisteredError) {
+          console.log('Certificate already registered') // TODO
+        }
       }
     }
 
     try {
-      console.log('Loading circuit for ', circuitType)
       const circuitsLoadingResult = await loadCircuit(circuitType)
 
       if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
 
-      // const zkProof = await generateRegisterIdentityProof(eDoc, zkey, dat)
+      const zkProof = await generateRegisterIdentityProof({
+        sod: sodBytes,
+        pubKeyPem: publicKeyPem,
+        smtProofJson: JSON.stringify({
+          root: ethers.getBytes(smtProof.root),
+          siblings: smtProof.siblings.map(el => ethers.getBytes(el, 'hex')),
+          // existence: smtProof.existence,
+        }),
+        dg1: Buffer.from(eDoc.dg1!, 'base64'),
+        dg15: Buffer.from(eDoc.dg15!, 'base64'),
+
+        zkeyUri: circuitsLoadingResult.zKeyUri,
+        dat: circuitsLoadingResult.dat,
+      })
+
+      console.log(zkProof)
     } catch (error) {
       console.log(error)
     }
-  }
+  }, [
+    assets,
+    eDoc.dg1,
+    eDoc.dg15,
+    eDoc.sod,
+    generateRegisterIdentityProof,
+    loadCircuit,
+    registerCertificate,
+    sertPoseidonSMTContract.contractInstance,
+  ])
 
   return {
     isCircuitsLoaded: restCircuit.isLoaded,

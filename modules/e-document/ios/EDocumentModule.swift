@@ -54,6 +54,24 @@ public class EDocumentModule: Module {
             
             return certPem
         }
+        
+        AsyncFunction("getSodEncapsulatedContent"){(sod: Data) in
+            let sod = try sodFrom(sod)
+            
+            return try sod.getEncapsulatedContent()
+        }
+
+        AsyncFunction("getSodSignedAttributes"){(sod: Data) in
+            let sod = try sodFrom(sod)
+            
+            return try sod.getSignedAttributes()
+        }
+
+        AsyncFunction("getSodSignature"){(sod: Data) in
+            let sod = try sodFrom(sod)
+            
+            return try sod.getSignature()
+        }
     }
     
     private func sodFrom(_ sod: Data) throws -> SOD {

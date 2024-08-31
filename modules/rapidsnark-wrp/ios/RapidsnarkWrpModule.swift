@@ -36,6 +36,32 @@ func base64StringToData(_ base64String: String) -> Data? {
     return Data(base64Encoded: base64String)
 }
 
+func createZkProof(proof: String, pubSignals: String) throws -> ZkProof {
+    // Convert proof string to Data
+    guard let proofData = proof.data(using: .utf8),
+          let pubSignalsData = pubSignals.data(using: .utf8) else {
+        throw RapidsnarkUtilsError.zkProofError("Failed to convert proof or inputs to Data")
+    }
+    
+    // Log the proofData to verify it
+    if let proofString = String(data: proofData, encoding: .utf8) {
+        print("Proof Data: \(proofString)")
+    }
+    
+    if let pubSignalsString = String(data: pubSignalsData, encoding: .utf8) {
+        print("Inputs Data: \(pubSignalsString)")
+    }
+    
+    // Parse JSON directly from the UTF-8 string
+    let proofJson = try JSONDecoder().decode(Proof.self, from: proofData)
+    
+    let pubSignalsJson = try JSONDecoder().decode(PubSignals.self, from: pubSignalsData)
+
+    let zkProof = ZkProof(proof: proofJson, pubSignals: pubSignalsJson)
+    
+    return zkProof
+}
+
 public class RapidsnarkWrpModule: Module {
   // Each module class must implement the definition function. The definition consists of components
   // that describes the module's functionality and behavior.
@@ -45,41 +71,28 @@ public class RapidsnarkWrpModule: Module {
     // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
     // The module will be accessible from `requireNativeModule('RapidsnarkWrp')` in JavaScript.
     Name("RapidsnarkWrp")
+      
+      AsyncFunction("groth16ProveWithZKeyFilePath") { (wtns: Data, zkeyFilePath: String, proofBufferSize: Int?, publicBufferSize: Int?, errorBufferSize: Int? ) in
+          let _proofBufferSize = proofBufferSize ?? rapidsnark.defaultProofBufferSize
+          let _publicBufferSize = publicBufferSize ?? nil
+          let _errorBufferSize = errorBufferSize ?? rapidsnark.defaultErrorBufferSize
+          
+          
+          let (proof, inputs) = try rapidsnark.groth16ProveWithZKeyFilePath(zkeyPath: zkeyFilePath, witness: wtns, proofBufferSize: _proofBufferSize, publicBufferSize: _publicBufferSize, errorBufferSize: _errorBufferSize)
+
+          let zkProof = try createZkProof(proof: proof, pubSignals: inputs)
+
+          return try JSONEncoder().encode(zkProof)
+      }
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
       AsyncFunction("groth16Prove") { (wtns: Data, zkey: Data) -> Data in
-          do {
-              let (proof, inputs) = try rapidsnark.groth16Prove(zkey: zkey, witness: wtns)
+          let (proof, inputs) = try rapidsnark.groth16Prove(zkey: zkey, witness: wtns)
 
-              // Convert proof string to Data
-              guard let proofData = proof.data(using: .utf8),
-                    let inputsData = inputs.data(using: .utf8) else {
-                  throw RapidsnarkUtilsError.zkProofError("Failed to convert proof or inputs to Data")
-              }
-              
-              // Log the proofData to verify it
-              if let proofString = String(data: proofData, encoding: .utf8) {
-                  print("Proof Data: \(proofString)")
-              }
-              
-              if let inputsString = String(data: inputsData, encoding: .utf8) {
-                  print("Inputs Data: \(inputsString)")
-              }
-              
-              // Parse JSON directly from the UTF-8 string
-              let proofJson = try JSONDecoder().decode(Proof.self, from: proofData)
-              
-              let pubSignalsJson = try JSONDecoder().decode(PubSignals.self, from: inputsData)
+          let zkProof = try createZkProof(proof: proof, pubSignals: inputs)
 
-              let zkProof = ZkProof(proof: proofJson, pubSignals: pubSignalsJson)
-  
-              let result = try JSONEncoder().encode(zkProof)
-  
-              return result
-          } catch {
-              throw RapidsnarkUtilsError.zkProofError("error.localizedDescription")
-          }
+          return try JSONEncoder().encode(zkProof)
       }
   }
 }

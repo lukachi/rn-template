@@ -37,6 +37,12 @@ extension Data {
 
 extension String: Error {}
 
+struct SMTProof: Codable {
+    let root: Data
+    let siblings: [Data]
+    let existence: Bool
+}
+
 public class RarimeSdkModule: Module {
   // Each module class must implement the definition function. The definition consists of components
   // that describes the module's functionality and behavior.
@@ -107,6 +113,32 @@ public class RarimeSdkModule: Module {
           )
           
           return calldata
+      }
+      
+      AsyncFunction("buildRegisterIdentityInputs") {(userPK: String, encapsulatedContent: Data, signedAttributes: Data, sodSignature: Data, dg1: Data, dg15: Data, pubKeyPem: Data, smtProofJson: String) in
+          guard let userPKData = userPK.hexadecimal else {
+              throw "Invalid userPK"
+          }
+          
+          let profile = try IdentityProfile().newProfile(userPKData)
+          
+          NSLog("smtProofJson: \(smtProofJson)")
+          
+          let smtProof = try JSONDecoder().decode(SMTProof.self, from: smtProofJson.data(using: .utf8)!)
+          
+          let smtProofData = try JSONEncoder().encode(smtProof)
+          
+          let inputs = try profile.buildRegisterIdentityInputs(
+              encapsulatedContent,
+              signedAttributes: signedAttributes,
+              dg1: dg1,
+              dg15: dg15,
+              pubKeyPem: pubKeyPem,
+              signature: sodSignature,
+              certificatesSMTProofJSON: smtProofData
+          )
+          
+          return inputs
       }
   }
 }
