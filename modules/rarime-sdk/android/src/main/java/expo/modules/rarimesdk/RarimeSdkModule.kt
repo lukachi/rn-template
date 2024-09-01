@@ -62,7 +62,6 @@ class RarimeSdkModule : Module() {
       return@AsyncFunction callData
     }
 
-
     AsyncFunction("buildRegisterIdentityInputs") { userPK: String, encapsulatedContent: ByteArray, signedAttributes: ByteArray, sodSignature: ByteArray, dg1: ByteArray, dg15: ByteArray, pubKeyPem: ByteArray, smtProofJsonData: ByteArray ->
       val profile = Profile().newProfile(userPK.decodeHexString())
 
@@ -77,6 +76,26 @@ class RarimeSdkModule : Module() {
       )
 
       return@AsyncFunction inputs
+    }
+
+    AsyncFunction("getPublicKeyHash") { userPK: String ->
+      val profile = Profile().newProfile(userPK.decodeHexString())
+
+      return@AsyncFunction profile.publicKeyHash
+    }
+
+    AsyncFunction("buildRegisterCallData") { proofJson: ByteArray, signature: ByteArray, pubKeyPem: ByteArray, certificatesRootRaw: ByteArray, certificatePubKeySize: Long, isRevoked: Boolean ->
+      val callDataBuilder = CallDataBuilder()
+      val callData = callDataBuilder.buildRegisterCalldata(
+        proofJson,
+        signature,
+        pubKeyPem,
+        certificatesRootRaw,
+        certificatePubKeySize,
+        isRevoked
+      )
+
+      return@AsyncFunction callData
     }
   }
 }

@@ -61,6 +61,10 @@ export async function getSodSignature(sod: Uint8Array): Promise<Uint8Array> {
   return await EDocumentModule.getSodSignature(new Uint8Array(sod))
 }
 
+export async function getDG15PubKeyPem(sod: Uint8Array): Promise<Uint8Array> {
+  return await EDocumentModule.getDG15PubKeyPem(new Uint8Array(sod))
+}
+
 const EDocumentModuleEmitter = new EventEmitter(EDocumentModule)
 
 export function EDocumentModuleListener(

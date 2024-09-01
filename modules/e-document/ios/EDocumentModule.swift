@@ -149,6 +149,31 @@ public class EDocumentModule: Module {
             
             return try sod.getSignature()
         }
+        
+        AsyncFunction("getDG15PubKeyPem") { (dg15: Data) in
+            if dg15.isEmpty {
+                return Data()
+            }
+            
+            guard let dg15 = try? DataGroup15([UInt8](dg15)) else {
+                return Data()
+            }
+            
+            var pubkey: OpaquePointer
+            if let rsaPublicKey = dg15.rsaPublicKey {
+                pubkey = rsaPublicKey
+            } else if let ecdsaPublicKey = dg15.ecdsaPublicKey {
+                pubkey = ecdsaPublicKey
+            } else {
+                throw "Public key is missing"
+            }
+            
+            guard let pubKeyPem = OpenSSLUtils.pubKeyToPEM(pubKey: pubkey).data(using: .utf8) else {
+                throw "Failed to convert public key to PEM"
+            }
+            
+            return pubKeyPem
+        }
     }
     
     private func sodFrom(_ sod: Data) throws -> SOD {

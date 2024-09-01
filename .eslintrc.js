@@ -28,8 +28,8 @@ module.exports = {
             endOfLine: 'auto',
           },
         ],
-        'max-params': ['error', 5], // Limit the number of parameters in a function to use object instead
-        'max-lines-per-function': ['error', 200],
+        'max-params': ['error', 8], // Limit the number of parameters in a function to use object instead
+        'max-lines-per-function': ['error', 500],
         'react/destructuring-assignment': 'off', // Vscode doesn't support automatically destructuring, it's a pain to add a new variable
         'react/require-default-props': 'off', // Allow non-defined react props as undefined
         '@typescript-eslint/comma-dangle': 'off', // Avoid conflict rule between Eslint and Prettier

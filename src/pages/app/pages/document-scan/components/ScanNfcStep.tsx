@@ -1,4 +1,9 @@
-import { scanDocument } from '@modules/e-document'
+import {
+  EDocumentModuleEvents,
+  EDocumentModuleListener,
+  EDocumentModuleRemoveAllListeners,
+  scanDocument,
+} from '@modules/e-document'
 import { registrationChallenge } from '@modules/rarime-sdk'
 import { useCallback, useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
@@ -13,6 +18,8 @@ export default function ScanNfcStep() {
   const pk = walletStore.useWalletStore(state => state.privateKey)
 
   const [isScanning, setIsScanning] = useState(false)
+
+  const [title, setTitle] = useState('Scan NFC')
 
   const startScanListener = useCallback(async () => {
     if (
@@ -29,7 +36,6 @@ export default function ScanNfcStep() {
     try {
       const challenge = await registrationChallenge(pk)
 
-      // TODO: implement isNfcScanning, and every step of doc scanning markers
       const eDocumentResponse = await scanDocument(
         mrz.documentCode,
         {
@@ -56,12 +62,58 @@ export default function ScanNfcStep() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    EDocumentModuleListener(EDocumentModuleEvents.ScanStarted, () => {
+      console.log('ScanStarted')
+      setTitle('ScanStarted')
+    })
+    EDocumentModuleListener(EDocumentModuleEvents.RequestPresentPassport, () => {
+      console.log('RequestPresentPassport')
+      setTitle('RequestPresentPassport')
+    })
+    EDocumentModuleListener(EDocumentModuleEvents.AuthenticatingWithPassport, () => {
+      console.log('AuthenticatingWithPassport')
+      setTitle('AuthenticatingWithPassport')
+    })
+    EDocumentModuleListener(EDocumentModuleEvents.ReadingDataGroupProgress, () => {
+      console.log('ReadingDataGroupProgress')
+      setTitle('ReadingDataGroupProgress')
+    })
+    EDocumentModuleListener(EDocumentModuleEvents.ActiveAuthentication, () => {
+      console.log('ActiveAuthentication')
+      setTitle('ActiveAuthentication')
+    })
+    EDocumentModuleListener(EDocumentModuleEvents.SuccessfulRead, () => {
+      console.log('SuccessfulRead')
+      setTitle('SuccessfulRead')
+    })
+    EDocumentModuleListener(EDocumentModuleEvents.ScanError, () => {
+      console.log('ScanError')
+      setTitle('ScanError')
+    })
+    EDocumentModuleListener(EDocumentModuleEvents.ScanStopped, () => {
+      console.log('ScanStopped')
+      setTitle('ScanStopped')
+    })
+
+    return () => {
+      EDocumentModuleRemoveAllListeners(EDocumentModuleEvents.ScanStarted)
+      EDocumentModuleRemoveAllListeners(EDocumentModuleEvents.RequestPresentPassport)
+      EDocumentModuleRemoveAllListeners(EDocumentModuleEvents.AuthenticatingWithPassport)
+      EDocumentModuleRemoveAllListeners(EDocumentModuleEvents.ReadingDataGroupProgress)
+      EDocumentModuleRemoveAllListeners(EDocumentModuleEvents.ActiveAuthentication)
+      EDocumentModuleRemoveAllListeners(EDocumentModuleEvents.SuccessfulRead)
+      EDocumentModuleRemoveAllListeners(EDocumentModuleEvents.ScanError)
+      EDocumentModuleRemoveAllListeners(EDocumentModuleEvents.ScanStopped)
+    }
+  }, [])
+
   return (
     <View className='flex flex-1 flex-col justify-center'>
+      <Text className='text-center text-textPrimary typography-h5'>{title}</Text>
       {isScanning ? (
         <View className={'flex items-center'}>
           <UiIcon componentName={'bellFillIcon'} className={'size-[120] text-textPrimary'} />
-          <Text className='text-center text-textPrimary typography-h4'>scan nfc</Text>
         </View>
       ) : (
         <UiButton onPress={startScanListener} title='Try Scan Again' />

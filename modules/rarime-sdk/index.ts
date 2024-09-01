@@ -1,5 +1,6 @@
 // Import the native module. On web, it will be resolved to RarimeSdk.web.ts
 // and on native platforms to RarimeSdk.ts
+
 import RarimeSdkModule from './src/RarimeSdkModule'
 
 export async function generatePrivateKey(): Promise<Uint8Array> {
@@ -8,9 +9,9 @@ export async function generatePrivateKey(): Promise<Uint8Array> {
 
 export async function calculateEventNullifierInt(
   event: string,
-  secretKey: string,
+  privateKeyHex: string,
 ): Promise<string> {
-  return await RarimeSdkModule.calculateEventNullifierInt(event, secretKey)
+  return await RarimeSdkModule.calculateEventNullifierInt(event, privateKeyHex)
 }
 
 export async function registrationChallenge(secretKey: string): Promise<Uint8Array> {
@@ -74,5 +75,27 @@ export async function buildRegisterIdentityInputs({
     new Uint8Array(dg15),
     new Uint8Array(pubKeyPem),
     new Uint8Array(smtProofJson),
+  )
+}
+
+export async function getPublicKeyHash(privateKeyHex: string): Promise<Uint8Array> {
+  return await RarimeSdkModule.getPublicKeyHash(privateKeyHex)
+}
+
+export async function buildRegisterCallData(
+  regProofJson: Uint8Array,
+  AASignature: Uint8Array,
+  dg15PubKeyPem: Uint8Array,
+  masterCertSmtProofRoot: Uint8Array,
+  CircuitTypeCertificatePubKeySize: number,
+  isRevoked: boolean,
+): Promise<Uint8Array> {
+  return await RarimeSdkModule.buildRegisterCallData(
+    new Uint8Array(regProofJson),
+    new Uint8Array(AASignature),
+    new Uint8Array(dg15PubKeyPem),
+    new Uint8Array(masterCertSmtProofRoot),
+    CircuitTypeCertificatePubKeySize,
+    isRevoked,
   )
 }

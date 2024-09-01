@@ -15,6 +15,7 @@ import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter
 import org.jmrtd.lds.SODFile
+import org.jmrtd.lds.icao.DG15File
 import java.io.StringWriter
 import java.security.PublicKey
 import java.security.cert.X509Certificate
@@ -132,6 +133,14 @@ class EDocumentModule : Module() {
       val sodFile = SODFile(sod.inputStream())
 
       return@AsyncFunction sodFile.encryptedDigest
+    }
+
+    AsyncFunction("getDG15PubKeyPem") { dg15: ByteArray ->
+      val dG15File = DG15File(dg15.inputStream())
+
+      val pubKeyPem = dG15File.publicKey.publicKeyToPem()
+
+      return@AsyncFunction pubKeyPem.toByteArray()
     }
 
     OnNewIntent { intent ->

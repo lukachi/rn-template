@@ -86,7 +86,7 @@ public class RarimeSdkModule: Module {
           
           let slaveCertificateIndex = try x509Utils.getSlaveCertificateIndex(slaveCertPem, mastersPem: mastersPem)
           
-            return slaveCertificateIndex
+          return slaveCertificateIndex
       }
 
       AsyncFunction("getX509RSASize") {(publicKeyPem: Data) in
@@ -109,6 +109,7 @@ public class RarimeSdkModule: Module {
           return calldata
       }
       
+      // Register certificate
       AsyncFunction("buildRegisterIdentityInputs") {(userPK: String, encapsulatedContent: Data, signedAttributes: Data, sodSignature: Data, dg1: Data, dg15: Data, pubKeyPem: Data, smtProofJsonData: Data) in
           guard let userPKData = userPK.hexadecimal else {
               throw "Invalid userPK"
@@ -127,6 +128,28 @@ public class RarimeSdkModule: Module {
           )
           
           return inputs
+      }
+      
+      AsyncFunction("getPublicKeyHash") { (userPK: String) in
+          guard let userPKData = userPK.hexadecimal else {
+              throw "Invalid userPK"
+          }
+          
+          let profile = try IdentityProfile().newProfile(userPKData)
+
+          return try profile.getPublicKeyHash()
+      }
+      
+      AsyncFunction("buildRegisterCallData") { (proofJson: Data, signature: Data, pubKeyPem: Data, certificatesRootRaw: Data, certificatePubKeySize: Int, isRevoced: Bool) in
+          let calldataBuilder = IdentityCallDataBuilder()
+          let calldata = try calldataBuilder.buildRegisterCalldata(
+              proofJson,
+              signature: signature,
+              pubKeyPem: pubKeyPem,
+              certificatesRootRaw: certificatesRootRaw,
+              certificatePubKeySize: certificatePubKeySize,
+              isRevoced: isRevoced
+          )
       }
   }
 }
