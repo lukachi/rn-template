@@ -7,6 +7,7 @@ import {
 import {
   DocumentPreviewStep,
   GenerateProofStep,
+  RevocationStep,
   ScanMrzStep,
   ScanNfcStep,
   SelectDocTypeStep,
@@ -31,6 +32,7 @@ function DocumentScanContent() {
         [Steps.ScanNfcStep]: () => <ScanNfcStep />,
         [Steps.DocumentPreviewStep]: () => <DocumentPreviewStep />,
         [Steps.GenerateProofStep]: () => <GenerateProofStep />,
+        [Steps.RevocationStep]: () => <RevocationStep />,
       }[currentStep]()}
     </>
   )

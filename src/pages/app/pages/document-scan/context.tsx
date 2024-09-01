@@ -39,7 +39,7 @@ import { Text, View } from 'react-native'
 import { unzip } from 'react-native-zip-archive'
 
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
-import { register } from '@/api/modules/registration'
+import { relayerRegister } from '@/api/modules/registration'
 import { Config } from '@/config'
 import { bus, DefaultBusEvents } from '@/core'
 import { createPoseidonSMTContract, createStateKeeperContract } from '@/helpers'
@@ -57,6 +57,8 @@ export enum Steps {
   ScanNfcStep,
   DocumentPreviewStep,
   GenerateProofStep,
+
+  RevocationStep,
 }
 
 type PassportInfo = {
@@ -248,7 +250,7 @@ export function ScanContextProvider({ docType, children }: Props) {
           Config.MASTER_CERTIFICATES_FILENAME,
         )
 
-        const { data } = await register(
+        const { data } = await relayerRegister(
           '0x' + Buffer.from(callData).toString('hex'),
           Config.REGISTRATION_CONTRACT_ADDRESS,
         )
@@ -355,6 +357,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
 
+      // TODO: refactor
       const registerIdentityWtnsCalc = {
         [CircuitType.RegisterIdentityUniversalRSA2048]: calcWtnsRegisterIdentityUniversalRSA2048,
         [CircuitType.RegisterIdentityUniversalRSA4096]: calcWtnsRegisterIdentityUniversalRSA4096,
@@ -395,7 +398,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const dg15PubKeyPem = await getDG15PubKeyPem(Buffer.from(eDoc.dg15, 'base64'))
 
-      const registerCallData = buildRegisterCallData(
+      const registerCallData = await buildRegisterCallData(
         Buffer.from(JSON.stringify(regProof)),
         Buffer.from(eDoc.signature, 'base64'),
         dg15PubKeyPem,
@@ -403,8 +406,19 @@ export function ScanContextProvider({ docType, children }: Props) {
         CircuitTypeCertificatePubKeySize,
         isRevoked,
       )
+
+      const { data } = await relayerRegister(
+        '0x' + Buffer.from(registerCallData).toString('hex'),
+        Config.REGISTRATION_CONTRACT_ADDRESS,
+      )
+
+      const tx = await rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
+
+      if (!tx) throw new TypeError('Transaction not found')
+
+      await tx.wait()
     },
-    [],
+    [rmoEvmJsonRpcProvider],
   )
 
   const registerIdentity = useCallback(
@@ -445,7 +459,9 @@ export function ScanContextProvider({ docType, children }: Props) {
 
   // ---------------------------------------------------------------------------------------------
 
-  const revokeIdentity = useCallback(async () => {}, [])
+  const revokeIdentity = useCallback(async () => {
+    setCurrentStep(Steps.RevocationStep)
+  }, [])
 
   const createIdentity = useCallback(async () => {
     if (!eDocument) return
@@ -480,9 +496,7 @@ export function ScanContextProvider({ docType, children }: Props) {
         await registerCertificate(slaveCertPem)
       } catch (error) {
         console.log(error)
-        if (error instanceof CertificateAlreadyRegisteredError) {
-          console.log('Certificate already registered') // TODO
-        } else {
+        if (!(error instanceof CertificateAlreadyRegisteredError)) {
           throw error
         }
       }

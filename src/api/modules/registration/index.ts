@@ -1,6 +1,6 @@
 import { apiClient } from '@/api/client'
 
-export const register = async (callDataHex: string, destinationContractAddress: string) => {
+export const relayerRegister = async (callDataHex: string, destinationContractAddress: string) => {
   return apiClient.post<{
     id: 'string'
     type: 'txs'
