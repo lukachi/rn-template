@@ -363,7 +363,7 @@ const useIdentityRegistration = () => {
     isCircuitsLoadFailed: restCircuit.isLoadFailed,
     circuitsDownloadingProgress: restCircuit.downloadingProgress,
 
-    registerIdentity,
+    registerIdentity: registerIdentity,
   }
 }
 

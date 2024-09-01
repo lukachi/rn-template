@@ -188,7 +188,13 @@ class DocumentScanner(
     bacKeyParameters.dateOfExpiry
   )
 
-  fun scanPassport(): NFCDocumentModel {
+  fun scanPassport(
+    onAuthenticatingWithPassport: () -> Unit = {},
+    onReadingDataGroupProgress: () -> Unit = {},
+    onActiveAuthentication: () -> Unit = {},
+    onSuccessfulRead: () -> Unit = {},
+  ): NFCDocumentModel {
+    onAuthenticatingWithPassport()
     // Open the card service connection
     val cardService = CardService.getInstance(isoDep)
     cardService.open()
@@ -232,6 +238,7 @@ class DocumentScanner(
       }
     }
 
+    onReadingDataGroupProgress()
     // -- DG1 -- //
     val dg1File = try { DG1File(service.getInputStream(PassportService.EF_DG1)) } catch(e: Exception) { null }
     val mrzInfo = dg1File?.mrzInfo
@@ -271,6 +278,7 @@ class DocumentScanner(
       null
     }
 
+    onActiveAuthentication()
     // -- Active Authentication -- //
     val aaSignature = try {
       val response = service.doAA(
@@ -284,6 +292,7 @@ class DocumentScanner(
       null
     }
 
+    onSuccessfulRead()
     return NFCDocumentModel(
       mrzInfo = mrzInfo,
       passportImageRaw = passportImageRaw,

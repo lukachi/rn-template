@@ -10,6 +10,7 @@ import android.nfc.tech.IsoDep
 import android.util.Base64
 import com.google.gson.Gson
 import expo.modules.kotlin.Promise
+import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter
@@ -34,6 +35,19 @@ fun PublicKey.publicKeyToPem(): String {
     "\n-----END PUBLIC KEY-----\n"
 }
 
+enum class DocumentScanEvents(val value: String) {
+  SCAN_STARTED("SCAN_STARTED"),
+
+  REQUEST_PRESENT_PASSPORT("REQUEST_PRESENT_PASSPORT"),
+  AUTHENTICATING_WITH_PASSPORT("AUTHENTICATING_WITH_PASSPORT"),
+  READING_DATA_GROUP_PROGRESS("READING_DATA_GROUP_PROGRESS"),
+  ACTIVE_AUTHENTICATION("ACTIVE_AUTHENTICATION"),
+  SUCCESSFUL_READ("SUCCESSFUL_READ"),
+  SCAN_ERROR("SCAN_ERROR"),
+
+  SCAN_STOPPED("SCAN_STOPPED"),
+}
+
 class EDocumentModule : Module() {
   private var nfcAdapter: NfcAdapter? = null
 
@@ -43,6 +57,17 @@ class EDocumentModule : Module() {
   private var scanChallenge: ByteArray? = null
 
   override fun definition() = ModuleDefinition {
+    Events(
+      DocumentScanEvents.SCAN_STARTED.value,
+      DocumentScanEvents.REQUEST_PRESENT_PASSPORT.value,
+      DocumentScanEvents.AUTHENTICATING_WITH_PASSPORT.value,
+      DocumentScanEvents.READING_DATA_GROUP_PROGRESS.value,
+      DocumentScanEvents.ACTIVE_AUTHENTICATION.value,
+      DocumentScanEvents.SUCCESSFUL_READ.value,
+      DocumentScanEvents.SCAN_ERROR.value,
+      DocumentScanEvents.SCAN_STOPPED.value,
+    )
+
     Name("EDocument")
 
     AsyncFunction("scanDocument") { bacKeyParametersJson: String, challenge: ByteArray, promise: Promise ->
@@ -57,7 +82,9 @@ class EDocumentModule : Module() {
       }
 
       // Enable foreground dispatch for NFC
-      appContext.currentActivity?.let { enableNfcForegroundDispatch(it) } ?: run {
+      appContext.currentActivity?.let {
+        enableNfcForegroundDispatch(it)
+      } ?: run {
         throw IllegalStateException("No current activity found")
       }
 
@@ -65,6 +92,10 @@ class EDocumentModule : Module() {
       scanChallenge = challenge
 
       scanPromise = promise
+    }
+
+    AsyncFunction("disableScan") {
+      disableNfcForegroundDispatch()
     }
 
     AsyncFunction("getPublicKeyPem") { sod: ByteArray ->
@@ -135,12 +166,30 @@ class EDocumentModule : Module() {
       scanChallenge!!
     )
 
-    val nfcDocument = docScanner.scanPassport()
+    try {
+      val nfcDocument = docScanner.scanPassport(
+        onAuthenticatingWithPassport = {
+          sendEvent(DocumentScanEvents.AUTHENTICATING_WITH_PASSPORT.value)
+        },
+        onReadingDataGroupProgress = {
+          sendEvent(DocumentScanEvents.READING_DATA_GROUP_PROGRESS.value)
+        },
+        onActiveAuthentication = {
+          sendEvent(DocumentScanEvents.ACTIVE_AUTHENTICATION.value)
+        },
+        onSuccessfulRead = {
+          sendEvent(DocumentScanEvents.SUCCESSFUL_READ.value)
+        },
+      )
 
-    val eDocument = EDocument.fromNfcDocumentModel(nfcDocument)
+      val eDocument = EDocument.fromNfcDocumentModel(nfcDocument)
 
-    val eDocumentJson = Gson().toJson(eDocument)
-    promise.resolve(eDocumentJson)
+      val eDocumentJson = Gson().toJson(eDocument)
+      promise.resolve(eDocumentJson)
+    } catch(e: Exception) {
+      sendEvent(DocumentScanEvents.SCAN_ERROR.value)
+      promise.reject(CodedException("handleNfcIntent", e.message, e))
+    }
   }
 
   private fun enableNfcForegroundDispatch(activity: Activity) {
@@ -150,9 +199,13 @@ class EDocumentModule : Module() {
     val filters = arrayOf(IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED))
     val techList = arrayOf(arrayOf(IsoDep::class.java.name))
     nfcAdapter?.enableForegroundDispatch(activity, pendingIntent, filters, techList)
+
+    sendEvent(DocumentScanEvents.SCAN_STARTED.value)
+    sendEvent(DocumentScanEvents.REQUEST_PRESENT_PASSPORT.value)
   }
 
   private fun disableNfcForegroundDispatch() {
     appContext.currentActivity?.let { nfcAdapter?.disableForegroundDispatch(it) }
+    sendEvent(DocumentScanEvents.SCAN_STOPPED.value)
   }
 }
