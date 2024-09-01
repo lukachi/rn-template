@@ -35,6 +35,7 @@ export type LocalAuthStackScreenProps<T extends keyof LocalAuthStackParamsList> 
 
 export type AppTabParamsList = {
   Home: undefined
+  Scan: undefined
   Profile: undefined
 }
 

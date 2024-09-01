@@ -13,6 +13,11 @@ const useDocumentsStore = create(
         _hasHydrated: false,
       },
       set => ({
+        addDocument: (document: EDocument) => {
+          set(state => ({
+            documents: [...state.documents, document],
+          }))
+        },
         setHasHydrated: (value: boolean) => {
           set({
             _hasHydrated: value,

@@ -1,10 +1,10 @@
 import { DocType } from '@modules/e-document'
 import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
-import type { FieldRecords } from 'mrz'
 import { parse } from 'mrz'
-import { useCallback, useMemo } from 'react'
-import { Text, View } from 'react-native'
+import { useCallback, useEffect, useMemo } from 'react'
+import type { ViewProps } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 import {
   Camera,
   runAsync,
@@ -15,6 +15,7 @@ import {
 import { useTextRecognition } from 'react-native-vision-camera-text-recognition'
 import { Worklets } from 'react-native-worklets-core'
 
+import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
 import { UiButton } from '@/ui'
 
 const useMrzParser = (docType: DocType) => {
@@ -31,6 +32,8 @@ const useMrzParser = (docType: DocType) => {
     const sanitizedMRZLines = possibleMRZLines.map(el => {
       return el.replaceAll('«', '<<').replaceAll(' ', '').toUpperCase()
     })
+
+    console.log(sanitizedMRZLines)
 
     sanitizedMRZLines[2] = sanitizedMRZLines[2].padEnd(tdLength, '<').toUpperCase()
 
@@ -66,13 +69,11 @@ const useMrzParser = (docType: DocType) => {
   }[docType]
 }
 
-export default function CameraWrapper({
-  setParseResult,
-  docType,
-}: {
-  setParseResult: (result: FieldRecords) => void
-  docType: DocType
-}) {
+type Props = {} & ViewProps
+
+export default function ScanMrzStep({}: Props) {
+  const { docType, setMrz } = useDocumentScanContext()
+
   const isFocused = useIsFocused()
   const currentAppState = useAppState()
 
@@ -83,14 +84,14 @@ export default function CameraWrapper({
     language: 'latin',
   })
 
-  const mrzParser = useMrzParser(docType)
+  const mrzParser = useMrzParser(docType ?? DocType.PASSPORT)
 
   const onMRZDetected = Worklets.createRunOnJS((lines: string[]) => {
     try {
       const result = mrzParser(lines)
 
       if (result?.valid) {
-        setParseResult(result.fields)
+        setMrz(result.fields)
       }
     } catch (error) {
       console.log(error)
@@ -106,6 +107,8 @@ export default function CameraWrapper({
 
         const data = scanText(frame)
 
+        // FIXME
+        // @ts-ignore
         const lines = data?.resultText?.split('\n') as string[]
 
         await onMRZDetected(lines)
@@ -118,38 +121,49 @@ export default function CameraWrapper({
     return isFocused && currentAppState === 'active'
   }, [currentAppState, isFocused])
 
-  if (!hasPermission) {
-    return (
-      <View>
-        <Text className='text-textPrimary typography-h4'>Requesting Camera Permission</Text>
+  useEffect(() => {
+    if (hasPermission) return
 
-        <UiButton onPress={requestPermission} title='Request Permission' />
-      </View>
-    )
-  }
+    requestPermission()
 
-  // !isActive is a quickfix, cuz camera ain't pause, if app is not active
-  if (!device || !isActive) {
-    return (
-      <View>
-        <Text className='text-textPrimary typography-h4'>Loading Camera</Text>
-      </View>
-    )
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
-    <Camera
-      style={{
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-      }}
-      device={device}
-      isActive={isActive}
-      enableFpsGraph={true}
-      frameProcessor={frameProcessor}
-    />
+    <View className='flex flex-1 flex-col'>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        {isActive && (
+          <>
+            {hasPermission ? (
+              <>
+                {device && (
+                  <Camera
+                    style={{
+                      marginTop: 50,
+                      width: '100%',
+                      height: '50%',
+                    }}
+                    device={device}
+                    isActive={isActive}
+                    enableFpsGraph={true}
+                    frameProcessor={frameProcessor}
+                  />
+                )}
+              </>
+            ) : (
+              <>
+                <View>
+                  <Text className='text-textPrimary typography-h4'>
+                    Requesting Camera Permission
+                  </Text>
+
+                  <UiButton onPress={requestPermission} title='Request Permission' />
+                </View>
+              </>
+            )}
+          </>
+        )}
+      </ScrollView>
+    </View>
   )
 }

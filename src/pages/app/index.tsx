@@ -4,6 +4,7 @@ import type { AppTabParamsList, RootStackScreenProps } from '@/route-types'
 import { cn } from '@/theme'
 import { UiIcon } from '@/ui'
 
+import DocumentScanScreen from './pages/document-scan'
 import HomeScreen from './pages/home'
 import ProfileScreen from './pages/profile'
 
@@ -20,6 +21,19 @@ export default function App({}: RootStackScreenProps<'App'>) {
           tabBarIcon: ({ focused }) => (
             <UiIcon
               componentName='houseSimpleIcon'
+              className={cn(focused ? 'text-primaryMain' : 'text-textSecondary')}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name={'Scan'}
+        component={DocumentScanScreen}
+        options={{
+          title: 'Scan',
+          tabBarIcon: ({ focused }) => (
+            <UiIcon
+              componentName='lockIcon'
               className={cn(focused ? 'text-primaryMain' : 'text-textSecondary')}
             />
           ),

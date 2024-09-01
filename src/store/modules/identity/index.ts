@@ -5,6 +5,7 @@ import { getSodEncapsulatedContent } from '@modules/e-document'
 import { CircuitType } from '@modules/e-document'
 import { getCircuitType } from '@modules/e-document'
 import { getPublicKeyPem, getSlaveCertificatePem } from '@modules/e-document'
+import type { ZKProof } from '@modules/rapidsnark-wrp'
 import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
 import {
   buildRegisterCertificateCallData,
@@ -170,7 +171,7 @@ const useCircuit = () => {
   }
 }
 
-const useIdentityRegistration = (eDoc: EDocument) => {
+const useIdentityRegistration = () => {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
 
   const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
@@ -261,98 +262,101 @@ const useIdentityRegistration = (eDoc: EDocument) => {
     [privateKey],
   )
 
-  const registerIdentity = useCallback(async () => {
-    if (!eDoc.sod) throw new TypeError('SOD not found')
+  const registerIdentity = useCallback(
+    async (eDoc: EDocument): Promise<ZKProof> => {
+      if (!eDoc.sod) throw new TypeError('SOD not found')
 
-    const icaoAsset = assets?.[0]
+      const icaoAsset = assets?.[0]
 
-    if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
+      if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
 
-    const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    })
-    const icaoBytes = Buffer.from(icaoBase64, 'base64')
+      const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      })
+      const icaoBytes = Buffer.from(icaoBase64, 'base64')
 
-    const sodBytes = Buffer.from(eDoc.sod, 'base64')
+      const sodBytes = Buffer.from(eDoc.sod, 'base64')
 
-    const publicKeyPem = await getPublicKeyPem(sodBytes)
-    const pubKeySize = await getX509RSASize(publicKeyPem)
-    const slaveCertPem = await getSlaveCertificatePem(sodBytes)
-    const slaveCertIdx = await getSlaveCertIndex(slaveCertPem, icaoBytes)
-    const circuitType = getCircuitType(pubKeySize)
+      const publicKeyPem = await getPublicKeyPem(sodBytes)
+      const pubKeySize = await getX509RSASize(publicKeyPem)
+      const slaveCertPem = await getSlaveCertificatePem(sodBytes)
+      const slaveCertIdx = await getSlaveCertIndex(slaveCertPem, icaoBytes)
+      const circuitType = getCircuitType(pubKeySize)
 
-    if (!circuitType) throw new TypeError('Unsupported public key size')
+      if (!circuitType) throw new TypeError('Unsupported public key size')
 
-    const smtProof = await sertPoseidonSMTContract.contractInstance.getProof(slaveCertIdx)
+      const smtProof = await sertPoseidonSMTContract.contractInstance.getProof(slaveCertIdx)
 
-    if (!smtProof.existence) {
-      try {
-        await registerCertificate(slaveCertPem)
-      } catch (error) {
-        console.log(error)
-        if (error instanceof CertificateAlreadyRegisteredError) {
-          console.log('Certificate already registered') // TODO
+      if (!smtProof.existence) {
+        try {
+          await registerCertificate(slaveCertPem)
+        } catch (error) {
+          console.log(error)
+          if (error instanceof CertificateAlreadyRegisteredError) {
+            console.log('Certificate already registered') // TODO
+          }
         }
       }
-    }
 
-    try {
-      const circuitsLoadingResult = await loadCircuit(circuitType)
+      try {
+        const circuitsLoadingResult = await loadCircuit(circuitType)
 
-      if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
+        if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
 
-      const registerIdentityInputs = await generateRegisterIdentityInputs({
-        sod: sodBytes,
-        pubKeyPem: publicKeyPem,
-        smtProofJson: Buffer.from(
-          JSON.stringify({
-            root: Buffer.from(smtProof.root).toString('base64'),
-            siblings: smtProof.siblings.map(el => Buffer.from(el).toString('base64')),
-            // existence: smtProof.existence,
-          }),
-        ),
-        dg1: Buffer.from(eDoc.dg1!, 'base64'),
-        dg15: Buffer.from(eDoc.dg15!, 'base64'),
+        const registerIdentityInputs = await generateRegisterIdentityInputs({
+          sod: sodBytes,
+          pubKeyPem: publicKeyPem,
+          smtProofJson: Buffer.from(
+            JSON.stringify({
+              root: Buffer.from(smtProof.root).toString('base64'),
+              siblings: smtProof.siblings.map(el => Buffer.from(el).toString('base64')),
+              // existence: smtProof.existence,
+            }),
+          ),
+          dg1: Buffer.from(eDoc.dg1!, 'base64'),
+          dg15: Buffer.from(eDoc.dg15!, 'base64'),
 
-        // zkeyUri: circuitsLoadingResult.zKeyUri,
-        // dat: circuitsLoadingResult.dat,
-      })
+          // zkeyUri: circuitsLoadingResult.zKeyUri,
+          // dat: circuitsLoadingResult.dat,
+        })
 
-      const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
+        const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
 
-      const registerIdentityWtnsCalc = {
-        [CircuitType.RegisterIdentityUniversalRSA2048]: calcWtnsRegisterIdentityUniversalRSA2048,
-        [CircuitType.RegisterIdentityUniversalRSA4096]: calcWtnsRegisterIdentityUniversalRSA4096,
-      }[circuitType]
+        const registerIdentityWtnsCalc = {
+          [CircuitType.RegisterIdentityUniversalRSA2048]: calcWtnsRegisterIdentityUniversalRSA2048,
+          [CircuitType.RegisterIdentityUniversalRSA4096]: calcWtnsRegisterIdentityUniversalRSA4096,
+        }[circuitType]
 
-      console.log(registerIdentityInputsJson)
+        console.log(registerIdentityInputsJson)
 
-      const registerIdentityWtnsBytes = await registerIdentityWtnsCalc(
-        circuitsLoadingResult.dat,
-        Buffer.from(registerIdentityInputsJson),
-      )
+        const registerIdentityWtnsBytes = await registerIdentityWtnsCalc(
+          circuitsLoadingResult.dat,
+          Buffer.from(registerIdentityInputsJson),
+        )
 
-      console.log(registerIdentityWtnsBytes)
+        console.log(registerIdentityWtnsBytes)
 
-      const registerIdentityZkProof = await groth16ProveWithZKeyFilePath(
-        registerIdentityWtnsBytes,
-        circuitsLoadingResult.zKeyUri.replace('file://', ''),
-      )
+        const registerIdentityZkProof = await groth16ProveWithZKeyFilePath(
+          registerIdentityWtnsBytes,
+          circuitsLoadingResult.zKeyUri.replace('file://', ''),
+        )
 
-      console.log(Buffer.from(registerIdentityZkProof).toString())
-    } catch (error) {
-      console.log(error)
-    }
-  }, [
-    assets,
-    eDoc.dg1,
-    eDoc.dg15,
-    eDoc.sod,
-    generateRegisterIdentityInputs,
-    loadCircuit,
-    registerCertificate,
-    sertPoseidonSMTContract.contractInstance,
-  ])
+        console.log(Buffer.from(registerIdentityZkProof).toString())
+        return JSON.parse(Buffer.from(registerIdentityZkProof).toString()) as ZKProof
+      } catch (error) {
+        console.log(error)
+      }
+
+      throw new TypeError('Register identity failed without error')
+    },
+    [
+      assets,
+      generateRegisterIdentityInputs,
+      loadCircuit,
+      registerCertificate,
+      sertPoseidonSMTContract.contractInstance,
+    ],
+  )
 
   return {
     isCircuitsLoaded: restCircuit.isLoaded,
