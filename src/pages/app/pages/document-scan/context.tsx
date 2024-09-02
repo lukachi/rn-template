@@ -1,9 +1,8 @@
-import type { DocType, EDocument } from '@modules/e-document'
+import type { CircuitType, DocType, EDocument } from '@modules/e-document'
+import { getCircuitDetailsByType } from '@modules/e-document'
 import { getDG15PubKeyPem } from '@modules/e-document'
 import { getCircuitType, getPublicKeyPem, getSlaveCertificatePem } from '@modules/e-document'
-import { CIRCUIT_TYPE_CERT_SIZE } from '@modules/e-document'
 import {
-  CircuitType,
   getSodEncapsulatedContent,
   getSodSignature,
   getSodSignedAttributes,
@@ -18,10 +17,6 @@ import {
   getSlaveCertIndex,
   getX509RSASize,
 } from '@modules/rarime-sdk'
-import {
-  calcWtnsRegisterIdentityUniversalRSA2048,
-  calcWtnsRegisterIdentityUniversalRSA4096,
-} from '@modules/witnesscalculator'
 import type { AxiosError } from 'axios'
 import { Buffer } from 'buffer'
 import { ethers, JsonRpcProvider } from 'ethers'
@@ -106,12 +101,7 @@ const useCircuit = () => {
       setIsLoadFailed(false)
 
       try {
-        const circuitDownloadUrl = {
-          [CircuitType.RegisterIdentityUniversalRSA2048]:
-            'https://storage.googleapis.com/rarimo-store/passport-zk-circuits/v0.1.0-alpha/registerIdentityUniversalRSA2048-download.zip',
-          [CircuitType.RegisterIdentityUniversalRSA4096]:
-            'https://storage.googleapis.com/rarimo-store/passport-zk-circuits/v0.1.0-alpha/registerIdentityUniversalRSA4096-download.zip',
-        }[circuitType]
+        const { circuitDownloadUrl } = getCircuitDetailsByType(circuitType)
 
         const fileUri = `${FileSystem.documentDirectory}${circuitType}.zip`
         const targetPath = `${FileSystem.documentDirectory}${circuitType}`
@@ -358,10 +348,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
 
       // TODO: refactor
-      const registerIdentityWtnsCalc = {
-        [CircuitType.RegisterIdentityUniversalRSA2048]: calcWtnsRegisterIdentityUniversalRSA2048,
-        [CircuitType.RegisterIdentityUniversalRSA4096]: calcWtnsRegisterIdentityUniversalRSA4096,
-      }[circuitType]
+      const { wtnsCalcMethod: registerIdentityWtnsCalc } = getCircuitDetailsByType(circuitType)
 
       console.log(registerIdentityInputsJson)
 
@@ -387,7 +374,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       regProof: ZKProof,
       eDoc: EDocument,
       masterCertSmtProofRoot: Uint8Array,
-      CircuitTypeCertificatePubKeySize: number,
+      circuitTypeCertificatePubKeySize: number,
       isRevoked: boolean,
     ) => {
       if (!eDoc.sod) throw new TypeError('SOD not found')
@@ -403,7 +390,7 @@ export function ScanContextProvider({ docType, children }: Props) {
         Buffer.from(eDoc.signature, 'base64'),
         dg15PubKeyPem,
         masterCertSmtProofRoot,
-        CircuitTypeCertificatePubKeySize,
+        circuitTypeCertificatePubKeySize,
         isRevoked,
       )
 
@@ -435,12 +422,14 @@ export function ScanContextProvider({ docType, children }: Props) {
       const isPassportNotRegistered =
         !passportInfo || passportInfo.passportInfo_.activeIdentity === ethers.ZeroAddress
 
+      const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
+
       if (isPassportNotRegistered) {
         await registerViaRelayer(
           regProof,
           eDoc,
           Buffer.from(smtProof.root),
-          CIRCUIT_TYPE_CERT_SIZE[circuitType],
+          circuitTypeCertificatePubKeySize,
           false,
         )
       }

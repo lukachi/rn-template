@@ -1,3 +1,7 @@
+import {
+  calcWtnsRegisterIdentityUniversalRSA2048,
+  calcWtnsRegisterIdentityUniversalRSA4096,
+} from '@modules/witnesscalculator'
 import get from 'lodash/get'
 
 import { CircuitType } from './enums'
@@ -68,4 +72,29 @@ export function getCircuitType(pubKeySize: number) {
     2048: CircuitType.RegisterIdentityUniversalRSA2048,
     4096: CircuitType.RegisterIdentityUniversalRSA4096,
   }[pubKeySize]
+}
+
+export function getCircuitDetailsByType(circuitType: CircuitType) {
+  const circuitDownloadUrl = {
+    [CircuitType.RegisterIdentityUniversalRSA2048]:
+      'https://storage.googleapis.com/rarimo-store/passport-zk-circuits/v0.1.0-alpha/registerIdentityUniversalRSA2048-download.zip',
+    [CircuitType.RegisterIdentityUniversalRSA4096]:
+      'https://storage.googleapis.com/rarimo-store/passport-zk-circuits/v0.1.0-alpha/registerIdentityUniversalRSA4096-download.zip',
+  }[circuitType]
+
+  const wtnsCalcMethod = {
+    [CircuitType.RegisterIdentityUniversalRSA2048]: calcWtnsRegisterIdentityUniversalRSA2048,
+    [CircuitType.RegisterIdentityUniversalRSA4096]: calcWtnsRegisterIdentityUniversalRSA4096,
+  }[circuitType]
+
+  const circuitTypeCertificatePubKeySize = {
+    [CircuitType.RegisterIdentityUniversalRSA2048]: 2048,
+    [CircuitType.RegisterIdentityUniversalRSA4096]: 4096,
+  }[circuitType]
+
+  return {
+    circuitDownloadUrl,
+    wtnsCalcMethod,
+    circuitTypeCertificatePubKeySize,
+  }
 }
