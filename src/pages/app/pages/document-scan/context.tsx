@@ -19,7 +19,7 @@ import {
 } from '@modules/rarime-sdk'
 import type { AxiosError } from 'axios'
 import { Buffer } from 'buffer'
-import { ethers, JsonRpcProvider } from 'ethers'
+import { encodeBase64, ethers, JsonRpcProvider } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import get from 'lodash/get'
@@ -267,40 +267,6 @@ export function ScanContextProvider({ docType, children }: Props) {
     [rmoEvmJsonRpcProvider],
   )
 
-  const generateRegisterIdentityInputs = useCallback(
-    async ({
-      sod,
-      pubKeyPem,
-      smtProofJson,
-      dg1,
-      dg15,
-    }: {
-      sod: Uint8Array
-      pubKeyPem: Uint8Array
-      smtProofJson: Uint8Array
-      dg1: Uint8Array
-      dg15: Uint8Array
-    }): Promise<Uint8Array> => {
-      const encapsulatedContent = await getSodEncapsulatedContent(sod)
-      const signedAttributes = await getSodSignedAttributes(sod)
-      const sodSignature = await getSodSignature(sod)
-
-      const inputsBytes = await buildRegisterIdentityInputs({
-        privateKeyHex: privateKey,
-        encapsulatedContent,
-        signedAttributes,
-        sodSignature,
-        dg1,
-        dg15,
-        pubKeyPem,
-        smtProofJson,
-      })
-
-      return inputsBytes
-    },
-    [privateKey],
-  )
-
   const getPassportInfo = useCallback(
     async (eDoc: EDocument, regProof: ZKProof): Promise<PassportInfo | null> => {
       try {
@@ -320,7 +286,6 @@ export function ScanContextProvider({ docType, children }: Props) {
     async (
       eDoc: EDocument,
       circuitType: CircuitType,
-      sodBytes: Uint8Array,
       publicKeyPem: Uint8Array,
       smtProof: SparseMerkleTree.ProofStructOutput,
     ) => {
@@ -328,29 +293,41 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
 
-      const registerIdentityInputs = await generateRegisterIdentityInputs({
-        sod: sodBytes,
+      if (!eDoc.sod) throw new TypeError('SOD not found')
+
+      const sodBytes = Buffer.from(eDoc.sod, 'base64')
+
+      const encapsulatedContent = await getSodEncapsulatedContent(sodBytes)
+      const signedAttributes = await getSodSignedAttributes(sodBytes)
+      const sodSignature = await getSodSignature(sodBytes)
+
+      if (!eDoc.dg1) throw new TypeError('DG1 not found')
+
+      if (!eDoc.dg15) throw new TypeError('DG15 not found')
+
+      const dg1Bytes = Buffer.from(eDoc.dg1, 'base64')
+      const dg15Bytes = Buffer.from(eDoc.dg15, 'base64')
+
+      const registerIdentityInputs = await buildRegisterIdentityInputs({
+        privateKeyHex: privateKey,
+        encapsulatedContent,
+        signedAttributes,
+        sodSignature,
+        dg1: dg1Bytes,
+        dg15: dg15Bytes,
         pubKeyPem: publicKeyPem,
         smtProofJson: Buffer.from(
           JSON.stringify({
-            root: Buffer.from(smtProof.root).toString('base64'),
-            siblings: smtProof.siblings.map(el => Buffer.from(el).toString('base64')),
-            // existence: smtProof.existence,
+            root: encodeBase64(smtProof.root),
+            siblings: smtProof.siblings.map(el => encodeBase64(el)),
+            existence: smtProof.existence,
           }),
         ),
-        dg1: Buffer.from(eDoc.dg1!, 'base64'),
-        dg15: Buffer.from(eDoc.dg15!, 'base64'),
-
-        // zkeyUri: circuitsLoadingResult.zKeyUri,
-        // dat: circuitsLoadingResult.dat,
       })
 
       const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
 
-      // TODO: refactor
       const { wtnsCalcMethod: registerIdentityWtnsCalc } = getCircuitDetailsByType(circuitType)
-
-      console.log(registerIdentityInputsJson)
 
       const registerIdentityWtnsBytes = await registerIdentityWtnsCalc(
         circuitsLoadingResult.dat,
@@ -366,7 +343,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       return JSON.parse(Buffer.from(registerIdentityZkProofBytes).toString()) as ZKProof
     },
-    [generateRegisterIdentityInputs, loadCircuit],
+    [loadCircuit, privateKey],
   )
 
   const registerViaRelayer = useCallback(
@@ -455,50 +432,46 @@ export function ScanContextProvider({ docType, children }: Props) {
   const createIdentity = useCallback(async () => {
     if (!eDocument) return
 
-    setCurrentStep(Steps.GenerateProofStep)
+    try {
+      setCurrentStep(Steps.GenerateProofStep)
 
-    const icaoAsset = assets?.[0]
+      const icaoAsset = assets?.[0]
 
-    if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
+      if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
 
-    const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    })
-    const icaoBytes = Buffer.from(icaoBase64, 'base64')
+      const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      })
+      const icaoBytes = Buffer.from(icaoBase64, 'base64')
 
-    if (!eDocument.sod) throw new TypeError('SOD not found')
+      if (!eDocument.sod) throw new TypeError('SOD not found')
 
-    const sodBytes = Buffer.from(eDocument.sod, 'base64')
+      const sodBytes = Buffer.from(eDocument.sod, 'base64')
 
-    const publicKeyPem = await getPublicKeyPem(sodBytes)
-    const pubKeySize = await getX509RSASize(publicKeyPem)
-    const slaveCertPem = await getSlaveCertificatePem(sodBytes)
-    const slaveCertIdx = await getSlaveCertIndex(slaveCertPem, icaoBytes)
-    const circuitType = getCircuitType(pubKeySize)
+      const publicKeyPem = await getPublicKeyPem(sodBytes)
+      const pubKeySize = await getX509RSASize(publicKeyPem)
+      const slaveCertPem = await getSlaveCertificatePem(sodBytes)
+      const slaveCertIdx = await getSlaveCertIndex(slaveCertPem, icaoBytes)
+      const circuitType = getCircuitType(pubKeySize)
 
-    if (!circuitType) throw new TypeError('Unsupported public key size')
+      if (!circuitType) throw new TypeError('Unsupported public key size')
 
-    const smtProof = await certPoseidonSMTContract.contractInstance.getProof(slaveCertIdx)
+      const smtProof = await certPoseidonSMTContract.contractInstance.getProof(
+        ethers.zeroPadValue(slaveCertIdx, 32),
+      )
 
-    if (!smtProof.existence) {
-      try {
-        await registerCertificate(slaveCertPem)
-      } catch (error) {
-        console.log(error)
-        if (!(error instanceof CertificateAlreadyRegisteredError)) {
-          throw error
+      if (!smtProof.existence) {
+        try {
+          await registerCertificate(slaveCertPem)
+        } catch (error) {
+          console.log(error)
+          if (!(error instanceof CertificateAlreadyRegisteredError)) {
+            throw error
+          }
         }
       }
-    }
 
-    try {
-      const regProof = await getIdentityRegProof(
-        eDocument,
-        circuitType,
-        sodBytes,
-        publicKeyPem,
-        smtProof,
-      )
+      const regProof = await getIdentityRegProof(eDocument, circuitType, publicKeyPem, smtProof)
 
       const passportInfo = await getPassportInfo(eDocument, regProof)
 
