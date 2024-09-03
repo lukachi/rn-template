@@ -99,3 +99,15 @@ export async function buildRegisterCallData(
     isRevoked,
   )
 }
+
+export async function buildRevoceCalldata(
+  activeIdentity: Uint8Array,
+  eDocSignature: Uint8Array,
+  dg15PubKeyPem: Uint8Array,
+): Promise<Uint8Array> {
+  return await RarimeSdkModule.buildRevoceCalldata(
+    new Uint8Array(activeIdentity),
+    new Uint8Array(eDocSignature),
+    new Uint8Array(dg15PubKeyPem),
+  )
+}

@@ -4,7 +4,6 @@ import {
   EDocumentModuleRemoveAllListeners,
   scanDocument,
 } from '@modules/e-document'
-import { registrationChallenge } from '@modules/rarime-sdk'
 import { useCallback, useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 
@@ -13,7 +12,7 @@ import { walletStore } from '@/store'
 import { UiButton, UiIcon } from '@/ui'
 
 export default function RevocationStep() {
-  const { mrz, setEDoc } = useDocumentScanContext()
+  const { mrz, eDoc, setEDoc, getRevocationChallenge, revokeIdentity } = useDocumentScanContext()
 
   const pk = walletStore.useWalletStore(state => state.privateKey)
 
@@ -24,6 +23,7 @@ export default function RevocationStep() {
   const startScanListener = useCallback(async () => {
     if (
       !pk ||
+      !eDoc ||
       !mrz?.birthDate ||
       !mrz?.documentNumber ||
       !mrz?.expirationDate ||
@@ -34,7 +34,7 @@ export default function RevocationStep() {
     setIsScanning(true)
 
     try {
-      const challenge = await registrationChallenge(pk)
+      const challenge = await getRevocationChallenge()
 
       const eDocumentResponse = await scanDocument(
         mrz.documentCode,
@@ -46,13 +46,27 @@ export default function RevocationStep() {
         challenge,
       )
 
-      setEDoc(eDocumentResponse)
+      const newEDoc = {
+        ...(eDoc || eDocumentResponse),
+        signature: eDocumentResponse.signature,
+      }
+
+      await revokeIdentity(newEDoc)
     } catch (error) {
       console.log(error)
     }
 
     setIsScanning(false)
-  }, [mrz?.birthDate, mrz?.documentCode, mrz?.documentNumber, mrz?.expirationDate, pk, setEDoc])
+  }, [
+    eDoc,
+    getRevocationChallenge,
+    mrz?.birthDate,
+    mrz?.documentCode,
+    mrz?.documentNumber,
+    mrz?.expirationDate,
+    pk,
+    revokeIdentity,
+  ])
 
   useEffect(() => {
     if (isScanning) return

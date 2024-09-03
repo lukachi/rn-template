@@ -153,5 +153,12 @@ public class RarimeSdkModule: Module {
           
           return calldata
       }
+      
+      AsyncFunction("buildRevoceCalldata") { (identityKey: Data, signature: Data, pubKeyPem: Data) in
+            let calldataBuilder = IdentityCallDataBuilder()
+            let calldata = try calldataBuilder.buildRevoceCalldata(identityKey, signature: signature, pubKeyPem: pubKeyPem)
+
+            return calldata
+      }
   }
 }

@@ -97,5 +97,12 @@ class RarimeSdkModule : Module() {
 
       return@AsyncFunction callData
     }
+
+    AsyncFunction("buildRevoceCalldata") { identityKey: ByteArray, signature: ByteArray, pubKeyPem: ByteArray ->
+      val callDataBuilder = CallDataBuilder()
+      val callData = callDataBuilder.buildRevoceCalldata(identityKey, signature, pubKeyPem)
+
+      return@AsyncFunction callData
+    }
   }
 }
