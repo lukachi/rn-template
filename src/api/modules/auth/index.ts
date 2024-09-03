@@ -5,17 +5,18 @@ import { apiClient } from '@/api/client'
 // fixme: ZkProof type
 export const authorize = async (nullifierHex: string, zkProof: ZKProof) => {
   return apiClient.post<{
+    id: string
+    type: 'token'
+
     access_token: {
       token: string
       token_type: 'access'
     }
-    id: string
     refresh_token: {
       token: string
       token_type: 'refresh'
     }
-    type: 'token'
-  }>('/integrations/geo-auth-svc/v1/authorize', {
+  }>('/integrations/decentralized-auth-svc/v1/authorize', {
     data: {
       id: nullifierHex,
       type: 'authorize',
@@ -27,10 +28,17 @@ export const authorize = async (nullifierHex: string, zkProof: ZKProof) => {
   })
 }
 
+export const refresh = async () => {
+  return apiClient.get<{
+    access_token: string
+    refresh_token: string
+  }>('/integrations/decentralized-auth-svc/v1/refresh')
+}
+
 export const getChallenge = async (nullifierHex: string) => {
   return apiClient.get<{
     challenge: string
     id: string
     type: 'challenge'
-  }>(`/integrations/geo-auth-svc/v1/authorize/${nullifierHex}/challenge`)
+  }>(`/integrations/decentralized-auth-svc/v1/authorize/${nullifierHex}/challenge`)
 }

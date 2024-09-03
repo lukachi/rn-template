@@ -7,7 +7,7 @@ import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
 import { calcWtnsAuth } from '@/../modules/witnesscalculator'
-import { authorize, getChallenge } from '@/api/modules/auth'
+import { authorize, getChallenge, refresh } from '@/api/modules/auth'
 import { Config } from '@/config'
 import { sleep } from '@/helpers'
 import { zustandSecureStorage } from '@/store/helpers'
@@ -40,8 +40,10 @@ const useAuthStore = create(
           set({ isRefreshing: true })
           await sleep(1000)
 
-          const newAccessToken = 'my_new_access_token'
-          const newRefreshToken = 'my_new_refresh_token'
+          const { data } = await refresh()
+
+          const newAccessToken = data.access_token
+          const newRefreshToken = data.refresh_token
 
           set({ accessToken: newAccessToken, refreshToken: newRefreshToken })
           set({ isRefreshing: false })
@@ -95,7 +97,7 @@ const useLogin = () => {
 
     const { data } = await getChallenge(pointsNullifierHex)
 
-    const challengeHex = ethers.hexlify(Buffer.from(data.challenge, 'base64'))
+    const challengeHex = ethers.hexlify(ethers.decodeBase64(data.challenge))
 
     const inputs = {
       eventData: challengeHex,

@@ -41,20 +41,23 @@ export const initInterceptors = () => {
     async error => {
       const originalRequest = error.config
 
-      if (error.response.status === 401 && !originalRequest._retry) {
+      const accessToken = getAccessToken()
+
+      if (error.response.status === 401 && !originalRequest._retry && accessToken) {
         originalRequest._retry = true // Mark the request as retried to avoid infinite loops.
 
         try {
-          const newAacessToken = await refreshAuthTokens()
+          const newAccessToken = await refreshAuthTokens()
 
           // Update the authorization header with the new access token.
-          apiClient.defaults.headers.common.Authorization = `Bearer ${newAacessToken}`
+          apiClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
 
           return apiClient(originalRequest) // Retry the original request with the new access token.
         } catch (refreshError) {
           // Handle refresh token errors by clearing stored tokens and redirecting to the login page.
           console.error('Token refresh failed:', refreshError)
 
+          console.log('logout')
           logout()
 
           return Promise.reject(refreshError)
