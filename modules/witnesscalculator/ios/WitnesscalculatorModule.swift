@@ -5,9 +5,14 @@ public class WitnesscalculatorModule: Module {
         Name("Witnesscalculator")
         
         AsyncFunction("calcWtnsRegisterIdentityUniversalRSA4096") { (dat: Data, inputs: Data) -> Data in
-            let result = try WtnsUtils.calcWtnsRegisterIdentityUniversalRSA4096(dat, inputs)
+            do {
+                let result = try WtnsUtils.calcWtnsRegisterIdentityUniversalRSA4096(dat, inputs)
 
-            return result
+                return result
+            } catch {
+                print(error)
+                throw error
+            }
         }
         
         AsyncFunction("calcWtnsRegisterIdentityUniversalRSA2048") { (dat: Data, inputs: Data) -> Data in

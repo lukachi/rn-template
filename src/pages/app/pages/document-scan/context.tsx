@@ -329,15 +329,19 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const { wtnsCalcMethod: registerIdentityWtnsCalc } = getCircuitDetailsByType(circuitType)
 
-      const registerIdentityWtnsBytes = await registerIdentityWtnsCalc(
+      console.log('registerIdentityWtnsCalc')
+      const wtns = await registerIdentityWtnsCalc(
         circuitsLoadingResult.dat,
         Buffer.from(registerIdentityInputsJson),
       )
 
-      console.log(registerIdentityWtnsBytes)
+      if (wtns?.length) {
+        console.log('wtns', wtns.length)
+      }
 
+      console.log('groth16ProveWithZKeyFilePath')
       const registerIdentityZkProofBytes = await groth16ProveWithZKeyFilePath(
-        registerIdentityWtnsBytes,
+        wtns,
         circuitsLoadingResult.zKeyUri.replace('file://', ''),
       )
 
@@ -472,6 +476,8 @@ export function ScanContextProvider({ docType, children }: Props) {
       }
 
       const regProof = await getIdentityRegProof(eDocument, circuitType, publicKeyPem, smtProof)
+
+      console.log('regProof', regProof)
 
       const passportInfo = await getPassportInfo(eDocument, regProof)
 
