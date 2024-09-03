@@ -270,12 +270,20 @@ export function ScanContextProvider({ docType, children }: Props) {
   const getPassportInfo = useCallback(
     async (eDoc: EDocument, regProof: ZKProof): Promise<PassportInfo | null> => {
       try {
-        const passportInfoKey = isEmpty(eDoc.dg15)
+        const passportInfoKeyBigIntString = isEmpty(eDoc.dg15)
           ? regProof.pub_signals[1]
           : regProof.pub_signals[0]
 
-        return await stateKeeperContract.contractInstance.getPassportInfo(passportInfoKey)
+        const passportInfoKeyBytes = ethers.zeroPadValue(
+          '0x' + ethers.getBigInt(passportInfoKeyBigIntString).toString(16),
+          32,
+        )
+
+        return await stateKeeperContract.contractInstance.getPassportInfo(passportInfoKeyBytes)
       } catch (error) {
+        console.log('getPassportInfo', {
+          ...error,
+        })
         return null
       }
     },
@@ -366,6 +374,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const dg15PubKeyPem = await getDG15PubKeyPem(Buffer.from(eDoc.dg15, 'base64'))
 
+      console.log('registerCallData')
       const registerCallData = await buildRegisterCallData(
         Buffer.from(JSON.stringify(regProof)),
         Buffer.from(eDoc.signature, 'base64'),
@@ -374,7 +383,9 @@ export function ScanContextProvider({ docType, children }: Props) {
         circuitTypeCertificatePubKeySize,
         isRevoked,
       )
+      console.log(registerCallData)
 
+      console.log('relayerRegister')
       const { data } = await relayerRegister(
         '0x' + Buffer.from(registerCallData).toString('hex'),
         Config.REGISTRATION_CONTRACT_ADDRESS,
@@ -398,14 +409,23 @@ export function ScanContextProvider({ docType, children }: Props) {
       passportInfo: PassportInfo | null,
     ): Promise<void> => {
       const currentIdentityKey = await getPublicKeyHash(privateKey)
-      const currentIdentityKeyHex = Buffer.from(currentIdentityKey).toString('hex')
+      const currentIdentityKeyHex = '0x' + Buffer.from(currentIdentityKey).toString('hex')
+
+      const ZERO_BYTES32 = ethers.encodeBytes32String('')
+
+      console.log('currentIdentityKeyHex', currentIdentityKeyHex, ZERO_BYTES32)
 
       const isPassportNotRegistered =
-        !passportInfo || passportInfo.passportInfo_.activeIdentity === ethers.ZeroAddress
+        !passportInfo || passportInfo.passportInfo_.activeIdentity === ZERO_BYTES32
 
       const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
 
+      console.log('activeIdentity', passportInfo?.passportInfo_.activeIdentity)
+
+      console.log('circuitTypeCertificatePubKeySize', circuitTypeCertificatePubKeySize)
+
       if (isPassportNotRegistered) {
+        console.log('isPassportNotRegistered')
         await registerViaRelayer(
           regProof,
           eDoc,
@@ -419,9 +439,11 @@ export function ScanContextProvider({ docType, children }: Props) {
         passportInfo?.passportInfo_.activeIdentity === currentIdentityKeyHex
 
       if (isPassportRegisteredWithCurrentPK) {
+        console.log('isPassportRegisteredWithCurrentPK')
         // TODO: save eDoc, regProof, and proceed complete
       }
 
+      console.log('PassportRegisteredWithAnotherPKError()')
       throw new PassportRegisteredWithAnotherPKError()
     },
     [privateKey, registerViaRelayer],
@@ -477,16 +499,17 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const regProof = await getIdentityRegProof(eDocument, circuitType, publicKeyPem, smtProof)
 
-      console.log('regProof', regProof)
+      console.log('regProof', JSON.stringify(regProof))
 
       const passportInfo = await getPassportInfo(eDocument, regProof)
+      console.log('passportInfo', passportInfo)
 
       try {
         await registerIdentity(regProof, eDocument, smtProof, circuitType, passportInfo)
         setRegistrationProof(regProof)
       } catch (error) {
         if (error instanceof PassportRegisteredWithAnotherPKError) {
-          await revokeIdentity()
+          // await revokeIdentity()
         } else {
           throw error
         }
@@ -506,7 +529,6 @@ export function ScanContextProvider({ docType, children }: Props) {
     getPassportInfo,
     registerCertificate,
     registerIdentity,
-    revokeIdentity,
   ])
 
   // ---------------------------------------------------------------------------------------------

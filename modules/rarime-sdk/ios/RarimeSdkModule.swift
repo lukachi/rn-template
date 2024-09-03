@@ -150,6 +150,8 @@ public class RarimeSdkModule: Module {
               certificatePubKeySize: certificatePubKeySize,
               isRevoced: isRevoced
           )
+          
+          return calldata
       }
   }
 }
