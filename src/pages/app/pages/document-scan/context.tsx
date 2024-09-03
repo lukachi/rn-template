@@ -23,7 +23,6 @@ import { Buffer } from 'buffer'
 import { encodeBase64, ethers, JsonRpcProvider } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import type { FieldRecords } from 'mrz'
 import type { PropsWithChildren } from 'react'
@@ -79,7 +78,6 @@ type DocumentScanContext = {
   identityCreationProcess: JSX.Element
 
   getRevocationChallenge: () => Promise<Uint8Array>
-  resolveRevocationEDoc: (value: EDocument) => void
 }
 
 const documentScanContext = createContext<DocumentScanContext>({
@@ -93,7 +91,6 @@ const documentScanContext = createContext<DocumentScanContext>({
   identityCreationProcess: <></>,
 
   getRevocationChallenge: async () => new Uint8Array(),
-  resolveRevocationEDoc: () => {},
 })
 
 export function useDocumentScanContext() {
@@ -103,6 +100,8 @@ export function useDocumentScanContext() {
 type Props = {
   docType?: DocType
 } & PropsWithChildren
+
+export let resolveRevocationEDoc: (value: EDocument | PromiseLike<EDocument>) => void
 
 export function ScanContextProvider({ docType, children }: Props) {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
@@ -154,7 +153,7 @@ export function ScanContextProvider({ docType, children }: Props) {
         )
 
         const { data } = await relayerRegister(
-          '0x' + Buffer.from(callData).toString('hex'),
+          ethers.hexlify(callData),
           Config.REGISTRATION_CONTRACT_ADDRESS,
         )
 
@@ -166,11 +165,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       } catch (error) {
         const axiosError = error as AxiosError
 
-        if (
-          JSON.stringify(get(axiosError, 'response.data.errors', {}))?.includes(
-            'the key already exists',
-          )
-        ) {
+        if (JSON.stringify(axiosError.response?.data)?.includes('the key already exists')) {
           throw new CertificateAlreadyRegisteredError()
         }
 
@@ -291,7 +286,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       console.log('relayerRegister')
       const { data } = await relayerRegister(
-        '0x' + Buffer.from(registerCallData).toString('hex'),
+        ethers.hexlify(registerCallData),
         Config.REGISTRATION_CONTRACT_ADDRESS,
       )
 
@@ -313,7 +308,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       passportInfo: PassportInfo | null,
     ): Promise<void> => {
       const currentIdentityKey = await getPublicKeyHash(privateKey)
-      const currentIdentityKeyHex = '0x' + Buffer.from(currentIdentityKey).toString('hex')
+      const currentIdentityKeyHex = ethers.hexlify(currentIdentityKey)
 
       const ZERO_BYTES32 = ethers.encodeBytes32String('')
 
@@ -363,19 +358,18 @@ export function ScanContextProvider({ docType, children }: Props) {
 
   // ---------------------------------------------------------------------------------------------
 
-  const [resolveRevocationEDoc, setResolveRevocationEDoc] = useState<(value: EDocument) => void>(
-    () => {},
-  )
   const revokeIdentity = useCallback(
     async (
       passportInfo: PassportInfo | null,
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
       circuitType: CircuitType,
+      regProof: ZKProof,
     ) => {
+      console.log('revokeIdentity')
       setCurrentStep(Steps.RevocationStep)
 
       const eDoc = await new Promise<EDocument>(resolve => {
-        setResolveRevocationEDoc(resolve)
+        resolveRevocationEDoc = resolve
       })
 
       if (!eDoc.dg15) throw new TypeError('DG15 not found')
@@ -385,8 +379,6 @@ export function ScanContextProvider({ docType, children }: Props) {
       if (!passportInfo?.passportInfo_.activeIdentity)
         throw new TypeError('Active identity not found')
 
-      if (!registrationProof) throw new TypeError('Registration proof not found')
-
       if (!slaveCertSmtProof) throw new TypeError('Slave certificate SMT proof not found')
 
       if (!circuitType) throw new TypeError('Circuit type not found')
@@ -395,13 +387,27 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const dg15PubKeyPem = await getDG15PubKeyPem(Buffer.from(eDoc.dg15, 'base64'))
 
+      console.log(
+        'passportInfo?.passportInfo_.activeIdentity',
+        passportInfo?.passportInfo_.activeIdentity,
+      )
+
       const activeIdentity = ethers.getBytes(passportInfo?.passportInfo_.activeIdentity)
+
+      console.log({
+        activeIdentity,
+        eDocSignature,
+        dg15PubKeyPem,
+      })
 
       const calldata = await buildRevoceCalldata(activeIdentity, eDocSignature, dg15PubKeyPem)
 
+      console.log('callData: ', calldata.length)
+      console.log('callData hex: ', ethers.hexlify(calldata))
+
       try {
         const { data } = await relayerRegister(
-          '0x' + Buffer.from(calldata).toString('hex'),
+          ethers.hexlify(calldata),
           Config.REGISTRATION_CONTRACT_ADDRESS,
         )
 
@@ -412,20 +418,19 @@ export function ScanContextProvider({ docType, children }: Props) {
         await tx.wait()
       } catch (error) {
         const axiosError = error as AxiosError
-        console.error(axiosError)
 
-        if (
-          !JSON.stringify(get(axiosError, 'response.data.errors', {}))?.includes('already revoked')
-        ) {
-          throw error
+        if (!JSON.stringify(axiosError.response?.data)?.includes('already revoked')) {
+          throw axiosError
         }
       }
+
+      console.log('reissuing registration')
 
       try {
         const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
 
         await requestRelayerRegisterMethod(
-          registrationProof,
+          regProof,
           eDoc,
           Buffer.from(slaveCertSmtProof.root),
           circuitTypeCertificatePubKeySize,
@@ -435,10 +440,10 @@ export function ScanContextProvider({ docType, children }: Props) {
         console.error(e)
       }
     },
-    [requestRelayerRegisterMethod, registrationProof, rmoEvmJsonRpcProvider],
+    [requestRelayerRegisterMethod, rmoEvmJsonRpcProvider],
   )
 
-  const createIdentity = useCallback(async () => {
+  const createIdentity = useCallback(async (): Promise<void> => {
     if (!eDocument) return
 
     try {
@@ -465,11 +470,11 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       if (!circuitType) throw new TypeError('Unsupported public key size')
 
-      const smtProof = await certPoseidonSMTContract.contractInstance.getProof(
+      const slaveCertSmtProof = await certPoseidonSMTContract.contractInstance.getProof(
         ethers.zeroPadValue(slaveCertIdx, 32),
       )
 
-      if (!smtProof.existence) {
+      if (!slaveCertSmtProof.existence) {
         try {
           await registerCertificate(slaveCertPem)
         } catch (error) {
@@ -480,16 +485,21 @@ export function ScanContextProvider({ docType, children }: Props) {
         }
       }
 
-      const regProof = await getIdentityRegProof(eDocument, circuitType, publicKeyPem, smtProof)
+      const regProof = await getIdentityRegProof(
+        eDocument,
+        circuitType,
+        publicKeyPem,
+        slaveCertSmtProof,
+      )
       setRegistrationProof(regProof)
 
       const passportInfo = await getPassportInfo(eDocument, regProof)
 
       try {
-        await registerIdentity(regProof, eDocument, smtProof, circuitType, passportInfo)
+        await registerIdentity(regProof, eDocument, slaveCertSmtProof, circuitType, passportInfo)
       } catch (error) {
         if (error instanceof PassportRegisteredWithAnotherPKError) {
-          await revokeIdentity(passportInfo, smtProof, circuitType)
+          return await revokeIdentity(passportInfo, slaveCertSmtProof, circuitType, regProof)
         } else {
           throw error
         }
@@ -566,7 +576,6 @@ export function ScanContextProvider({ docType, children }: Props) {
         identityCreationProcess,
 
         getRevocationChallenge,
-        resolveRevocationEDoc,
       }}
       children={children}
     />

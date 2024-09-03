@@ -7,12 +7,15 @@ import {
 import { useCallback, useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 
-import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
+import {
+  resolveRevocationEDoc,
+  useDocumentScanContext,
+} from '@/pages/app/pages/document-scan/context'
 import { walletStore } from '@/store'
 import { UiButton, UiIcon } from '@/ui'
 
 export default function RevocationStep() {
-  const { mrz, eDoc, getRevocationChallenge, resolveRevocationEDoc } = useDocumentScanContext()
+  const { mrz, eDoc, getRevocationChallenge } = useDocumentScanContext()
 
   const pk = walletStore.useWalletStore(state => state.privateKey)
 
@@ -35,6 +38,8 @@ export default function RevocationStep() {
 
     try {
       const challenge = await getRevocationChallenge()
+
+      console.log('revocation challenge', challenge.length)
 
       const eDocumentResponse = await scanDocument(
         mrz.documentCode,
@@ -63,7 +68,6 @@ export default function RevocationStep() {
     mrz?.documentNumber,
     mrz?.expirationDate,
     pk,
-    resolveRevocationEDoc,
   ])
 
   useEffect(() => {

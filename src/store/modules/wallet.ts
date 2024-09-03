@@ -68,7 +68,7 @@ const useDeletePrivateKey = () => {
 export const walletStore = {
   useWalletStore,
 
-  useGeneratePrivateKey,
+  useGeneratePrivateKey: useGeneratePrivateKey,
   usePointsNullifierHex: usePointsNullifierHex,
   useDeletePrivateKey,
 }

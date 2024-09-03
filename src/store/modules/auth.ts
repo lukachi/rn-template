@@ -1,5 +1,6 @@
 import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
 import { Buffer } from 'buffer'
+import { ethers } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import { create } from 'zustand'
@@ -94,10 +95,10 @@ const useLogin = () => {
 
     const { data } = await getChallenge(pointsNullifierHex)
 
-    const challenge = Buffer.from(data.challenge, 'base64').toString('hex')
+    const challengeHex = ethers.hexlify(Buffer.from(data.challenge, 'base64'))
 
     const inputs = {
-      eventData: `0x${challenge}`,
+      eventData: challengeHex,
       eventID: Config.POINTS_SVC_ID,
       revealPkIdentityHash: 0,
       skIdentity: pkHex,
