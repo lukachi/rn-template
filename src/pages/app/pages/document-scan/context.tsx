@@ -32,7 +32,6 @@ import { useCallback } from 'react'
 import { useState } from 'react'
 import { createContext, useContext } from 'react'
 import { Text, View } from 'react-native'
-import { unzip } from 'react-native-zip-archive'
 
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
 import { relayerRegister } from '@/api/modules/registration'
@@ -46,6 +45,8 @@ import {
 } from '@/store/modules/identity/errors'
 import type { StateKeeper } from '@/types'
 import type { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
+
+import { useCircuit } from './hooks/circuit'
 
 export enum Steps {
   SelectDocTypeStep,
@@ -78,106 +79,7 @@ type DocumentScanContext = {
   identityCreationProcess: JSX.Element
 
   getRevocationChallenge: () => Promise<Uint8Array>
-  revokeIdentity: (eDoc: EDocument) => Promise<void>
-}
-
-const useCircuit = () => {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [isLoadFailed, setIsLoadFailed] = useState(false)
-  const [downloadingProgress, setDownloadingProgress] = useState('')
-
-  const checkCircuitsLoaded = useCallback(async (zkeyPath: string, datPath: string) => {
-    const zkeyInfo = await FileSystem.getInfoAsync(zkeyPath)
-    const datInfo = await FileSystem.getInfoAsync(datPath)
-
-    return zkeyInfo.exists && datInfo.exists
-  }, [])
-
-  const loadCircuit = useCallback(
-    async (
-      circuitType: CircuitType,
-    ): Promise<{
-      zKeyUri: string
-      dat: Uint8Array
-    }> => {
-      setDownloadingProgress('')
-      setIsLoaded(false)
-      setIsLoadFailed(false)
-
-      try {
-        const { circuitDownloadUrl } = getCircuitDetailsByType(circuitType)
-
-        const fileUri = `${FileSystem.documentDirectory}${circuitType}.zip`
-        const targetPath = `${FileSystem.documentDirectory}${circuitType}`
-
-        const circuitDirSubpath = `${circuitType}-download`
-        const zkeyPath = `${targetPath}/${circuitDirSubpath}/circuit_final.zkey`
-        const datPath = `${targetPath}/${circuitDirSubpath}/${circuitType}.dat`
-
-        const isCircuitsLoaded = await checkCircuitsLoaded(zkeyPath, datPath)
-
-        if (isCircuitsLoaded) {
-          const dat = await FileSystem.readAsStringAsync(datPath, {
-            encoding: FileSystem.EncodingType.Base64,
-          })
-
-          setIsLoaded(true)
-
-          return {
-            zKeyUri: zkeyPath,
-            dat: Buffer.from(dat, 'base64'),
-          }
-        }
-
-        const downloadResumable = FileSystem.createDownloadResumable(
-          circuitDownloadUrl,
-          fileUri,
-          {},
-          downloadProgress => {
-            setDownloadingProgress(
-              `${downloadProgress.totalBytesWritten} / ${downloadProgress.totalBytesExpectedToWrite}`,
-            )
-          },
-        )
-
-        const downloadResult = await downloadResumable.downloadAsync()
-
-        if (!downloadResult) {
-          throw new TypeError('Download failed: downloadResult is undefined')
-        }
-
-        console.log('Finished downloading to ', downloadResult.uri)
-
-        await unzip(downloadResult.uri, targetPath)
-        console.log('Unzipped to ', targetPath)
-
-        const dat = await FileSystem.readAsStringAsync(datPath, {
-          encoding: FileSystem.EncodingType.Base64,
-        })
-
-        setIsLoaded(true)
-
-        return {
-          zKeyUri: zkeyPath,
-          dat: Buffer.from(dat, 'base64'),
-        }
-      } catch (error) {
-        console.error('Error in loadCircuit: ', error)
-        setIsLoadFailed(true)
-      }
-
-      setIsLoaded(false)
-      throw new TypeError('Circuit loading failed without error')
-    },
-    [checkCircuitsLoaded],
-  )
-
-  return {
-    isLoaded,
-    isLoadFailed,
-    downloadingProgress,
-    loadCircuit,
-  }
+  resolveRevocationEDoc: (value: EDocument) => void
 }
 
 const documentScanContext = createContext<DocumentScanContext>({
@@ -191,7 +93,7 @@ const documentScanContext = createContext<DocumentScanContext>({
   identityCreationProcess: <></>,
 
   getRevocationChallenge: async () => new Uint8Array(),
-  revokeIdentity: async () => {},
+  resolveRevocationEDoc: () => {},
 })
 
 export function useDocumentScanContext() {
@@ -203,43 +105,43 @@ type Props = {
 } & PropsWithChildren
 
 export function ScanContextProvider({ docType, children }: Props) {
-  const [currentStep, setCurrentStep] = useState<Steps>(
-    docType ? Steps.ScanMrzStep : Steps.SelectDocTypeStep,
-  )
-  const [selectedDocType, setSelectedDocType] = useState(docType)
-
-  const [mrz, setMrz] = useState<FieldRecords>()
-
-  const [eDocument, setEDocument] = useState<EDocument>()
-
-  const [slaveCertSmtProof, setSlaveCertSmtProof] = useState<SparseMerkleTree.ProofStructOutput>()
-  const [passportInfo, setPassportInfo] = useState<PassportInfo | null>(null)
-  const [circuitType, setCircuitType] = useState<CircuitType>()
-
-  const [registrationProof, setRegistrationProof] = useState<ZKProof>()
-
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
 
   const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
 
+  const [currentStep, setCurrentStep] = useState<Steps>(
+    docType ? Steps.ScanMrzStep : Steps.SelectDocTypeStep,
+  )
+  const [selectedDocType, setSelectedDocType] = useState(docType)
+  const [mrz, setMrz] = useState<FieldRecords>()
+  const [eDocument, setEDocument] = useState<EDocument>()
+  const [registrationProof, setRegistrationProof] = useState<ZKProof>()
+
+  /* TEMP. sharable files */
+  // const [slaveCertSmtProof, setSlaveCertSmtProof] = useState<SparseMerkleTree.ProofStructOutput>()
+  // const [passportInfo, setPassportInfo] = useState<PassportInfo | null>(null)
+  // const [circuitType, setCircuitType] = useState<CircuitType>()
+
   const { loadCircuit, ...restCircuit } = useCircuit()
+
+  // ----------------------------------------------------------------------------------------
 
   const rmoEvmJsonRpcProvider = useMemo(() => {
     const evmRpcUrl = RARIMO_CHAINS[Config.RMO_CHAIN_ID].rpcEvm
 
     return new JsonRpcProvider(evmRpcUrl)
   }, [])
-
   const certPoseidonSMTContract = useMemo(() => {
     return createPoseidonSMTContract(
       Config.CERT_POSEIDON_SMT_CONTRACT_ADDRESS,
       rmoEvmJsonRpcProvider,
     )
   }, [rmoEvmJsonRpcProvider])
-
   const stateKeeperContract = useMemo(() => {
     return createStateKeeperContract(Config.STATE_KEEPER_CONTRACT_ADDRESS, rmoEvmJsonRpcProvider)
   }, [rmoEvmJsonRpcProvider])
+
+  // ----------------------------------------------------------------------------------------
 
   const registerCertificate = useCallback(
     async (slaveCertPem: Uint8Array) => {
@@ -292,9 +194,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
         return await stateKeeperContract.contractInstance.getPassportInfo(passportInfoKeyBytes)
       } catch (error) {
-        console.log('getPassportInfo', {
-          ...error,
-        })
+        console.error('getPassportInfo', error)
         return null
       }
     },
@@ -304,11 +204,11 @@ export function ScanContextProvider({ docType, children }: Props) {
   const getIdentityRegProof = useCallback(
     async (
       eDoc: EDocument,
-      _circuitType: CircuitType,
+      circuitType: CircuitType,
       publicKeyPem: Uint8Array,
       smtProof: SparseMerkleTree.ProofStructOutput,
     ) => {
-      const circuitsLoadingResult = await loadCircuit(_circuitType)
+      const circuitsLoadingResult = await loadCircuit(circuitType)
 
       if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
 
@@ -346,16 +246,12 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
 
-      const { wtnsCalcMethod: registerIdentityWtnsCalc } = getCircuitDetailsByType(_circuitType)
+      const { wtnsCalcMethod: registerIdentityWtnsCalc } = getCircuitDetailsByType(circuitType)
 
       const wtns = await registerIdentityWtnsCalc(
         circuitsLoadingResult.dat,
         Buffer.from(registerIdentityInputsJson),
       )
-
-      if (wtns?.length) {
-        console.log('wtns', wtns.length)
-      }
 
       const registerIdentityZkProofBytes = await groth16ProveWithZKeyFilePath(
         wtns,
@@ -367,7 +263,7 @@ export function ScanContextProvider({ docType, children }: Props) {
     [loadCircuit, privateKey],
   )
 
-  const registerViaRelayer = useCallback(
+  const requestRelayerRegisterMethod = useCallback(
     async (
       regProof: ZKProof,
       eDoc: EDocument,
@@ -383,7 +279,6 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const dg15PubKeyPem = await getDG15PubKeyPem(Buffer.from(eDoc.dg15, 'base64'))
 
-      console.log('registerCallData')
       const registerCallData = await buildRegisterCallData(
         Buffer.from(JSON.stringify(regProof)),
         Buffer.from(eDoc.signature, 'base64'),
@@ -392,7 +287,7 @@ export function ScanContextProvider({ docType, children }: Props) {
         circuitTypeCertificatePubKeySize,
         isRevoked,
       )
-      console.log(registerCallData)
+      console.log('registerCallData length: ', registerCallData.length)
 
       console.log('relayerRegister')
       const { data } = await relayerRegister(
@@ -414,8 +309,8 @@ export function ScanContextProvider({ docType, children }: Props) {
       regProof: ZKProof,
       eDoc: EDocument,
       smtProof: SparseMerkleTree.ProofStructOutput,
-      _circuitType: CircuitType,
-      _passportInfo: PassportInfo | null,
+      circuitType: CircuitType,
+      passportInfo: PassportInfo | null,
     ): Promise<void> => {
       const currentIdentityKey = await getPublicKeyHash(privateKey)
       const currentIdentityKeyHex = '0x' + Buffer.from(currentIdentityKey).toString('hex')
@@ -423,12 +318,12 @@ export function ScanContextProvider({ docType, children }: Props) {
       const ZERO_BYTES32 = ethers.encodeBytes32String('')
 
       const isPassportNotRegistered =
-        !_passportInfo || _passportInfo.passportInfo_.activeIdentity === ZERO_BYTES32
+        !passportInfo || passportInfo.passportInfo_.activeIdentity === ZERO_BYTES32
 
-      const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(_circuitType)
+      const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
 
       if (isPassportNotRegistered) {
-        await registerViaRelayer(
+        await requestRelayerRegisterMethod(
           regProof,
           eDoc,
           Buffer.from(smtProof.root),
@@ -438,7 +333,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       }
 
       const isPassportRegisteredWithCurrentPK =
-        _passportInfo?.passportInfo_.activeIdentity === currentIdentityKeyHex
+        passportInfo?.passportInfo_.activeIdentity === currentIdentityKeyHex
 
       if (isPassportRegisteredWithCurrentPK) {
         // TODO: save eDoc, regProof, and proceed complete
@@ -447,10 +342,16 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       throw new PassportRegisteredWithAnotherPKError()
     },
-    [privateKey, registerViaRelayer],
+    [privateKey, requestRelayerRegisterMethod],
   )
 
   const getRevocationChallenge = useCallback(async (): Promise<Uint8Array> => {
+    if (!eDocument) throw new TypeError('eDocument not found')
+
+    if (!registrationProof) throw new TypeError('Registration proof not found')
+
+    const passportInfo = await getPassportInfo(eDocument, registrationProof)
+
     const isPassportRegistered =
       passportInfo?.passportInfo_.activeIdentity !== ethers.encodeBytes32String('')
 
@@ -458,13 +359,24 @@ export function ScanContextProvider({ docType, children }: Props) {
       throw new TypeError('Passport is not registered')
 
     return ethers.getBytes(passportInfo.passportInfo_.activeIdentity).slice(24, 32)
-  }, [passportInfo?.passportInfo_.activeIdentity])
+  }, [eDocument, getPassportInfo, registrationProof])
 
   // ---------------------------------------------------------------------------------------------
 
+  const [resolveRevocationEDoc, setResolveRevocationEDoc] = useState<(value: EDocument) => void>(
+    () => {},
+  )
   const revokeIdentity = useCallback(
-    async (eDoc: EDocument) => {
-      setEDocument(eDoc)
+    async (
+      passportInfo: PassportInfo | null,
+      slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
+      circuitType: CircuitType,
+    ) => {
+      setCurrentStep(Steps.RevocationStep)
+
+      const eDoc = await new Promise<EDocument>(resolve => {
+        setResolveRevocationEDoc(resolve)
+      })
 
       if (!eDoc.dg15) throw new TypeError('DG15 not found')
 
@@ -499,9 +411,8 @@ export function ScanContextProvider({ docType, children }: Props) {
 
         await tx.wait()
       } catch (error) {
-        console.log({ ...error })
         const axiosError = error as AxiosError
-        console.log(JSON.stringify(get(axiosError, 'response.data.errors', {})))
+        console.error(axiosError)
 
         if (
           !JSON.stringify(get(axiosError, 'response.data.errors', {}))?.includes('already revoked')
@@ -513,7 +424,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       try {
         const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
 
-        await registerViaRelayer(
+        await requestRelayerRegisterMethod(
           registrationProof,
           eDoc,
           Buffer.from(slaveCertSmtProof.root),
@@ -521,17 +432,10 @@ export function ScanContextProvider({ docType, children }: Props) {
           true,
         )
       } catch (e) {
-        console.log({ ...e })
+        console.error(e)
       }
     },
-    [
-      circuitType,
-      passportInfo?.passportInfo_.activeIdentity,
-      registerViaRelayer,
-      registrationProof,
-      rmoEvmJsonRpcProvider,
-      slaveCertSmtProof,
-    ],
+    [requestRelayerRegisterMethod, registrationProof, rmoEvmJsonRpcProvider],
   )
 
   const createIdentity = useCallback(async () => {
@@ -557,44 +461,41 @@ export function ScanContextProvider({ docType, children }: Props) {
       const pubKeySize = await getX509RSASize(publicKeyPem)
       const slaveCertPem = await getSlaveCertificatePem(sodBytes)
       const slaveCertIdx = await getSlaveCertIndex(slaveCertPem, icaoBytes)
-      const _circuitType = getCircuitType(pubKeySize)
-      setCircuitType(_circuitType)
+      const circuitType = getCircuitType(pubKeySize)
 
-      if (!_circuitType) throw new TypeError('Unsupported public key size')
+      if (!circuitType) throw new TypeError('Unsupported public key size')
 
       const smtProof = await certPoseidonSMTContract.contractInstance.getProof(
         ethers.zeroPadValue(slaveCertIdx, 32),
       )
-      setSlaveCertSmtProof(smtProof)
 
       if (!smtProof.existence) {
         try {
           await registerCertificate(slaveCertPem)
         } catch (error) {
-          console.log(error)
+          console.error(error)
           if (!(error instanceof CertificateAlreadyRegisteredError)) {
             throw error
           }
         }
       }
 
-      const regProof = await getIdentityRegProof(eDocument, _circuitType, publicKeyPem, smtProof)
+      const regProof = await getIdentityRegProof(eDocument, circuitType, publicKeyPem, smtProof)
       setRegistrationProof(regProof)
 
-      const _passportInfo = await getPassportInfo(eDocument, regProof)
-      setPassportInfo(_passportInfo)
+      const passportInfo = await getPassportInfo(eDocument, regProof)
 
       try {
-        await registerIdentity(regProof, eDocument, smtProof, _circuitType, _passportInfo)
+        await registerIdentity(regProof, eDocument, smtProof, circuitType, passportInfo)
       } catch (error) {
         if (error instanceof PassportRegisteredWithAnotherPKError) {
-          setCurrentStep(Steps.RevocationStep)
+          await revokeIdentity(passportInfo, smtProof, circuitType)
         } else {
           throw error
         }
       }
     } catch (error) {
-      console.log(error)
+      console.error(error)
       bus.emit(DefaultBusEvents.error, {
         message: 'Failed to register identity',
       })
@@ -608,6 +509,7 @@ export function ScanContextProvider({ docType, children }: Props) {
     getPassportInfo,
     registerCertificate,
     registerIdentity,
+    revokeIdentity,
   ])
 
   // ---------------------------------------------------------------------------------------------
@@ -664,7 +566,7 @@ export function ScanContextProvider({ docType, children }: Props) {
         identityCreationProcess,
 
         getRevocationChallenge,
-        revokeIdentity,
+        resolveRevocationEDoc,
       }}
       children={children}
     />

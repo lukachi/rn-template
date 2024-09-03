@@ -12,7 +12,7 @@ import { walletStore } from '@/store'
 import { UiButton, UiIcon } from '@/ui'
 
 export default function RevocationStep() {
-  const { mrz, eDoc, setEDoc, getRevocationChallenge, revokeIdentity } = useDocumentScanContext()
+  const { mrz, eDoc, getRevocationChallenge, resolveRevocationEDoc } = useDocumentScanContext()
 
   const pk = walletStore.useWalletStore(state => state.privateKey)
 
@@ -46,12 +46,10 @@ export default function RevocationStep() {
         challenge,
       )
 
-      const newEDoc = {
+      resolveRevocationEDoc({
         ...(eDoc || eDocumentResponse),
         signature: eDocumentResponse.signature,
-      }
-
-      await revokeIdentity(newEDoc)
+      })
     } catch (error) {
       console.log(error)
     }
@@ -65,7 +63,7 @@ export default function RevocationStep() {
     mrz?.documentNumber,
     mrz?.expirationDate,
     pk,
-    revokeIdentity,
+    resolveRevocationEDoc,
   ])
 
   useEffect(() => {
@@ -124,6 +122,7 @@ export default function RevocationStep() {
 
   return (
     <View className='flex flex-1 flex-col justify-center'>
+      <Text className='text-center text-textPrimary typography-h5'>Revocation</Text>
       <Text className='text-center text-textPrimary typography-h5'>{title}</Text>
       {isScanning ? (
         <View className={'flex items-center'}>
