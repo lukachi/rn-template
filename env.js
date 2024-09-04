@@ -33,12 +33,12 @@ require('dotenv').config({
 
 // TODO: Replace these values with your own
 
-const BUNDLE_ID = 'com.template' // ios bundle id
-const PACKAGE = 'com.template' // android package name
-const NAME = 'template' // app name
-const EXPO_ACCOUNT_OWNER = 'template' // expo account owner
-const EAS_PROJECT_ID = 'c3e1075b-6fe7-4686-aa49-35b46a229044' // eas project id
-const SCHEME = 'templateApp' // app scheme
+const BUNDLE_ID = 'com.lukachi.template' // ios bundle id
+const PACKAGE = 'com.lukachi.template' // android package name
+const NAME = 'lukachi-template' // app name
+const EXPO_ACCOUNT_OWNER = 'lukachi' // expo account owner
+const EAS_PROJECT_ID = '40c83c51-180e-486a-bb1e-290cd69e8fe3' // eas project id
+const SCHEME = 'lukachiTemplateApp' // app scheme
 
 /**
  * We declare a function withEnvSuffix that will add a suffix to the variable name based on the APP_ENV
@@ -78,16 +78,27 @@ const client = z.object({
   VERSION: z.string(),
 
   // ADD YOUR CLIENT ENV VARS HERE
-  API_URL: z.string().url(),
-  // VAR_NUMBER: z.number(),
-  // VAR_BOOL: z.boolean(),
+  RELAYER_API_URL: z.string().url(),
+
+  RMO_CHAIN_ID: z.string(),
+
+  REGISTRATION_CONTRACT_ADDRESS: z.string(),
+  STATE_KEEPER_CONTRACT_ADDRESS: z.string(),
+
+  CERT_POSEIDON_SMT_CONTRACT_ADDRESS: z.string(),
+  REGISTRATION_POSEIDON_SMT_CONTRACT_ADDRESS: z.string(),
+
+  ICAO_COSMOS_GRPC: z.string(),
+  MASTER_CERTIFICATES_BUCKETNAME: z.string(),
+  MASTER_CERTIFICATES_FILENAME: z.string(),
+
+  POINTS_SVC_ID: z.string(),
 })
 
 const buildTime = z.object({
   EXPO_ACCOUNT_OWNER: z.string(),
   EAS_PROJECT_ID: z.string(),
   // ADD YOUR BUILD TIME ENV VARS HERE
-  // SECRET_KEY: z.string(),
 })
 
 /**
@@ -102,9 +113,21 @@ const _clientEnv = {
   VERSION: packageJSON.version,
 
   // ADD YOUR ENV VARS HERE TOO
-  API_URL: process.env.API_URL,
-  // VAR_NUMBER: Number(process.env.VAR_NUMBER),
-  // VAR_BOOL: process.env.VAR_BOOL === 'true',
+  RELAYER_API_URL: process.env.RELAYER_API_URL,
+
+  RMO_CHAIN_ID: process.env.RMO_CHAIN_ID,
+
+  REGISTRATION_CONTRACT_ADDRESS: process.env.REGISTRATION_CONTRACT_ADDRESS,
+  STATE_KEEPER_CONTRACT_ADDRESS: process.env.STATE_KEEPER_CONTRACT_ADDRESS,
+
+  CERT_POSEIDON_SMT_CONTRACT_ADDRESS: process.env.CERT_POSEIDON_SMT_CONTRACT_ADDRESS,
+  REGISTRATION_POSEIDON_SMT_CONTRACT_ADDRESS: process.env.REGISTRATION_POSEIDON_SMT_CONTRACT_ADDRESS,
+
+  ICAO_COSMOS_GRPC: process.env.ICAO_COSMOS_GRPC,
+  MASTER_CERTIFICATES_BUCKETNAME: process.env.MASTER_CERTIFICATES_BUCKETNAME,
+  MASTER_CERTIFICATES_FILENAME: process.env.MASTER_CERTIFICATES_FILENAME,
+
+  POINTS_SVC_ID: process.env.POINTS_SVC_ID,
 }
 
 /**

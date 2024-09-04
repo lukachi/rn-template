@@ -21,8 +21,8 @@ export default function StepLayout({
     <View {...rest} className={cn('flex flex-col items-center justify-end gap-10', className)}>
       <View className={cn('my-auto')}>{media}</View>
       <View className={cn('flex flex-col gap-4')}>
-        <Text className={cn('text-center typography-h5')}>{title}</Text>
-        <Text className={cn('text-center typography-body2')}>{subtitle}</Text>
+        <Text className={cn('text-center text-textPrimary typography-h5')}>{title}</Text>
+        <Text className={cn('text-center text-textPrimary typography-body2')}>{subtitle}</Text>
       </View>
     </View>
   )

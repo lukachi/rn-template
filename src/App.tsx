@@ -10,9 +10,10 @@ import { View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { APIProvider } from '@/api/client'
+import { initInterceptors } from '@/api/interceptors'
 import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
-import { authStore, localAuthStore } from '@/store'
+import { authStore, localAuthStore, walletStore } from '@/store'
 import { loadSelectedTheme } from '@/theme'
 import { Toasts } from '@/ui'
 
@@ -27,15 +28,16 @@ export default function App() {
 
   const [, setAppInitError] = useState<Error>()
 
-  const isAuthStoreHydrated = authStore.useIsHydrated()
-  const isLocalAuthStoreHydrated = localAuthStore.useIsHydrated()
+  const isAuthStoreHydrated = authStore.useAuthStore(state => state._hasHydrated)
+  const isLocalAuthStoreHydrated = localAuthStore.useLocalAuthStore(state => state._hasHydrated)
+  const isWalletStoreHydrated = walletStore.useWalletStore(state => state._hasHydrated)
   const initLocalAuthStore = localAuthStore.useInitLocalAuthStore()
 
   const { language } = useSelectedLanguage()
 
   const isStoresHydrated = useMemo(() => {
-    return isAuthStoreHydrated && isLocalAuthStoreHydrated
-  }, [isAuthStoreHydrated, isLocalAuthStoreHydrated])
+    return isAuthStoreHydrated && isLocalAuthStoreHydrated && isWalletStoreHydrated
+  }, [isAuthStoreHydrated, isLocalAuthStoreHydrated, isWalletStoreHydrated])
 
   useEffect(() => {
     if (!isStoresHydrated) return
@@ -43,6 +45,7 @@ export default function App() {
     const initApp = async () => {
       try {
         // verifyInstallation()
+        initInterceptors()
         await initLocalAuthStore()
         await sleepAsync(1_000)
         await SplashScreen.hideAsync()

@@ -23,31 +23,33 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import type { BottomSheetBackdropProps, BottomSheetModalProps } from '@gorhom/bottom-sheet'
 import { useBottomSheet } from '@gorhom/bottom-sheet'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
-import type { ForwardedRef } from 'react'
+import type { ReactNode } from 'react'
 import { memo } from 'react'
 import { useImperativeHandle } from 'react'
 import { useMemo } from 'react'
 import { forwardRef, useCallback, useRef } from 'react'
+import type { ViewProps } from 'react-native'
 import { Pressable, Text, View } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { useAppTheme } from '@/theme'
+import { cn, useAppTheme } from '@/theme'
 
 type UiBottomSheetProps = BottomSheetModalProps & {
   title?: string
+  headerComponent?: ReactNode
 }
 
 export const useUiBottomSheet = () => {
   const ref = useRef<BottomSheetModal>(null)
 
-  const present = useCallback(() => {
+  const present = () => {
     ref.current?.present()
-  }, [])
+  }
 
-  const dismiss = useCallback(() => {
+  const dismiss = () => {
     ref.current?.dismiss()
-  }, [])
+  }
 
   return { ref, present, dismiss }
 }
@@ -71,16 +73,17 @@ const useDetachedProps = () => {
   } as Partial<BottomSheetModalProps>
 }
 
-export const UiBottomSheet = forwardRef(
+export const UiBottomSheet = forwardRef<BottomSheetModal, UiBottomSheetProps>(
   (
     {
       snapPoints: _snapPoints = ['100%'],
       title,
       detached = false,
+      headerComponent,
       children,
       ...rest
-    }: UiBottomSheetProps,
-    ref: ForwardedRef<BottomSheetModal>,
+    },
+    ref,
   ) => {
     const insets = useSafeAreaInsets()
 
@@ -93,13 +96,8 @@ export const UiBottomSheet = forwardRef(
     useImperativeHandle(ref, () => (uiBottomSheet.ref.current as BottomSheetModal) || null)
 
     const renderHandleComponent = useCallback(
-      () => (
-        <>
-          {/*<View className='mb-8 mt-2 h-1 w-12 self-center rounded-lg bg-gray-400 dark:bg-gray-700' />*/}
-          <BottomSheetHeader title={title} dismiss={uiBottomSheet.dismiss} />
-        </>
-      ),
-      [title, uiBottomSheet.dismiss],
+      () => headerComponent || <BottomSheetHeader title={title} dismiss={uiBottomSheet.dismiss} />,
+      [headerComponent, title, uiBottomSheet.dismiss],
     )
 
     return (
@@ -145,15 +143,18 @@ export const renderBackdrop = (props: BottomSheetBackdropProps) => <CustomBackdr
 type BottomSheetHeaderProps = {
   title?: string
   dismiss: () => void
-}
+} & ViewProps
 
-const BottomSheetHeader = memo(({ title, dismiss }: BottomSheetHeaderProps) => {
+const BottomSheetHeader = memo(({ title, dismiss, className, ...rest }: BottomSheetHeaderProps) => {
   const { palette } = useAppTheme()
 
   return (
     <>
       {title && (
-        <View className='flex-row px-2 py-4'>
+        <View
+          {...rest}
+          className={cn('flex-row rounded-t-2xl bg-backgroundContainer px-2 py-4', className)}
+        >
           <View className='flex-1'>
             <Text className='text-center text-[16px] font-bold text-textPrimary typography-h5'>
               {title}

@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
+import { calculateEventNullifierInt, generatePrivateKey } from '@modules/rarime-sdk'
+import { Buffer } from 'buffer'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
+import { Config } from '@/config'
 import { zustandSecureStorage } from '@/store/helpers'
 
 const useWalletStore = create(
@@ -9,9 +11,16 @@ const useWalletStore = create(
     combine(
       {
         privateKey: '',
+
+        _hasHydrated: false,
       },
       set => ({
-        setPrivateKey: async (value: string) => {
+        setHasHydrated: (value: boolean) => {
+          set({
+            _hasHydrated: value,
+          })
+        },
+        setPrivateKey: (value: string): void => {
           set({ privateKey: value })
         },
       }),
@@ -19,44 +28,47 @@ const useWalletStore = create(
     {
       name: 'wallet',
       version: 1,
-      // TODO: add web support? checking device?
       storage: createJSONStorage(() => zustandSecureStorage),
+
+      onRehydrateStorage: () => state => {
+        state?.setHasHydrated(true)
+      },
 
       partialize: state => ({ privateKey: state.privateKey }),
     },
   ),
 )
 
-const useIsHydrated = () => {
-  const [hydrated, setHydrated] = useState(false)
-
-  useEffect(() => {
-    // Note: This is just in case you want to take into account manual rehydration.
-    // You can remove the following line if you don't need it.
-    const unsubHydrate = useWalletStore.persist.onHydrate(() => setHydrated(false))
-
-    const unsubFinishHydration = useWalletStore.persist.onFinishHydration(() => setHydrated(true))
-
-    setHydrated(useWalletStore.persist.hasHydrated())
-
-    return () => {
-      unsubHydrate()
-      unsubFinishHydration()
-    }
-  }, [])
-
-  return hydrated
-}
-
 const useGeneratePrivateKey = () => {
   return async () => {
-    return '0x...........'
+    const pkBytes = await generatePrivateKey()
+
+    return Buffer.from(pkBytes).toString('hex')
+  }
+}
+
+const usePointsNullifierHex = () => {
+  return async (pkHex: string) => {
+    const eventNullifierIntStr = await calculateEventNullifierInt(Config.POINTS_SVC_ID, pkHex)
+
+    const eventNullifierBN = BigInt(eventNullifierIntStr)
+
+    return `0x${eventNullifierBN.toString(16).padStart(64, '0')}`
+  }
+}
+
+const useDeletePrivateKey = () => {
+  const setPrivateKey = useWalletStore(state => state.setPrivateKey)
+
+  return () => {
+    return setPrivateKey('')
   }
 }
 
 export const walletStore = {
   useWalletStore,
 
-  useGeneratePrivateKey,
-  useIsHydrated,
+  useGeneratePrivateKey: useGeneratePrivateKey,
+  usePointsNullifierHex: usePointsNullifierHex,
+  useDeletePrivateKey,
 }

@@ -7,7 +7,6 @@ import {
   isEnrolledAsync,
   SecurityLevel,
 } from 'expo-local-authentication'
-import { useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -78,8 +77,16 @@ const useLocalAuthStore = create(
         attemptsLeft: MAX_ATTEMPTS,
         failedAttempts: 0,
         lockDeadline: null as number | null,
+
+        _hasHydrated: false,
       },
       (setState, getState) => ({
+        setHasHydrated: (value: boolean) => {
+          setState({
+            _hasHydrated: value,
+          })
+        },
+
         checkBiometricStatus: async (): Promise<void> => {
           const currentBiometricStatus = getState().biometricStatus
 
@@ -109,7 +116,13 @@ const useLocalAuthStore = create(
         disableBiometrics: (): void => {
           setState({ biometricStatus: BiometricStatuses.Disabled })
         },
+        setBiometricsStatus: (biometricStatus: BiometricStatuses): void => {
+          setState({ biometricStatus: biometricStatus })
+        },
 
+        setPasscodeStatus: (passcodeStatus: PasscodeStatuses): void => {
+          setState({ passcodeStatus: passcodeStatus })
+        },
         setPasscode: (passcode: string): void => {
           setState({ passcode, passcodeStatus: PasscodeStatuses.Enabled })
         },
@@ -216,6 +229,10 @@ const useLocalAuthStore = create(
       version: 1,
       storage: createJSONStorage(() => zustandSecureStorage),
 
+      onRehydrateStorage: () => state => {
+        state?.setHasHydrated(true)
+      },
+
       partialize: state => ({
         passcode: state.passcode,
         passcodeStatus: state.passcodeStatus,
@@ -229,29 +246,6 @@ const useLocalAuthStore = create(
     },
   ),
 )
-
-const useIsHydrated = () => {
-  const [hydrated, setHydrated] = useState(false)
-
-  useEffect(() => {
-    // Note: This is just in case you want to take into account manual rehydration.
-    // You can remove the following line if you don't need it.
-    const unsubHydrate = useLocalAuthStore.persist.onHydrate(() => setHydrated(false))
-
-    const unsubFinishHydration = useLocalAuthStore.persist.onFinishHydration(() =>
-      setHydrated(true),
-    )
-
-    setHydrated(useLocalAuthStore.persist.hasHydrated())
-
-    return () => {
-      unsubHydrate()
-      unsubFinishHydration()
-    }
-  }, [])
-
-  return hydrated
-}
 
 const useIsUnlocked = () => {
   const lockStatus = useLocalAuthStore(state => state.lockStatus)
@@ -304,13 +298,13 @@ const useUserActionsInLocalAuth = (onDecided: (action: UserActionsInLocalAuth) =
     return
   }
 
+  if (biometricStatus === BiometricStatuses.NotSet) {
+    onDecided(UserActionsInLocalAuth.NeedToEnableBiometrics)
+
+    return
+  }
+
   if (passcodeStatus === PasscodeStatuses.Enabled) {
-    if (biometricStatus === BiometricStatuses.NotSet) {
-      onDecided(UserActionsInLocalAuth.NeedToEnableBiometrics)
-
-      return
-    }
-
     onDecided(UserActionsInLocalAuth.NeedToUnlock)
 
     return
@@ -340,7 +334,6 @@ const useUserNeedToLocalAuth = () => {
 export const localAuthStore = {
   useLocalAuthStore: useLocalAuthStore,
 
-  useIsHydrated: useIsHydrated,
   useIsUnlocked: useIsUnlocked,
 
   useInitLocalAuthStore: useInitLocalAuthStore,

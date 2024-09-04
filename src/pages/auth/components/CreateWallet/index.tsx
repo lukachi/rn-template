@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ErrorHandler, useSoftKeyboardEffect } from '@/core'
 import { useCopyToClipboard, useForm, useLoading } from '@/hooks'
 import type { AuthStackScreenProps } from '@/route-types'
-import { walletStore } from '@/store'
+import { authStore, walletStore } from '@/store'
 import { cn } from '@/theme'
 import { ControlledUiTextField, UiButton, UiCard, UiHorizontalDivider, UiIcon } from '@/ui'
 
@@ -17,6 +17,7 @@ type Props = ViewProps & AuthStackScreenProps<'CreateWallet'>
 export default function CreateWallet({ route }: Props) {
   const generatePrivateKey = walletStore.useGeneratePrivateKey()
   const setPrivateKey = walletStore.useWalletStore(state => state.setPrivateKey)
+  const login = authStore.useLogin()
 
   const isImporting = useMemo(() => {
     return route?.params?.isImporting
@@ -31,7 +32,7 @@ export default function CreateWallet({ route }: Props) {
   const { formState, isFormDisabled, handleSubmit, disableForm, enableForm, control, setValue } =
     useForm(
       {
-        privateKey: '',
+        privateKey: '0ae3584bb3028e79639b743f41bb119a9a80821443e1ac5532a8fa9b5d0a6646',
       },
       yup =>
         yup.object().shape({
@@ -45,11 +46,13 @@ export default function CreateWallet({ route }: Props) {
     disableForm()
     try {
       setPrivateKey(formState.privateKey)
+      await login(formState.privateKey)
     } catch (error) {
+      // TODO: network inspector
       ErrorHandler.process(error)
     }
     enableForm()
-  }, [disableForm, enableForm, formState.privateKey, setPrivateKey])
+  }, [disableForm, enableForm, formState.privateKey, login, setPrivateKey])
 
   const pasteFromClipboard = useCallback(async () => {
     const res = await fetchFromClipboard()
@@ -98,7 +101,7 @@ export default function CreateWallet({ route }: Props) {
           <View className='flex flex-1 flex-col px-5'>
             <View className='my-auto flex flex-col items-center gap-4'>
               <UiIcon componentName='starFillIcon' className='size-[200px] text-primaryMain' />
-              <Text className='typography-h4'>Your keys</Text>
+              <Text className='text-textPrimary typography-h4'>Your keys</Text>
             </View>
             <UiCard className={cn('mt-5 flex gap-4')}>
               {isImporting ? (
@@ -121,7 +124,9 @@ export default function CreateWallet({ route }: Props) {
               ) : (
                 <>
                   <UiCard className='bg-backgroundPrimary'>
-                    <Text>{formState.privateKey}</Text>
+                    <Text className='text-textPrimary typography-body3'>
+                      {formState.privateKey}
+                    </Text>
                   </UiCard>
 
                   <UiButton

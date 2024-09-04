@@ -5,13 +5,28 @@
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "resolveJsonModule": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@assets/*": ["./assets/*"],
-      "@env": ["./src/core/env.js"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@assets/*": [
+        "./assets/*"
+      ],
+      "@modules/*": [
+        "./modules/*"
+      ],
+      "@env": [
+        "./src/core/env.js"
+      ]
     },
-    "types": ["lodash"]
+    "types": [
+      "lodash"
+    ]
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts", "declarations.d.ts"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "declarations.d.ts"
+  ],
   "exclude": [
     "node_modules",
     "babel.config.js",

@@ -1,29 +1,57 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
-import type { AppStackParamsList, RootStackScreenProps } from '@/route-types'
+import type { AppTabParamsList, RootStackScreenProps } from '@/route-types'
+import { cn } from '@/theme'
+import { UiIcon } from '@/ui'
 
-import FetchingScreen from './pages/fetching'
-import LocalizationScreen from './pages/localization'
-import UiKitScreen from './pages/ui-kit'
+import DocumentScanScreen from './pages/document-scan'
+import HomeScreen from './pages/home'
+import ProfileScreen from './pages/profile'
 
-const Stack = createNativeStackNavigator<AppStackParamsList>()
+const Tab = createBottomTabNavigator<AppTabParamsList>()
 
 export default function App({}: RootStackScreenProps<'App'>) {
   return (
-    <>
-      <Stack.Navigator initialRouteName={'UiKit'}>
-        <Stack.Screen name={'UiKit'} component={UiKitScreen} options={{ headerShown: false }} />
-        <Stack.Screen
-          name={'Fetching'}
-          component={FetchingScreen}
-          options={{ headerShown: false, presentation: 'modal' }}
-        />
-        <Stack.Screen
-          name={'Localization'}
-          component={LocalizationScreen}
-          options={{ headerShown: false, presentation: 'modal' }}
-        />
-      </Stack.Navigator>
-    </>
+    <Tab.Navigator initialRouteName={'Home'}>
+      <Tab.Screen
+        name={'Home'}
+        component={HomeScreen}
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ focused }) => (
+            <UiIcon
+              componentName='houseSimpleIcon'
+              className={cn(focused ? 'text-primaryMain' : 'text-textSecondary')}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name={'Scan'}
+        component={DocumentScanScreen}
+        options={{
+          title: 'Scan',
+          tabBarIcon: ({ focused }) => (
+            <UiIcon
+              componentName='lockIcon'
+              className={cn(focused ? 'text-primaryMain' : 'text-textSecondary')}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name={'Profile'}
+        component={ProfileScreen}
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ focused }) => (
+            <UiIcon
+              componentName='userIcon'
+              className={cn(focused ? 'text-primaryMain' : 'text-textSecondary')}
+            />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   )
 }

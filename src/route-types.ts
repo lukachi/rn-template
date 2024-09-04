@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamsList>
   LocalAuth: NavigatorScreenParams<LocalAuthStackParamsList>
-  App: NavigatorScreenParams<AppStackParamsList>
+  App: NavigatorScreenParams<AppTabParamsList>
 }
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
@@ -33,26 +33,14 @@ export type LocalAuthStackParamsList = {
 export type LocalAuthStackScreenProps<T extends keyof LocalAuthStackParamsList> =
   NativeStackScreenProps<LocalAuthStackParamsList, T>
 
-export type AppStackParamsList = {
-  UiKit: undefined
-  Fetching: undefined
-  Localization: undefined
+export type AppTabParamsList = {
+  Home: undefined
+  Scan: undefined
+  Profile: undefined
 }
 
-export type AppStackScreenProps<T extends keyof AppStackParamsList> = NativeStackScreenProps<
-  AppStackParamsList,
-  T
->
-
-export type UiKitTabParamList = {
-  Common: undefined
-  Zkp: undefined
-  Colors: undefined
-  Typography: undefined
-}
-
-export type UiKitTabScreenProps<T extends keyof UiKitTabParamList> = CompositeScreenProps<
-  BottomTabScreenProps<UiKitTabParamList, T>,
+export type AppTabScreenProps<T extends keyof AppTabParamsList> = CompositeScreenProps<
+  BottomTabScreenProps<AppTabParamsList, T>,
   RootStackScreenProps<keyof RootStackParamList>
 >
 

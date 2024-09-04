@@ -22,14 +22,14 @@ export default ({config}: ConfigContext): ExpoConfig => ({
   updates: {
     fallbackToCacheTimeout: 0,
   },
-  assetBundlePatterns: ['**/*'],
+  // assetBundlePatterns: ['**/*'],
   ios: {
     // supportsTablet: true,
     bundleIdentifier: Env.BUNDLE_ID,
   },
-  experiments: {
-    typedRoutes: true,
-  },
+  // experiments: {
+  //   typedRoutes: true,
+  // },
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
@@ -78,11 +78,20 @@ export default ({config}: ConfigContext): ExpoConfig => ({
       {
         android: {
           kotlinVersion: '1.7.22', // this is for softinput package
-          minSdkVersion: 24,
+          minSdkVersion: 27,
+          targetSdkVersion: 34,
           // newArchEnabled: true
         },
         ios: {
-          // newArchEnabled: true
+          // newArchEnabled: true,
+          deploymentTarget: '16.0',
+
+          extraPods: [
+            {
+              name: 'NFCPassportReader',
+              git: 'https://github.com/rarimo/NFCPassportReader.git',
+            }
+          ],
         },
       },
     ],
@@ -110,6 +119,10 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
       }
     ],
+    [ "react-native-vision-camera", {
+      "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+    }],
+    ['./modules/e-document/app.plugin.js']
   ],
   extra: {
     ...ClientEnv,
