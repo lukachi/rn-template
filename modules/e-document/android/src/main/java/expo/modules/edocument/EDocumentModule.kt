@@ -36,6 +36,14 @@ fun PublicKey.publicKeyToPem(): String {
     "\n-----END PUBLIC KEY-----\n"
 }
 
+fun String.decodeHexString(): ByteArray {
+  check(length % 2 == 0) {
+    "Must have an even length"
+  }
+
+  return chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+}
+
 enum class DocumentScanEvents(val value: String) {
   SCAN_STARTED("SCAN_STARTED"),
 
@@ -120,7 +128,7 @@ class EDocumentModule : Module() {
     AsyncFunction("getSodEncapsulatedContent") { sod: ByteArray ->
       val sodFile = SODFile(sod.inputStream())
 
-      return@AsyncFunction sodFile.readASN1Data()
+      return@AsyncFunction sodFile.readASN1Data().decodeHexString()
     }
 
     AsyncFunction("getSodSignedAttributes") { sod: ByteArray ->

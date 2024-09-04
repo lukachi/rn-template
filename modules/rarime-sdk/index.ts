@@ -65,7 +65,6 @@ export async function buildRegisterIdentityInputs({
   pubKeyPem: Uint8Array
   smtProofJson: Uint8Array
 }): Promise<Uint8Array> {
-  // FIXME: [Error: The data couldn’t be read because it isn’t in the correct format.]
   return await RarimeSdkModule.buildRegisterIdentityInputs(
     privateKeyHex,
     new Uint8Array(encapsulatedContent),
