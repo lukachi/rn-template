@@ -10,7 +10,21 @@ const logout = authStore.useAuthStore.getState().logout
 export const initInterceptors = () => {
   const dataFormatter = new Jsona()
   apiClient.interceptors.response.use(response => {
+    console.log('response', response)
     try {
+      const isArray = Array.isArray(response.data.data)
+
+      // TODO: verify with real jsonapi serializer
+      if (isArray) {
+        return {
+          ...response,
+          data: {
+            ...response.data,
+            data: dataFormatter.deserialize(response.data),
+          },
+        }
+      }
+
       return {
         ...response,
         data: dataFormatter.deserialize(response.data),
