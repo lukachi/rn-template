@@ -161,8 +161,10 @@ public class EDocumentModule: Module {
             
             var pubkey: OpaquePointer
             if let rsaPublicKey = dg15.rsaPublicKey {
+                print("RSA public key")
                 pubkey = rsaPublicKey
             } else if let ecdsaPublicKey = dg15.ecdsaPublicKey {
+                print("ECDSA public key")
                 pubkey = ecdsaPublicKey
             } else {
                 throw "Public key is missing"

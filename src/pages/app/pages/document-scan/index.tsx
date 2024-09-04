@@ -11,6 +11,7 @@ import {
   ScanMrzStep,
   ScanNfcStep,
   SelectDocTypeStep,
+  SuccessStep,
 } from './components'
 
 export default function DocumentScanScreen() {
@@ -33,6 +34,7 @@ function DocumentScanContent() {
         [Steps.DocumentPreviewStep]: () => <DocumentPreviewStep />,
         [Steps.GenerateProofStep]: () => <GenerateProofStep />,
         [Steps.RevocationStep]: () => <RevocationStep />,
+        [Steps.FinishStep]: () => <SuccessStep />,
       }[currentStep]()}
     </>
   )
