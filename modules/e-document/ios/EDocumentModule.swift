@@ -62,10 +62,10 @@ public class EDocumentModule: Module {
                             let message: LocalizedStringResource?
                             switch displayMessage {
                             case .requestPresentPassport:
-                                self.sendEvent(DocumentScanEvents.scanStarted.rawValue)
                                 self.sendEvent(DocumentScanEvents.requestPresentPassport.rawValue)
                                 message = "Hold your iPhone near an NFC enabled passport.\n";
                             case .authenticatingWithPassport(let progress):
+//                                self.sendEvent(DocumentScanEvents.scanStarted.rawValue)
                                 self.sendEvent(DocumentScanEvents.authenticatingWithPassport.rawValue)
                                 message = "Authenticating with passport...\n\n\(drawProgressBar(progress))"
                             case .activeAuthentication:

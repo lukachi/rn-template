@@ -153,6 +153,8 @@ class EDocumentModule : Module() {
   }
 
   private fun handleNfcIntent(intent: Intent?, promise: Promise) {
+    sendEvent(DocumentScanEvents.SCAN_STARTED.value)
+
     val tag = intent?.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
 
     if (!(intent?.action == NfcAdapter.ACTION_TAG_DISCOVERED || intent?.action == NfcAdapter.ACTION_TECH_DISCOVERED)) return
@@ -209,7 +211,6 @@ class EDocumentModule : Module() {
     val techList = arrayOf(arrayOf(IsoDep::class.java.name))
     nfcAdapter?.enableForegroundDispatch(activity, pendingIntent, filters, techList)
 
-    sendEvent(DocumentScanEvents.SCAN_STARTED.value)
     sendEvent(DocumentScanEvents.REQUEST_PRESENT_PASSPORT.value)
   }
 

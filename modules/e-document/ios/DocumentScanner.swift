@@ -29,11 +29,11 @@ struct PersonDetails : Codable {
 
 struct Passport: Codable {
     var personDetails: PersonDetails
-    let dg1: Data
-    let dg15: Data
-    let sod: Data
-    let signature: Data
-    let dg11: Data?
+    let dg1: String // base64
+    let dg15: String // base64
+    let sod: String // base64
+    let signature: String // base64
+    let dg11: String? // base64
     
     var fullName: String {
         "\(personDetails.firstName) \(personDetails.lastName)"
@@ -70,7 +70,9 @@ struct Passport: Codable {
     }
     
     var encapsulatedContentSize: Int {
-        let sod = try? SOD([UInt8](self.sod))
+        let sodBytes = Data(base64Encoded: sod) ?? Data()
+        
+        let sod = try? SOD([UInt8](sodBytes))
         
         return ((try? sod?.getEncapsulatedContent())?.count ?? 0) * 8
     }
@@ -80,8 +82,10 @@ struct Passport: Codable {
             if dg11Raw.isEmpty {
                 return ""
             }
+            
+            let dg11Bytes = [UInt8](Data(base64Encoded: dg11Raw) ?? Data())
 
-            if let dg11 = try? DataGroup11([UInt8](dg11Raw)) {
+            if let dg11 = try? DataGroup11([UInt8](dg11Bytes)) {
                 if let personalNumber = dg11.personalNumber {
                     return personalNumber
                 }
@@ -93,7 +97,7 @@ struct Passport: Codable {
         let personalNumberStartIndex = dg1Text.index(dg1Text.startIndex, offsetBy: 20)
         let personalNumberEndIndex = dg1Text.index(dg1Text.startIndex, offsetBy: 30)
              
-        return String(dg1Text[personalNumberStartIndex ... personalNumberEndIndex])
+        return String(dg1Text[personalNumberStartIndex ... personalNumberEndIndex]) ?? ""
     }
     
     func getDG15PublicKeyPEM() throws -> Data {
@@ -101,7 +105,9 @@ struct Passport: Codable {
             return Data()
         }
         
-        guard let dg15 = try? DataGroup15([UInt8](dg15)) else {
+        let dg15Bytes = Data(base64Encoded: dg15) ?? Data()
+        
+        guard let dg15 = try? DataGroup15([UInt8](dg15Bytes)) else {
             return Data()
         }
         
@@ -145,14 +151,14 @@ struct Passport: Codable {
             dateOfBirth: model.dateOfBirth,
             nationality: model.nationality
         )
-        
+
         return Passport(
             personDetails: personDetails,
-            dg1: Data(dg1),
-            dg15: Data(dg15),
-            sod: Data(sod),
-            signature: Data(model.activeAuthenticationSignature),
-            dg11: Data(dg11)
+            dg1: Data(dg1).base64EncodedString(),
+            dg15: Data(dg15).base64EncodedString(),
+            sod: Data(sod).base64EncodedString(),
+            signature: Data(model.activeAuthenticationSignature).base64EncodedString(),
+            dg11: Data(dg11).base64EncodedString()
         )
     }
     
@@ -175,11 +181,11 @@ extension Passport {
             dateOfBirth: "970314",
             nationality: "GEO"
         ),
-        dg1: Data(),
-        dg15: Data(),
-        sod: Data(),
-        signature: Data(),
-        dg11: Data()
+        dg1: Data().base64EncodedString(),
+        dg15: Data().base64EncodedString(),
+        sod: Data().base64EncodedString(),
+        signature: Data().base64EncodedString(),
+        dg11: Data().base64EncodedString()
     )
 }
 

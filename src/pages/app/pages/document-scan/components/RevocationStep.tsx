@@ -7,7 +7,9 @@ import {
 import { useCallback, useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 
+import { ErrorHandler } from '@/core'
 import {
+  rejectRevocationEDoc,
   resolveRevocationEDoc,
   useDocumentScanContext,
 } from '@/pages/app/pages/document-scan/context'
@@ -39,8 +41,6 @@ export default function RevocationStep() {
     try {
       const challenge = await getRevocationChallenge()
 
-      console.log('revocation challenge', challenge.length)
-
       const eDocumentResponse = await scanDocument(
         mrz.documentCode,
         {
@@ -51,12 +51,16 @@ export default function RevocationStep() {
         challenge,
       )
 
+      console.log('eDoc.signature', eDoc.signature)
+      console.log('eDocumentResponse.signature', eDocumentResponse.signature)
+
       resolveRevocationEDoc({
         ...(eDoc || eDocumentResponse),
         signature: eDocumentResponse.signature,
       })
     } catch (error) {
-      console.log(error)
+      ErrorHandler.process(error)
+      rejectRevocationEDoc(error)
     }
 
     setIsScanning(false)

@@ -107,7 +107,7 @@ const useLogin = () => {
     }
 
     const authWtns = await calcWtnsAuth(
-      Buffer.from(datBase64, 'base64'),
+      ethers.decodeBase64(datBase64),
       Buffer.from(JSON.stringify(inputs)),
     )
 

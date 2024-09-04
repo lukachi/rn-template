@@ -23,7 +23,6 @@ import { Buffer } from 'buffer'
 import { encodeBase64, ethers, JsonRpcProvider } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
-import isEmpty from 'lodash/isEmpty'
 import type { FieldRecords } from 'mrz'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
@@ -56,6 +55,8 @@ export enum Steps {
 
   RevocationStep,
 }
+
+const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
 
 type PassportInfo = {
   passportInfo_: StateKeeper.PassportInfoStructOutput
@@ -102,6 +103,7 @@ type Props = {
 } & PropsWithChildren
 
 export let resolveRevocationEDoc: (value: EDocument | PromiseLike<EDocument>) => void
+export let rejectRevocationEDoc: (value: Error) => void
 
 export function ScanContextProvider({ docType, children }: Props) {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
@@ -178,9 +180,15 @@ export function ScanContextProvider({ docType, children }: Props) {
   const getPassportInfo = useCallback(
     async (eDoc: EDocument, regProof: ZKProof): Promise<PassportInfo | null> => {
       try {
-        const passportInfoKeyBigIntString = isEmpty(eDoc.dg15)
+        console.log('getPassportInfo')
+        console.log('\n\n\n')
+        console.log('regProof.pub_signals', JSON.stringify(regProof.pub_signals))
+        console.log('\n\n\n')
+        const passportInfoKeyBigIntString = eDoc.dg15?.length
           ? regProof.pub_signals[1]
           : regProof.pub_signals[0]
+
+        console.log('passportInfoKeyBigIntString', passportInfoKeyBigIntString)
 
         const passportInfoKeyBytes = ethers.zeroPadValue(
           '0x' + ethers.getBigInt(passportInfoKeyBigIntString).toString(16),
@@ -209,7 +217,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       if (!eDoc.sod) throw new TypeError('SOD not found')
 
-      const sodBytes = Buffer.from(eDoc.sod, 'base64')
+      const sodBytes = ethers.decodeBase64(eDoc.sod)
 
       const encapsulatedContent = await getSodEncapsulatedContent(sodBytes)
       const signedAttributes = await getSodSignedAttributes(sodBytes)
@@ -219,8 +227,8 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       if (!eDoc.dg15) throw new TypeError('DG15 not found')
 
-      const dg1Bytes = Buffer.from(eDoc.dg1, 'base64')
-      const dg15Bytes = Buffer.from(eDoc.dg15, 'base64')
+      const dg1Bytes = ethers.decodeBase64(eDoc.dg1)
+      const dg15Bytes = ethers.decodeBase64(eDoc.dg15)
 
       const registerIdentityInputs = await buildRegisterIdentityInputs({
         privateKeyHex: privateKey,
@@ -266,17 +274,18 @@ export function ScanContextProvider({ docType, children }: Props) {
       circuitTypeCertificatePubKeySize: number,
       isRevoked: boolean,
     ) => {
-      if (!eDoc.sod) throw new TypeError('SOD not found')
-
+      console.log('requestRelayerRegisterMethod')
       if (!eDoc.dg15) throw new TypeError('DG15 not found')
 
       if (!eDoc.signature) throw new TypeError('Signature not found')
 
-      const dg15PubKeyPem = await getDG15PubKeyPem(Buffer.from(eDoc.dg15, 'base64'))
+      const dg15PubKeyPem = await getDG15PubKeyPem(ethers.decodeBase64(eDoc.dg15))
+
+      console.log('eDoc.signature', eDoc.signature)
 
       const registerCallData = await buildRegisterCallData(
         Buffer.from(JSON.stringify(regProof)),
-        Buffer.from(eDoc.signature, 'base64'),
+        ethers.decodeBase64(eDoc.signature),
         dg15PubKeyPem,
         masterCertSmtProofRoot,
         circuitTypeCertificatePubKeySize,
@@ -310,10 +319,8 @@ export function ScanContextProvider({ docType, children }: Props) {
       const currentIdentityKey = await getPublicKeyHash(privateKey)
       const currentIdentityKeyHex = ethers.hexlify(currentIdentityKey)
 
-      const ZERO_BYTES32 = ethers.encodeBytes32String('')
-
       const isPassportNotRegistered =
-        !passportInfo || passportInfo.passportInfo_.activeIdentity === ZERO_BYTES32
+        !passportInfo || passportInfo.passportInfo_.activeIdentity === ZERO_BYTES32_HEX
 
       const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
 
@@ -341,17 +348,20 @@ export function ScanContextProvider({ docType, children }: Props) {
   )
 
   const getRevocationChallenge = useCallback(async (): Promise<Uint8Array> => {
+    console.log('getRevocationChallenge')
     if (!eDocument) throw new TypeError('eDocument not found')
 
     if (!registrationProof) throw new TypeError('Registration proof not found')
 
     const passportInfo = await getPassportInfo(eDocument, registrationProof)
 
-    const isPassportRegistered =
-      passportInfo?.passportInfo_.activeIdentity !== ethers.encodeBytes32String('')
+    if (!passportInfo?.passportInfo_.activeIdentity)
+      throw new TypeError('Active identity not found')
 
-    if (!isPassportRegistered || !passportInfo?.passportInfo_.activeIdentity)
-      throw new TypeError('Passport is not registered')
+    console.log(
+      'passportInfo?.passportInfo_.activeIdentity',
+      passportInfo?.passportInfo_.activeIdentity,
+    )
 
     return ethers.getBytes(passportInfo.passportInfo_.activeIdentity).slice(24, 32)
   }, [eDocument, getPassportInfo, registrationProof])
@@ -368,8 +378,9 @@ export function ScanContextProvider({ docType, children }: Props) {
       console.log('revokeIdentity')
       setCurrentStep(Steps.RevocationStep)
 
-      const eDoc = await new Promise<EDocument>(resolve => {
+      const eDoc = await new Promise<EDocument>((resolve, reject) => {
         resolveRevocationEDoc = resolve
+        rejectRevocationEDoc = reject
       })
 
       if (!eDoc.dg15) throw new TypeError('DG15 not found')
@@ -383,62 +394,71 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       if (!circuitType) throw new TypeError('Circuit type not found')
 
-      const eDocSignature = Buffer.from(eDoc.signature, 'base64')
+      const eDocSignature = ethers.decodeBase64(eDoc.signature)
 
-      const dg15PubKeyPem = await getDG15PubKeyPem(Buffer.from(eDoc.dg15, 'base64'))
+      const dg15PubKeyPem = await getDG15PubKeyPem(ethers.decodeBase64(eDoc.dg15))
 
       console.log(
         'passportInfo?.passportInfo_.activeIdentity',
         passportInfo?.passportInfo_.activeIdentity,
       )
 
-      const activeIdentity = ethers.getBytes(passportInfo?.passportInfo_.activeIdentity)
+      const activeIdentityBytes = ethers.getBytes(passportInfo?.passportInfo_.activeIdentity)
 
-      console.log({
-        activeIdentity,
-        eDocSignature,
-        dg15PubKeyPem,
-      })
+      console.log('ZERO_BYTES32', ZERO_BYTES32_HEX)
 
-      const calldata = await buildRevoceCalldata(activeIdentity, eDocSignature, dg15PubKeyPem)
+      const isPassportRegistered = passportInfo?.passportInfo_.activeIdentity !== ZERO_BYTES32_HEX
 
-      console.log('callData: ', calldata.length)
-      console.log('callData hex: ', ethers.hexlify(calldata))
-
-      try {
-        const { data } = await relayerRegister(
-          ethers.hexlify(calldata),
-          Config.REGISTRATION_CONTRACT_ADDRESS,
+      if (isPassportRegistered) {
+        console.log('buildRevoceCalldata')
+        const calldata = await buildRevoceCalldata(
+          activeIdentityBytes,
+          eDocSignature,
+          dg15PubKeyPem,
         )
 
-        const tx = await rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
+        console.log(`callData hex (${calldata.length}): `, ethers.hexlify(calldata))
 
-        if (!tx) throw new TypeError('Transaction not found')
+        try {
+          const { data } = await relayerRegister(
+            ethers.hexlify(calldata),
+            Config.REGISTRATION_CONTRACT_ADDRESS,
+          )
 
-        await tx.wait()
-      } catch (error) {
-        const axiosError = error as AxiosError
+          const tx = await rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
 
-        if (!JSON.stringify(axiosError.response?.data)?.includes('already revoked')) {
-          throw axiosError
+          if (!tx) throw new TypeError('Transaction not found')
+
+          await tx.wait()
+        } catch (error) {
+          const axiosError = error as AxiosError
+          if (axiosError.response?.data) {
+            console.warn(JSON.stringify(axiosError.response?.data))
+          }
+
+          const errorMsgsToSkip = ['the leaf does not match', 'already revoked']
+
+          const isSkip = errorMsgsToSkip.some(q =>
+            JSON.stringify(axiosError.response?.data)?.includes(q),
+          )
+
+          if (!isSkip) {
+            throw axiosError
+          }
         }
       }
 
       console.log('reissuing registration')
 
-      try {
-        const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
+      const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
 
-        await requestRelayerRegisterMethod(
-          regProof,
-          eDoc,
-          Buffer.from(slaveCertSmtProof.root),
-          circuitTypeCertificatePubKeySize,
-          true,
-        )
-      } catch (e) {
-        console.error(e)
-      }
+      await requestRelayerRegisterMethod(
+        regProof,
+        eDoc,
+        Buffer.from(slaveCertSmtProof.root),
+        circuitTypeCertificatePubKeySize,
+        true,
+      )
     },
     [requestRelayerRegisterMethod, rmoEvmJsonRpcProvider],
   )
@@ -456,11 +476,11 @@ export function ScanContextProvider({ docType, children }: Props) {
       const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
         encoding: FileSystem.EncodingType.Base64,
       })
-      const icaoBytes = Buffer.from(icaoBase64, 'base64')
+      const icaoBytes = ethers.decodeBase64(icaoBase64)
 
       if (!eDocument.sod) throw new TypeError('SOD not found')
 
-      const sodBytes = Buffer.from(eDocument.sod, 'base64')
+      const sodBytes = ethers.decodeBase64(eDocument.sod)
 
       const publicKeyPem = await getPublicKeyPem(sodBytes)
       const pubKeySize = await getX509RSASize(publicKeyPem)
@@ -500,12 +520,21 @@ export function ScanContextProvider({ docType, children }: Props) {
       } catch (error) {
         if (error instanceof PassportRegisteredWithAnotherPKError) {
           return await revokeIdentity(passportInfo, slaveCertSmtProof, circuitType, regProof)
-        } else {
-          throw error
         }
+
+        throw error
       }
     } catch (error) {
+      const axiosError = error as AxiosError
+
+      if (axiosError.response?.data) {
+        console.warn(JSON.stringify(axiosError.response?.data))
+      }
+
+      console.log('\n\n\n')
+
       console.error(error)
+
       bus.emit(DefaultBusEvents.error, {
         message: 'Failed to register identity',
       })
