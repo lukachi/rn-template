@@ -27,7 +27,7 @@ export default function HomeWithoutDocs() {
 
   return (
     <UiScreenScrollable
-      className={'gap-3'}
+      className={'gap-3 px-5'}
       style={{
         paddingTop: insets.top,
       }}

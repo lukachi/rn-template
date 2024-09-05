@@ -529,7 +529,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       const passportInfo = await getPassportInfo(eDocument, regProof)
 
       try {
-        await registerIdentity(regProof, eDocument, slaveCertSmtProof, circuitType, passportInfo)
+        // await registerIdentity(regProof, eDocument, slaveCertSmtProof, circuitType, passportInfo)
       } catch (error) {
         if (error instanceof PassportRegisteredWithAnotherPKError) {
           await revokeIdentity(eDocument, passportInfo, slaveCertSmtProof, circuitType, regProof)

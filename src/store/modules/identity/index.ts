@@ -3,9 +3,9 @@ import type { ZKProof } from '@modules/rapidsnark-wrp'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
-import { zustandSecureStorage } from '@/store/helpers'
+import { zustandStorage } from '@/store/helpers'
 
-type IdentityItem = {
+export type IdentityItem = {
   document: EDocument
   registrationProof: ZKProof
 }
@@ -41,7 +41,7 @@ const useIdentityStore = create(
     {
       name: 'documents',
       version: 1,
-      storage: createJSONStorage(() => zustandSecureStorage),
+      storage: createJSONStorage(() => zustandStorage),
 
       onRehydrateStorage: () => state => {
         state?.setHasHydrated(true)
