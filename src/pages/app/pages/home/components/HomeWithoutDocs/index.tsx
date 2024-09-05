@@ -26,7 +26,12 @@ export default function HomeWithoutDocs() {
   const navigation = useNavigation()
 
   return (
-    <UiScreenScrollable className={'gap-3'}>
+    <UiScreenScrollable
+      className={'gap-3'}
+      style={{
+        paddingTop: insets.top,
+      }}
+    >
       <UiCard>
         <UiIcon componentName={'starFillIcon'} className={'m-auto mb-5 size-[110]'} />
         <View className={'flex flex-col gap-2'}>

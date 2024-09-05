@@ -9,3 +9,4 @@ ios/
 *.d.ts
 *.config.ts
 *.config.js
+contracts/

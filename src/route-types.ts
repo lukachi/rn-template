@@ -1,3 +1,4 @@
+import type { DocType } from '@modules/e-document'
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs'
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
@@ -5,7 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamsList>
   LocalAuth: NavigatorScreenParams<LocalAuthStackParamsList>
-  App: NavigatorScreenParams<AppTabParamsList>
+  App: NavigatorScreenParams<AppStackParamsList>
 }
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
@@ -33,9 +34,22 @@ export type LocalAuthStackParamsList = {
 export type LocalAuthStackScreenProps<T extends keyof LocalAuthStackParamsList> =
   NativeStackScreenProps<LocalAuthStackParamsList, T>
 
+export type AppStackParamsList = {
+  Tabs: AppTabParamsList
+  Scan:
+    | {
+        documentType?: DocType
+      }
+    | undefined
+}
+
+export type AppStackScreenProps<T extends keyof AppStackParamsList> = NativeStackScreenProps<
+  AppStackParamsList,
+  T
+>
+
 export type AppTabParamsList = {
   Home: undefined
-  Scan: undefined
   Profile: undefined
 }
 
