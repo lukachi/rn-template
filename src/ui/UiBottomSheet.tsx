@@ -145,34 +145,31 @@ type BottomSheetHeaderProps = {
   dismiss: () => void
 } & ViewProps
 
-const BottomSheetHeader = memo(({ title, dismiss, className, ...rest }: BottomSheetHeaderProps) => {
-  const { palette } = useAppTheme()
+export const BottomSheetHeader = memo(
+  ({ title, dismiss, className, ...rest }: BottomSheetHeaderProps) => {
+    const { palette } = useAppTheme()
 
-  return (
-    <>
-      {title && (
-        <View
-          {...rest}
-          className={cn('flex-row rounded-t-2xl bg-backgroundContainer px-2 py-4', className)}
-        >
-          <View className='flex-1'>
-            <Text className='text-center text-[16px] font-bold text-textPrimary typography-h5'>
+    return (
+      <View {...rest} className={cn('flex-row items-center rounded-t-2xl px-2 py-4', className)}>
+        <View className={'relative w-full'}>
+          {title && (
+            <Text className='flex-1 text-[16px] font-bold text-textPrimary typography-h5'>
               {title}
             </Text>
-          </View>
-        </View>
-      )}
+          )}
 
-      <Pressable
-        onPress={dismiss}
-        className='absolute right-3 top-3 size-[24px] items-center justify-center'
-        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-        accessibilityLabel='close modal'
-        accessibilityRole='button'
-        accessibilityHint='closes the modal'
-      >
-        <AntDesign name='close' size={20} color={palette.textSecondary} />
-      </Pressable>
-    </>
-  )
-})
+          <Pressable
+            onPress={dismiss}
+            className='absolute right-0 top-1/2 size-[24px] -translate-y-1/2 items-center justify-center'
+            hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+            accessibilityLabel='close modal'
+            accessibilityRole='button'
+            accessibilityHint='closes the modal'
+          >
+            <AntDesign name='close' size={20} color={palette.textSecondary} />
+          </Pressable>
+        </View>
+      </View>
+    )
+  },
+)

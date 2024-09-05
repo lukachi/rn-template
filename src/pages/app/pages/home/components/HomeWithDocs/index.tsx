@@ -1,8 +1,9 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { DocumentCard } from '@/pages/app/pages/home/components/HomeWithDocs/components'
 import { identityStore } from '@/store'
 import { UiScreenScrollable } from '@/ui'
+
+import { DocumentCard } from './components'
 
 export default function HomeWithDocs() {
   const identities = identityStore.useIdentityStore(state => state.identities)

@@ -17,15 +17,15 @@ export type AdditionalPersonDetails = {
 }
 
 export type PersonDetails = {
-  firstName?: string | null
-  lastName?: string | null
-  gender?: string | null
-  birthDate?: string | null
-  expiryDate?: string | null
-  documentNumber?: string | null
-  nationality?: string | null
-  issuingAuthority?: string | null
-  passportImageRaw?: string | null
+  firstName: string | null
+  lastName: string | null
+  gender: string | null
+  birthDate: string | null
+  expiryDate: string | null
+  documentNumber: string | null
+  nationality: string | null
+  issuingAuthority: string | null
+  passportImageRaw: string | null
 }
 
 export enum DocType {
@@ -35,11 +35,11 @@ export enum DocType {
 
 export type EDocument = {
   docType: DocType
-  personDetails?: PersonDetails | null
-  sod?: string | null
-  dg1?: string | null
-  dg15?: string | null
-  dg11?: string | null
+  personDetails: PersonDetails
+  sod: string | null
+  dg1: string | null
+  dg15: string | null
+  dg11: string | null
   // for revocation purposes
   signature?: string | null
 

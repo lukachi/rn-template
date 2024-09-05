@@ -3,7 +3,7 @@ import type { ElementRef } from 'react'
 import { useMemo } from 'react'
 import { forwardRef } from 'react'
 import { type FieldValues, useController, type UseControllerProps } from 'react-hook-form'
-import type { SwitchProps } from 'react-native'
+import type { SwitchProps, ViewProps } from 'react-native'
 import { Text } from 'react-native'
 import { I18nManager, StyleSheet, View } from 'react-native'
 import { Switch as RNSwitch } from 'react-native'
@@ -16,6 +16,7 @@ type Props = SwitchProps & {
   label?: string
   errorMessage?: string
   disabled?: boolean
+  viewProps?: ViewProps
 }
 
 const switchTv = tv({
@@ -46,7 +47,7 @@ const switchTv = tv({
 
 // FIXME: on props value change, actual switch-rn value not changing(iOS only)
 export const UiSwitcher = forwardRef<ElementRef<typeof RNSwitch>, Props>(
-  ({ id = uuid(), label, errorMessage, disabled, value, ...rest }, ref) => {
+  ({ id = uuid(), label, errorMessage, disabled, value, viewProps, ...rest }, ref) => {
     const styles = useMemo(
       () =>
         switchTv({
@@ -57,7 +58,7 @@ export const UiSwitcher = forwardRef<ElementRef<typeof RNSwitch>, Props>(
     )
 
     return (
-      <View className={cn('w-full')}>
+      <View {...viewProps} className={cn(viewProps?.className)}>
         <View className='flex flex-row items-center gap-2'>
           {label && <Text className={styles.label()}>{label}</Text>}
 
