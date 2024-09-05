@@ -1,30 +1,13 @@
-import { useCallback } from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import { identityStore } from '@/store'
 
-import { getLeaderboard } from '@/api/modules/points'
-import { ErrorHandler } from '@/core'
-import { UiButton } from '@/ui'
+import { HomeWithDocs, HomeWithoutDocs } from './components'
 
 export default function HomeScreen() {
-  const testGetLeaderboard = useCallback(async () => {
-    try {
-      const leaderboard = await getLeaderboard({
-        count: true,
-      })
+  const identities = identityStore.useIdentityStore(state => state.identities)
 
-      console.log('leaderboard', leaderboard)
-    } catch (error) {
-      ErrorHandler.process(error)
-    }
-  }, [])
+  if (!identities.length) {
+    return <HomeWithoutDocs />
+  }
 
-  return (
-    <View className='flex flex-1 flex-col'>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <Text className={'py-5 text-center text-textPrimary typography-h4'}>Home Screen</Text>
-
-        <UiButton onPress={testGetLeaderboard}>Test getLeaderboard</UiButton>
-      </ScrollView>
-    </View>
-  )
+  return <HomeWithDocs />
 }

@@ -1,5 +1,4 @@
 export * from './modules/auth'
-export * from './modules/documents'
 export * from './modules/identity'
 export * from './modules/local-auth'
 export * from './modules/sample'
