@@ -1,29 +1,32 @@
+import { useNavigation } from '@react-navigation/native'
 import { Text, View } from 'react-native'
 
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
-import { UiCard } from '@/ui'
+import { UiButton, UiCard } from '@/ui'
 
 export default function DocumentPreviewStep() {
   const { eDoc, regProof } = useDocumentScanContext()
 
-  try {
-    return (
-      <View className={'flex-1 flex-col gap-4 p-5'}>
-        <UiCard>
-          <Text>{JSON.stringify(eDoc)?.length}</Text>
-        </UiCard>
-        <UiCard>
-          <Text>{JSON.stringify(regProof)?.length}</Text>
-        </UiCard>
-      </View>
-    )
-  } catch (error) {
-    return (
-      <View className={'flex-1 flex-col gap-4 p-5'}>
-        <UiCard>
-          <Text>Just finished</Text>
-        </UiCard>
-      </View>
-    )
-  }
+  const navigation = useNavigation()
+
+  return (
+    <View className={'flex-1 flex-col gap-4 p-5'}>
+      <UiCard>
+        <Text className={'text-textPrimary'}>{JSON.stringify(eDoc)?.length}</Text>
+      </UiCard>
+      <UiCard>
+        <Text className={'text-textPrimary'}>{JSON.stringify(regProof)?.length}</Text>
+      </UiCard>
+
+      <UiButton
+        title={'Okay'}
+        className={'mt-auto w-full'}
+        onPress={() => {
+          navigation.navigate('App', {
+            screen: 'Tabs',
+          })
+        }}
+      />
+    </View>
+  )
 }

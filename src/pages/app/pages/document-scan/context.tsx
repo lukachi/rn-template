@@ -36,7 +36,7 @@ import { relayerRegister } from '@/api/modules/registration'
 import { Config } from '@/config'
 import { bus, DefaultBusEvents } from '@/core'
 import { createPoseidonSMTContract, createStateKeeperContract } from '@/helpers'
-import { walletStore } from '@/store'
+import { identityStore, walletStore } from '@/store'
 import {
   CertificateAlreadyRegisteredError,
   PassportRegisteredWithAnotherPKError,
@@ -58,11 +58,6 @@ export enum Steps {
 }
 
 const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
-
-enum IdentityStatuses {
-  REVOKED = '0xf762965bdb8dff81b8c1397e6074e78216cd3eefe37835af6bd83d5348ea57f3',
-  USED = '0xd116c8141a03af4e4da955b106de0a9b8627570b09600e574e5e6410ca2028cd',
-}
 
 type PassportInfo = {
   passportInfo_: StateKeeper.PassportInfoStructOutput
@@ -115,6 +110,8 @@ export let rejectRevocationEDoc: (value: Error) => void
 
 export function ScanContextProvider({ docType, children }: Props) {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
+
+  const addIdentity = identityStore.useIdentityStore(state => state.addIdentity)
 
   const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
 
@@ -532,7 +529,8 @@ export function ScanContextProvider({ docType, children }: Props) {
       const passportInfo = await getPassportInfo(eDocument, regProof)
 
       try {
-        await registerIdentity(regProof, eDocument, slaveCertSmtProof, circuitType, passportInfo)
+        // FIXME: return
+        // await registerIdentity(regProof, eDocument, slaveCertSmtProof, circuitType, passportInfo)
       } catch (error) {
         if (error instanceof PassportRegisteredWithAnotherPKError) {
           await revokeIdentity(eDocument, passportInfo, slaveCertSmtProof, circuitType, regProof)
@@ -541,6 +539,10 @@ export function ScanContextProvider({ docType, children }: Props) {
         }
       }
 
+      addIdentity({
+        document: eDocument,
+        registrationProof: regProof,
+      })
       setCurrentStep(Steps.FinishStep)
     } catch (error) {
       const axiosError = error as AxiosError
@@ -559,6 +561,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       setCurrentStep(Steps.DocumentPreviewStep)
     }
   }, [
+    addIdentity,
     assets,
     certPoseidonSMTContract.contractInstance,
     eDocument,

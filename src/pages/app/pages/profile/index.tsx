@@ -20,7 +20,10 @@ export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
   const insets = useSafeAreaInsets()
 
   return (
-    <View style={{ paddingBottom: insets.bottom }} className='flex flex-1 flex-col'>
+    <View
+      style={{ paddingBottom: insets.bottom, paddingTop: insets.top }}
+      className='flex flex-1 flex-col'
+    >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View className='flex flex-1 flex-col gap-4 p-5'>
           <WalletCard />

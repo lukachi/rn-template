@@ -1,6 +1,12 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import type { AppTabParamsList, RootStackScreenProps } from '@/route-types'
+import type {
+  AppStackParamsList,
+  AppStackScreenProps,
+  AppTabParamsList,
+  RootStackScreenProps,
+} from '@/route-types'
 import { cn } from '@/theme'
 import { UiIcon } from '@/ui'
 
@@ -8,16 +14,17 @@ import DocumentScanScreen from './pages/document-scan'
 import HomeScreen from './pages/home'
 import ProfileScreen from './pages/profile'
 
+const Stack = createNativeStackNavigator<AppStackParamsList>()
 const Tab = createBottomTabNavigator<AppTabParamsList>()
 
-export default function App({}: RootStackScreenProps<'App'>) {
+function AppTabs({}: AppStackScreenProps<'Tabs'>) {
   return (
     <Tab.Navigator initialRouteName={'Home'}>
       <Tab.Screen
         name={'Home'}
         component={HomeScreen}
         options={{
-          title: 'Home',
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <UiIcon
               componentName='houseSimpleIcon'
@@ -27,23 +34,10 @@ export default function App({}: RootStackScreenProps<'App'>) {
         }}
       />
       <Tab.Screen
-        name={'Scan'}
-        component={DocumentScanScreen}
-        options={{
-          title: 'Scan',
-          tabBarIcon: ({ focused }) => (
-            <UiIcon
-              componentName='lockIcon'
-              className={cn(focused ? 'text-primaryMain' : 'text-textSecondary')}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
         name={'Profile'}
         component={ProfileScreen}
         options={{
-          title: 'Profile',
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <UiIcon
               componentName='userIcon'
@@ -53,5 +47,26 @@ export default function App({}: RootStackScreenProps<'App'>) {
         }}
       />
     </Tab.Navigator>
+  )
+}
+
+export default function App({}: RootStackScreenProps<'App'>) {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name={'Tabs'}
+        component={AppTabs}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={'Scan'}
+        component={DocumentScanScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
   )
 }

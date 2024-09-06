@@ -3,7 +3,7 @@ import type { ElementRef } from 'react'
 import { useMemo } from 'react'
 import { forwardRef } from 'react'
 import { type FieldValues, useController, type UseControllerProps } from 'react-hook-form'
-import type { SwitchProps } from 'react-native'
+import type { SwitchProps, ViewProps } from 'react-native'
 import { Text } from 'react-native'
 import { I18nManager, StyleSheet, View } from 'react-native'
 import { Switch as RNSwitch } from 'react-native'
@@ -16,11 +16,12 @@ type Props = SwitchProps & {
   label?: string
   errorMessage?: string
   disabled?: boolean
+  viewProps?: ViewProps
 }
 
 const switchTv = tv({
   slots: {
-    base: 'data-[focus=true]:outline-0 data-[focus=true]:ring-2 data-[focus=true]:ring-indicator-primary web:cursor-pointer disabled:cursor-not-allowed data-[disabled=true]:opacity-40 data-[invalid=true]:border-error-700 data-[invalid=true]:rounded-xl data-[invalid=true]:border-2',
+    base: '',
     label: cn('typography-subtitle4 text-textPrimary'),
   },
 
@@ -46,7 +47,7 @@ const switchTv = tv({
 
 // FIXME: on props value change, actual switch-rn value not changing(iOS only)
 export const UiSwitcher = forwardRef<ElementRef<typeof RNSwitch>, Props>(
-  ({ id = uuid(), label, errorMessage, disabled, value, ...rest }, ref) => {
+  ({ id = uuid(), label, errorMessage, disabled, value, viewProps, ...rest }, ref) => {
     const styles = useMemo(
       () =>
         switchTv({
@@ -57,22 +58,21 @@ export const UiSwitcher = forwardRef<ElementRef<typeof RNSwitch>, Props>(
     )
 
     return (
-      <View className={cn('w-full')}>
+      <View {...viewProps}>
         <View className='flex flex-row items-center gap-2'>
           {label && <Text className={styles.label()}>{label}</Text>}
 
           <RNSwitch
+            {...rest}
             ref={ref}
             id={id}
             className={styles.base()}
             style={StyleSheet.flatten([
               { direction: I18nManager.isRTL ? 'rtl' : 'ltr' },
-              { flex: 1 },
               rest.style,
             ])}
             disabled={disabled}
             value={value}
-            {...rest}
           />
         </View>
 

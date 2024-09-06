@@ -1,11 +1,14 @@
-import { ScrollView, Text, View } from 'react-native'
+import type { AppTabScreenProps } from '@/route-types'
+import { identityStore } from '@/store'
 
-export default function HomeScreen() {
-  return (
-    <View className='flex flex-1 flex-col'>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <Text className={'py-5 text-center text-textPrimary typography-h4'}>Home Screen</Text>
-      </ScrollView>
-    </View>
-  )
+import { HomeWithDocs, HomeWithoutDocs } from './components'
+
+export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
+  const identities = identityStore.useIdentityStore(state => state.identities)
+
+  if (!identities.length) {
+    return <HomeWithoutDocs />
+  }
+
+  return <HomeWithDocs />
 }
