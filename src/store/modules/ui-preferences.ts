@@ -15,6 +15,8 @@ export type DocumentCardUi = {
   foregroundValues: TextProps
 
   personalDetailsShown: Partial<keyof PersonDetails>[]
+
+  isBlurred?: boolean
 }
 
 const useUiPreferencesStore = create(
@@ -74,6 +76,7 @@ const useDocumentCardUiPreference = (id: string) => {
         },
 
         personalDetailsShown: defaultPersonalDetailsShown,
+        isBlurred: true,
       },
       {
         title: translate('ui-preferences.secondary'),
@@ -94,6 +97,7 @@ const useDocumentCardUiPreference = (id: string) => {
         },
 
         personalDetailsShown: defaultPersonalDetailsShown,
+        isBlurred: true,
       },
       {
         title: translate('ui-preferences.tertiary'),
@@ -114,6 +118,7 @@ const useDocumentCardUiPreference = (id: string) => {
         },
 
         personalDetailsShown: defaultPersonalDetailsShown,
+        isBlurred: true,
       },
       {
         title: translate('ui-preferences.quaternary'),
@@ -138,6 +143,7 @@ const useDocumentCardUiPreference = (id: string) => {
         },
 
         personalDetailsShown: defaultPersonalDetailsShown,
+        isBlurred: true,
       },
     ]
   }, [
@@ -189,13 +195,22 @@ const useDocumentCardUiPreference = (id: string) => {
     [documentCardUi, setDocumentCardUi],
   )
 
+  const toggleIsBlurred = useCallback(() => {
+    setDocumentCardUi({
+      ...documentCardUi,
+      isBlurred: !documentCardUi.isBlurred,
+    })
+  }, [documentCardUi, setDocumentCardUi])
+
   return {
     uiVariants,
     personalDetailsShownVariants,
 
     documentCardUi,
     setDocumentCardUi,
+
     togglePersonalDetailsVisibility,
+    toggleIsBlurred,
   }
 }
 

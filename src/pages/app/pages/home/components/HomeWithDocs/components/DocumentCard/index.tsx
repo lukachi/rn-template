@@ -1,9 +1,10 @@
 import { time } from '@distributedlab/tools'
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
+import { BlurView } from 'expo-blur'
 import { Image } from 'expo-image'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { ImageBackgroundProps, PressableProps, TextProps, ViewProps } from 'react-native'
 import { StyleSheet } from 'react-native'
 import { ImageBackground } from 'react-native'
@@ -28,6 +29,8 @@ type Props = {
 export default function DocumentCard({ identity }: Props) {
   const { palette } = useAppTheme()
 
+  const [isCardLongPressed, setIsCardLongPressed] = useState(false)
+
   const {
     uiVariants,
     personalDetailsShownVariants,
@@ -36,6 +39,7 @@ export default function DocumentCard({ identity }: Props) {
 
     setDocumentCardUi,
     togglePersonalDetailsVisibility,
+    toggleIsBlurred,
   } = uiPreferencesStore.useDocumentCardUiPreference(
     identity.document.personDetails.documentNumber ?? '',
   )
@@ -92,8 +96,8 @@ export default function DocumentCard({ identity }: Props) {
 
   return (
     <>
-      <Container className={'rounded-3xl p-6'} docCardUI={documentCardUi}>
-        <View className={'relative flex flex-row'}>
+      <Container className={'relativerounded-3xl p-6'} docCardUI={documentCardUi}>
+        <View className={'flex flex-row'}>
           <View className={'flex gap-6'}>
             <Image
               style={{ width: 56, height: 56, borderRadius: 9999 }}
@@ -110,18 +114,6 @@ export default function DocumentCard({ identity }: Props) {
                 {age} Years old
               </Text>
             </View>
-          </View>
-
-          <View className={'absolute right-0 top-0 flex flex-row items-center gap-4'}>
-            <CardActionIconButton iconComponentName={'passwordIcon'} />
-            <CardActionIconButton
-              iconComponentName={'dotsThreeOutlineIcon'}
-              pressableProps={{
-                onPress: () => {
-                  cardUiSettingsBottomSheet.present()
-                },
-              }}
-            />
           </View>
         </View>
         <UiHorizontalDivider className={'mb-6 mt-8'} />
@@ -142,6 +134,40 @@ export default function DocumentCard({ identity }: Props) {
               />
             )
           })}
+        </View>
+
+        {documentCardUi.isBlurred && (
+          <Pressable
+            onLongPress={() => {
+              setIsCardLongPressed(true)
+            }}
+            onPressOut={() => {
+              setIsCardLongPressed(false)
+            }}
+            className={cn(
+              'absolute bottom-0 left-0 right-0 top-0 z-10',
+              isCardLongPressed && 'opacity-0',
+            )}
+          >
+            <BlurView intensity={35} className={'size-full'} />
+          </Pressable>
+        )}
+
+        <View className={'absolute right-5 top-5 z-20 flex flex-row items-center gap-4'}>
+          <CardActionIconButton
+            iconComponentName={'passwordIcon'}
+            pressableProps={{
+              onPress: toggleIsBlurred,
+            }}
+          />
+          <CardActionIconButton
+            iconComponentName={'dotsThreeOutlineIcon'}
+            pressableProps={{
+              onPress: () => {
+                cardUiSettingsBottomSheet.present()
+              },
+            }}
+          />
         </View>
       </Container>
 
