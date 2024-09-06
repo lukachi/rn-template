@@ -1,3 +1,4 @@
+import type { PersonDetails } from '@modules/e-document'
 import { useCallback, useMemo } from 'react'
 import type { ImageBackgroundProps, TextProps, ViewProps } from 'react-native'
 import { create } from 'zustand'
@@ -12,6 +13,8 @@ export type DocumentCardUi = {
   background: ViewProps | ImageBackgroundProps
   foregroundLabels: TextProps
   foregroundValues: TextProps
+
+  personalDetailsShown: Partial<keyof PersonDetails>[]
 }
 
 const useUiPreferencesStore = create(
@@ -30,6 +33,7 @@ const useUiPreferencesStore = create(
     ),
     {
       name: 'ui-preferences',
+      version: 1,
       storage: createJSONStorage(() => zustandStorage),
 
       partialize: state => ({
@@ -48,6 +52,8 @@ const useDocumentCardUiPreference = (id: string) => {
   const { palette } = useAppTheme()
 
   const uiVariants: DocumentCardUi[] = useMemo(() => {
+    const defaultPersonalDetailsShown: Array<keyof PersonDetails> = ['nationality']
+
     return [
       {
         title: translate('ui-preferences.primary'),
@@ -66,6 +72,8 @@ const useDocumentCardUiPreference = (id: string) => {
             color: palette.textPrimary,
           },
         },
+
+        personalDetailsShown: defaultPersonalDetailsShown,
       },
       {
         title: translate('ui-preferences.secondary'),
@@ -84,6 +92,8 @@ const useDocumentCardUiPreference = (id: string) => {
             color: palette.baseBlack,
           },
         },
+
+        personalDetailsShown: defaultPersonalDetailsShown,
       },
       {
         title: translate('ui-preferences.tertiary'),
@@ -102,6 +112,8 @@ const useDocumentCardUiPreference = (id: string) => {
             color: palette.baseWhite,
           },
         },
+
+        personalDetailsShown: defaultPersonalDetailsShown,
       },
       {
         title: translate('ui-preferences.quaternary'),
@@ -124,6 +136,8 @@ const useDocumentCardUiPreference = (id: string) => {
             color: palette.baseWhite,
           },
         },
+
+        personalDetailsShown: defaultPersonalDetailsShown,
       },
     ]
   }, [
@@ -141,25 +155,52 @@ const useDocumentCardUiPreference = (id: string) => {
   )
 
   const setDocumentCardUi = useCallback(
-    (value: DocumentCardUi) => {
+    (value: DocumentCardUi, personalDetailsShown?: Array<keyof PersonDetails>) => {
       updateDocumentsCardUi({
         ...documentsCardUi,
-        [id]: value,
+        [id]: {
+          ...value,
+          personalDetailsShown: personalDetailsShown || documentCardUi.personalDetailsShown,
+        },
       })
     },
-    [documentsCardUi, id, updateDocumentsCardUi],
+    [documentCardUi.personalDetailsShown, documentsCardUi, id, updateDocumentsCardUi],
+  )
+
+  const personalDetailsShownVariants = useMemo((): Array<keyof PersonDetails> => {
+    return ['nationality', 'documentNumber', 'expiryDate']
+  }, [])
+
+  const togglePersonalDetailsVisibility = useCallback(
+    (key: keyof PersonDetails) => {
+      const personalDetailsShown = documentCardUi.personalDetailsShown ?? []
+
+      const newPersonalDetailsShown = personalDetailsShown.includes(key)
+        ? personalDetailsShown.filter(item => item !== key)
+        : [...personalDetailsShown, key]
+
+      setDocumentCardUi(
+        {
+          ...documentCardUi,
+        },
+        newPersonalDetailsShown,
+      )
+    },
+    [documentCardUi, setDocumentCardUi],
   )
 
   return {
     uiVariants,
+    personalDetailsShownVariants,
 
     documentCardUi,
     setDocumentCardUi,
+    togglePersonalDetailsVisibility,
   }
 }
 
 export const uiPreferencesStore = {
   useUiPreferencesStore,
 
-  useDocumentCardUiPreference,
+  useDocumentCardUiPreference: useDocumentCardUiPreference,
 }

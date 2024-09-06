@@ -28,10 +28,17 @@ type Props = {
 export default function DocumentCard({ identity }: Props) {
   const { palette } = useAppTheme()
 
-  const { uiVariants, documentCardUi, setDocumentCardUi } =
-    uiPreferencesStore.useDocumentCardUiPreference(
-      identity.document.personDetails.documentNumber ?? '',
-    )
+  const {
+    uiVariants,
+    personalDetailsShownVariants,
+
+    documentCardUi,
+
+    setDocumentCardUi,
+    togglePersonalDetailsVisibility,
+  } = uiPreferencesStore.useDocumentCardUiPreference(
+    identity.document.personDetails.documentNumber ?? '',
+  )
 
   const cardUiSettingsBottomSheet = useUiBottomSheet()
 
@@ -120,30 +127,21 @@ export default function DocumentCard({ identity }: Props) {
         <UiHorizontalDivider className={'mb-6 mt-8'} />
 
         <View className={'flex w-full gap-4'}>
-          {identity.document.personDetails?.nationality && (
-            <DocumentCardRow
-              labelProps={{
-                ...documentCardUi.foregroundLabels,
-                children: 'Nationality',
-              }}
-              valueProps={{
-                ...documentCardUi.foregroundValues,
-                children: identity.document.personDetails?.nationality,
-              }}
-            />
-          )}
-          {identity.document.personDetails?.documentNumber && (
-            <DocumentCardRow
-              labelProps={{
-                ...documentCardUi.foregroundLabels,
-                children: 'Document Number',
-              }}
-              valueProps={{
-                ...documentCardUi.foregroundValues,
-                children: identity.document.personDetails?.documentNumber,
-              }}
-            />
-          )}
+          {documentCardUi.personalDetailsShown?.map((el, idx) => {
+            return (
+              <DocumentCardRow
+                key={idx}
+                labelProps={{
+                  ...documentCardUi.foregroundLabels,
+                  children: el,
+                }}
+                valueProps={{
+                  ...documentCardUi.foregroundValues,
+                  children: identity.document.personDetails?.[el],
+                }}
+              />
+            )
+          })}
         </View>
       </Container>
 
@@ -249,10 +247,13 @@ export default function DocumentCard({ identity }: Props) {
               </View>
 
               <View className={'flex flex-col gap-4'}>
-                {[0, 1, 0, 1, 0].map((el, idx) => (
+                {personalDetailsShownVariants.map((el, idx) => (
                   <View key={idx} className={'flex flex-row items-center justify-between'}>
                     <Text className={'text-textPrimary typography-subtitle4'}>Nationality</Text>
-                    <UiSwitcher value={!!el} />
+                    <UiSwitcher
+                      value={documentCardUi.personalDetailsShown?.includes(el)}
+                      onValueChange={() => togglePersonalDetailsVisibility(el)}
+                    />
                   </View>
                 ))}
               </View>
