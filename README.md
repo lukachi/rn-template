@@ -25,6 +25,9 @@ eas login
 - Configure `signing & capabilities` with xcode
 - Turn on developer mode in device
 
+#### Configure [app identifiers and package](./env.js)
+Follow steps in file to configure app identifiers and package names, your env variables and validation
+
 ### Development process
 
 #### Prebuild native code and start development server

@@ -7,7 +7,7 @@
       "developmentClient": true,
       "distribution": "internal"
     },
-    "development-simulator": {
+    "ios-simulator": {
       "extends": "development",
       "ios": {
         "simulator": true
