@@ -8,9 +8,9 @@ import { useCallback, useMemo, useState } from 'react'
 import type { ImageBackgroundProps, PressableProps, TextProps, ViewProps } from 'react-native'
 import { StyleSheet } from 'react-native'
 import { ImageBackground } from 'react-native'
-import { ScrollView } from 'react-native'
 import { Pressable } from 'react-native'
 import { Text, View } from 'react-native'
+import { ScrollView } from 'react-native-gesture-handler'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import type { DocumentCardUi, IdentityItem } from '@/store'
@@ -96,7 +96,7 @@ export default function DocumentCard({ identity }: Props) {
 
   return (
     <>
-      <Container className={'relativerounded-3xl p-6'} docCardUI={documentCardUi}>
+      <Container className={'relative overflow-hidden rounded-3xl p-6'} docCardUI={documentCardUi}>
         <View className={'flex flex-row'}>
           <View className={'flex gap-6'}>
             <Image
@@ -149,7 +149,11 @@ export default function DocumentCard({ identity }: Props) {
               isCardLongPressed && 'opacity-0',
             )}
           >
-            <BlurView intensity={35} className={'size-full'} />
+            <BlurView
+              experimentalBlurMethod={'dimezisBlurView'}
+              intensity={35}
+              className={'size-full'}
+            />
           </Pressable>
         )}
 
@@ -275,7 +279,7 @@ export default function DocumentCard({ identity }: Props) {
               <View className={'flex flex-col gap-4'}>
                 {personalDetailsShownVariants.map((el, idx) => (
                   <View key={idx} className={'flex flex-row items-center justify-between'}>
-                    <Text className={'text-textPrimary typography-subtitle4'}>Nationality</Text>
+                    <Text className={'text-textPrimary typography-subtitle4'}>{el}</Text>
                     <UiSwitcher
                       value={documentCardUi.personalDetailsShown?.includes(el)}
                       onValueChange={() => togglePersonalDetailsVisibility(el)}
