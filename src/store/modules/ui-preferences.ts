@@ -1,33 +1,18 @@
 import { useCallback, useMemo } from 'react'
+import type { ImageBackgroundProps, TextProps, ViewProps } from 'react-native'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
+import { translate } from '@/core'
 import { zustandStorage } from '@/store/helpers'
+import { useAppTheme } from '@/theme'
 
-type DocumentCardUi = {
-  // TODO: add image support
-  background: string
-  foregroundLabels: string
-  foregroundValues: string
+export type DocumentCardUi = {
+  title: string
+  background: ViewProps | ImageBackgroundProps
+  foregroundLabels: TextProps
+  foregroundValues: TextProps
 }
-
-const DOCUMENT_CARD_UI_VARIANTS: DocumentCardUi[] = [
-  {
-    background: '#000000',
-    foregroundLabels: 'rgba(255, 255, 255, 0.56)',
-    foregroundValues: '#ffffff',
-  },
-  {
-    background: '#ffffff',
-    foregroundLabels: 'rgba(0, 0, 0, 0.56)',
-    foregroundValues: '#000000',
-  },
-  {
-    background: '#ff0000',
-    foregroundLabels: 'rgba(255, 255, 255, 0.56)',
-    foregroundValues: '#ffffff',
-  },
-]
 
 const useUiPreferencesStore = create(
   persist(
@@ -47,7 +32,9 @@ const useUiPreferencesStore = create(
       name: 'ui-preferences',
       storage: createJSONStorage(() => zustandStorage),
 
-      partialize: state => ({ documentsCardUi: state.documentsCardUi }),
+      partialize: state => ({
+        documentsCardUi: state.documentsCardUi,
+      }),
     },
   ),
 )
@@ -58,9 +45,99 @@ const useDocumentCardUiPreference = (id: string) => {
     updateDocumentsCardUi: state.updateDocumentsCardUi,
   }))
 
+  const { palette } = useAppTheme()
+
+  const uiVariants: DocumentCardUi[] = useMemo(() => {
+    return [
+      {
+        title: translate('ui-preferences.primary'),
+        background: {
+          style: {
+            backgroundColor: palette.backgroundContainer,
+          },
+        },
+        foregroundLabels: {
+          style: {
+            color: palette.textSecondary,
+          },
+        },
+        foregroundValues: {
+          style: {
+            color: palette.textPrimary,
+          },
+        },
+      },
+      {
+        title: translate('ui-preferences.secondary'),
+        background: {
+          style: {
+            backgroundColor: palette.baseWhite,
+          },
+        },
+        foregroundLabels: {
+          style: {
+            color: 'rgba(0, 0, 0, 0.56)',
+          },
+        },
+        foregroundValues: {
+          style: {
+            color: palette.baseBlack,
+          },
+        },
+      },
+      {
+        title: translate('ui-preferences.tertiary'),
+        background: {
+          style: {
+            backgroundColor: palette.primaryMain,
+          },
+        },
+        foregroundLabels: {
+          style: {
+            color: 'rgba(255, 255, 255, 0.56)',
+          },
+        },
+        foregroundValues: {
+          style: {
+            color: palette.baseWhite,
+          },
+        },
+      },
+      {
+        title: translate('ui-preferences.quaternary'),
+        background: {
+          source: {
+            uri: 'https://docs.expo.dev/static/images/tutorial/background-image.png',
+          },
+          style: {
+            borderRadius: 24,
+            overflow: 'hidden',
+          },
+        } as ImageBackgroundProps,
+        foregroundLabels: {
+          style: {
+            color: 'rgba(255, 255, 255, 0.75)',
+          },
+        },
+        foregroundValues: {
+          style: {
+            color: palette.baseWhite,
+          },
+        },
+      },
+    ]
+  }, [
+    palette.backgroundContainer,
+    palette.baseBlack,
+    palette.baseWhite,
+    palette.primaryMain,
+    palette.textPrimary,
+    palette.textSecondary,
+  ])
+
   const documentCardUi = useMemo<DocumentCardUi>(
-    () => documentsCardUi[id] ?? DOCUMENT_CARD_UI_VARIANTS[0],
-    [documentsCardUi, id],
+    () => documentsCardUi[id] ?? uiVariants[0],
+    [uiVariants, documentsCardUi, id],
   )
 
   const setDocumentCardUi = useCallback(
@@ -74,7 +151,7 @@ const useDocumentCardUiPreference = (id: string) => {
   )
 
   return {
-    uiVariants: DOCUMENT_CARD_UI_VARIANTS,
+    uiVariants,
 
     documentCardUi,
     setDocumentCardUi,

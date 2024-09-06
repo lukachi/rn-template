@@ -1,15 +1,18 @@
 import { time } from '@distributedlab/tools'
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import { Image } from 'expo-image'
+import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
-import { useMemo } from 'react'
-import type { PressableProps, ViewProps } from 'react-native'
+import { useCallback, useMemo } from 'react'
+import type { ImageBackgroundProps, PressableProps, TextProps, ViewProps } from 'react-native'
+import { StyleSheet } from 'react-native'
+import { ImageBackground } from 'react-native'
 import { ScrollView } from 'react-native'
 import { Pressable } from 'react-native'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import type { IdentityItem } from '@/store'
+import type { DocumentCardUi, IdentityItem } from '@/store'
 import { uiPreferencesStore } from '@/store'
 import { cn, useAppTheme } from '@/theme'
 import type { UiIconName } from '@/ui'
@@ -50,38 +53,53 @@ export default function DocumentCard({ identity }: Props) {
     return time().diff(formattedBirthDate, 'years')
   }, [formattedBirthDate, identity.document.personDetails?.birthDate])
 
+  const Container = useCallback(
+    ({
+      docCardUI,
+      ...containerRest
+    }: { docCardUI: DocumentCardUi } & (ViewProps | ImageBackgroundProps)) => {
+      if (get(docCardUI.background, 'source.uri')) {
+        const imageBackgroundProps = docCardUI.background as ImageBackgroundProps
+
+        return (
+          <ImageBackground
+            {...containerRest}
+            {...imageBackgroundProps}
+            style={StyleSheet.flatten([imageBackgroundProps.style, containerRest.style])}
+          />
+        )
+      }
+
+      const viewProps = docCardUI.background as ViewProps
+
+      return (
+        <View
+          {...viewProps}
+          {...containerRest}
+          style={StyleSheet.flatten([viewProps.style, containerRest.style])}
+        />
+      )
+    },
+    [],
+  )
+
   return (
     <>
-      <View
-        className={'rounded-3xl p-6'}
-        style={{
-          backgroundColor: documentCardUi.background,
-        }}
-      >
+      <Container className={'rounded-3xl p-6'} docCardUI={documentCardUi}>
         <View className={'relative flex flex-row'}>
           <View className={'flex gap-6'}>
             <Image
-              style={{ width: 56, height: 56, borderRadius: 1000 }}
+              style={{ width: 56, height: 56, borderRadius: 9999 }}
               source={{
                 uri: `data:image/png;base64,${identity.document.personDetails?.passportImageRaw}`,
               }}
             />
 
             <View className={'flex gap-2'}>
-              <Text
-                style={{
-                  color: documentCardUi.foregroundValues,
-                }}
-                className={'typography-h6'}
-              >
+              <Text {...documentCardUi.foregroundValues} className={'typography-h6'}>
                 {fullName}
               </Text>
-              <Text
-                style={{
-                  color: documentCardUi.foregroundLabels,
-                }}
-                className={'typography-body2'}
-              >
+              <Text {...documentCardUi.foregroundLabels} className={'typography-body2'}>
                 {age} Years old
               </Text>
             </View>
@@ -104,22 +122,30 @@ export default function DocumentCard({ identity }: Props) {
         <View className={'flex w-full gap-4'}>
           {identity.document.personDetails?.nationality && (
             <DocumentCardRow
-              label={'Nationality'}
-              labelColor={documentCardUi.foregroundLabels}
-              value={identity.document.personDetails?.nationality}
-              valueColor={documentCardUi.foregroundValues}
+              labelProps={{
+                ...documentCardUi.foregroundLabels,
+                children: 'Nationality',
+              }}
+              valueProps={{
+                ...documentCardUi.foregroundValues,
+                children: identity.document.personDetails?.nationality,
+              }}
             />
           )}
           {identity.document.personDetails?.documentNumber && (
             <DocumentCardRow
-              labelColor={documentCardUi.foregroundLabels}
-              label={'Document Number'}
-              valueColor={documentCardUi.foregroundValues}
-              value={identity.document.personDetails?.documentNumber}
+              labelProps={{
+                ...documentCardUi.foregroundLabels,
+                children: 'Document Number',
+              }}
+              valueProps={{
+                ...documentCardUi.foregroundValues,
+                children: identity.document.personDetails?.documentNumber,
+              }}
             />
           )}
         </View>
-      </View>
+      </Container>
 
       <UiBottomSheet
         ref={cardUiSettingsBottomSheet.ref}
@@ -154,9 +180,9 @@ export default function DocumentCard({ identity }: Props) {
                             isActive && 'bg-componentPrimary',
                           )}
                         >
-                          <View
+                          <Container
+                            docCardUI={el}
                             style={{
-                              backgroundColor: el.background,
                               width: 64,
                               height: 48,
                               borderRadius: 8,
@@ -164,29 +190,46 @@ export default function DocumentCard({ identity }: Props) {
                               justifyContent: 'center',
                               alignItems: 'center',
                               gap: 4,
+                              ...el.background,
                             }}
                           >
                             <View
-                              style={{
-                                backgroundColor: el.foregroundLabels,
-                                width: 12,
-                                height: 12,
-                                borderRadius: 9999,
-                              }}
+                              style={StyleSheet.flatten([
+                                el.foregroundLabels.style,
+                                {
+                                  backgroundColor: get(
+                                    el.foregroundLabels.style,
+                                    'color',
+                                    palette.baseWhite,
+                                  ),
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: 9999,
+                                },
+                              ])}
                             />
                             {[0, 0].map((_, index) => (
                               <View
                                 key={index}
-                                style={{
-                                  backgroundColor: el.foregroundLabels,
-                                  width: 24,
-                                  height: 5,
-                                  borderRadius: 12,
-                                }}
+                                style={StyleSheet.flatten([
+                                  el.foregroundValues.style,
+                                  {
+                                    backgroundColor: get(
+                                      el.foregroundValues.style,
+                                      'color',
+                                      palette.baseWhite,
+                                    ),
+                                    width: 24,
+                                    height: 5,
+                                    borderRadius: 12,
+                                  },
+                                ])}
                               />
                             ))}
-                          </View>
-                          <Text className={'text-textPrimary typography-buttonMedium'}>Front</Text>
+                          </Container>
+                          <Text className={'text-textPrimary typography-buttonMedium'}>
+                            {el.title}
+                          </Text>
                         </View>
                       </Pressable>
                     )
@@ -209,7 +252,7 @@ export default function DocumentCard({ identity }: Props) {
                 {[0, 1, 0, 1, 0].map((el, idx) => (
                   <View key={idx} className={'flex flex-row items-center justify-between'}>
                     <Text className={'text-textPrimary typography-subtitle4'}>Nationality</Text>
-                    <UiSwitcher className={'relative'} value={!!el} />
+                    <UiSwitcher value={!!el} />
                   </View>
                 ))}
               </View>
@@ -222,39 +265,20 @@ export default function DocumentCard({ identity }: Props) {
 }
 
 function DocumentCardRow({
-  label,
-  labelColor,
-
-  value,
-  valueColor,
+  labelProps,
+  valueProps,
 
   className,
   ...rest
 }: {
-  label: string
-  labelColor: string
+  labelProps: TextProps
 
-  value: string
-  valueColor: string
+  valueProps: TextProps
 } & ViewProps) {
   return (
     <View {...rest} className={cn('flex w-full flex-row items-center justify-between', className)}>
-      <Text
-        style={{
-          color: labelColor,
-        }}
-        className={'typography-body3'}
-      >
-        {label}
-      </Text>
-      <Text
-        style={{
-          color: valueColor,
-        }}
-        className={'typography-subtitle4'}
-      >
-        {value}
-      </Text>
+      <Text {...labelProps} className={cn('typography-body3', labelProps.className)} />
+      <Text {...valueProps} className={cn('typography-subtitle4', valueProps.className)} />
     </View>
   )
 }

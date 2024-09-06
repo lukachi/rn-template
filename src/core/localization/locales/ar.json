@@ -1,4 +1,10 @@
 {
+  "ui-preferences": {
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "tertiary": "Tertiary",
+    "quaternary": "Quaternary"
+  },
   "auth": {
     "intro": {
       "next-btn": "Create wallet",
