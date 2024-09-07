@@ -3,20 +3,87 @@
     "version": ">= 10.2.3"
   },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "ios-simulator": {
-      "extends": "development",
+    "production": {
+      "channel": "production",
+      "distribution": "store",
+      "yarn": "4.0.2",
       "ios": {
-        "simulator": true
+        "image": "latest"
+      },
+      "android": {
+        "buildType": "app-bundle",
+        "image": "latest"
+      },
+      "env": {
+        "EXPO_NO_DOTENV": "1",
+        "APP_ENV": "production",
+        "FLIPPER_DISABLE": "1"
+      },
+      "prebuildCommand": "prebuild --skip-dependency-update react",
+      "cache": {
+        "key": "eas-1"
       }
     },
-    "preview": {
-      "distribution": "internal"
+    "staging": {
+      "channel": "staging",
+      "distribution": "internal",
+      "yarn": "4.0.2",
+      "ios": {
+        "image": "latest"
+      },
+      "android": {
+        "buildType": "apk",
+        "image": "latest"
+      },
+      "env": {
+        "APP_ENV": "staging",
+        "EXPO_NO_DOTENV": "1",
+        "FLIPPER_DISABLE": "1"
+      },
+
+      "prebuildCommand": "prebuild --skip-dependency-update react",
+      "cache": {
+        "key": "eas-1"
+      }
     },
-    "production": {}
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "yarn": "4.0.2",
+      "ios": {
+        "image": "latest"
+      },
+      "android": {
+        "image": "latest"
+      },
+      "env": {
+        "APP_ENV": "development",
+        "EXPO_NO_DOTENV": "1"
+      },
+
+      "prebuildCommand": "prebuild --skip-dependency-update react",
+      "cache": {
+        "key": "eas-1"
+      }
+    },
+    "simulator": {
+      "ios": {
+        "simulator": false,
+        "image": "latest"
+      },
+      "android": {
+        "image": "latest"
+      },
+      "env": {
+        "APP_ENV": "development",
+        "EXPO_NO_DOTENV": "1"
+      },
+      "yarn": "4.0.2",
+      "prebuildCommand": "prebuild --skip-dependency-update react",
+      "cache": {
+        "key": "eas-1"
+      }
+    }
   },
   "submit": {
     "production": {}

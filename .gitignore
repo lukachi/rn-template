@@ -1,6 +1,3 @@
-
-
-
 # keep types in repo to track them
 # **/types/**/*.d.ts
 # but map can be ignored and just published on npm
@@ -25,18 +22,26 @@ tsconfig.tsbuildinfo
 node_modules
 **/_
 **/tests/spec/out
+# macOS
 .DS_Store
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+/coverage
 
 .next
 .vercel
 .idea
 
-.env
 # local env files
-.env.local
-.env.development.local
-.env.test.localp
-.env.production.local
+.env
+.env.*
 
 .expo
 /android
