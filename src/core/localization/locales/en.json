@@ -1,10 +1,4 @@
 {
-  "ui-preferences": {
-    "primary": "Primary",
-    "secondary": "Secondary",
-    "tertiary": "Tertiary",
-    "quaternary": "Quaternary"
-  },
   "auth": {
     "intro": {
       "next-btn": "Create wallet",
@@ -53,6 +47,12 @@
     "one": "TAB one",
     "two": "TAB two",
     "typography": "Typography"
+  },
+  "ui-preferences": {
+    "primary": "Primary",
+    "quaternary": "Quaternary",
+    "secondary": "Secondary",
+    "tertiary": "Tertiary"
   },
   "validations": {
     "field-error_maxLength": "This field must contain maximum {{maxLength}} symbols",
