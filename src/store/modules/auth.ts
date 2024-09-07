@@ -111,11 +111,22 @@ const useLogin = () => {
       Buffer.from(JSON.stringify(inputs)),
     )
 
+    if (!authWtns?.length) throw new TypeError('Auth witness not generated')
+
     if (!zkeyAsset?.localUri) throw new TypeError('Zkey asset not found')
+
+    const zkeyFileInfo = await FileSystem.getInfoAsync(zkeyAsset.localUri)
+
+    if (!zkeyFileInfo?.exists) throw new TypeError('Zkey file not found')
+
+    console.log(FileSystem.documentDirectory)
+    console.log(FileSystem.cacheDirectory)
+
+    console.log(zkeyFileInfo.uri)
 
     const zkProofBytes = await groth16ProveWithZKeyFilePath(
       authWtns,
-      zkeyAsset.localUri.replace('file://', ''),
+      zkeyFileInfo.uri, // .replace('file://', ''),
     )
 
     const zkProof = Buffer.from(zkProofBytes).toString()

@@ -62,6 +62,8 @@ func createZkProof(proof: String, pubSignals: String) throws -> ZkProof {
     return zkProof
 }
 
+extension String: Error {}
+
 public class RapidsnarkWrpModule: Module {
   // Each module class must implement the definition function. The definition consists of components
   // that describes the module's functionality and behavior.
@@ -73,13 +75,14 @@ public class RapidsnarkWrpModule: Module {
     Name("RapidsnarkWrp")
       
       AsyncFunction("groth16ProveWithZKeyFilePath") { (wtns: Data, zkeyFilePath: String, proofBufferSize: Int?, publicBufferSize: Int?, errorBufferSize: Int? ) in
+          
+          let fileExists = FileManager.default.fileExists(atPath: zkeyFilePath)
+          
+          if (!fileExists) {
+              throw "Zkey file does not exist"
+          }
+
           do {
-              let fileExists = FileManager.default.fileExists(atPath: zkeyFilePath)
-              
-              if (!fileExists) {
-                  throw RapidsnarkUtilsError.zkProofError("Zkey file does not exist")
-              }
-              
               let currentProofBufferSize : Int;
               if let proofBufferSize {
                   currentProofBufferSize = proofBufferSize;

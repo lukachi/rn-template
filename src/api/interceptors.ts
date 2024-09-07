@@ -10,7 +10,6 @@ const logout = authStore.useAuthStore.getState().logout
 export const initInterceptors = () => {
   const dataFormatter = new Jsona()
   apiClient.interceptors.response.use(response => {
-    console.log('response', response)
     try {
       const isArray = Array.isArray(response.data.data)
 
