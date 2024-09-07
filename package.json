@@ -1,7 +1,7 @@
 {
   "name": "template-v1",
   "main": "src/main.ts",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "prebuild": "npx expo prebuild --clean && npx pod-install",
     "start": "npx expo start --clear",
