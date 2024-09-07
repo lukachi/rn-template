@@ -7,8 +7,9 @@ import Carousel from 'react-native-reanimated-carousel'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { translate } from '@/core'
-import { cn } from '@/theme'
+import { cn, useAppTheme } from '@/theme'
 import { UiBottomSheet, UiButton, UiHorizontalDivider, UiIcon, useUiBottomSheet } from '@/ui'
+import { BottomSheetHeader } from '@/ui/UiBottomSheet'
 
 import { StepLayout } from './components'
 
@@ -16,6 +17,8 @@ const screenWidth = Dimensions.get('window').width
 
 export default function Intro() {
   const insets = useSafeAreaInsets()
+
+  const { palette } = useAppTheme()
 
   const ref = useRef<ICarouselInstance>(null)
 
@@ -113,11 +116,21 @@ export default function Intro() {
         />
       </View>
 
-      <UiBottomSheet title='Authorization' ref={bottomSheet.ref} enableDynamicSizing={true}>
-        <BottomSheetView
-          style={{ paddingBottom: insets.bottom }}
-          className='bg-backgroundContainer'
-        >
+      <UiBottomSheet
+        headerComponent={
+          <BottomSheetHeader
+            title={'Authorization'}
+            dismiss={bottomSheet.dismiss}
+            className={'px-5 text-center'}
+          />
+        }
+        ref={bottomSheet.ref}
+        enableDynamicSizing={true}
+        backgroundStyle={{
+          backgroundColor: palette.backgroundContainer,
+        }}
+      >
+        <BottomSheetView style={{ paddingBottom: insets.bottom }}>
           <View className={cn('py-0, flex flex-col items-center gap-4 p-5')}>
             <UiHorizontalDivider />
 

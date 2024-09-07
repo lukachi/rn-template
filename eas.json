@@ -6,7 +6,7 @@
     "production": {
       "channel": "production",
       "distribution": "store",
-      "yarn": "4.0.2",
+      "yarn": "1.22.22",
       "ios": {
         "image": "latest"
       },
@@ -27,7 +27,7 @@
     "staging": {
       "channel": "staging",
       "distribution": "internal",
-      "yarn": "4.0.2",
+      "yarn": "1.22.22",
       "ios": {
         "image": "latest"
       },
@@ -37,10 +37,8 @@
       },
       "env": {
         "APP_ENV": "staging",
-        "EXPO_NO_DOTENV": "1",
-        "FLIPPER_DISABLE": "1"
+        "EXPO_NO_DOTENV": "1"
       },
-
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
         "key": "eas-1"
@@ -49,7 +47,7 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "yarn": "4.0.2",
+      "yarn": "1.22.22",
       "ios": {
         "image": "latest"
       },
@@ -60,11 +58,11 @@
         "APP_ENV": "development",
         "EXPO_NO_DOTENV": "1"
       },
-
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
         "key": "eas-1"
-      }
+      },
+      "channel": "development"
     },
     "simulator": {
       "ios": {
@@ -78,11 +76,12 @@
         "APP_ENV": "development",
         "EXPO_NO_DOTENV": "1"
       },
-      "yarn": "4.0.2",
+      "yarn": "1.22.22",
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
         "key": "eas-1"
-      }
+      },
+      "channel": "simulator"
     }
   },
   "submit": {

@@ -5,11 +5,13 @@
 Node version >= 20.15.0
 
 #### install:
-```bash
-npm install -g eas-cli
-```
+- [android studio](https://developer.android.com/studio/install)
+- [xcode](https://developer.apple.com/xcode/)
+- [eas-cli](https://docs.expo.dev/eas-update/getting-started/)
+- [fastlane](https://docs.fastlane.tools/getting-started/ios/setup/)
+- [Watchman](https://facebook.github.io/watchman/docs/install#buildinstall), required only for macOS or Linux users
 
-#### (unnecessary for development)
+#### (unnecessary for local development)
 ```bash
 eas login
 ```

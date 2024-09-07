@@ -21,6 +21,10 @@ export default ({config}: ConfigContext): ExpoConfig => ({
   },
   updates: {
     fallbackToCacheTimeout: 0,
+    url: `https://u.expo.dev/${Env.EAS_PROJECT_ID}`
+  },
+  runtimeVersion: {
+    policy: 'appVersion',
   },
   // assetBundlePatterns: ['**/*'],
   ios: {
