@@ -2,12 +2,12 @@ import { DocType } from '@modules/e-document'
 import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
 import { parse } from 'mrz'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import type { ViewProps } from 'react-native'
 import { ScrollView, Text, View } from 'react-native'
 import {
   Camera,
-  runAsync,
+  runAtTargetFps,
   useCameraDevice,
   useCameraPermission,
   useFrameProcessor,
@@ -75,8 +75,6 @@ type Props = {} & ViewProps
 export default function ScanMrzStep({}: Props) {
   const { docType, setMrz } = useDocumentScanContext()
 
-  const [dataREadingProcess, setDataReadingProcess] = useState('')
-
   const isFocused = useIsFocused()
   const currentAppState = useAppState()
 
@@ -91,7 +89,6 @@ export default function ScanMrzStep({}: Props) {
 
   const onMRZDetected = Worklets.createRunOnJS((lines: string[]) => {
     try {
-      setDataReadingProcess(lines ? JSON.stringify(lines) : 'No lines detected')
       const result = mrzParser(lines)
 
       if (result?.valid) {
@@ -109,7 +106,8 @@ export default function ScanMrzStep({}: Props) {
     frame => {
       'worklet'
 
-      runAsync(frame, async () => {
+      // FIXME: https://github.com/mrousavy/react-native-vision-camera/issues/2820
+      runAtTargetFps(2, async () => {
         'worklet'
 
         const data = scanText(frame)
@@ -126,7 +124,7 @@ export default function ScanMrzStep({}: Props) {
               console.log('isObject')
               resultText = data.resultText as string
             } else {
-              console.log('non of these, the actual', typeof data)
+              resultText = 'non of these, the actual'
             }
 
             console.log('resultText', resultText)
@@ -191,10 +189,6 @@ export default function ScanMrzStep({}: Props) {
             )}
           </>
         )}
-
-        <Text className={'text-textPrimary typography-subtitle4'}>
-          {dataREadingProcess?.length}
-        </Text>
       </ScrollView>
     </View>
   )
