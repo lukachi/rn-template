@@ -1,3 +1,5 @@
+import type { ZKProof } from '@modules/rapidsnark-wrp'
+import { groth16Prove } from '@modules/rapidsnark-wrp'
 import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
 import { Buffer } from 'buffer'
 import { ethers } from 'ethers'
@@ -11,6 +13,9 @@ import { authorize, getChallenge, refresh } from '@/api/modules/auth'
 import { Config } from '@/config'
 import { sleep } from '@/helpers'
 import { zustandSecureStorage } from '@/store/helpers'
+import { identityStore } from '@/store/modules/identity'
+import { localAuthStore } from '@/store/modules/local-auth'
+import { uiPreferencesStore } from '@/store/modules/ui-preferences'
 import { walletStore } from '@/store/modules/wallet'
 
 const useAuthStore = create(
@@ -72,16 +77,16 @@ const useIsAuthorized = () => {
   return accessToken !== ''
 }
 
-const useLogin = () => {
+const useAuthProof = (opts?: { byFilePath?: boolean }) => {
   const [assets] = useAssets([
     require('@assets/circuits/auth/circuit_final.zkey'),
     require('@assets/circuits/auth/auth.dat'),
   ])
   const getPointsNullifierHex = walletStore.usePointsNullifierHex()
-  const setTokens = useAuthStore(state => state.setTokens)
 
-  // TODO: change to state?
-  return async (privateKey: string) => {
+  return async (privateKey: string): Promise<ZKProof> => {
+    const pkHex = `0x${privateKey}`
+
     const zkeyAsset = assets?.[0]
     const datAsset = assets?.[1]
 
@@ -90,8 +95,6 @@ const useLogin = () => {
     const datBase64 = await FileSystem.readAsStringAsync(datAsset.localUri, {
       encoding: FileSystem.EncodingType.Base64,
     })
-
-    const pkHex = `0x${privateKey}`
 
     const pointsNullifierHex = await getPointsNullifierHex(privateKey)
 
@@ -124,14 +127,40 @@ const useLogin = () => {
 
     console.log(zkeyFileInfo.uri)
 
-    const zkProofBytes = await groth16ProveWithZKeyFilePath(
-      authWtns,
-      zkeyFileInfo.uri, // .replace('file://', ''),
-    )
+    let zkProofBytes: Uint8Array
+    if (opts?.byFilePath) {
+      zkProofBytes = await groth16ProveWithZKeyFilePath(
+        authWtns,
+        zkeyFileInfo.uri.replace('file://', ''),
+      )
+    } else {
+      const zkeyBase64 = await FileSystem.readAsStringAsync(zkeyAsset.localUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      })
+
+      zkProofBytes = await groth16Prove(authWtns, ethers.decodeBase64(zkeyBase64))
+    }
 
     const zkProof = Buffer.from(zkProofBytes).toString()
 
-    const { data: authTokens } = await authorize(pointsNullifierHex, JSON.parse(zkProof))
+    return JSON.parse(zkProof)
+  }
+}
+
+const useLogin = () => {
+  const setTokens = useAuthStore(state => state.setTokens)
+  const getPointsNullifierHex = walletStore.usePointsNullifierHex()
+
+  const genAuthProof = useAuthProof({
+    byFilePath: true,
+  })
+
+  // TODO: change to state?
+  return async (privateKey: string) => {
+    const zkProof = await genAuthProof(privateKey)
+    const pointsNullifierHex = await getPointsNullifierHex(privateKey)
+
+    const { data: authTokens } = await authorize(pointsNullifierHex, zkProof)
 
     setTokens(authTokens.access_token.token, authTokens.refresh_token.token)
   }
@@ -139,17 +168,29 @@ const useLogin = () => {
 
 const useLogout = () => {
   const logout = useAuthStore(state => state.logout)
-  const deletePrivateKey = walletStore.useDeletePrivateKey()
 
-  return () => {
+  const deletePrivateKey = walletStore.useDeletePrivateKey()
+  const clearDocumentsCardUi = uiPreferencesStore.useUiPreferencesStore(
+    state => state.clearDocumentsCardUi,
+  )
+  const clearIdentities = identityStore.useIdentityStore(state => state.clearIdentities)
+  const resetLocalAuthStore = localAuthStore.useLocalAuthStore(state => state.resetStore)
+
+  return async () => {
     logout()
-    deletePrivateKey()
+    await Promise.all([
+      deletePrivateKey(),
+      clearIdentities(),
+      clearDocumentsCardUi(),
+      resetLocalAuthStore(),
+    ])
   }
 }
 
 export const authStore = {
   useAuthStore: useAuthStore,
 
+  useAuthProof: useAuthProof,
   useLogin: useLogin,
   useIsAuthorized: useIsAuthorized,
   useLogout: useLogout,

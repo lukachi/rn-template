@@ -36,6 +36,7 @@ const useIdentityStore = create(
             ],
           }))
         },
+        clearIdentities: () => set({ identities: [] }),
       }),
     ),
     {

@@ -75,8 +75,11 @@ public class RapidsnarkWrpModule: Module {
     Name("RapidsnarkWrp")
       
       AsyncFunction("groth16ProveWithZKeyFilePath") { (wtns: Data, zkeyFilePath: String, proofBufferSize: Int?, publicBufferSize: Int?, errorBufferSize: Int? ) in
-          
-          let fileExists = FileManager.default.fileExists(atPath: zkeyFilePath)
+          guard let fileUrl = URL(string: zkeyFilePath.replacingOccurrences(of: "file://", with: "")) else {
+                throw "Invalid file path"
+          }
+
+          let fileExists = FileManager.default.fileExists(atPath: fileUrl.path)
           
           if (!fileExists) {
               throw "Zkey file does not exist"
@@ -94,7 +97,7 @@ public class RapidsnarkWrpModule: Module {
               if let publicBufferSize {
                   currentPublicBufferSize = publicBufferSize;
               } else {
-                  currentPublicBufferSize = try groth16PublicSizeForZkeyFile(zkeyPath: zkeyFilePath);
+                  currentPublicBufferSize = try groth16PublicSizeForZkeyFile(zkeyPath: fileUrl.path);
               }
 
               var currentErrorBufferSize : Int;
@@ -105,7 +108,7 @@ public class RapidsnarkWrpModule: Module {
               }
               
 
-              let (proof, inputs) = try rapidsnark.groth16ProveWithZKeyFilePath(zkeyPath: zkeyFilePath, witness: wtns, proofBufferSize: currentProofBufferSize, publicBufferSize: currentPublicBufferSize, errorBufferSize: currentErrorBufferSize)
+              let (proof, inputs) = try rapidsnark.groth16ProveWithZKeyFilePath(zkeyPath: fileUrl.path, witness: wtns, proofBufferSize: currentProofBufferSize, publicBufferSize: currentPublicBufferSize, errorBufferSize: currentErrorBufferSize)
 
               let zkProof = try createZkProof(proof: proof, pubSignals: inputs)
 

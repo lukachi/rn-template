@@ -45,6 +45,7 @@
       }
     },
     "development": {
+      "channel": "development",
       "developmentClient": true,
       "distribution": "internal",
       "yarn": "1.22.22",
@@ -61,8 +62,7 @@
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
         "key": "eas-1"
-      },
-      "channel": "development"
+      }
     },
     "simulator": {
       "ios": {

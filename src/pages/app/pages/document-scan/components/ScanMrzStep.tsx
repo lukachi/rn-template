@@ -2,7 +2,7 @@ import { DocType } from '@modules/e-document'
 import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
 import { parse } from 'mrz'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ViewProps } from 'react-native'
 import { ScrollView, Text, View } from 'react-native'
 import {
@@ -15,6 +15,7 @@ import {
 import { useTextRecognition } from 'react-native-vision-camera-text-recognition'
 import { Worklets } from 'react-native-worklets-core'
 
+import { bus, DefaultBusEvents } from '@/core'
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
 import { UiButton } from '@/ui'
 
@@ -74,6 +75,8 @@ type Props = {} & ViewProps
 export default function ScanMrzStep({}: Props) {
   const { docType, setMrz } = useDocumentScanContext()
 
+  const [dataREadingProcess, setDataReadingProcess] = useState('')
+
   const isFocused = useIsFocused()
   const currentAppState = useAppState()
 
@@ -88,9 +91,13 @@ export default function ScanMrzStep({}: Props) {
 
   const onMRZDetected = Worklets.createRunOnJS((lines: string[]) => {
     try {
+      setDataReadingProcess(lines ? JSON.stringify(lines) : 'No lines detected')
       const result = mrzParser(lines)
 
       if (result?.valid) {
+        bus.emit(DefaultBusEvents.success, {
+          message: 'MRZ Detected',
+        })
         setMrz(result.fields)
       }
     } catch (error) {
@@ -107,11 +114,32 @@ export default function ScanMrzStep({}: Props) {
 
         const data = scanText(frame)
 
-        // FIXME
-        // @ts-ignore
-        const lines = data?.resultText?.split('\n') as string[]
+        try {
+          let resultText: string = ''
 
-        await onMRZDetected(lines)
+          if (data) {
+            console.log('data')
+            if (data?.length) {
+              console.log('Array.isArray')
+              resultText = data.map(el => el.resultText).join('\n')
+            } else if ('resultText' in data) {
+              console.log('isObject')
+              resultText = data.resultText as string
+            } else {
+              console.log('non of these, the actual', typeof data)
+            }
+
+            console.log('resultText', resultText)
+
+            if (resultText) {
+              await onMRZDetected(resultText.split('\n'))
+            }
+          }
+        } catch (error) {
+          console.log('error', {
+            ...error,
+          })
+        }
       })
     },
     [scanText, onMRZDetected],
@@ -163,6 +191,10 @@ export default function ScanMrzStep({}: Props) {
             )}
           </>
         )}
+
+        <Text className={'text-textPrimary typography-subtitle4'}>
+          {dataREadingProcess?.length}
+        </Text>
       </ScrollView>
     </View>
   )

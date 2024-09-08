@@ -31,6 +31,7 @@ const useUiPreferencesStore = create(
             ...state,
             documentsCardUi: value,
           })),
+        clearDocumentsCardUi: () => set({ documentsCardUi: {} }),
       }),
     ),
     {
