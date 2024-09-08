@@ -81,6 +81,36 @@ function addNfcUsesFeatureTagToManifest(androidManifest) {
     }
     return androidManifest;
 }
+const withJettifierIgnorance = config => {
+    return (0, config_plugins_1.withGradleProperties)(config, config => {
+        config.modResults.push({
+            key: 'android.jetifier.ignorelist',
+            value: 'bcprov', // unable
+            type: 'property',
+        });
+        config.modResults.push({
+            key: 'android.jetifier.ignorelist',
+            value: 'bcprov-jdk15to18-1.70.jar', // unable
+            type: 'property',
+        });
+        config.modResults.push({
+            key: 'android.jetifier.ignorelist',
+            value: 'bcprov-jdk15on-1.70.jar', // unable
+            type: 'property',
+        });
+        config.modResults.push({
+            key: 'android.jetifier.ignorelist',
+            value: 'org.bouncycastle.*', // unable
+            type: 'property',
+        });
+        config.modResults.push({
+            key: 'android.enableJetifier',
+            value: 'true',
+            type: 'property',
+        });
+        return config;
+    });
+};
 const withNfcAndroidManifest = c => {
     return (0, config_plugins_1.withAndroidManifest)(c, config => {
         config.modResults = addNfcUsesFeatureTagToManifest(config.modResults);
@@ -92,6 +122,7 @@ const withNfc = (config, props = {}) => {
     config = withIosNfcEntitlement(config, { includeNdefEntitlement });
     config = withIosNfcSelectIdentifiers(config, { selectIdentifiers });
     config = withIosNfcSystemCodes(config, { systemCodes });
+    config = withJettifierIgnorance(config);
     // We start to support Android 12 from v3.11.1, and you will need to update compileSdkVersion to 31,
     // otherwise the build will fail:
     config = config_plugins_1.AndroidConfig.Version.withBuildScriptExtMinimumVersion(config, {

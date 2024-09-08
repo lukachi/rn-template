@@ -43,5 +43,5 @@ jobs:
           APP_ENV: staging
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           VERSION: ${{ github.event.release.tag_name }}
-          IOS: false # TODO: set as true when IOS account is ready
+          IOS: true
 
