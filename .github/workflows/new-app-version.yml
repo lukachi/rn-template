@@ -34,7 +34,7 @@ on:
           - minor
           - major
     secrets:
-      token:
+      GH_TOKEN:
         required: true
 
 jobs:
