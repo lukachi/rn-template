@@ -2,10 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.withNfc = void 0;
 const config_plugins_1 = require("@expo/config-plugins");
+const config_plugins_2 = require("@expo/config-plugins");
 const NFC_READER = 'Interact with nearby NFC devices';
 function withIosPermission(c, props = {}) {
     const { nfcPermission } = props;
-    return (0, config_plugins_1.withInfoPlist)(c, config => {
+    return (0, config_plugins_2.withInfoPlist)(c, config => {
         // https://developer.apple.com/documentation/bundleresources/information_property_list/nfcreaderusagedescription?language=objc
         config.modResults.NFCReaderUsageDescription =
             nfcPermission || config.modResults.NFCReaderUsageDescription || NFC_READER;
@@ -30,7 +31,7 @@ function addValuesToArray(obj, key, values) {
     return obj;
 }
 function withIosNfcEntitlement(c, { includeNdefEntitlement, }) {
-    return (0, config_plugins_1.withEntitlementsPlist)(c, config => {
+    return (0, config_plugins_2.withEntitlementsPlist)(c, config => {
         // Add the required formats
         let entitlements = ['NDEF', 'TAG'];
         if (includeNdefEntitlement === false) {
@@ -41,7 +42,7 @@ function withIosNfcEntitlement(c, { includeNdefEntitlement, }) {
     });
 }
 function withIosNfcSelectIdentifiers(c, { selectIdentifiers, }) {
-    return (0, config_plugins_1.withInfoPlist)(c, config => {
+    return (0, config_plugins_2.withInfoPlist)(c, config => {
         // Add the user defined identifiers
         config.modResults = addValuesToArray(config.modResults, 
         // https://developer.apple.com/documentation/bundleresources/information_property_list/select-identifiers
@@ -59,7 +60,7 @@ function withIosNfcSelectIdentifiers(c, { selectIdentifiers, }) {
     });
 }
 function withIosNfcSystemCodes(c, { systemCodes, }) {
-    return (0, config_plugins_1.withInfoPlist)(c, config => {
+    return (0, config_plugins_2.withInfoPlist)(c, config => {
         // Add the user defined identifiers
         config.modResults = addValuesToArray(config.modResults, 
         // https://developer.apple.com/documentation/bundleresources/information_property_list/systemcodes
@@ -81,38 +82,26 @@ function addNfcUsesFeatureTagToManifest(androidManifest) {
     }
     return androidManifest;
 }
-const withJettifierIgnorance = config => {
-    return (0, config_plugins_1.withGradleProperties)(config, config => {
-        config.modResults.push({
-            key: 'android.jetifier.ignorelist',
-            value: 'bcprov', // unable
-            type: 'property',
-        });
-        config.modResults.push({
-            key: 'android.jetifier.ignorelist',
-            value: 'bcprov-jdk15to18-1.70.jar', // unable
-            type: 'property',
-        });
-        config.modResults.push({
-            key: 'android.jetifier.ignorelist',
-            value: 'bcprov-jdk15on-1.70.jar', // unable
-            type: 'property',
-        });
-        config.modResults.push({
-            key: 'android.jetifier.ignorelist',
-            value: 'org.bouncycastle.*', // unable
-            type: 'property',
-        });
-        config.modResults.push({
-            key: 'android.enableJetifier',
-            value: 'true',
-            type: 'property',
-        });
-        return config;
+function withCustomBuildGradle(config) {
+    return (0, config_plugins_1.withAppBuildGradle)(config, async (c) => {
+        if (c.modResults.language === 'groovy') {
+            c.modResults.contents += `
+
+    // this configuration is added by a custom expo mod (plugin) to resolve "Duplicate class org.bouncycastle.." error
+    configurations {
+        all*.exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+        all*.exclude group: 'org.bouncycastle', module: 'bcutil-jdk15to18'
+    }
+    `;
+        }
+        else {
+            throw new Error("The 'withCustomBuildGradle' plugin is only compatible with Groovy gradle files.");
+        }
+        return c;
     });
-};
+}
 const withNfcAndroidManifest = c => {
-    return (0, config_plugins_1.withAndroidManifest)(c, config => {
+    return (0, config_plugins_2.withAndroidManifest)(c, config => {
         config.modResults = addNfcUsesFeatureTagToManifest(config.modResults);
         return config;
     });
@@ -122,16 +111,16 @@ const withNfc = (config, props = {}) => {
     config = withIosNfcEntitlement(config, { includeNdefEntitlement });
     config = withIosNfcSelectIdentifiers(config, { selectIdentifiers });
     config = withIosNfcSystemCodes(config, { systemCodes });
-    config = withJettifierIgnorance(config);
+    config = withCustomBuildGradle(config);
     // We start to support Android 12 from v3.11.1, and you will need to update compileSdkVersion to 31,
     // otherwise the build will fail:
-    config = config_plugins_1.AndroidConfig.Version.withBuildScriptExtMinimumVersion(config, {
+    config = config_plugins_2.AndroidConfig.Version.withBuildScriptExtMinimumVersion(config, {
         name: 'compileSdkVersion',
         minVersion: 31,
     });
     if (nfcPermission !== false) {
         config = withIosPermission(config, props);
-        config = config_plugins_1.AndroidConfig.Permissions.withPermissions(config, ['android.permission.NFC']);
+        config = config_plugins_2.AndroidConfig.Permissions.withPermissions(config, ['android.permission.NFC']);
         config = withNfcAndroidManifest(config);
     }
     return config;

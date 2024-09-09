@@ -1,10 +1,10 @@
 import type { ExpoConfig } from '@expo/config'
 import type { AndroidManifest, ConfigPlugin } from '@expo/config-plugins'
+import { withAppBuildGradle } from '@expo/config-plugins'
 import {
   AndroidConfig,
   withAndroidManifest,
   withEntitlementsPlist,
-  withGradleProperties,
   withInfoPlist,
 } from '@expo/config-plugins'
 
@@ -145,36 +145,23 @@ function addNfcUsesFeatureTagToManifest(androidManifest: AndroidManifest) {
   return androidManifest
 }
 
-const withJettifierIgnorance: ConfigPlugin = config => {
-  return withGradleProperties(config, config => {
-    config.modResults.push({
-      key: 'android.jetifier.ignorelist',
-      value: 'bcprov', // unable
-      type: 'property',
-    })
-    config.modResults.push({
-      key: 'android.jetifier.ignorelist',
-      value: 'bcprov-jdk15to18-1.70.jar', // unable
-      type: 'property',
-    })
-    config.modResults.push({
-      key: 'android.jetifier.ignorelist',
-      value: 'bcprov-jdk15on-1.70.jar', // unable
-      type: 'property',
-    })
-    config.modResults.push({
-      key: 'android.jetifier.ignorelist',
-      value: 'org.bouncycastle.*', // unable
-      type: 'property',
-    })
+function withCustomBuildGradle(config: ExpoConfig) {
+  return withAppBuildGradle(config, async c => {
+    if (c.modResults.language === 'groovy') {
+      c.modResults.contents += `
 
-    config.modResults.push({
-      key: 'android.enableJetifier',
-      value: 'true',
-      type: 'property',
-    })
-
-    return config
+    // this configuration is added by a custom expo mod (plugin) to resolve "Duplicate class org.bouncycastle.." error
+    configurations {
+        all*.exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+        all*.exclude group: 'org.bouncycastle', module: 'bcutil-jdk15to18'
+    }
+    `
+    } else {
+      throw new Error(
+        "The 'withCustomBuildGradle' plugin is only compatible with Groovy gradle files.",
+      )
+    }
+    return c
   })
 }
 
@@ -196,7 +183,7 @@ export const withNfc: ConfigPlugin<{
   config = withIosNfcEntitlement(config, { includeNdefEntitlement })
   config = withIosNfcSelectIdentifiers(config, { selectIdentifiers })
   config = withIosNfcSystemCodes(config, { systemCodes })
-  config = withJettifierIgnorance(config)
+  config = withCustomBuildGradle(config)
 
   // We start to support Android 12 from v3.11.1, and you will need to update compileSdkVersion to 31,
   // otherwise the build will fail:

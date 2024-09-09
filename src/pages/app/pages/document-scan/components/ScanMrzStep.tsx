@@ -107,7 +107,7 @@ export default function ScanMrzStep({}: Props) {
       'worklet'
 
       // FIXME: https://github.com/mrousavy/react-native-vision-camera/issues/2820
-      runAtTargetFps(2, async () => {
+      runAtTargetFps(2, () => {
         'worklet'
 
         const data = scanText(frame)
@@ -124,13 +124,11 @@ export default function ScanMrzStep({}: Props) {
               console.log('isObject')
               resultText = data.resultText as string
             } else {
-              resultText = 'non of these, the actual'
+              resultText = ''
             }
 
-            console.log('resultText', resultText)
-
             if (resultText) {
-              await onMRZDetected(resultText.split('\n'))
+              onMRZDetected(resultText.split('\n'))
             }
           }
         } catch (error) {
