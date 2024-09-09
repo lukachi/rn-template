@@ -40,11 +40,12 @@ web-build/
 .idea
 
 # local env files
-.env
-.env.*
+#.env
+#.env.*
 
 .expo
 /android
 /ios
 modules/**/*/build
+!modules/**/*/plugin/build
 modules/**/*/.cxx

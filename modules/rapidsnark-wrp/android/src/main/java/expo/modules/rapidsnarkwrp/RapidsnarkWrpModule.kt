@@ -46,20 +46,20 @@ class RapidsnarkWrpModule : Module() {
     Name("RapidsnarkWrp")
 
     AsyncFunction("groth16ProveWithZKeyFilePath") { wtns: ByteArray, zkeyFilePath: String, proofBufferSize: Int?, publicBufferSize: Int?, errorBufferSize: Int? ->
+      val fileUrl = zkeyFilePath.replace("file://", "")
+      val file = File(fileUrl)
 
-      val fileExists = File(zkeyFilePath).exists()
-
-      if (!fileExists) {
+      if (!file.exists()) {
         throw Exception("Zkey file does not exist")
       }
 
       val currentProofBufferSize = proofBufferSize ?: DEFAULT_PROOF_BUFFER_SIZE
-      val currentPublicBufferSize = publicBufferSize ?: groth16PublicSizeForZkeyFile(zkeyFilePath)
+      val currentPublicBufferSize = publicBufferSize ?: groth16PublicSizeForZkeyFile(file.path)
       val currentErrorBufferSize = errorBufferSize ?: DEFAULT_ERROR_BUFFER_SIZE
 
 
       val (proof, publicSignals) = groth16ProveWithZKeyFilePath(
-        zkeyFilePath,
+        file.path,
         wtns,
         currentProofBufferSize,
         currentPublicBufferSize,

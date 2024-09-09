@@ -7,7 +7,7 @@ import type { ViewProps } from 'react-native'
 import { ScrollView, Text, View } from 'react-native'
 import {
   Camera,
-  runAsync,
+  runAtTargetFps,
   useCameraDevice,
   useCameraPermission,
   useFrameProcessor,
@@ -15,6 +15,7 @@ import {
 import { useTextRecognition } from 'react-native-vision-camera-text-recognition'
 import { Worklets } from 'react-native-worklets-core'
 
+import { bus, DefaultBusEvents } from '@/core'
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
 import { UiButton } from '@/ui'
 
@@ -91,6 +92,9 @@ export default function ScanMrzStep({}: Props) {
       const result = mrzParser(lines)
 
       if (result?.valid) {
+        bus.emit(DefaultBusEvents.success, {
+          message: 'MRZ Detected',
+        })
         setMrz(result.fields)
       }
     } catch (error) {
@@ -102,16 +106,36 @@ export default function ScanMrzStep({}: Props) {
     frame => {
       'worklet'
 
-      runAsync(frame, async () => {
+      // FIXME: https://github.com/mrousavy/react-native-vision-camera/issues/2820
+      runAtTargetFps(2, () => {
         'worklet'
 
         const data = scanText(frame)
 
-        // FIXME
-        // @ts-ignore
-        const lines = data?.resultText?.split('\n') as string[]
+        try {
+          let resultText: string = ''
 
-        await onMRZDetected(lines)
+          if (data) {
+            console.log('data')
+            if (data?.length) {
+              console.log('Array.isArray')
+              resultText = data.map(el => el.resultText).join('\n')
+            } else if ('resultText' in data) {
+              console.log('isObject')
+              resultText = data.resultText as string
+            } else {
+              resultText = ''
+            }
+
+            if (resultText) {
+              onMRZDetected(resultText.split('\n'))
+            }
+          }
+        } catch (error) {
+          console.log('error', {
+            ...error,
+          })
+        }
       })
     },
     [scanText, onMRZDetected],

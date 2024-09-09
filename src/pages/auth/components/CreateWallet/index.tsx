@@ -32,7 +32,7 @@ export default function CreateWallet({ route }: Props) {
   const { formState, isFormDisabled, handleSubmit, disableForm, enableForm, control, setValue } =
     useForm(
       {
-        privateKey: '0ae3584bb3028e79639b743f41bb119a9a80821443e1ac5532a8fa9b5d0a6646',
+        privateKey: '',
       },
       yup =>
         yup.object().shape({

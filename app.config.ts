@@ -1,4 +1,3 @@
-
 import type {ConfigContext, ExpoConfig} from '@expo/config';
 
 import {ClientEnv, Env} from './env';
@@ -21,6 +20,10 @@ export default ({config}: ConfigContext): ExpoConfig => ({
   },
   updates: {
     fallbackToCacheTimeout: 0,
+    url: `https://u.expo.dev/${Env.EAS_PROJECT_ID}`
+  },
+  runtimeVersion: {
+    policy: 'appVersion',
   },
   // assetBundlePatterns: ['**/*'],
   ios: {
@@ -42,7 +45,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
     bundler: 'metro',
   },
   plugins: [
-    'expo-asset',
+    ['expo-asset'],
     [
       'expo-font',
       {

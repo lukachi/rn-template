@@ -31,6 +31,7 @@ const useUiPreferencesStore = create(
             ...state,
             documentsCardUi: value,
           })),
+        clearDocumentsCardUi: () => set({ documentsCardUi: {} }),
       }),
     ),
     {
@@ -161,16 +162,27 @@ const useDocumentCardUiPreference = (id: string) => {
   )
 
   const setDocumentCardUi = useCallback(
-    (value: DocumentCardUi, personalDetailsShown?: Array<keyof PersonDetails>) => {
+    (
+      value: DocumentCardUi,
+      personalDetailsShown?: Array<keyof PersonDetails>,
+      isBlurred?: boolean,
+    ) => {
       updateDocumentsCardUi({
         ...documentsCardUi,
         [id]: {
           ...value,
+          isBlurred: isBlurred ?? documentCardUi.isBlurred,
           personalDetailsShown: personalDetailsShown || documentCardUi.personalDetailsShown,
         },
       })
     },
-    [documentCardUi.personalDetailsShown, documentsCardUi, id, updateDocumentsCardUi],
+    [
+      documentCardUi.isBlurred,
+      documentCardUi.personalDetailsShown,
+      documentsCardUi,
+      id,
+      updateDocumentsCardUi,
+    ],
   )
 
   const personalDetailsShownVariants = useMemo((): Array<keyof PersonDetails> => {
@@ -196,10 +208,13 @@ const useDocumentCardUiPreference = (id: string) => {
   )
 
   const toggleIsBlurred = useCallback(() => {
-    setDocumentCardUi({
-      ...documentCardUi,
-      isBlurred: !documentCardUi.isBlurred,
-    })
+    setDocumentCardUi(
+      {
+        ...documentCardUi,
+      },
+      undefined,
+      !documentCardUi.isBlurred,
+    )
   }, [documentCardUi, setDocumentCardUi])
 
   return {

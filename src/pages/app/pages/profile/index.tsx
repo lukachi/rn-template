@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { Button, ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { useSelectedLanguage } from '@/core'
+import { ErrorHandler, useSelectedLanguage } from '@/core'
 import { type Language, resources } from '@/core/localization/resources'
 import { useCopyToClipboard } from '@/hooks'
 import type { AppTabScreenProps } from '@/route-types'
@@ -31,6 +31,7 @@ export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
           <ThemeCard />
           <LocalAuthMethodCard />
           <LogoutCard />
+          <TestsCard />
         </View>
       </ScrollView>
     </View>
@@ -173,6 +174,26 @@ function LogoutCard() {
         trailingIcon='trashSimpleIcon'
         onPress={logout}
       />
+    </UiCard>
+  )
+}
+
+function TestsCard() {
+  const pk = walletStore.useWalletStore(state => state.privateKey)
+  const genAuthProof = authStore.useAuthProof({ byFilePath: true })
+
+  const testAuthProof = async () => {
+    try {
+      const zkProof = await genAuthProof(pk)
+      console.log(zkProof)
+    } catch (error) {
+      ErrorHandler.process(error)
+    }
+  }
+
+  return (
+    <UiCard>
+      <UiButton title='testAuthProof' onPress={testAuthProof} />
     </UiCard>
   )
 }
