@@ -137,10 +137,37 @@ The above commands will generate the required credentials for the build and stor
 Next time, if you want to test release build locally, before merge feature branch to main, you can run:
 ```bash
 yarn build:staging:ios --local
-yarn build:staging:android --local
 ```
 
-it will create `*.ipa` and `*.apk` files in root folder, so you could install it on ur device via [orbit](https://docs.expo.dev/build/orbit/)
+it will create `*.ipa` file in root folder, so you could install it on ur device via [orbit](https://docs.expo.dev/build/orbit/)
+
+### Third IMPORTANT! Android QA build
+Due to this [issue](https://github.com/expo/expo/issues/27985), we are unable to build .apk file, if we are useing `*.aar` files.
+To fix this, we will build `.aab` file, and then convert it to `.apk` file using `bundletool`.
+
+so, prebuild and build locally for ur `environment`:
+```bash
+yarn prebuild:staging && yarn build:staging:android --local
+```
+
+After that, you will have `*.aab` file in `root` folder.
+
+run:
+```bash
+bundletool build-apks --bundle=[generated_file].aab --output=dist/[my_awesoma_app_archive].apks --mode=universal
+```
+
+rename file and unarchive it
+```bash
+mv dist/[my_awesoma_app_archive].apks dist/[my_awesoma_app_archive].zip
+```
+
+unarchive it
+```bash
+unzip dist/[my_awesoma_app_archive].zip -d dist
+```
+
+The `universal.apk` file will be ur app, which u can distribute to ur QA team
 
 ### Good to know
 
