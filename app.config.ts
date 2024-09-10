@@ -87,7 +87,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         },
         ios: {
           // newArchEnabled: true,
-          deploymentTarget: '16.0',
+          deploymentTarget: '17.5',
 
           extraPods: [
             {
