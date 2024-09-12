@@ -143,7 +143,10 @@ it will create `*.ipa` file in root folder, so you could install it on ur device
 
 ### Third IMPORTANT! Android QA build
 Due to this [issue](https://github.com/expo/expo/issues/27985), we are unable to build .apk file, if we are useing `*.aar` files.
-To fix this, we will build `.aab` file, and then convert it to `.apk` file using `bundletool`.
+To fix this, we will use [withLocalAar](./plugins/withLocalAar.plugin.js) plugin.
+This is a workaround, and it should be replaced with [gradleAarProjects](https://github.com/expo/expo/pull/30706) in the future.
+
+Also one more solution is to build `.aab` file, and then convert it to `.apk` file using `bundletool`.
 
 so, prebuild and build locally for ur `environment`:
 ```bash

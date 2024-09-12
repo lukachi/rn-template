@@ -42,12 +42,6 @@ android {
   }
 }
 
-repositories {
-  flatDir {
-    dirs "libs"
-  }
-}
-
 dependencies {
-  implementation files('libs/Identity.aar')
+  implementation(name: 'Identity', ext: 'aar')
 }

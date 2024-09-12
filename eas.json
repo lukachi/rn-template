@@ -32,7 +32,7 @@
         "image": "latest"
       },
       "android": {
-        "buildType": "app-bundle",
+        "gradleCommand": ":app:assembleRelease",
         "image": "latest"
       },
       "env": {

@@ -125,7 +125,8 @@ export default ({config}: ConfigContext): ExpoConfig => ({
     [ "react-native-vision-camera", {
       "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
     }],
-    ['./modules/e-document/app.plugin.js']
+    ['./modules/e-document/app.plugin.js'],
+    ['./plugins/withLocalAar.plugin.js']
   ],
   extra: {
     ...ClientEnv,

@@ -4077,31 +4077,31 @@ __metadata:
   linkType: hard
 
 "@tanstack/eslint-plugin-query@npm:^5.51.10":
-  version: 5.53.0
-  resolution: "@tanstack/eslint-plugin-query@npm:5.53.0"
+  version: 5.56.1
+  resolution: "@tanstack/eslint-plugin-query@npm:5.56.1"
   dependencies:
     "@typescript-eslint/utils": "npm:^8.3.0"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0
-  checksum: cd94e96897ed696da1f2098bbf01db5cfb80efded21a0794b3fb1f152ea09c4ac815f4ca4b1dac5c60cbbb8d67eae0c242ea622b5ae60af6461efa8413410fd3
+  checksum: a2995168f89795a9c7f7b8c1be88f3dc81d01d5fa2b8db32ad6bbd8d685702b51c84c78c1296b9f99dd647387c563c6d1c1af6f4cadf655228d8e57d9019a242
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.55.4":
-  version: 5.55.4
-  resolution: "@tanstack/query-core@npm:5.55.4"
-  checksum: 11f856455f4be17713b58c4db8ae626715693319bc025b3dd9d6d4b63cd773656fdcff71120680f8fd765ca26cac6adc17a5d11eb3a22d71be89acb9455b2176
+"@tanstack/query-core@npm:5.56.1":
+  version: 5.56.1
+  resolution: "@tanstack/query-core@npm:5.56.1"
+  checksum: fa0e2e29e887ae8e4d0bb623c6e03bd5ec23c85cb8f1aac4f4c28b69a286d557a18db8be6bccdba594600e60fff83aed95eb1695fc3e4df5e0b6f66f0fba24f2
   languageName: node
   linkType: hard
 
 "@tanstack/react-query@npm:^5.51.9":
-  version: 5.55.4
-  resolution: "@tanstack/react-query@npm:5.55.4"
+  version: 5.56.1
+  resolution: "@tanstack/react-query@npm:5.56.1"
   dependencies:
-    "@tanstack/query-core": "npm:5.55.4"
+    "@tanstack/query-core": "npm:5.56.1"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 7d3f33ab3ae406444edbf73a2474c1274577c0f173fb680342eb728f925ff65148357c9002936fea43cc1c060f6e8ef79a10518b1e39625f8301780fe2ffb958
+  checksum: 9b710443f140a7275c163c64144dd9f1bbaef9fb1a3ef07ee771ce61ef62349ae0729dd47d89c77cd8e8eb8998e2cac17388a1857d70f7d7c7608f09fbe67e74
   languageName: node
   linkType: hard
 
@@ -7768,9 +7768,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.4":
-  version: 1.5.18
-  resolution: "electron-to-chromium@npm:1.5.18"
-  checksum: 7306acc2631dc56a866a169b2ec8588d153284910889ab271f8f36f68073c214191d5a2e24cc9f6ff3739567f43b3853d2a6380af0bc476d75b5548cbff82f0c
+  version: 1.5.20
+  resolution: "electron-to-chromium@npm:1.5.20"
+  checksum: 179f8af9b5e426489fdf9f43272bea64c5e66231656e5510abe058fc601ff5981260f37576c03e4288dd25446d645cb35995b1ed3aab67e2e080fadb9134041f
   languageName: node
   linkType: hard
 
@@ -7828,6 +7828,13 @@ __metadata:
   version: 1.0.2
   resolution: "encodeurl@npm:1.0.2"
   checksum: e50e3d508cdd9c4565ba72d2012e65038e5d71bdc9198cb125beb6237b5b1ade6c0d343998da9e170fb2eae52c1bed37d4d6d98a46ea423a0cddbed5ac3f780c
+  languageName: node
+  linkType: hard
+
+"encodeurl@npm:~2.0.0":
+  version: 2.0.0
+  resolution: "encodeurl@npm:2.0.0"
+  checksum: abf5cd51b78082cf8af7be6785813c33b6df2068ce5191a40ca8b1afe6a86f9230af9a9ce694a5ce4665955e5c1120871826df9c128a642e09c58d592e2807fe
   languageName: node
   linkType: hard
 
@@ -8405,8 +8412,8 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-react@npm:^7.30.1, eslint-plugin-react@npm:^7.32.2":
-  version: 7.35.2
-  resolution: "eslint-plugin-react@npm:7.35.2"
+  version: 7.36.0
+  resolution: "eslint-plugin-react@npm:7.36.0"
   dependencies:
     array-includes: "npm:^3.1.8"
     array.prototype.findlast: "npm:^1.2.5"
@@ -8428,7 +8435,7 @@ __metadata:
     string.prototype.repeat: "npm:^1.0.0"
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
-  checksum: f4631612444f9066c8007e9433c0972754b75d33be410cd18dcf003e4209600240dec3e50a9962aae35e9a08920a1eb60e51d3cc140e5f6c95582e727ebec74e
+  checksum: f28098e02f611fbdde36c9ef3b256a5c51c7ec0cc21ddcf9ac45f3b8f53728fc2dcb91dbd3de1ae234c6941d336e5045d4b32c09d50be29e4e2663b13f8bd2f1
   languageName: node
   linkType: hard
 
@@ -15109,12 +15116,12 @@ __metadata:
   linkType: hard
 
 "pump@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "pump@npm:3.0.0"
+  version: 3.0.2
+  resolution: "pump@npm:3.0.2"
   dependencies:
     end-of-stream: "npm:^1.1.0"
     once: "npm:^1.3.1"
-  checksum: e42e9229fba14732593a718b04cb5e1cfef8254544870997e0ecd9732b189a48e1256e4e5478148ecb47c8511dca2b09eae56b4d0aad8009e6fac8072923cfc9
+  checksum: e0c4216874b96bd25ddf31a0b61a5613e26cc7afa32379217cf39d3915b0509def3565f5f6968fafdad2894c8bbdbd67d340e84f3634b2a29b950cffb6442d9f
   languageName: node
   linkType: hard
 
@@ -15819,11 +15826,11 @@ __metadata:
   linkType: hard
 
 "regenerate-unicode-properties@npm:^10.1.0":
-  version: 10.1.1
-  resolution: "regenerate-unicode-properties@npm:10.1.1"
+  version: 10.2.0
+  resolution: "regenerate-unicode-properties@npm:10.2.0"
   dependencies:
     regenerate: "npm:^1.4.2"
-  checksum: b855152efdcca0ecc37ceb0cb6647a544344555fc293af3b57191b918e1bc9c95ee404a9a64a1d692bf66d45850942c29d93f2740c0d1980d3a8ea2ca63b184e
+  checksum: 9150eae6fe04a8c4f2ff06077396a86a98e224c8afad8344b1b656448e89e84edcd527e4b03aa5476774129eb6ad328ed684f9c1459794a935ec0cc17ce14329
   languageName: node
   linkType: hard
 
@@ -16338,7 +16345,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"send@npm:0.18.0, send@npm:^0.18.0":
+"send@npm:0.19.0":
+  version: 0.19.0
+  resolution: "send@npm:0.19.0"
+  dependencies:
+    debug: "npm:2.6.9"
+    depd: "npm:2.0.0"
+    destroy: "npm:1.2.0"
+    encodeurl: "npm:~1.0.2"
+    escape-html: "npm:~1.0.3"
+    etag: "npm:~1.8.1"
+    fresh: "npm:0.5.2"
+    http-errors: "npm:2.0.0"
+    mime: "npm:1.6.0"
+    ms: "npm:2.1.3"
+    on-finished: "npm:2.4.1"
+    range-parser: "npm:~1.2.1"
+    statuses: "npm:2.0.1"
+  checksum: 1f6064dea0ae4cbe4878437aedc9270c33f2a6650a77b56a16b62d057527f2766d96ee282997dd53ec0339082f2aad935bc7d989b46b48c82fc610800dc3a1d0
+  languageName: node
+  linkType: hard
+
+"send@npm:^0.18.0":
   version: 0.18.0
   resolution: "send@npm:0.18.0"
   dependencies:
@@ -16367,14 +16395,14 @@ __metadata:
   linkType: hard
 
 "serve-static@npm:^1.13.1":
-  version: 1.16.0
-  resolution: "serve-static@npm:1.16.0"
+  version: 1.16.2
+  resolution: "serve-static@npm:1.16.2"
   dependencies:
-    encodeurl: "npm:~1.0.2"
+    encodeurl: "npm:~2.0.0"
     escape-html: "npm:~1.0.3"
     parseurl: "npm:~1.3.3"
-    send: "npm:0.18.0"
-  checksum: 29a01f67e8c64a359d49dd0c46bc95bb4aa99781f97845dccbf0c8cd0284c5fd79ad7fb9433a36fac4b6c58b577d3eab314a379142412413b8b5cd73be3cd551
+    send: "npm:0.19.0"
+  checksum: 7fa9d9c68090f6289976b34fc13c50ac8cd7f16ae6bce08d16459300f7fc61fbc2d7ebfa02884c073ec9d6ab9e7e704c89561882bbe338e99fcacb2912fde737
   languageName: node
   linkType: hard
 
@@ -17392,8 +17420,8 @@ __metadata:
   linkType: hard
 
 "tailwindcss@npm:^3.4.5":
-  version: 3.4.10
-  resolution: "tailwindcss@npm:3.4.10"
+  version: 3.4.11
+  resolution: "tailwindcss@npm:3.4.11"
   dependencies:
     "@alloc/quick-lru": "npm:^5.2.0"
     arg: "npm:^5.0.2"
@@ -17420,7 +17448,7 @@ __metadata:
   bin:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
-  checksum: 5296111e7b0c3e638f3a136a0eb13ab4048c5c5ef5e72b055ae6a0f811502e99478218958bfbbf49b3ed8cf07f395fc893589033a893087e299c084fec8efcac
+  checksum: 94da4265d8815eb5e365465534e3400049ca4e80ecf70d820ecd6fd6a29b664e0d173077b30a82fd4282653cafdbf370bd4a28aeaa15ff4be52095e6a51a5289
   languageName: node
   linkType: hard
 
@@ -18261,9 +18289,9 @@ __metadata:
   linkType: hard
 
 "unicode-canonical-property-names-ecmascript@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "unicode-canonical-property-names-ecmascript@npm:2.0.0"
-  checksum: 39be078afd014c14dcd957a7a46a60061bc37c4508ba146517f85f60361acf4c7539552645ece25de840e17e293baa5556268d091ca6762747fdd0c705001a45
+  version: 2.0.1
+  resolution: "unicode-canonical-property-names-ecmascript@npm:2.0.1"
+  checksum: 3c3dabdb1d22aef4904399f9e810d0b71c0b12b3815169d96fac97e56d5642840c6071cf709adcace2252bc6bb80242396c2ec74b37224eb015c5f7aca40bad7
   languageName: node
   linkType: hard
 
@@ -18278,9 +18306,9 @@ __metadata:
   linkType: hard
 
 "unicode-match-property-value-ecmascript@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "unicode-match-property-value-ecmascript@npm:2.1.0"
-  checksum: 06661bc8aba2a60c7733a7044f3e13085808939ad17924ffd4f5222a650f88009eb7c09481dc9c15cfc593d4ad99bd1cde8d54042733b335672591a81c52601c
+  version: 2.2.0
+  resolution: "unicode-match-property-value-ecmascript@npm:2.2.0"
+  checksum: 9fd53c657aefe5d3cb8208931b4c34fbdb30bb5aa9a6c6bf744e2f3036f00b8889eeaf30cb55a873b76b6ee8b5801ea770e1c49b3352141309f58f0ebb3011d8
   languageName: node
   linkType: hard
 

@@ -42,12 +42,6 @@ android {
   }
 }
 
-repositories {
-  flatDir {
-    dirs "libs"
-  }
-}
-
 dependencies {
-  implementation files('libs/RmoCalcs-release.aar')
+  implementation(name: 'RmoCalcs-release', ext: 'aar')
 }
