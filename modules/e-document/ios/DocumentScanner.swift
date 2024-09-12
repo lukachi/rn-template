@@ -77,28 +77,28 @@ struct Passport: Codable {
         return ((try? sod?.getEncapsulatedContent())?.count ?? 0) * 8
     }
     
-    var personalNumber: String {
-        if let dg11Raw = dg11 {
-            if dg11Raw.isEmpty {
-                return ""
-            }
-            
-            let dg11Bytes = [UInt8](Data(base64Encoded: dg11Raw) ?? Data())
-
-            if let dg11 = try? DataGroup11([UInt8](dg11Bytes)) {
-                if let personalNumber = dg11.personalNumber {
-                    return personalNumber
-                }
-            }
-        }
-
-        let dg1Text = dg1.utf8
-             
-        let personalNumberStartIndex = dg1Text.index(dg1Text.startIndex, offsetBy: 20)
-        let personalNumberEndIndex = dg1Text.index(dg1Text.startIndex, offsetBy: 30)
-             
-        return String(dg1Text[personalNumberStartIndex ... personalNumberEndIndex]) ?? ""
-    }
+//    var personalNumber: String {
+//        if let dg11Raw = dg11 {
+//            if dg11Raw.isEmpty {
+//                return ""
+//            }
+//            
+//            let dg11Bytes = [UInt8](Data(base64Encoded: dg11Raw) ?? Data())
+//
+//            if let dg11 = try? DataGroup11([UInt8](dg11Bytes)) {
+//                if let personalNumber = dg11.personalNumber {
+//                    return personalNumber
+//                }
+//            }
+//        }
+//
+//        let dg1Text = dg1.utf8
+//             
+//        let personalNumberStartIndex = dg1Text.index(dg1Text.startIndex, offsetBy: 20)
+//        let personalNumberEndIndex = dg1Text.index(dg1Text.startIndex, offsetBy: 30)
+//             
+//        return String(dg1Text[personalNumberStartIndex ... personalNumberEndIndex]) ?? ""
+//    }
     
     func getDG15PublicKeyPEM() throws -> Data {
         if dg15.isEmpty {
