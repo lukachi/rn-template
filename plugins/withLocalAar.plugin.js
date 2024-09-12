@@ -9,9 +9,9 @@ const withCustomRootBuildGradle = (config) => {
     allprojects {
         repositories {
             flatDir {
-                dirs project(':my-module-1').projectDir.absolutePath + '/libs'
-                dirs project(':my-module-2').projectDir.absolutePath + '/libs'
-                dirs project(':my-module-3').projectDir.absolutePath + '/libs'
+                dirs project(':rapidsnark-wrp').projectDir.absolutePath + '/libs'
+                dirs project(':rarime-sdk').projectDir.absolutePath + '/libs'
+                dirs project(':witnesscalculator').projectDir.absolutePath + '/libs'
             }
         }
     }

@@ -49,3 +49,6 @@ web-build/
 modules/**/*/build
 !modules/**/*/plugin/build
 modules/**/*/.cxx
+*.apk
+*.aab
+*.ipa
