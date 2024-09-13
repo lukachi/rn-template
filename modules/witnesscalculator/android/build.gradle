@@ -43,5 +43,5 @@ android {
 }
 
 dependencies {
-  implementation(name: 'RmoCalcs-release', ext: 'aar')
+  implementation(name: 'RmoCalcs', ext: 'aar')
 }
