@@ -43,5 +43,5 @@ android {
 }
 
 dependencies {
-  implementation(name: 'Identity', ext: 'aar')
+  implementation(name: 'IdentitySdk', ext: 'aar')
 }
