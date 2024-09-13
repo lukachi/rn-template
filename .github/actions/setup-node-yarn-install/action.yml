@@ -25,5 +25,5 @@ runs:
       shell: bash
 
     - name: 📦 Install Project Dependencies
-      run: yarn install --immutable --immutable-cache
+      run: yarn install --immutable
       shell: bash
