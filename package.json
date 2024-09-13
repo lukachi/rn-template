@@ -34,7 +34,9 @@
     "test:watch": "yarn test --watch",
     "generate:ethers-types": "typechain --target=ethers-v6 'abis/**/*.json' --out-dir src/types/contracts",
     "xcode": "xed -b ios",
-    "doctor": "npx expo-doctor@latest"
+    "doctor": "npx expo-doctor@latest",
+
+    "eas-build-pre-install": "./scripts/git-lfs-pre-install.sh"
   },
   "jest": {
     "preset": "jest-expo"
