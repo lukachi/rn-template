@@ -25,5 +25,5 @@ runs:
       shell: bash
 
     - name: 📦 Install Project Dependencies
-      run: yarn install --frozen-lockfile
+      run: yarn install --immutable --immutable-cache
       shell: bash
