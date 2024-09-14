@@ -30,7 +30,7 @@ eas login
 
 - Create account with Apple developer program
 - Register device with expo - `eas device:create`
-- Configure `signing & capabilities` with xcode
+- Configure `signing & capabilities` with xcode (optional, usually cli will ask you to chose signing team)
 - Turn on developer mode in device
 
 #### Configure [app identifiers and package](./env.js)
@@ -108,8 +108,8 @@ Default case - Let's assume you finish ur feature branch.
 2) After merge PR, you will have 2 options to release ur app for `internal distribution` (QA)
    - select `New App Version` workflow in GH actions and choose release type
    - or run `yarn app-release` locally, it will do the same as action above, and push changes to trigger next GH actions
-3) After that, the `eas-build-qa` workflow will start, and it will build and publish app to `internal distribution` via EAS
-4) The `Production` release should be triggered manually, by running `eas-production-build` workflow
+3) After that, run the `eas-build-qa` workflow, and it will build and publish app to `internal distribution` via EAS
+4) The `Production` release works same way, by running `eas-production-build` workflow
 
 **note**: This template doesn't submit app to stores, u should do it manually via EAS dashboard, or configure auto-submit in GH actions.
 in that case you need to check eas submit configuration and follow the steps from [EAS](https://docs.expo.dev/submit/introduction/) docs.
@@ -122,24 +122,34 @@ Add the required secrets to your GitHub repo:
 `EXPO_TOKEN`: Expo token to authenticate with EAS. You can get generate yours [here](https://expo.dev/settings/access-tokens)
 
 [//]: # (TBD: GH BOT?)
+[//]: # (TBD: EAS UPDATE?)
+[//]: # (TBD: EAS SUBMIT?)
 
 ### second important! EAS first build
-run prebuild and build locally for ur `environment`:
+Ur first build should be done locally, to create necessary credentials in EAS side.
+
+Run prebuild and build locally for ur `environment`:
 
 for example staging
 ```bash
-yarn prebuild:staging
-yarn build:staging:ios
-yarn build:staging:android
+yarn prebuild:staging && yarn build:staging:ios
+```
+
+```bash
+yarn prebuild:staging && yarn build:staging:android
 ```
 The above commands will generate the required credentials for the build and store them in EAS servers so that we can use them later to trigger the build from GitHub actions.
 
 Next time, if you want to test release build locally, before merge feature branch to main, you can run:
 ```bash
-yarn build:staging:ios --local
+yarn prebuild:staging && yarn build:staging:ios --local
 ```
 
-it will create `*.ipa` file in root folder, so you could install it on ur device via [orbit](https://docs.expo.dev/build/orbit/)
+```bash
+yarn prebuild:staging && yarn build:staging:android --local
+```
+
+it will create `*.ipa` && `*.apk` file in root folder, so you could install it on ur device via [orbit](https://docs.expo.dev/build/orbit/)
 
 ### Third IMPORTANT! Android QA build
 Due to this [issue](https://github.com/expo/expo/issues/27985), we are unable to build .apk file, if we are useing `*.aar` files.
