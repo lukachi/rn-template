@@ -1,253 +1,451 @@
-# React-Native template for scaffolding app with Web3 | ZK | Documents scan features
+Certainly! Here's the final version of your README, incorporating all the suggestions:
 
-### Prerequisities
+---
 
-Node version >= 20.15.0
+# React Native Template for Scaffolding App with Web3 | ZK | Document Scan Features
 
-#### install:
+This repository provides a React Native template for building applications with Web3 integrations, zero-knowledge proofs, and document scanning capabilities. It is designed to help you quickly set up a project with these features and streamline your development process.
 
-- [android studio](https://developer.android.com/studio/install)
-- [xcode](https://developer.apple.com/xcode/)
-- [eas-cli](https://docs.expo.dev/eas-update/getting-started/)
-- [fastlane](https://docs.fastlane.tools/getting-started/ios/setup/)
-- [Watchman](https://facebook.github.io/watchman/docs/install#buildinstall), required only for macOS
-  or Linux users
+## Prerequisites
 
-#### create account in https://expo.dev/
+Before you begin, ensure you have the following installed on your machine:
 
-Login to expo account
+- **Node.js** (version >= 20.15.0)
+
+  - [Download Node.js](https://nodejs.org/en/download/) or use a version manager like [nvm](https://github.com/nvm-sh/nvm) for easy version management.
+
+- **Android Studio**
+
+  - [Download Android Studio](https://developer.android.com/studio/install) and install the latest stable version.
+  - Install the Android SDK and set up environment variables as per the [React Native environment setup guide](https://reactnative.dev/docs/environment-setup).
+
+- **Xcode** (for macOS users)
+
+  - Install from the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835?mt=12).
+  - Ensure command-line tools are installed by running:
+
+    ```bash
+    xcode-select --install
+    ```
+
+- **EAS CLI**
+
+  - Install globally using npm:
+
+    ```bash
+    npm install -g eas-cli
+    ```
+
+  - Refer to the [EAS CLI documentation](https://docs.expo.dev/eas-update/getting-started/) for more details.
+
+- **Fastlane**
+
+  - Install via RubyGems:
+
+    ```bash
+    sudo gem install fastlane -NV
+    ```
+
+  - See the [Fastlane getting started guide](https://docs.fastlane.tools/getting-started/ios/setup/) for configuration.
+
+- **Git LFS**
+
+  - Install Git LFS:
+
+    ```bash
+    brew install git-lfs
+    git lfs install
+    ```
+
+  - Visit the [Git LFS website](https://git-lfs.github.com/) for more information.
+
+- **Watchman** (required only for macOS or Linux users)
+
+  - Install via Homebrew:
+
+    ```bash
+    brew install watchman
+    ```
+
+## Expo Account Setup
+
+Create an account on [Expo](https://expo.dev/) if you haven't already.
+
+Login to your Expo account:
+
 ```bash
 eas login
 ```
 
-#### Register devices
+## Register Devices
 
-**android**
+### Android
 
-- No additional requirements
+- No additional requirements.
 
-**iOS**
+### iOS
 
-- Create account with Apple developer program
-- Register device with expo - `eas device:create`
-- Configure `signing & capabilities` with xcode (optional, usually cli will ask you to chose signing team)
-- Turn on developer mode in device
+- Enroll in the [Apple Developer Program](https://developer.apple.com/programs/enroll/).
+- Register your device with Expo:
 
-#### Configure [app identifiers and package](./env.js)
+  ```bash
+  eas device:create
+  ```
 
-Follow steps in the file to configure app identifiers and package names, your env variables and
-validation
+- Configure **Signing & Capabilities** with Xcode (optional, the CLI may prompt you to choose a signing team).
+- Enable **Developer Mode** on your iOS device.
 
-Keep in mind, that `development`, `staging` and `production` environment variables should be public
-and not sensitive.
+## Configure App Identifiers and Package Names
 
-This is because EAS not see `.env` files if they are gitignored.
+Follow the steps in the [env.js](./env.js) file to configure app identifiers, package names, and environment variables with `zod` validations.
 
-If you need to keep some sensitive data,
-use [secrets](https://docs.expo.dev/build-reference/variables/) in EAS.
+### Environment Variables
 
-#### Add variables
+Create `.env`, `.env.development`, and `.env.production` files in the root directory and fill them with your values. Here's an example of what your `.env` file might look like:
 
-Add new rules and variables in [env.js](./env.js) file with `zod` validations.
-Create `.env | .env.developmend | .env.production` file and fill with your values.
+```env
+EXPO_PUBLIC_API_URL=https://api.example.com
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-api-key
+EXPO_PUBLIC_SOME_OTHER_VARIABLE=your-value
+```
 
-After each change in .env file, you need to restart the server to apply changes.
-If changes are not applied, try to reopen app by pressing "i" or rebuild project
-with `npx expo run:ios --device` | `npx expo run: android --device`
+**Note:** Variables prefixed with `EXPO_PUBLIC_` will be accessible in your app code.
 
-### Development process
+### Adding New Variables
 
-As it was mentioned before, by default this template has `development`, `staging` and `production`
-environments. each of them will create separate builds, and also make it possible to set up multiple
-app variants in the same device.
+In `env.js`, add your new variables with `zod` validations:
 
-To configure your own custom environment, run scripts with desired `APP_ENV` variable, and also set
-up it in [eas.json](./eas.json) file
+```javascript
+import * as z from 'zod';
 
-#### Prebuild native code and start development server
+export const envSchema = z.object({
+  EXPO_PUBLIC_API_URL: z.string().url(),
+  EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: z.string(),
+  EXPO_PUBLIC_SOME_OTHER_VARIABLE: z.string(),
+  // Add your new variables here
+});
+```
 
-Usually, you have to prebuild native code, and then compile project,
-to do so, run prepared commands
+After adding new variables, restart the development server to apply changes.
 
-### `Development` environment
+### Sensitive Data
 
-#### Prebuild native code for iOS and Android
+Since EAS does not see `.env` files if they are gitignored, any sensitive data should be provided using [EAS secrets](https://docs.expo.dev/build-reference/variables/).
+
+### Restarting the Server
+
+If changes are not applied after modifying the `.env` files, try restarting the development server or rebuilding the project:
+
+```bash
+npx expo run:ios --device
+npx expo run:android --device
+```
+
+## Development Process
+
+By default, this template has `development`, `staging`, and `production` environments. Each of them will create separate builds and allow you to set up multiple app variants on the same device.
+
+To configure your own custom environment, run scripts with the desired `APP_ENV` variable, and also set it up in the [eas.json](./eas.json) file.
+
+### Prebuild Native Code and Start Development Server
+
+You need to prebuild the native code before running the app:
 
 ```bash
 yarn prebuild
 ```
 
-#### Start development server (metro server)
+Then start the Metro development server:
 
 ```bash
 yarn start
 ```
 
-### Compile app and start development server
+### Run the App on Your Device or Emulator
 
-#### iOS
+**iOS:**
 
 ```bash
 yarn ios
 ```
 
-#### Android
+**Android:**
 
 ```bash
 yarn android
 ```
 
+**Note:** Ensure that you have a simulator or device connected.
+
+### IMPORTANT! IOS SIMULATOR NOT WORKS
+Due to `e-document` module, and `NFCPassportReader` pod limitations. The iOS build can't be run on the simulator. Please use a real device for testing.
+
+Or if you don't need this module, simply remove [e-document](modules/e-document) directory from the app, all imports and usages of this module, `extraPods` `NFCPassportReader` from [app.config.ts](app.config.ts) and then run the app on the simulator.
+
 ---
 
-### Release process
-By default, everything should be automated, e.g.
+## Release Process
 
-Default case - Let's assume you finish ur feature branch.
+By default, everything should be automated.
 
-1) After u create PR, GH actions will lint and ts-check ur code
-2) After merge PR, you will have 2 options to release ur app for `internal distribution` (QA)
-   - select `New App Version` workflow in GH actions and choose release type
-   - or run `yarn app-release` locally, it will do the same as action above, and push changes to trigger next GH actions
-3) After that, run the `eas-build-qa` workflow, and it will build and publish app to `internal distribution` via EAS
-4) The `Production` release works same way, by running `eas-production-build` workflow
+### Default Case
 
-**note**: This template doesn't submit app to stores, u should do it manually via EAS dashboard, or configure auto-submit in GH actions.
-in that case you need to check eas submit configuration and follow the steps from [EAS](https://docs.expo.dev/submit/introduction/) docs.
+Let's assume you finish your feature branch.
 
-### important!: Setup GitHub Actions
-Add the required secrets to your GitHub repo:
+1. **Create a Pull Request (PR):**
 
-`GH_TOKEN`: A [Github token](https://github.com/settings/tokens) with access to your repo.
+  - GitHub Actions will lint and type-check your code.
 
-`EXPO_TOKEN`: Expo token to authenticate with EAS. You can get generate yours [here](https://expo.dev/settings/access-tokens)
+2. **Merge the PR:**
+
+  - After merging, you have two options to release your app for internal distribution (QA):
+    - Select the **New App Version** workflow in GitHub Actions and choose the release type.
+    - Or run `yarn app-release` locally; it will do the same as the action above and push changes to trigger the next GitHub Actions.
+
+3. **Build and Publish the App:**
+
+  - Run the `eas-build-qa` workflow; it will build and publish the app for internal distribution via EAS.
+
+4. **Production Release:**
+
+  - The `Production` release works the same way by running the `eas-production-build` workflow.
+
+**Note:** This template doesn't submit the app to stores automatically. You should do it manually via the EAS dashboard or configure auto-submit in GitHub Actions. In that case, you need to check the EAS submit configuration and follow the steps from the [EAS Submit documentation](https://docs.expo.dev/submit/introduction/).
+
+### Important! Setup GitHub Actions
+
+Add the required secrets to your GitHub repository:
+
+- **`GH_TOKEN`**: A [GitHub Personal Access Token](https://github.com/settings/tokens) with `repo` and `workflow` scopes to allow GitHub Actions to interact with your repository.
+
+- **`EXPO_TOKEN`**: An Expo token to authenticate with EAS. Generate one [here](https://expo.dev/settings/access-tokens) with the necessary permissions.
+
+**Workflows:**
+
+The GitHub Actions workflows are defined in the `.github/workflows` directory:
+
+- **`new-app-version.yml`**: Handles incrementing the app version and pushing changes.
+- **`eas-build-qa.yml`**: Builds and publishes the app for internal distribution (QA).
+- **`eas-production-build.yml`**: Builds and publishes the app for production release.
+
+To customize the workflows, edit the YAML files as needed.
+
+**Permissions:**
+
+Ensure that GitHub Actions has the necessary permissions to run workflows. Check your repository settings under **Settings > Actions > General** and adjust the **Workflow permissions** accordingly.
 
 [//]: # (TBD: GH BOT?)
 [//]: # (TBD: EAS UPDATE?)
 [//]: # (TBD: EAS SUBMIT?)
 
-### second important! EAS first build
-Ur first build should be done locally, to create necessary credentials in EAS side.
+### Second Important! EAS First Build
 
-Run prebuild and build locally for ur `environment`:
+Your first build should be done locally to generate the necessary credentials on the EAS servers.
 
-for example staging
+Run the prebuild and build commands locally for your environment (e.g., staging):
+
 ```bash
 yarn prebuild:staging && yarn build:staging:ios
-```
-
-```bash
 yarn prebuild:staging && yarn build:staging:android
 ```
-The above commands will generate the required credentials for the build and store them in EAS servers so that we can use them later to trigger the build from GitHub actions.
 
-Next time, if you want to test release build locally, before merge feature branch to main, you can run:
+During the build process, you may be prompted to log in to your Apple Developer account or provide Keystore information for Android. Follow the prompts to complete the setup.
+
+These commands will:
+
+- Generate native project files.
+- Build the app locally.
+- Upload credentials to EAS servers for future cloud builds.
+
+**Testing Release Builds Locally:**
+
+To test release builds locally before merging to the main branch:
+
 ```bash
 yarn prebuild:staging && yarn build:staging:ios --local
-```
-
-```bash
 yarn prebuild:staging && yarn build:staging:android --local
 ```
 
-it will create `*.ipa` && `*.apk` file in root folder, so you could install it on ur device via [orbit](https://docs.expo.dev/build/orbit/)
+This will create `.ipa` and `.apk` files in the root folder, which you can install on your device using [Expo's Orbit tool](https://docs.expo.dev/build/orbit/).
 
-### Third IMPORTANT! Android QA build
-Due to this [issue](https://github.com/expo/expo/issues/27985), we are unable to build .apk file, if we are useing `*.aar` files.
-To fix this, we will use [withLocalAar](./plugins/withLocalAar.plugin.js) plugin.
-This is a workaround, and it should be replaced with [gradleAarProjects](https://github.com/expo/expo/pull/30706) in the future.
+### Third Important! Android QA Build
 
-Also one more solution is to build `.aab` file, and then convert it to `.apk` file using `bundletool`.
+Due to [this issue](https://github.com/expo/expo/issues/27985), building an `.apk` file directly may not be possible when using `*.aar` files. As a workaround, we'll build an `.aab` file and convert it to a universal `.apk` using `bundletool`.
 
-so, prebuild and build locally for ur `environment`:
-```bash
-yarn prebuild:staging && yarn build:staging:android --local
-```
+**Install Bundletool:**
 
-After that, you will have `*.aab` file in `root` folder.
+Download `bundletool.jar` from the [official GitHub repository](https://github.com/google/bundletool/releases/latest).
 
-run:
-```bash
-bundletool build-apks --bundle=[generated_file].aab --output=dist/[my_awesoma_app_archive].apks --mode=universal
-```
-
-rename file and unarchive it
-```bash
-mv dist/[my_awesoma_app_archive].apks dist/[my_awesoma_app_archive].zip
-```
-
-unarchive it
-```bash
-unzip dist/[my_awesoma_app_archive].zip -d dist
-```
-
-The `universal.apk` file will be ur app, which u can distribute to ur QA team
-
-### Good to know
-
-#### Adding new dependencies
-
-Each time you add new dependency, update app.config.ts, modify native code in modules or edit
-podspec or gradle.build in modules files
-
-you have to rebuild native code and run compile
+Alternatively, install via Homebrew:
 
 ```bash
-yarn prebuild && yarn ios
-yarn prebuild && yarn android
+brew install bundletool
 ```
 
-#### values & values-night
+**Build and Convert the App Bundle:**
 
-Here is not solution yet to keep same assets with same name in both values & values-night folders
-and then use it from one entry point automatically.
+1. **Build the `.aab` file:**
 
-So we need to keep both assets in different folders, and then use them separately in code.
+   ```bash
+   yarn prebuild:staging && yarn build:staging:android --local
+   ```
 
-#### Fetching data from API
+2. **Convert `.aab` to `.apk` using `bundletool`:**
 
-Better to create function per endpoint, and then use useLoading hook to handle loading state in
-component or use react-query for more benefits as like as caching, ...etc
+   ```bash
+   bundletool build-apks --bundle=app-release.aab --output=dist/app.apks --mode=universal
+   ```
 
-#### E-Document module
+  - Replace `app-release.aab` with the name of your generated AAB file.
+  - The output `app.apks` file is actually a ZIP archive.
 
-To modify build config for e-Document module - [edit](./modules/e-document/plugin/src/index.ts) and then run `tsc` from `./modules/e-document/plugin` to compile expo-plugin
+3. **Extract the Universal APK:**
 
-#### file paths as parameters to native modules
+   ```bash
+   unzip dist/app.apks -d dist
+   ```
 
-if u got file uri from expo file system, don't forget to remove `file://` from uri before passing it
-to functions in native module.
+4. **Locate the `universal.apk` File:**
+
+  - The `universal.apk` file inside the `dist` directory is the APK you can distribute to your QA team.
+
+**Note:** Ensure that you have Java installed on your machine, as `bundletool` requires it.
+
+**Distribute the APK:**
+
+- You can now share the `universal.apk` file with your QA team for testing.
+
+## Good to Know
+
+### Adding New Dependencies
+
+When you add a new dependency that requires native modules:
+
+1. **Update `app.config.ts`:**
+
+  - Add any necessary configuration for the dependency.
+
+2. **Modify Native Code (if required):**
+
+  - For iOS, update the `Podfile` or relevant files.
+  - For Android, modify `build.gradle` or other necessary files.
+
+3. **Rebuild Native Code:**
+
+   ```bash
+   yarn prebuild
+   yarn ios    # or yarn android
+   ```
+
+**Note:** Always run `yarn prebuild` after adding dependencies that include native code to ensure that your native projects are updated.
+
+### Values & Values-Night
+
+Currently, there isn't a solution to keep the same assets with the same name in both `values` and `values-night` folders and use them from one entry point automatically.
+
+We need to keep both assets in different folders and use them separately in code.
+
+### Fetching Data from API
+
+It's better to create a function per endpoint and then use hooks like `useLoading` to handle the loading state in the component or use libraries like [React Query](https://react-query.tanstack.com/) for benefits like caching.
+
+### E-Document Module
+
+To modify the build configuration for the E-Document module, edit the plugin at [./modules/e-document/plugin/src/index.ts](./modules/e-document/plugin/src/index.ts) and then run `tsc` from `./modules/e-document/plugin` to compile the Expo plugin.
+
+### File Paths as Parameters to Native Modules
+
+If you get a file URI from the Expo FileSystem, don't forget to remove `file://` from the URI before passing it to functions in a native module.
 
 ```typescript
 const zkProofBytes = await groth16ProveWithZKeyFilePath(
   authWtns,
   zkeyAsset.localUri.replace('file://', ''),
-)
+);
 ```
 
-And for the release build, it would be better to wrap path string in native module functions, with:
+For the release build, it's better to wrap the path string in native module functions:
 
-**swift**
+**Swift**
+
 ```swift
 let path = URL(string: pathString)
 ```
 
-**android**
+**Android (Kotlin)**
+
 ```kotlin
 val path = File(pathString)
 ```
 
-### Troubleshooting
+## Troubleshooting
 
-#### Error message: `CommandError: Failed to build iOS project. "xcodebuild" exited with error code 65.`
+### Error: `CommandError: Failed to build iOS project. "xcodebuild" exited with error code 65.`
 
-! usually happens when you add new dependency to project
+This usually happens when you add a new dependency to the project.
 
-1) rm -rf ~/Library/Developer/Xcode/DerivedData
-2) rm -rf node_modules yarn.lock android ios && yarn install
-3) manually run `npx expo prebuild --clean && npx pod-install`
-4) manually run `npx expo run:ios`
+**Solution:**
+
+1. Clean Xcode derived data:
+
+   ```bash
+   rm -rf ~/Library/Developer/Xcode/DerivedData
+   ```
+
+2. Remove cached files and reinstall dependencies:
+
+   ```bash
+   rm -rf node_modules yarn.lock package-lock.json android ios .expo
+   yarn install
+   ```
+
+3. Prebuild and install pods:
+
+   ```bash
+   npx expo prebuild --clean
+   npx pod-install
+   ```
+
+4. Run the app:
+
+   ```bash
+   npx expo run:ios --device
+   ```
+
+**One-liner Command:**
 
 ```bash
 rm -rf ~/Library/Developer/Xcode/DerivedData && rm -rf node_modules yarn.lock package-lock.json android ios .expo && yarn && npx expo prebuild --clean && npx pod-install && npx expo run:ios --device
 ```
+
+### Error: `Error: spawn ./gradlew EACCES`
+
+This error indicates a permission issue with Gradle wrapper scripts.
+
+**Solution:**
+
+- Grant execute permissions to Gradle wrapper scripts:
+
+  ```bash
+  chmod +x android/gradlew
+  ```
+
+### Debugging Tips
+
+- **Check Build Logs:**
+
+  - For iOS, open Xcode and check the build logs for more detailed error messages.
+  - For Android, use Android Studio's logcat to view logs.
+
+- **Clean Project:**
+
+  - Sometimes, cleaning the build folders helps resolve issues:
+
+    ```bash
+    cd android && ./gradlew clean
+    ```
+
+---
+
+**Happy Coding!**
 
