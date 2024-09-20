@@ -1,5 +1,6 @@
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native'
+import { DefaultTheme, type LinkingOptions, NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import * as Linking from 'expo-linking'
 import { useColorScheme, vars } from 'nativewind'
 import { View } from 'react-native'
 
@@ -12,6 +13,19 @@ import { useSelectedTheme } from '@/theme'
 import { cssVars, darkPalette, lightPalette } from '@/theme/config'
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
+
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: [
+    /* your linking prefixes */
+    Linking.createURL('/'),
+  ],
+  config: {
+    /* configuration for matching screens with paths */
+    screens: {
+      App: 'external',
+    },
+  },
+}
 
 // TODO: mv theme to apropriate place
 export default function AppRoutes() {
@@ -38,6 +52,7 @@ export default function AppRoutes() {
       }}
     >
       <NavigationContainer
+        linking={linking}
         theme={{
           dark: colorScheme === 'dark',
           colors: {
