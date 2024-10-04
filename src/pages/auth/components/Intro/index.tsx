@@ -7,8 +7,16 @@ import Carousel from 'react-native-reanimated-carousel'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { translate } from '@/core'
+import { sleep } from '@/helpers'
 import { cn, useAppTheme } from '@/theme'
-import { UiBottomSheet, UiButton, UiHorizontalDivider, UiIcon, useUiBottomSheet } from '@/ui'
+import {
+  UiBottomSheet,
+  UiButton,
+  UiHorizontalDivider,
+  UiIcon,
+  UiScreenScrollable,
+  useUiBottomSheet,
+} from '@/ui'
 import { BottomSheetHeader } from '@/ui/UiBottomSheet'
 
 import { StepLayout } from './components'
@@ -56,15 +64,17 @@ export default function Intro() {
     ]
   }, [])
 
-  const handleCreatePK = useCallback(() => {
+  const handleCreatePK = useCallback(async () => {
     bottomSheet.dismiss()
+    await sleep(500) // time for animation finish
     navigation.navigate('Auth', {
       screen: 'CreateWallet',
     })
   }, [bottomSheet, navigation])
 
-  const handleImportPK = useCallback(() => {
+  const handleImportPK = useCallback(async () => {
     bottomSheet.dismiss()
+    await sleep(500) // time for animation finish
     navigation.navigate('Auth', {
       screen: 'CreateWallet',
       params: {
@@ -74,12 +84,7 @@ export default function Intro() {
   }, [bottomSheet, navigation])
 
   return (
-    <View
-      style={{
-        paddingTop: insets.top,
-      }}
-      className={cn('flex-1')}
-    >
+    <UiScreenScrollable style={{ paddingBottom: insets.bottom, paddingTop: insets.top }}>
       <View className='flex flex-1 flex-col justify-center'>
         <Carousel
           ref={ref}
@@ -106,7 +111,7 @@ export default function Intro() {
         <UiHorizontalDivider />
       </View>
 
-      <View style={{ paddingBottom: insets.bottom }} className='flex flex-col px-5'>
+      <View className='flex flex-col px-5'>
         <UiButton
           className={cn('w-full')}
           title={translate('auth.intro.next-btn')}
@@ -143,6 +148,6 @@ export default function Intro() {
           </View>
         </BottomSheetView>
       </UiBottomSheet>
-    </View>
+    </UiScreenScrollable>
   )
 }
