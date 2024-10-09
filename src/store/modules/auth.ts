@@ -122,11 +122,6 @@ const useAuthProof = (opts?: { byFilePath?: boolean }) => {
 
     if (!zkeyFileInfo?.exists) throw new TypeError('Zkey file not found')
 
-    console.log(FileSystem.documentDirectory)
-    console.log(FileSystem.cacheDirectory)
-
-    console.log(zkeyFileInfo.uri)
-
     let zkProofBytes: Uint8Array
     if (opts?.byFilePath) {
       zkProofBytes = await groth16ProveWithZKeyFilePath(

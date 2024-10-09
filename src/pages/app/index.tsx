@@ -50,11 +50,7 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
   )
 }
 
-export default function App({ route }: RootStackScreenProps<'App'>) {
-  console.log('pages App')
-  console.log(route.params)
-  console.log('======')
-
+export default function App({}: RootStackScreenProps<'App'>) {
   return (
     <Stack.Navigator>
       <Stack.Screen
