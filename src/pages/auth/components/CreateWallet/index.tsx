@@ -87,7 +87,9 @@ export default function CreateWallet({ route }: Props) {
     <UiScreenScrollable style={{ paddingBottom: insets.bottom, paddingTop: insets.top }}>
       <View className='flex w-full flex-row'>
         <UiButton
-          leadingIcon='arrowLeftIcon'
+          leadingIconProps={{
+            customIcon: 'arrowLeftIcon',
+          }}
           variant='text'
           onPress={() => {
             navigation.goBack()
@@ -96,7 +98,7 @@ export default function CreateWallet({ route }: Props) {
       </View>
       <View className='flex flex-1 flex-col px-5'>
         <View className='my-auto flex flex-col items-center gap-4'>
-          <UiIcon componentName='starFillIcon' className='size-[200px] text-primaryMain' />
+          <UiIcon customIcon='starFillIcon' className='size-[200px] text-primaryMain' />
           <Text className='text-textPrimary typography-h4'>Your keys</Text>
         </View>
         <UiCard className={cn('mt-5 flex gap-4')}>
@@ -112,7 +114,9 @@ export default function CreateWallet({ route }: Props) {
               <UiButton
                 variant='text'
                 color='text'
-                leadingIcon={isCopied ? 'checkIcon' : 'copySimpleIcon'}
+                leadingIconProps={{
+                  customIcon: isCopied ? 'checkIcon' : 'copySimpleIcon',
+                }}
                 title='Paste From Clipboard'
                 onPress={pasteFromClipboard}
               />
@@ -126,7 +130,9 @@ export default function CreateWallet({ route }: Props) {
               <UiButton
                 variant='text'
                 color='text'
-                leadingIcon={isCopied ? 'checkIcon' : 'copySimpleIcon'}
+                leadingIconProps={{
+                  customIcon: isCopied ? 'checkIcon' : 'copySimpleIcon',
+                }}
                 title='Copy to Clipboard'
                 onPress={() => copy(formState.privateKey)}
               />

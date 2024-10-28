@@ -22,7 +22,7 @@ export default function SelectDocTypeStep() {
               }}
             >
               <UiCard className={'flex flex-row items-center gap-2'}>
-                <UiIcon componentName={'starFillIcon'} className={'text-textPrimary'} />
+                <UiIcon customIcon={'starFillIcon'} className={'text-textPrimary'} />
                 <Text className='text-textPrimary typography-subtitle4'>Passport</Text>
               </UiCard>
             </Pressable>
@@ -33,7 +33,7 @@ export default function SelectDocTypeStep() {
               }}
             >
               <UiCard className={'flex flex-row items-center gap-2'}>
-                <UiIcon componentName={'cardholderIcon'} className={'text-textPrimary'} />
+                <UiIcon customIcon={'cardholderIcon'} className={'text-textPrimary'} />
                 <Text className='text-textPrimary typography-subtitle4'>ID CARD</Text>
               </UiCard>
             </Pressable>

@@ -39,27 +39,24 @@ export default function Intro() {
       {
         title: translate('auth.intro.step-1.title'),
         subtitle: translate('auth.intro.step-1.subtitle'),
-        media: <UiIcon componentName='starFillIcon' className='size-[150px] text-textSecondary' />,
+        media: <UiIcon customIcon='starFillIcon' className='size-[150px] text-textSecondary' />,
       },
       {
         title: translate('auth.intro.step-2.title'),
         subtitle: translate('auth.intro.step-2.subtitle'),
-        media: <UiIcon componentName='sealCheckIcon' className='size-[150px] text-textSecondary' />,
+        media: <UiIcon customIcon='sealCheckIcon' className='size-[150px] text-textSecondary' />,
       },
       {
         title: translate('auth.intro.step-3.title'),
         subtitle: translate('auth.intro.step-3.subtitle'),
         media: (
-          <UiIcon
-            componentName='suitcaseSimpleFillIcon'
-            className='size-[150px] text-textSecondary'
-          />
+          <UiIcon customIcon='suitcaseSimpleFillIcon' className='size-[150px] text-textSecondary' />
         ),
       },
       {
         title: translate('auth.intro.step-4.title'),
         subtitle: translate('auth.intro.step-4.subtitle'),
-        media: <UiIcon componentName='sunIcon' className='size-[150px] text-textSecondary' />,
+        media: <UiIcon customIcon='sunIcon' className='size-[150px] text-textSecondary' />,
       },
     ]
   }, [])

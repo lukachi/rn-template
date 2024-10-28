@@ -316,17 +316,12 @@ const useUserNeedToLocalAuth = () => {
   const biometricStatus = useLocalAuthStore(state => state.biometricStatus)
 
   const isUnlocked = useIsUnlocked()
+
   const isPasscodeEnabled = passcodeStatus === PasscodeStatuses.Enabled
   const isPasscodeNotSet = passcodeStatus === PasscodeStatuses.NotSet
   const isBiometricNotSet = biometricStatus === BiometricStatuses.NotSet
-  const isBiometricEnabled = biometricStatus === BiometricStatuses.Enabled
 
-  if (
-    isPasscodeNotSet ||
-    isBiometricNotSet ||
-    ((isPasscodeEnabled || isBiometricEnabled) && !isUnlocked)
-  )
-    return true
+  if (isPasscodeNotSet || isBiometricNotSet || (isPasscodeEnabled && !isUnlocked)) return true
 
   return false
 }
@@ -342,14 +337,3 @@ export const localAuthStore = {
 
   useCheckLockDeadline: useCheckLockDeadline,
 }
-
-// LOG  store after reset           {"passcode":"3333", "passcodeStatus":"enabled","biometricStatus":"enabled","biometricAuthTypes":[1,2],"lockStatus":"unlocked","attemptsLeft":5,"failedAttempts":0,"lockDeadline":null}
-// LOG  SignIn                      {"passcode":"",     "passcodeStatus":"not-set","biometricStatus":"not-supported","biometricAuthTypes":[],"lockStatus":"unlocked","attemptsLeft":5,"failedAttempts":0,"lockDeadline":null}
-// LOG  store after reset and sleep {"passcode":"3333", "passcodeStatus":"enabled","biometricStatus":"enabled","biometricAuthTypes":[1,2],"lockStatus":"unlocked","attemptsLeft":5,"failedAttempts":0,"lockDeadline":null}
-// LOG  SignIn                      {"passcode":"",     "passcodeStatus":"not-set","biometricStatus":"not-set","biometricAuthTypes":[],"lockStatus":"unlocked","attemptsLeft":5,"failedAttempts":0,"lockDeadline":null}
-// LOG  SignIn                      {"passcode":"",     "passcodeStatus":"not-set","biometricStatus":"not-set","biometricAuthTypes":[1,2],"lockStatus":"unlocked","attemptsLeft":5,"failedAttempts":0,"lockDeadline":null}
-// LOG  SignIn                      {"passcode":"",     "passcodeStatus":"not-set","biometricStatus":"not-set","biometricAuthTypes":[1,2],"lockStatus":"locked","attemptsLeft":5,"failedAttempts":0,"lockDeadline":null}
-
-// after app reload
-
-// LOG  SignIn {"passcode":"","passcodeStatus":"not-set","biometricStatus":"not-set","biometricAuthTypes":[1,2],"lockStatus":"unlocked","attemptsLeft":5,"failedAttempts":0,"lockDeadline":null}

@@ -35,28 +35,28 @@ export default function LocalAuthLayout({}: RootStackScreenProps<'LocalAuth'>) {
         name={'EnablePasscode'}
         component={EnablePasscodeScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name={'SetPasscode'}
         component={SetPasscodeScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name={'EnableBiometrics'}
         component={EnableBiometricsScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name={'Lockscreen'}
         component={LockscreenScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

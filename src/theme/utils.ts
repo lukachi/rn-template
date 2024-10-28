@@ -1,7 +1,10 @@
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { type ClassValue, clsx } from 'clsx'
 import { colorScheme, useColorScheme } from 'nativewind'
 import React from 'react'
+import { Platform } from 'react-native'
 import { useMMKVString } from 'react-native-mmkv'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { extendTailwindMerge } from 'tailwind-merge'
 
 import { storage } from '@/core/storage'
@@ -77,4 +80,23 @@ const twMerge = extendTailwindMerge({})
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export const useAppPaddings = () => {
+  return {
+    top: 0,
+    right: 16,
+    bottom: 0,
+    left: 16,
+  }
+}
+
+export const useBottomBarOffset = () => {
+  const bottomBarHeight = useBottomTabBarHeight()
+
+  const insets = useSafeAreaInsets()
+
+  const barPaddingTop = Platform.OS === 'ios' ? 16 : 32
+
+  return bottomBarHeight + insets.bottom + barPaddingTop
 }

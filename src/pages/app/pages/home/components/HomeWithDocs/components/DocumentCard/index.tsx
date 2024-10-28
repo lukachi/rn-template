@@ -4,7 +4,7 @@ import { BlurView } from 'expo-blur'
 import { Image } from 'expo-image'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
-import { useCallback, useMemo, useState } from 'react'
+import { type ComponentProps, useCallback, useMemo, useState } from 'react'
 import type { ImageBackgroundProps, PressableProps, TextProps, ViewProps } from 'react-native'
 import { StyleSheet } from 'react-native'
 import { ImageBackground } from 'react-native'
@@ -16,7 +16,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { DocumentCardUi, IdentityItem } from '@/store'
 import { uiPreferencesStore } from '@/store'
 import { cn, useAppTheme } from '@/theme'
-import type { UiIconName } from '@/ui'
 import { UiSwitcher } from '@/ui'
 import { UiBottomSheet, useUiBottomSheet } from '@/ui'
 import { UiHorizontalDivider, UiIcon } from '@/ui'
@@ -159,13 +158,13 @@ export default function DocumentCard({ identity }: Props) {
 
         <View className={'absolute right-5 top-5 z-20 flex flex-row items-center gap-4'}>
           <CardActionIconButton
-            iconComponentName={'passwordIcon'}
+            iconComponentNameProps={{ customIcon: 'passwordIcon' }}
             pressableProps={{
               onPress: toggleIsBlurred,
             }}
           />
           <CardActionIconButton
-            iconComponentName={'dotsThreeOutlineIcon'}
+            iconComponentNameProps={{ customIcon: 'dotsThreeOutlineIcon' }}
             pressableProps={{
               onPress: () => {
                 cardUiSettingsBottomSheet.present()
@@ -315,11 +314,11 @@ function DocumentCardRow({
 }
 
 function CardActionIconButton({
-  iconComponentName,
+  iconComponentNameProps,
   viewProps,
   pressableProps,
 }: {
-  iconComponentName: UiIconName
+  iconComponentNameProps: ComponentProps<typeof UiIcon>
 } & {
   viewProps?: ViewProps
   pressableProps?: PressableProps
@@ -336,7 +335,10 @@ function CardActionIconButton({
           backgroundColor: 'rgba(0, 0, 0, 0.15)',
         }}
       >
-        <UiIcon componentName={iconComponentName} className={'size-[18] text-baseWhite'} />
+        <UiIcon
+          {...iconComponentNameProps}
+          className={cn('size-[18] text-baseWhite', iconComponentNameProps.className)}
+        />
       </View>
     </Pressable>
   )

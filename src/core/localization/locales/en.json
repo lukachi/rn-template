@@ -20,8 +20,26 @@
       }
     }
   },
+  "enable-biometrics": {
+    "enable-btn": "Enable",
+    "skip-btn": "Skip",
+    "title": "Enable Biometric Auth"
+  },
+  "enable-passcode": {
+    "enable-btn": "Enable",
+    "skip-btn": "Skip",
+    "title": "Enable Passcode"
+  },
   "errors": {
     "default": "Something went wrong"
+  },
+  "lockscreen": {
+    "attempts-left": "Attempts Left: {{attemptsLeft}}",
+    "default-title": "Enter passcode",
+    "forgot-btn": "Forgot password",
+    "locked-permanently": "Account locked permanently, until logout",
+    "locked-temp": "Account locked",
+    "logout-btn": "Logout"
   },
   "notifications": {
     "default-message-default": "Just a message",
@@ -42,6 +60,36 @@
     "key_other": "other",
     "key_two": "two",
     "key_zero": "zero"
+  },
+  "set-passcode": {
+    "submit-btn": "Set",
+    "title": "Set Passcode"
+  },
+  "sign-in": {
+    "divider": "or",
+    "email-lbl": "Email",
+    "email-ph": "Enter your email",
+    "login-tip": "Sign up",
+    "oauth-btn": "Log in with Google",
+    "password-lbl": "Password",
+    "password-ph": "Enter your password",
+    "submit-btn": "Log in",
+    "tip": "Don't have an account?",
+    "title": "Welcome 👋"
+  },
+  "sign-up": {
+    "divider": "or",
+    "email-lbl": "Email",
+    "email-ph": "Enter your email",
+    "login-tip": "Log in",
+    "name-lbl": "Name",
+    "name-ph": "Enter your name",
+    "oauth-btn": "Log in with Google",
+    "password-lbl": "Password",
+    "password-ph": "Enter your password",
+    "submit-btn": "Sign up",
+    "tip": "Already have an account?",
+    "title": "Create Your Account"
   },
   "tabs": {
     "one": "TAB one",

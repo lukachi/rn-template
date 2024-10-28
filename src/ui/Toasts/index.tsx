@@ -35,16 +35,16 @@ const defaultMessages = {
 
 const defaultIcons = {
   [DefaultBusEvents.success]: () => {
-    return <UiIcon componentName='checkIcon' className={cn('text-successMain')} />
+    return <UiIcon customIcon='checkIcon' className={cn('text-successMain')} />
   },
   [DefaultBusEvents.error]: () => {
-    return <UiIcon componentName='warningIcon' className={cn('text-errorMain')} />
+    return <UiIcon customIcon='warningIcon' className={cn('text-errorMain')} />
   },
   [DefaultBusEvents.warning]: () => {
-    return <UiIcon componentName='warningIcon' className={cn('text-warningMain')} />
+    return <UiIcon customIcon='warningIcon' className={cn('text-warningMain')} />
   },
   [DefaultBusEvents.info]: () => {
-    return <UiIcon componentName='infoIcon' className={cn('text-secondaryMain')} />
+    return <UiIcon customIcon='infoIcon' className={cn('text-secondaryMain')} />
   },
 }
 

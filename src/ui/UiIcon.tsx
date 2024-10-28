@@ -1,7 +1,13 @@
+import AntDesign from '@expo/vector-icons/AntDesign'
+import { type IconProps } from '@expo/vector-icons/build/createIconSet'
+import FontAwesome from '@expo/vector-icons/FontAwesome'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons'
 import { cssInterop } from 'nativewind'
 import type { SvgProps } from 'react-native-svg'
 
-const ICON_COMPONENTS = {
+const CUSTOM_ICONS = {
   arrowCounterClockwiseIcon: require('@assets/icons/arrow-counter-clockwise-icon.svg').default,
   arrowDownIcon: require('@assets/icons/arrow-down-icon.svg').default,
   arrowLeftIcon: require('@assets/icons/arrow-left-icon.svg').default,
@@ -60,8 +66,6 @@ const ICON_COMPONENTS = {
   qrCodeIcon: require('@assets/icons/qr-code-icon.svg').default,
   questionFillIcon: require('@assets/icons/question-fill-icon.svg').default,
   questionIcon: require('@assets/icons/question-icon.svg').default,
-  rarimeIcon: require('@assets/icons/rarime-icon.svg').default,
-  rarimoIcon: require('@assets/icons/rarimo-icon.svg').default,
   sealCheck1Icon: require('@assets/icons/seal-check-1-icon.svg').default,
   sealCheckIcon: require('@assets/icons/seal-check-icon.svg').default,
   share1Icon: require('@assets/icons/share-1-icon.svg').default,
@@ -96,21 +100,54 @@ const ICON_COMPONENTS = {
   xCircleIcon: require('@assets/icons/x-circle-icon.svg').default,
 }
 
-export type UiIconName = keyof typeof ICON_COMPONENTS
-
-type Props = {
-  color?: string
-  size?: number
-  componentName: UiIconName
-} & SvgProps
-
-export const UiIcon = ({ componentName, ...rest }: Props) => {
-  const IconComponent = ICON_COMPONENTS[componentName]
-
-  return <IconComponent {...rest} />
+const ICON_COMPONENTS = {
+  MaterialCommunityIcons,
+  AntDesign,
+  FontAwesome,
+  SimpleLineIcons,
+  Ionicons,
 }
 
-cssInterop(UiIcon, {
+type CommonProps = {
+  color?: string
+  size?: number
+}
+
+type CustomIconProps = CommonProps & {
+  customIcon: keyof typeof CUSTOM_ICONS
+  libIcon?: never
+} & SvgProps
+
+type LibIconProps = CommonProps & {
+  libIcon: keyof typeof ICON_COMPONENTS
+  customIcon?: never
+} & IconProps<string>
+
+type Props = LibIconProps | CustomIconProps
+
+const CustomIcon = ({ size, color, ...rest }: CustomIconProps) => {
+  const CustomComponent = CUSTOM_ICONS[rest.customIcon]
+
+  return (
+    <CustomComponent
+      {...rest}
+      style={[
+        rest.style,
+        {
+          ...(color && { color }),
+          minWidth: size,
+          minHeight: size,
+          width: size,
+          height: size,
+          maxWidth: size,
+          maxHeight: size,
+        },
+      ]}
+    />
+  )
+}
+
+cssInterop(CustomIcon, {
   className: {
     target: 'style',
     nativeStyleToProp: {
@@ -120,5 +157,26 @@ cssInterop(UiIcon, {
     },
   },
 })
+
+const LibIcon = ({ size, color, name, ...rest }: LibIconProps) => {
+  const IconComponent = ICON_COMPONENTS[rest.libIcon]
+
+  // FIXME: dummy icon name - disabled types for different lib icons but allow common IconProps type
+  return <IconComponent {...rest} name={name as 'close'} size={size} color={color} />
+}
+
+cssInterop(LibIcon, {
+  className: {
+    target: 'style',
+  },
+})
+
+const UiIcon = ({ size, color, ...rest }: Props) => {
+  if (rest.customIcon) {
+    return <CustomIcon {...rest} size={size} color={color} />
+  }
+
+  return <LibIcon {...rest} size={size} color={color} />
+}
 
 export default UiIcon

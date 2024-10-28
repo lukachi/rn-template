@@ -1,14 +1,16 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { AuthenticationType } from 'expo-local-authentication'
 import { useCallback, useMemo } from 'react'
-import { Button, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
-import { ErrorHandler } from '@/core'
+import { ErrorHandler, translate } from '@/core'
+import { type LocalAuthStackScreenProps } from '@/route-types'
 import { localAuthStore } from '@/store'
-import { cn } from '@/theme'
-import { UiIcon } from '@/ui'
+import { cn, useAppTheme } from '@/theme'
+import { UiButton, UiIcon } from '@/ui'
 
-export default function EnableBiometrics() {
+export default function EnableBiometrics({}: LocalAuthStackScreenProps<'EnableBiometrics'>) {
+  const { palette } = useAppTheme()
+
   const biometricTypes = localAuthStore.useLocalAuthStore(state => state.biometricAuthTypes)
   const enableBiometrics = localAuthStore.useLocalAuthStore(state => state.enableBiometrics)
   const disableBiometrics = localAuthStore.useLocalAuthStore(state => state.disableBiometrics)
@@ -28,27 +30,39 @@ export default function EnableBiometrics() {
   const biometricIcon = useMemo(() => {
     return {
       [AuthenticationType.FINGERPRINT]: (
-        <UiIcon componentName='fingerprintIcon' className='size=[50px] text-primaryMain' />
+        <UiIcon customIcon='fingerprintIcon' size={50} color={palette.baseWhite} />
       ),
       [AuthenticationType.FACIAL_RECOGNITION]: (
-        <MaterialCommunityIcons name='face-recognition' className='size=[50px] text-primaryMain' />
+        <UiIcon
+          libIcon='MaterialCommunityIcons'
+          name='face-recognition'
+          size={50}
+          color={palette.baseWhite}
+        />
       ),
       [AuthenticationType.IRIS]: (
-        <UiIcon componentName='fingerprintIcon' className='size=[50px] text-primaryMain' />
+        <UiIcon customIcon='fingerprintIcon' size={50} color={palette.baseWhite} />
       ),
     }[biometricTypes[0]]
-  }, [biometricTypes])
+  }, [biometricTypes, palette.baseWhite])
 
   return (
     <View className={cn('flex flex-1 items-center justify-center gap-4')}>
       <View className={cn('my-auto flex w-full items-center gap-4 px-5 text-center')}>
-        <Text className={cn('text-textPrimary typography-h4')}>Enable Biometric Auth</Text>
-        {biometricIcon}
+        <Text className={cn('text-textPrimary typography-h4')}>
+          {translate('enable-biometrics.title')}
+        </Text>
+        <View className='flex size-[120] items-center justify-center rounded-full bg-primaryMain'>
+          {biometricIcon}
+        </View>
       </View>
 
       <View className={cn('flex w-full gap-6 p-5')}>
-        <Button title='Enable' onPress={tryToEnableBiometrics} />
-        <Button title='Skip' onPress={onSkip} />
+        <UiButton
+          title={translate('enable-biometrics.enable-btn')}
+          onPress={tryToEnableBiometrics}
+        />
+        <UiButton title={translate('enable-biometrics.skip-btn')} onPress={onSkip} />
       </View>
     </View>
   )

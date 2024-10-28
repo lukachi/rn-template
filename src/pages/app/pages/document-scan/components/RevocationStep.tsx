@@ -134,7 +134,7 @@ export default function RevocationStep() {
       <Text className='text-center text-textPrimary typography-h5'>{title}</Text>
       {isScanning ? (
         <View className={'flex items-center'}>
-          <UiIcon componentName={'bellFillIcon'} className={'size-[120] text-textPrimary'} />
+          <UiIcon customIcon={'bellFillIcon'} className={'size-[120] text-textPrimary'} />
         </View>
       ) : (
         <UiButton onPress={startScanListener} title='Try Scan Again' />

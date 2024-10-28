@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { Button, ScrollView, Text, View } from 'react-native'
+import { Button, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ErrorHandler, useSelectedLanguage } from '@/core'
@@ -13,19 +13,28 @@ import {
   PasscodeStatuses,
   walletStore,
 } from '@/store'
-import { cn, useSelectedTheme } from '@/theme'
-import { UiButton, UiCard, UiSwitcher } from '@/ui'
+import { cn, useAppPaddings, useBottomBarOffset, useSelectedTheme } from '@/theme'
+import { UiButton, UiCard, UiScreenScrollable, UiSwitcher } from '@/ui'
+
+import AppContainer from '../../components/AppContainer'
 
 export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
   const insets = useSafeAreaInsets()
+  const appPaddings = useAppPaddings()
+  const offset = useBottomBarOffset()
 
   return (
-    <View
-      style={{ paddingBottom: insets.bottom, paddingTop: insets.top }}
-      className='flex flex-1 flex-col'
-    >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View className='flex flex-1 flex-col gap-4 p-5'>
+    <AppContainer>
+      <UiScreenScrollable
+        style={{
+          paddingTop: insets.top,
+          paddingLeft: appPaddings.left,
+          paddingRight: appPaddings.right,
+          paddingBottom: offset,
+        }}
+        className='gap-3'
+      >
+        <View className='flex flex-1 flex-col gap-4'>
           <WalletCard />
           <LangCard />
           <ThemeCard />
@@ -33,8 +42,8 @@ export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
           <LogoutCard />
           <TestsCard />
         </View>
-      </ScrollView>
-    </View>
+      </UiScreenScrollable>
+    </AppContainer>
   )
 }
 
@@ -51,7 +60,9 @@ function WalletCard() {
       <UiButton
         variant='text'
         color='text'
-        leadingIcon={isCopied ? 'checkIcon' : 'copySimpleIcon'}
+        leadingIconProps={{
+          customIcon: isCopied ? 'checkIcon' : 'copySimpleIcon',
+        }}
         title='Copy to Clipboard'
         onPress={() => copy(privateKey)}
       />
@@ -171,7 +182,9 @@ function LogoutCard() {
       <UiButton
         color='error'
         title='delete account'
-        trailingIcon='trashSimpleIcon'
+        trailingIconProps={{
+          customIcon: 'trashSimpleIcon',
+        }}
         onPress={logout}
       />
     </UiCard>

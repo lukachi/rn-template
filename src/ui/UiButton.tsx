@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { forwardRef, useCallback, useMemo, useState } from 'react'
 import type { GestureResponderEvent, PressableProps } from 'react-native'
 import { Pressable, Text, View } from 'react-native'
@@ -6,7 +6,6 @@ import type { VariantProps } from 'tailwind-variants'
 import { tv } from 'tailwind-variants'
 
 import { cn } from '@/theme'
-import type { UiIconName } from '@/ui/UiIcon'
 import UiIcon from '@/ui/UiIcon'
 
 const buttonBaseTv = tv({
@@ -20,17 +19,17 @@ const buttonBaseTv = tv({
     size: {
       small: {
         container: cn('h-[32px] px-[16px] rounded-[1000px] gap-2'),
-        text: cn('typography-buttonSmall'),
+        text: cn('typography-bodySmall'),
         icon: cn('size-[16px]'),
       },
       medium: {
         container: cn('h-[40px] px-[24px] rounded-[1000px] gap-4'),
-        text: cn('typography-buttonMedium'),
+        text: cn('typography-bodyMedium'),
         icon: cn('size-[20px]'),
       },
       large: {
-        container: cn('h-[48px] px-[32px] rounded-[1000px] gap-6'),
-        text: cn('typography-buttonLarge'),
+        container: cn('h-[56px] px-[32px] rounded-full gap-6'),
+        text: cn('typography-bodyLarge'),
         icon: cn('size-[20px]'),
       },
     },
@@ -418,15 +417,15 @@ const buttonBaseTv = tv({
 
   defaultVariants: {
     variant: 'filled',
-    size: 'medium',
+    size: 'large',
     color: 'primary',
   },
 })
 
 type Props = Omit<PressableProps, 'children'> & {
   title?: string
-  leadingIcon?: UiIconName
-  trailingIcon?: UiIconName
+  leadingIconProps?: ComponentProps<typeof UiIcon>
+  trailingIconProps?: ComponentProps<typeof UiIcon>
 
   children?: string | ReactElement | ReactNode
 } & VariantProps<typeof buttonBaseTv>
@@ -435,7 +434,10 @@ type Props = Omit<PressableProps, 'children'> & {
 type PressableRef = View
 
 export const UiButton = forwardRef<PressableRef, Props>(
-  ({ title, size, variant, color, leadingIcon, trailingIcon, children, ...rest }: Props, ref) => {
+  (
+    { title, size, variant, color, leadingIconProps, trailingIconProps, children, ...rest }: Props,
+    ref,
+  ) => {
     const [isPressed, setIsPressed] = useState(false)
 
     const baseStyles = useMemo(
@@ -471,11 +473,9 @@ export const UiButton = forwardRef<PressableRef, Props>(
     return (
       <Pressable {...rest} ref={ref} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <View className={cn(baseStyles.container())}>
-          {leadingIcon && <UiIcon componentName={leadingIcon} className={cn(baseStyles.icon())} />}
+          {leadingIconProps && <UiIcon {...leadingIconProps} className={cn(baseStyles.icon())} />}
           {btnContent}
-          {trailingIcon && (
-            <UiIcon componentName={trailingIcon} className={cn(baseStyles.icon())} />
-          )}
+          {trailingIconProps && <UiIcon {...trailingIconProps} className={cn(baseStyles.icon())} />}
         </View>
       </Pressable>
     )
