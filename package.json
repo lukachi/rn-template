@@ -83,7 +83,7 @@
     "jsona": "^1.12.1",
     "lodash": "^4.17.21",
     "mrz": "^4.2.0",
-    "nativewind": "4.0.36",
+    "nativewind": "4.1.21",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "react": "18.2.0",
