@@ -266,6 +266,8 @@ This will create `.ipa` and `.apk` files in the root folder, which you can insta
 
 ### Third Important! Android QA Build
 
+#### Updated: fixed by [this plugin](./plugins/withLocalAar.plugin.js), and not necessary anymore
+
 Due to [this issue](https://github.com/expo/expo/issues/27985), building an `.apk` file directly may not be possible when using `*.aar` files. As a workaround, we'll build an `.aab` file and convert it to a universal `.apk` using `bundletool`.
 
 **Install Bundletool:**

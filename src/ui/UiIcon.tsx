@@ -1,5 +1,5 @@
 import AntDesign from '@expo/vector-icons/AntDesign'
-import { type IconProps } from '@expo/vector-icons/build/createIconSet'
+import type { Icon, IconProps } from '@expo/vector-icons/build/createIconSet'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
@@ -108,6 +108,8 @@ const ICON_COMPONENTS = {
   Ionicons,
 }
 
+type IconComponentsKeys = keyof typeof ICON_COMPONENTS
+
 type CommonProps = {
   color?: string
   size?: number
@@ -116,14 +118,16 @@ type CommonProps = {
 type CustomIconProps = CommonProps & {
   customIcon: keyof typeof CUSTOM_ICONS
   libIcon?: never
+  name?: never
 } & SvgProps
 
-type LibIconProps = CommonProps & {
-  libIcon: keyof typeof ICON_COMPONENTS
+type LibIconProps<L extends IconComponentsKeys> = CommonProps & {
+  libIcon: L
+  name: keyof (typeof ICON_COMPONENTS)[L]['glyphMap']
   customIcon?: never
-} & IconProps<string>
+} & Omit<IconProps<string>, 'name'>
 
-type Props = LibIconProps | CustomIconProps
+type Props<L extends IconComponentsKeys> = LibIconProps<L> | CustomIconProps
 
 const CustomIcon = ({ size, color, ...rest }: CustomIconProps) => {
   const CustomComponent = CUSTOM_ICONS[rest.customIcon]
@@ -158,11 +162,18 @@ cssInterop(CustomIcon, {
   },
 })
 
-const LibIcon = ({ size, color, name, ...rest }: LibIconProps) => {
-  const IconComponent = ICON_COMPONENTS[rest.libIcon]
+function LibIcon<L extends IconComponentsKeys>({
+  size,
+  color,
 
-  // FIXME: dummy icon name - disabled types for different lib icons but allow common IconProps type
-  return <IconComponent {...rest} name={name as 'close'} size={size} color={color} />
+  libIcon,
+  name,
+
+  ...rest
+}: LibIconProps<L>) {
+  const IconComponent = ICON_COMPONENTS[libIcon] as Icon<string, string>
+
+  return <IconComponent {...rest} name={name as string} size={size} color={color} />
 }
 
 cssInterop(LibIcon, {
@@ -171,7 +182,7 @@ cssInterop(LibIcon, {
   },
 })
 
-const UiIcon = ({ size, color, ...rest }: Props) => {
+function UiIcon<L extends IconComponentsKeys>({ size, color, ...rest }: Props<L>) {
   if (rest.customIcon) {
     return <CustomIcon {...rest} size={size} color={color} />
   }

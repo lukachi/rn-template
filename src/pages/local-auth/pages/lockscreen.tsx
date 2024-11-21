@@ -44,7 +44,7 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
   const biometricStatus = localAuthStore.useLocalAuthStore(state => state.biometricStatus)
   const attemptsLeft = localAuthStore.useLocalAuthStore(state => state.attemptsLeft)
   const lockDeadline = localAuthStore.useLocalAuthStore(state => state.lockDeadline)
-  const logout = authStore.useAuthStore(state => state.logout)
+  const logout = authStore.useLogout()
   const resetLocalAuthStore = localAuthStore.useLocalAuthStore(state => state.resetStore)
   const checkLockDeadline = localAuthStore.useCheckLockDeadline()
 
