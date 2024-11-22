@@ -35,7 +35,7 @@ export type LocalAuthStackScreenProps<T extends keyof LocalAuthStackParamsList> 
   NativeStackScreenProps<LocalAuthStackParamsList, T>
 
 export type AppStackParamsList = {
-  Tabs: NavigatorScreenParams<AppTabParamsList>
+  Tabs?: NavigatorScreenParams<AppTabParamsList>
   Scan:
     | {
         documentType?: DocType
