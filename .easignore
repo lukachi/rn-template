@@ -52,6 +52,3 @@ modules/**/*/.cxx
 *.apk
 *.aab
 *.ipa
-
-.env.secrets
-.env.secrets.*

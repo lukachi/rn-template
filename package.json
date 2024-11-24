@@ -22,6 +22,7 @@
     "build:production:ios": "cross-env APP_ENV=production eas build --profile production --platform ios",
     "build:production:android": "cross-env APP_ENV=production eas build --profile production --platform android",
     "prepare": "husky",
+    "prepare-secrets": "node ./scripts/prepare-secrets.cjs",
     "app-release": "cross-env SKIP_BRANCH_PROTECTION=true np --no-publish --no-cleanup --no-release-draft",
     "version": "yarn prebuild && git add .",
     "type-check": "tsc --noEmit",

@@ -18,9 +18,10 @@ const packageJSON = require('./package.json')
 const path = require('path')
 const APP_ENV = process.env.APP_ENV ?? 'development'
 const envPath = path.resolve(__dirname, `.env.${APP_ENV}`)
+const secretEnvPath = path.resolve(__dirname, `.env.secrets.${APP_ENV}`)
 
 require('dotenv').config({
-  path: envPath,
+  path: [envPath, secretEnvPath],
 })
 
 /**
@@ -49,6 +50,12 @@ const SCHEME = 'lukachiTemplateApp' // app scheme
 
 const withEnvSuffix = name => {
   return APP_ENV === 'production' ? name : `${name}.${APP_ENV}`
+}
+
+const getSecretWithSuffix = name => {
+  const appEnvUppercase = APP_ENV.toUpperCase()
+
+  return process.env[`${appEnvUppercase}_${name}`] || process.env[name]
 }
 
 /**
@@ -93,6 +100,8 @@ const client = z.object({
   MASTER_CERTIFICATES_FILENAME: z.string(),
 
   POINTS_SVC_ID: z.string(),
+
+  SOME_SECRET_KEY: z.string(),
 })
 
 const buildTime = z.object({
@@ -128,6 +137,8 @@ const _clientEnv = {
   MASTER_CERTIFICATES_FILENAME: process.env.EXPO_PUBLIC_MASTER_CERTIFICATES_FILENAME,
 
   POINTS_SVC_ID: process.env.EXPO_PUBLIC_POINTS_SVC_ID,
+
+  SOME_SECRET_KEY: getSecretWithSuffix('SOME_SECRET_KEY'),
 }
 
 /**

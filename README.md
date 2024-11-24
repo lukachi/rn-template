@@ -95,47 +95,121 @@ eas login
 
 Follow the steps in the [env.js](./env.js) file to configure app identifiers, package names, and environment variables with `zod` validations.
 
+---
+
 ### Environment Variables
 
-Create `.env`, `.env.development`, and `.env.production` files in the root directory and fill them with your values. Here's an example of what your `.env` file might look like:
+Create `.env`, `.env.development`, and `.env.production` files in the root directory and fill them with your public values.
+Here's an example of what your `.env` file might look like:
+
+### !IMPORTANT!
+
+These files are public and should not contain any sensitive data.
 
 ```env
-EXPO_PUBLIC_API_URL=https://api.example.com
-EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-api-key
-EXPO_PUBLIC_SOME_OTHER_VARIABLE=your-value
+SOME_PUBLIC_KEY_1=some_public_value_1
+SOME_PUBLIC_KEY_2=some_public_value_2
+SOME_OTHER_VARIABLE=your-value
 ```
 
-**Note:** Variables prefixed with `EXPO_PUBLIC_` will be accessible in your app code.
-
-### Adding New Variables
+### Validating New Variables
 
 In `env.js`, add your new variables with `zod` validations:
 
 ```javascript
-import * as z from 'zod';
+const client = z.object({
+  APP_ENV: z.enum(['development', 'staging', 'production']),
+  NAME: z.string(),
+  SCHEME: z.string(),
+  BUNDLE_ID: z.string(),
+  PACKAGE: z.string(),
+  VERSION: z.string(),
 
-export const envSchema = z.object({
-  EXPO_PUBLIC_API_URL: z.string().url(),
-  EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: z.string(),
-  EXPO_PUBLIC_SOME_OTHER_VARIABLE: z.string(),
-  // Add your new variables here
-});
+  // ADD YOUR CLIENT ENV VARS HERE
+  SOME_PUBLIC_KEY_1: z.string(),
+  SOME_PUBLIC_KEY_2: z.string(),
+})
+
+const buildTime = z.object({
+  EXPO_ACCOUNT_OWNER: z.string(),
+  EAS_PROJECT_ID: z.string(),
+  // ADD YOUR BUILD TIME ENV VARS HERE
+  SOME_ANOTHER_PUBLIC_KEY: z.string(),
+})
+```
+
+And get them:
+
+```javascript
+/**
+ * @type {Record<keyof z.infer<typeof client> , unknown>}
+ */
+const _clientEnv = {
+  APP_ENV,
+  NAME: NAME,
+  SCHEME: SCHEME,
+  BUNDLE_ID: withEnvSuffix(BUNDLE_ID),
+  PACKAGE: withEnvSuffix(PACKAGE),
+  VERSION: packageJSON.version,
+
+  // ADD YOUR ENV VARS HERE TOO
+  SOME_PUBLIC_KEY_1: process.env.SOME_PUBLIC_KEY_1,
+  SOME_PUBLIC_KEY_2: process.env.SOME_PUBLIC_KEY_2,
+}
+
+/**
+ * @type {Record<keyof z.infer<typeof buildTime> , unknown>}
+ */
+const _buildTimeEnv = {
+  EXPO_ACCOUNT_OWNER,
+  EAS_PROJECT_ID,
+
+  // ADD YOUR ENV VARS HERE TOO
+  SOME_ANOTHER_PUBLIC_KEY: process.env.SOME_ANOTHER_PUBLIC_KEY,
+}
 ```
 
 After adding new variables, restart the development server to apply changes.
 
 ### Sensitive Data
 
-Since EAS does not see `.env` files if they are gitignored, any sensitive data should be provided using [EAS secrets](https://docs.expo.dev/build-reference/variables/).
+#### For local development:
 
-### Restarting the Server
+create `.env.secrets.development`, `.env.secrets.staging`, and `.env.secrets.production` and fill them with your sensitive values.
 
-If changes are not applied after modifying the `.env` files, try restarting the development server or rebuilding the project:
+Add them to `env.js` as you did with public values, but use `getSecretWithSuffix` method instead of using `process.env` straight.
 
-```bash
-npx expo run:ios --device
-npx expo run:android --device
-```
+This would be enough to run the app locally with `yarn prebuild && yarn ios` or `yarn prebuild && yarn android`.
+
+If changes are not applied after modifying the `.env` files, try restart the development server or rebuild the project:
+
+`yarn start`
+
+#### For EAS Build:
+The .env files are not included in the eas build, no matter it local or not, so we added `.easignore`, which repeats `.gitignore` rules, except `.env.secrets` files, so they will be included in eas build archive.
+
+And that should be enough to build the app with `yarn prebuild:staging && yarn build:staging:ios && yarn build:staging:android`. (and `--local`)
+
+#### For CI/CD:
+
+As far as CI just triggers the build, make sure you have done EAS build preparations, published secrets and prepared credentials for your eas project.
+
+Then run:
+
+`yarn prepare-secrets`
+
+It will push secrets from `.env.secrets.*` files to the EAS servers secrets in a `${APP_ENV_UPPERCASE}_SECRET_KEY` format.
+
+Then make sure you have added all secrets keys to [eas-build](.github/actions/eas-build/action.yml) action.
+You just need the key name, e.g. `envkey_SECRET_KEY: DO_NOT_CHANGE` to pass expo config check, and the value will be taken from the EAS dashboard.
+
+That will be enough to run these workflows in repo actions.
+
+CONCLUSION:
+
+This will cover using secrets in `metro dev server`, local and local-triggered eas builds, and CI/CD triggered eas builds.
+
+---
 
 ## Development Process
 

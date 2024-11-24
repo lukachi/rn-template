@@ -70,6 +70,12 @@ runs:
         eas-version: latest
         token: ${{ inputs.EXPO_TOKEN }}
 
+    - name: Create env file with stubs to pass expo config check, the real secrets will be injected in the EAS build process
+      uses: SpicyPizza/create-envfile@v2.0
+      with:
+        envkey_SOME_SECRET_KEY: DO_NOT_CHANGE
+        file_name: .env.secrets.${{ inputs.APP_ENV }}
+
     - name: ⚙️ Run Prebuild
       run: yarn prebuild:${{ inputs.APP_ENV }}
       shell: bash
