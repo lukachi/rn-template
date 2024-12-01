@@ -7,7 +7,7 @@ import type { ViewProps } from 'react-native'
 import { ScrollView, Text, View } from 'react-native'
 import {
   Camera,
-  runAsync,
+  runAtTargetFps,
   useCameraDevice,
   useCameraPermission,
   useFrameProcessor,
@@ -107,7 +107,7 @@ export default function ScanMrzStep({}: Props) {
       'worklet'
 
       // FIXME: https://github.com/mrousavy/react-native-vision-camera/issues/2820
-      runAsync(frame, () => {
+      runAtTargetFps(2, () => {
         'worklet'
 
         const data = scanText(frame)
