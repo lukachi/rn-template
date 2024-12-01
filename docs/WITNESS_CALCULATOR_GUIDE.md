@@ -1,6 +1,7 @@
 # Witnesscalculator guide
 
 ## Introduction
+
 Since this project was created mainly to generate zkp, we will need tools to generate witness, and zkp respectively.
 
 The rapidsnark-wrp module is responsible for zkp - it implements methods from ios-rapidsnark & android-rapidsnark libraries.
@@ -22,15 +23,18 @@ The standard procedure to get a static library for generating our witness is as 
 we need to install the necessary dependencies before compilation. The README file of the witnesscalc repository will help in this.
 
 In brief:
-1) You should already have Android Studio installed. In the SDK settings you need to set `ndk v.23.1.7779620`, then in your terminal configuration “.zshrc” or “.bashrc” add “export ANDROID_NDK=/home/test/Android/Sdk/ndk/23.1.7779620” to your terminal configuration
 
-2)
+1. You should already have Android Studio installed. In the SDK settings you need to set `ndk v.23.1.7779620`, then in your terminal configuration “.zshrc” or “.bashrc” add “export ANDROID_NDK=/home/test/Android/Sdk/ndk/23.1.7779620” to your terminal configuration
+
+2.
+
 ```
 git submodule init
 git submodule update
 ```
 
-3) Let's compile auxiliary libraries that are dependencies of our future static libraries.
+3. Let's compile auxiliary libraries that are dependencies of our future static libraries.
+
 ```
 ./build_gmp.sh android
 ./build_gmp.sh ios
@@ -40,12 +44,13 @@ You will only need to do this once.
 
 And now - the code part:
 
-4) open witnesscalc project mentioned above.
-5) copy `auth.cpp` && `auth.dap` files to `src` folder, similar files will be located there.
-6) In `auth.cpp` file, we need to wrap all the code as said here https://github.com/0xPolygonID/witnesscalc?tab=readme-ov-file#updating-circuits then replace `assert(` with `check(` in the whole file.
-7) Next, in the same folder you need to create `witnesscalc_auth.cpp` and `witnesscalc_auth.h`, I think you have already noticed the same files respectively. (The content will be the same, but the name will be `auth` in our case)
+4. open witnesscalc project mentioned above.
+5. copy `auth.cpp` && `auth.dap` files to `src` folder, similar files will be located there.
+6. In `auth.cpp` file, we need to wrap all the code as said here https://github.com/0xPolygonID/witnesscalc?tab=readme-ov-file#updating-circuits then replace `assert(` with `check(` in the whole file.
+7. Next, in the same folder you need to create `witnesscalc_auth.cpp` and `witnesscalc_auth.h`, I think you have already noticed the same files respectively. (The content will be the same, but the name will be `auth` in our case)
 
 witnesscalc_auth.cpp
+
 ```cpp
 #include "witnesscalc_auth.h"
 #include "witnesscalc.h"
@@ -66,6 +71,7 @@ witnesscalc_auth(
 ```
 
 witnesscalc_auth.h
+
 ```cpp
 #ifndef WITNESSCALC_AUTH_H
 #define WITNESSCALC_AUTH_H
@@ -108,7 +114,7 @@ witnesscalc_auth(
 #endif // WITNESSCALC_AUTH_H
 ```
 
-8) Now let's open the CMakeLists.txt file in the same folder, there you will notice repeating pieces of code. We need to do the same, with the name of our new file
+8. Now let's open the CMakeLists.txt file in the same folder, there you will notice repeating pieces of code. We need to do the same, with the name of our new file
 
 ```cpp
 set(AUTH_SOURCES ${LIB_SOURCES}
@@ -129,9 +135,10 @@ target_compile_definitions(witnesscalc_authStatic PUBLIC CIRCUIT_NAME=auth)
 target_compile_definitions(auth PUBLIC CIRCUIT_NAME=auth)
 ```
 
-9) Now let's go out of this folder to the root, there will be a file CMakeLists.txt, it lists the files to be compiled, find the line “install(TARGETS” and add the element `auth`, which corresponds to the name of our file, below it find the line “install(FILES” which contains elements with the file extension `.dat` and add there auth.dat, and above the line insert a comment “# [name].dat files here:” - we will need it in the future. Below that there will be a line “install(FILES” which contains elements with `.h` extension, insert there our “witnesscalc_auth.h” file. And above the line itself insert the comment “# witnesscalc_[name].h files here:” similar to above.
+9. Now let's go out of this folder to the root, there will be a file CMakeLists.txt, it lists the files to be compiled, find the line “install(TARGETS” and add the element `auth`, which corresponds to the name of our file, below it find the line “install(FILES” which contains elements with the file extension `.dat` and add there auth.dat, and above the line insert a comment “# [name].dat files here:” - we will need it in the future. Below that there will be a line “install(FILES” which contains elements with `.h` extension, insert there our “witnesscalc*auth.h” file. And above the line itself insert the comment “# witnesscalc*[name].h files here:” similar to above.
 
-10) Now we can compile our static libraries
+10. Now we can compile our static libraries
+
 ```
 make android
 make ios
@@ -175,10 +182,10 @@ Let's start from `Android` part.
 
 We will create `.AAR` file to use it in [witnesscalculator](../modules/witnesscalculator) module.
 
-1) Open Android Studio and create a new project.
-2) Open files → new module → Android Library (You could follow official android documentation to create library)
-3) `Right click` on our newly created module and select “add cpp…” (it will create cpp folder with CMakeLists.txt and `[yourName].cpp` file)
-4) In `cpp` folder:
+1. Open Android Studio and create a new project.
+2. Open files → new module → Android Library (You could follow official android documentation to create library)
+3. `Right click` on our newly created module and select “add cpp…” (it will create cpp folder with CMakeLists.txt and `[yourName].cpp` file)
+4. In `cpp` folder:
    - create folder `include` e.g. `cpp/include` and place there `witnesscalc_auth.h`
    - create folder `libs` e.g. `cpp/libs` and place there `libwitnesscalc_auth.so`
    - In CMakeLists.txt file add the following lines:
@@ -209,7 +216,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 Move our `witnesscalc_auth.h` file to `includes` folder. And our generated `.so` file to `libs` folder.
 The `.so` will be at `./build_witnesscalc_android/src/libwitnesscalc_auth.a` path in `witnesscalc` project.
 
-5) Create a new class in the library project files, for example `WtnsUtils.kt` and add the following code:
+5. Create a new class in the library project files, for example `WtnsUtils.kt` and add the following code:
 
 ```kotlin
 package com.example.[yourName]
@@ -232,7 +239,7 @@ object WtnsUtils {
 }
 ```
 
-6) `Right click` on class method and create `cpp` bindings. It will create method in `[yourName].cpp` file. And we could implement it with the following code:
+6. `Right click` on class method and create `cpp` bindings. It will create method in `[yourName].cpp` file. And we could implement it with the following code:
 
 ```cpp
 #include <jni.h>
@@ -275,6 +282,7 @@ Java_com_example_[yourName]_WtnsUtils_auth(JNIEnv *env, jobject thiz, jbyteArray
     return result;
 }
 ```
+
 This code calculates `wtns` with provided `.dat` file bytes and `json inputs` bytes.
 
 NOTE: your module build.gradle file should looks like this:
@@ -339,20 +347,21 @@ dependencies {
 }
 ```
 
-7) Finally you can run `./gradlew assembleRelease` in terminal to build your library.
-8) Our `.AAR` file will be at `./build/outputs/aar` path in the library project.
-9) cope file to [android/libs](../modules/witnesscalculator/android/libs). The usage you could check at [WitnesscalculatorModule.kt](../modules/witnesscalculator/android/src/main/java/expo/modules/witnesscalculator/WitnesscalculatorModule.kt) file.
+7. Finally you can run `./gradlew assembleRelease` in terminal to build your library.
+8. Our `.AAR` file will be at `./build/outputs/aar` path in the library project.
+9. cope file to [android/libs](../modules/witnesscalculator/android/libs). The usage you could check at [WitnesscalculatorModule.kt](../modules/witnesscalculator/android/src/main/java/expo/modules/witnesscalculator/WitnesscalculatorModule.kt) file.
 
 ## iOS
 
 For iOS we need to create `.xcframework`.
 
-1) In `witnesscalc` project, after we ran `make ios` we will have a `build_witnesscalc_ios` folder. This is the `xcode` project.
-2) We need to compile `schemes` in this project for our architecture and platforms, e.g. `arm64` `iOS` and `arm64` `iOS Simulator`.
+1. In `witnesscalc` project, after we ran `make ios` we will have a `build_witnesscalc_ios` folder. This is the `xcode` project.
+2. We need to compile `schemes` in this project for our architecture and platforms, e.g. `arm64` `iOS` and `arm64` `iOS Simulator`.
 
 To do so, we could use this bash script:
 
 build_libs.sh
+
 ```bash
 #!/bin/bash
 
@@ -401,6 +410,7 @@ echo "Build and architecture check completed for scheme: $SCHEME_NAME"
 run the command `sudo sh ./build_libs.sh [scheme_name]`
 
 In our case:
+
 ```bash
 sudo sh ./build_libs.sh authStatic
 ```
@@ -416,6 +426,7 @@ Why `authStatic`?
 If you open `build_witnesscalc_ios` folder in `xcode` you will see the schemes, one of them is `[our_circuit_name]Static`. This is the scheme we need to compile. Because we work with static libraries. The dynamic libraries will not work in our case.
 
 So, after compile we should see in `src` folder under `build_witnesscalc_ios` folder:
+
 ```
 src
 ├── Release-iphoneos
@@ -432,16 +443,18 @@ we will need these `Release-iphoneos` and `Release-iphonesimulator` folders in t
 We need to get `libgmp.a` file, located at depends/gmp/package_ios_arm64/lib/libgmp.a
 
 Double check that this library is for our architechture:
+
 ```bash
 lipo -info ./depends/gmp/package_ios_arm64/lib/libgmp.a
 ```
 
 output:
+
 ```bash
 Architectures in the fat file: ./depends/gmp/package_ios_arm64/lib/libgmp.a are: arm64 arm64e
 ```
 
-3) Now we are ready to build our `.xcframework`.
+3. Now we are ready to build our `.xcframework`.
 
 Let's create new folder, somewhere else, for example `./witnesscalc_ios_xcframework` and create the following structure:
 
@@ -464,6 +477,7 @@ Let's create new folder, somewhere else, for example `./witnesscalc_ios_xcframew
 As you can see we also moved `witnesscalc_auth.h` file to `Headers` folder in both `Release-iphoneos` and `Release-iphonesimulator` folders.
 
 `build_framework.sh` - will help us build `.xcframework` archive.
+
 ```bash
 #!/bin/bash
 
@@ -625,6 +639,7 @@ echo "Build process completed successfully."
 ```
 
 Now run:
+
 ```bash
 sudo sh ./build_framework.sh
 ```

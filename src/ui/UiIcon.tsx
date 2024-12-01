@@ -108,28 +108,26 @@ const ICON_COMPONENTS = {
   Ionicons,
 }
 
-type IconComponentsKeys = keyof typeof ICON_COMPONENTS
+type LibIconsKeys = keyof typeof ICON_COMPONENTS
+
+type CustomIconsKeys = keyof typeof CUSTOM_ICONS
 
 type CommonProps = {
   color?: string
   size?: number
 }
 
-type CustomIconProps = CommonProps & {
-  customIcon: keyof typeof CUSTOM_ICONS
+type CustomIconProps<C extends CustomIconsKeys> = Omit<SvgProps, 'color'> & {
+  customIcon: C
   libIcon?: never
   name?: never
-} & SvgProps
+}
 
-type LibIconProps<L extends IconComponentsKeys> = CommonProps & {
-  libIcon: L
-  name: keyof (typeof ICON_COMPONENTS)[L]['glyphMap']
-  customIcon?: never
-} & Omit<IconProps<string>, 'name'>
-
-type Props<L extends IconComponentsKeys> = LibIconProps<L> | CustomIconProps
-
-const CustomIcon = ({ size, color, ...rest }: CustomIconProps) => {
+function CustomIcon<C extends CustomIconsKeys>({
+  size,
+  color,
+  ...rest
+}: CommonProps & CustomIconProps<C>) {
   const CustomComponent = CUSTOM_ICONS[rest.customIcon]
 
   return (
@@ -162,7 +160,13 @@ cssInterop(CustomIcon, {
   },
 })
 
-function LibIcon<L extends IconComponentsKeys>({
+type LibIconProps<L extends LibIconsKeys> = {
+  libIcon: L
+  name: keyof (typeof ICON_COMPONENTS)[L]['glyphMap']
+  customIcon?: never
+} & Omit<IconProps<string>, 'name' | 'color'>
+
+function LibIcon<L extends LibIconsKeys>({
   size,
   color,
 
@@ -170,7 +174,7 @@ function LibIcon<L extends IconComponentsKeys>({
   name,
 
   ...rest
-}: LibIconProps<L>) {
+}: CommonProps & LibIconProps<L>) {
   const IconComponent = ICON_COMPONENTS[libIcon] as Icon<string, string>
 
   return <IconComponent {...rest} name={name as string} size={size} color={color} />
@@ -182,12 +186,18 @@ cssInterop(LibIcon, {
   },
 })
 
-function UiIcon<L extends IconComponentsKeys>({ size, color, ...rest }: Props<L>) {
-  if (rest.customIcon) {
-    return <CustomIcon {...rest} size={size} color={color} />
+type Props<T extends CustomIconsKeys | LibIconsKeys> = T extends CustomIconsKeys
+  ? CustomIconProps<T>
+  : T extends LibIconsKeys
+    ? LibIconProps<T>
+    : undefined
+
+function UiIcon<T extends CustomIconsKeys | LibIconsKeys>(props: Props<T> & CommonProps) {
+  if ('libIcon' in props) {
+    return <LibIcon {...(props as LibIconProps<LibIconsKeys>)} />
   }
 
-  return <LibIcon {...rest} size={size} color={color} />
+  return <CustomIcon {...(props as CustomIconProps<CustomIconsKeys>)} />
 }
 
 export default UiIcon

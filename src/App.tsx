@@ -3,14 +3,13 @@
 import 'react-native-get-random-values'
 
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
-import { sleepAsync } from 'expo-dev-launcher/bundle/functions/sleepAsync'
 import * as SplashScreen from 'expo-splash-screen'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { APIProvider } from '@/api/client'
-import { initInterceptors } from '@/api/interceptors'
+import { AppInitializationErrorBoundary } from '@/common'
 import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
 import { authStore, localAuthStore, walletStore } from '@/store'
@@ -26,7 +25,7 @@ export default function App() {
   const [isAppInitialized, setIsAppInitialized] = useState(false)
   const [isAppInitializingFailed, setIsAppInitializingFailed] = useState(false)
 
-  const [, setAppInitError] = useState<Error>()
+  const [appInitError, setAppInitError] = useState<Error>()
 
   const isAuthStoreHydrated = authStore.useAuthStore(state => state._hasHydrated)
   const isLocalAuthStoreHydrated = localAuthStore.useLocalAuthStore(state => state._hasHydrated)
@@ -39,52 +38,35 @@ export default function App() {
     return isAuthStoreHydrated && isLocalAuthStoreHydrated && isWalletStoreHydrated
   }, [isAuthStoreHydrated, isLocalAuthStoreHydrated, isWalletStoreHydrated])
 
-  useEffect(() => {
-    if (!isStoresHydrated) return
-
-    const initApp = async () => {
-      try {
-        // verifyInstallation()
-        initInterceptors()
-        await initLocalAuthStore()
-        await sleepAsync(1_000)
-        await SplashScreen.hideAsync()
-        setIsAppInitialized(true)
-      } catch (e) {
-        setAppInitError(e)
-        setIsAppInitializingFailed(true)
-      }
+  const initApp = async () => {
+    try {
+      // verifyInstallation()
+      await initLocalAuthStore()
+    } catch (e) {
+      setAppInitError(e)
+      setIsAppInitializingFailed(true)
     }
 
-    initApp()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStoresHydrated])
+    setIsAppInitialized(true)
+    await SplashScreen.hideAsync()
+  }
 
-  const onLayoutRootView = useCallback(async () => {
-    if (isAppInitialized) {
-      // This tells the splash screen to hide immediately! If we call this after
-      // `setAppIsReady`, then we may see a blank screen while the app is
-      // loading its initial state and rendering its first pixels. So instead,
-      // we hide the splash screen once we know the root view has already
-      // performed layout.
-      await SplashScreen.hideAsync()
-    }
-  }, [isAppInitialized])
-
-  if (!isAppInitialized || isAppInitializingFailed) {
-    return null // TODO: add error boundary
+  if (isAppInitializingFailed && appInitError) {
+    return <AppInitializationErrorBoundary error={appInitError} />
   }
 
   return (
-    <View style={{ flex: 1 }} key={language} onLayout={onLayoutRootView}>
-      <GestureHandlerRootView>
-        <APIProvider>
-          <BottomSheetModalProvider>
-            <AppRoutes />
-          </BottomSheetModalProvider>
-        </APIProvider>
-        <Toasts />
-      </GestureHandlerRootView>
+    <View style={{ flex: 1 }} key={[language, isStoresHydrated].join(';')} onLayout={initApp}>
+      {isAppInitialized && (
+        <GestureHandlerRootView>
+          <APIProvider>
+            <BottomSheetModalProvider>
+              <AppRoutes />
+            </BottomSheetModalProvider>
+          </APIProvider>
+          <Toasts />
+        </GestureHandlerRootView>
+      )}
     </View>
   )
 }

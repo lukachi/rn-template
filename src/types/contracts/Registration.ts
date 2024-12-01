@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers'
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,404 +21,312 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "./common";
+} from './common'
 
 export declare namespace Registration2 {
   export type PassportStruct = {
-    dataType: BytesLike;
-    zkType: BytesLike;
-    signature: BytesLike;
-    publicKey: BytesLike;
-    passportHash: BytesLike;
-  };
+    dataType: BytesLike
+    zkType: BytesLike
+    signature: BytesLike
+    publicKey: BytesLike
+    passportHash: BytesLike
+  }
 
   export type PassportStructOutput = [
     dataType: string,
     zkType: string,
     signature: string,
     publicKey: string,
-    passportHash: string
+    passportHash: string,
   ] & {
-    dataType: string;
-    zkType: string;
-    signature: string;
-    publicKey: string;
-    passportHash: string;
-  };
+    dataType: string
+    zkType: string
+    signature: string
+    publicKey: string
+    passportHash: string
+  }
 
   export type CertificateStruct = {
-    dataType: BytesLike;
-    signedAttributes: BytesLike;
-    keyOffset: BigNumberish;
-    expirationOffset: BigNumberish;
-  };
+    dataType: BytesLike
+    signedAttributes: BytesLike
+    keyOffset: BigNumberish
+    expirationOffset: BigNumberish
+  }
 
   export type CertificateStructOutput = [
     dataType: string,
     signedAttributes: string,
     keyOffset: bigint,
-    expirationOffset: bigint
+    expirationOffset: bigint,
   ] & {
-    dataType: string;
-    signedAttributes: string;
-    keyOffset: bigint;
-    expirationOffset: bigint;
-  };
+    dataType: string
+    signedAttributes: string
+    keyOffset: bigint
+    expirationOffset: bigint
+  }
 
-  export type ICAOMemberStruct = { signature: BytesLike; publicKey: BytesLike };
+  export type ICAOMemberStruct = { signature: BytesLike; publicKey: BytesLike }
 
-  export type ICAOMemberStructOutput = [
-    signature: string,
+  export type ICAOMemberStructOutput = [signature: string, publicKey: string] & {
+    signature: string
     publicKey: string
-  ] & { signature: string; publicKey: string };
+  }
 }
 
 export declare namespace VerifierHelper {
   export type ProofPointsStruct = {
-    a: [BigNumberish, BigNumberish];
-    b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]];
-    c: [BigNumberish, BigNumberish];
-  };
+    a: [BigNumberish, BigNumberish]
+    b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]]
+    c: [BigNumberish, BigNumberish]
+  }
 
   export type ProofPointsStructOutput = [
     a: [bigint, bigint],
     b: [[bigint, bigint], [bigint, bigint]],
-    c: [bigint, bigint]
+    c: [bigint, bigint],
   ] & {
-    a: [bigint, bigint];
-    b: [[bigint, bigint], [bigint, bigint]];
-    c: [bigint, bigint];
-  };
+    a: [bigint, bigint]
+    b: [[bigint, bigint], [bigint, bigint]]
+    c: [bigint, bigint]
+  }
 }
 
 export interface RegistrationInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "MAGIC_ID"
-      | "P"
-      | "__Registration_init"
-      | "certificateDispatchers"
-      | "chainName"
-      | "changeSigner"
-      | "getNonce"
-      | "implementation"
-      | "passportDispatchers"
-      | "passportVerifiers"
-      | "proxiableUUID"
-      | "register"
-      | "registerCertificate"
-      | "reissueIdentity"
-      | "revoke"
-      | "revokeCertificate"
-      | "signer"
-      | "stateKeeper"
-      | "updateDependency"
-      | "upgradeTo"
-      | "upgradeToAndCall"
-      | "upgradeToAndCallWithProof"
-      | "upgradeToWithProof"
-  ): FunctionFragment;
+      | 'MAGIC_ID'
+      | 'P'
+      | '__Registration_init'
+      | 'certificateDispatchers'
+      | 'chainName'
+      | 'changeSigner'
+      | 'getNonce'
+      | 'implementation'
+      | 'passportDispatchers'
+      | 'passportVerifiers'
+      | 'proxiableUUID'
+      | 'register'
+      | 'registerCertificate'
+      | 'reissueIdentity'
+      | 'revoke'
+      | 'revokeCertificate'
+      | 'signer'
+      | 'stateKeeper'
+      | 'updateDependency'
+      | 'upgradeTo'
+      | 'upgradeToAndCall'
+      | 'upgradeToAndCallWithProof'
+      | 'upgradeToWithProof',
+  ): FunctionFragment
 
   getEvent(
-    nameOrSignatureOrTopic:
-      | "AdminChanged"
-      | "BeaconUpgraded"
-      | "Initialized"
-      | "Upgraded"
-  ): EventFragment;
+    nameOrSignatureOrTopic: 'AdminChanged' | 'BeaconUpgraded' | 'Initialized' | 'Upgraded',
+  ): EventFragment
 
-  encodeFunctionData(functionFragment: "MAGIC_ID", values?: undefined): string;
-  encodeFunctionData(functionFragment: "P", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'MAGIC_ID', values?: undefined): string
+  encodeFunctionData(functionFragment: 'P', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "__Registration_init",
-    values: [AddressLike, string, AddressLike]
-  ): string;
+    functionFragment: '__Registration_init',
+    values: [AddressLike, string, AddressLike],
+  ): string
+  encodeFunctionData(functionFragment: 'certificateDispatchers', values: [BytesLike]): string
+  encodeFunctionData(functionFragment: 'chainName', values?: undefined): string
+  encodeFunctionData(functionFragment: 'changeSigner', values: [BytesLike, BytesLike]): string
+  encodeFunctionData(functionFragment: 'getNonce', values: [BigNumberish]): string
+  encodeFunctionData(functionFragment: 'implementation', values?: undefined): string
+  encodeFunctionData(functionFragment: 'passportDispatchers', values: [BytesLike]): string
+  encodeFunctionData(functionFragment: 'passportVerifiers', values: [BytesLike]): string
+  encodeFunctionData(functionFragment: 'proxiableUUID', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "certificateDispatchers",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "chainName", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "changeSigner",
-    values: [BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getNonce",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "implementation",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "passportDispatchers",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "passportVerifiers",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proxiableUUID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "register",
+    functionFragment: 'register',
     values: [
       BytesLike,
       BigNumberish,
       BigNumberish,
       Registration2.PassportStruct,
-      VerifierHelper.ProofPointsStruct
-    ]
-  ): string;
+      VerifierHelper.ProofPointsStruct,
+    ],
+  ): string
   encodeFunctionData(
-    functionFragment: "registerCertificate",
-    values: [
-      Registration2.CertificateStruct,
-      Registration2.ICAOMemberStruct,
-      BytesLike[]
-    ]
-  ): string;
+    functionFragment: 'registerCertificate',
+    values: [Registration2.CertificateStruct, Registration2.ICAOMemberStruct, BytesLike[]],
+  ): string
   encodeFunctionData(
-    functionFragment: "reissueIdentity",
+    functionFragment: 'reissueIdentity',
     values: [
       BytesLike,
       BigNumberish,
       BigNumberish,
       Registration2.PassportStruct,
-      VerifierHelper.ProofPointsStruct
-    ]
-  ): string;
+      VerifierHelper.ProofPointsStruct,
+    ],
+  ): string
   encodeFunctionData(
-    functionFragment: "revoke",
-    values: [BigNumberish, Registration2.PassportStruct]
-  ): string;
+    functionFragment: 'revoke',
+    values: [BigNumberish, Registration2.PassportStruct],
+  ): string
+  encodeFunctionData(functionFragment: 'revokeCertificate', values: [BytesLike]): string
+  encodeFunctionData(functionFragment: 'signer', values?: undefined): string
+  encodeFunctionData(functionFragment: 'stateKeeper', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "revokeCertificate",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "signer", values?: undefined): string;
+    functionFragment: 'updateDependency',
+    values: [BigNumberish, BytesLike, BytesLike],
+  ): string
+  encodeFunctionData(functionFragment: 'upgradeTo', values: [AddressLike]): string
+  encodeFunctionData(functionFragment: 'upgradeToAndCall', values: [AddressLike, BytesLike]): string
   encodeFunctionData(
-    functionFragment: "stateKeeper",
-    values?: undefined
-  ): string;
+    functionFragment: 'upgradeToAndCallWithProof',
+    values: [AddressLike, BytesLike, BytesLike],
+  ): string
   encodeFunctionData(
-    functionFragment: "updateDependency",
-    values: [BigNumberish, BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeTo",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeToAndCall",
-    values: [AddressLike, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeToAndCallWithProof",
-    values: [AddressLike, BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeToWithProof",
-    values: [AddressLike, BytesLike]
-  ): string;
+    functionFragment: 'upgradeToWithProof',
+    values: [AddressLike, BytesLike],
+  ): string
 
-  decodeFunctionResult(functionFragment: "MAGIC_ID", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "P", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "__Registration_init",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "certificateDispatchers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "chainName", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "changeSigner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getNonce", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "implementation",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "passportDispatchers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "passportVerifiers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proxiableUUID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "register", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "registerCertificate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reissueIdentity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "revoke", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "revokeCertificate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "signer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "stateKeeper",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateDependency",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeToAndCall",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeToAndCallWithProof",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeToWithProof",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'MAGIC_ID', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'P', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: '__Registration_init', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'certificateDispatchers', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'chainName', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'changeSigner', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'getNonce', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'implementation', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'passportDispatchers', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'passportVerifiers', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'proxiableUUID', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'register', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'registerCertificate', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'reissueIdentity', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'revoke', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'revokeCertificate', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'signer', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'stateKeeper', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'updateDependency', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'upgradeTo', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'upgradeToAndCall', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'upgradeToAndCallWithProof', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'upgradeToWithProof', data: BytesLike): Result
 }
 
 export namespace AdminChangedEvent {
-  export type InputTuple = [previousAdmin: AddressLike, newAdmin: AddressLike];
-  export type OutputTuple = [previousAdmin: string, newAdmin: string];
+  export type InputTuple = [previousAdmin: AddressLike, newAdmin: AddressLike]
+  export type OutputTuple = [previousAdmin: string, newAdmin: string]
   export interface OutputObject {
-    previousAdmin: string;
-    newAdmin: string;
+    previousAdmin: string
+    newAdmin: string
   }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
 }
 
 export namespace BeaconUpgradedEvent {
-  export type InputTuple = [beacon: AddressLike];
-  export type OutputTuple = [beacon: string];
+  export type InputTuple = [beacon: AddressLike]
+  export type OutputTuple = [beacon: string]
   export interface OutputObject {
-    beacon: string;
+    beacon: string
   }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
 }
 
 export namespace InitializedEvent {
-  export type InputTuple = [version: BigNumberish];
-  export type OutputTuple = [version: bigint];
+  export type InputTuple = [version: BigNumberish]
+  export type OutputTuple = [version: bigint]
   export interface OutputObject {
-    version: bigint;
+    version: bigint
   }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
 }
 
 export namespace UpgradedEvent {
-  export type InputTuple = [implementation: AddressLike];
-  export type OutputTuple = [implementation: string];
+  export type InputTuple = [implementation: AddressLike]
+  export type OutputTuple = [implementation: string]
   export interface OutputObject {
-    implementation: string;
+    implementation: string
   }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
 }
 
 export interface Registration extends BaseContract {
-  connect(runner?: ContractRunner | null): Registration;
-  waitForDeployment(): Promise<this>;
+  connect(runner?: ContractRunner | null): Registration
+  waitForDeployment(): Promise<this>
 
-  interface: RegistrationInterface;
+  interface: RegistrationInterface
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
-  ): Promise<Array<TypedEventLog<TCEvent>>>;
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TypedEventLog<TCEvent>>>
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
-  ): Promise<Array<TypedEventLog<TCEvent>>>;
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TypedEventLog<TCEvent>>>
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
-  ): Promise<this>;
+    listener: TypedListener<TCEvent>,
+  ): Promise<this>
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
-  ): Promise<this>;
+    listener: TypedListener<TCEvent>,
+  ): Promise<this>
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
-  ): Promise<this>;
+    listener: TypedListener<TCEvent>,
+  ): Promise<this>
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
-  ): Promise<this>;
+    listener: TypedListener<TCEvent>,
+  ): Promise<this>
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
-  ): Promise<Array<TypedListener<TCEvent>>>;
-  listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+    event: TCEvent,
+  ): Promise<Array<TypedListener<TCEvent>>>
+  listeners(eventName?: string): Promise<Array<Listener>>
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>
 
-  MAGIC_ID: TypedContractMethod<[], [bigint], "view">;
+  MAGIC_ID: TypedContractMethod<[], [bigint], 'view'>
 
-  P: TypedContractMethod<[], [bigint], "view">;
+  P: TypedContractMethod<[], [bigint], 'view'>
 
   __Registration_init: TypedContractMethod<
     [signer_: AddressLike, chainName_: string, stateKeeper_: AddressLike],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
 
-  certificateDispatchers: TypedContractMethod<
-    [arg0: BytesLike],
-    [string],
-    "view"
-  >;
+  certificateDispatchers: TypedContractMethod<[arg0: BytesLike], [string], 'view'>
 
-  chainName: TypedContractMethod<[], [string], "view">;
+  chainName: TypedContractMethod<[], [string], 'view'>
 
   changeSigner: TypedContractMethod<
     [newSignerPubKey_: BytesLike, signature_: BytesLike],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
 
-  getNonce: TypedContractMethod<[methodId_: BigNumberish], [bigint], "view">;
+  getNonce: TypedContractMethod<[methodId_: BigNumberish], [bigint], 'view'>
 
-  implementation: TypedContractMethod<[], [string], "view">;
+  implementation: TypedContractMethod<[], [string], 'view'>
 
-  passportDispatchers: TypedContractMethod<[arg0: BytesLike], [string], "view">;
+  passportDispatchers: TypedContractMethod<[arg0: BytesLike], [string], 'view'>
 
-  passportVerifiers: TypedContractMethod<[arg0: BytesLike], [string], "view">;
+  passportVerifiers: TypedContractMethod<[arg0: BytesLike], [string], 'view'>
 
-  proxiableUUID: TypedContractMethod<[], [string], "view">;
+  proxiableUUID: TypedContractMethod<[], [string], 'view'>
 
   register: TypedContractMethod<
     [
@@ -426,21 +334,21 @@ export interface Registration extends BaseContract {
       identityKey_: BigNumberish,
       dgCommit_: BigNumberish,
       passport_: Registration2.PassportStruct,
-      zkPoints_: VerifierHelper.ProofPointsStruct
+      zkPoints_: VerifierHelper.ProofPointsStruct,
     ],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
 
   registerCertificate: TypedContractMethod<
     [
       certificate_: Registration2.CertificateStruct,
       icaoMember_: Registration2.ICAOMemberStruct,
-      icaoMerkleProof_: BytesLike[]
+      icaoMerkleProof_: BytesLike[],
     ],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
 
   reissueIdentity: TypedContractMethod<
     [
@@ -448,260 +356,222 @@ export interface Registration extends BaseContract {
       identityKey_: BigNumberish,
       dgCommit_: BigNumberish,
       passport_: Registration2.PassportStruct,
-      zkPoints_: VerifierHelper.ProofPointsStruct
+      zkPoints_: VerifierHelper.ProofPointsStruct,
     ],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
 
   revoke: TypedContractMethod<
     [identityKey_: BigNumberish, passport_: Registration2.PassportStruct],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
 
-  revokeCertificate: TypedContractMethod<
-    [certificateKey_: BytesLike],
-    [void],
-    "nonpayable"
-  >;
+  revokeCertificate: TypedContractMethod<[certificateKey_: BytesLike], [void], 'nonpayable'>
 
-  stateKeeper: TypedContractMethod<[], [string], "view">;
+  stateKeeper: TypedContractMethod<[], [string], 'view'>
 
   updateDependency: TypedContractMethod<
     [methodId_: BigNumberish, data_: BytesLike, proof_: BytesLike],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
 
-  upgradeTo: TypedContractMethod<
-    [newImplementation: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  upgradeTo: TypedContractMethod<[newImplementation: AddressLike], [void], 'nonpayable'>
 
   upgradeToAndCall: TypedContractMethod<
     [newImplementation: AddressLike, data: BytesLike],
     [void],
-    "payable"
-  >;
+    'payable'
+  >
 
   upgradeToAndCallWithProof: TypedContractMethod<
     [newImplementation_: AddressLike, proof_: BytesLike, data_: BytesLike],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
 
   upgradeToWithProof: TypedContractMethod<
     [newImplementation_: AddressLike, proof_: BytesLike],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T
 
+  getFunction(nameOrSignature: 'MAGIC_ID'): TypedContractMethod<[], [bigint], 'view'>
+  getFunction(nameOrSignature: 'P'): TypedContractMethod<[], [bigint], 'view'>
   getFunction(
-    nameOrSignature: "MAGIC_ID"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(nameOrSignature: "P"): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "__Registration_init"
+    nameOrSignature: '__Registration_init',
   ): TypedContractMethod<
     [signer_: AddressLike, chainName_: string, stateKeeper_: AddressLike],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
   getFunction(
-    nameOrSignature: "certificateDispatchers"
-  ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
+    nameOrSignature: 'certificateDispatchers',
+  ): TypedContractMethod<[arg0: BytesLike], [string], 'view'>
+  getFunction(nameOrSignature: 'chainName'): TypedContractMethod<[], [string], 'view'>
   getFunction(
-    nameOrSignature: "chainName"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'changeSigner',
+  ): TypedContractMethod<[newSignerPubKey_: BytesLike, signature_: BytesLike], [void], 'nonpayable'>
   getFunction(
-    nameOrSignature: "changeSigner"
-  ): TypedContractMethod<
-    [newSignerPubKey_: BytesLike, signature_: BytesLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'getNonce',
+  ): TypedContractMethod<[methodId_: BigNumberish], [bigint], 'view'>
+  getFunction(nameOrSignature: 'implementation'): TypedContractMethod<[], [string], 'view'>
   getFunction(
-    nameOrSignature: "getNonce"
-  ): TypedContractMethod<[methodId_: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'passportDispatchers',
+  ): TypedContractMethod<[arg0: BytesLike], [string], 'view'>
   getFunction(
-    nameOrSignature: "implementation"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'passportVerifiers',
+  ): TypedContractMethod<[arg0: BytesLike], [string], 'view'>
+  getFunction(nameOrSignature: 'proxiableUUID'): TypedContractMethod<[], [string], 'view'>
   getFunction(
-    nameOrSignature: "passportDispatchers"
-  ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
-  getFunction(
-    nameOrSignature: "passportVerifiers"
-  ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
-  getFunction(
-    nameOrSignature: "proxiableUUID"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "register"
+    nameOrSignature: 'register',
   ): TypedContractMethod<
     [
       certificatesRoot_: BytesLike,
       identityKey_: BigNumberish,
       dgCommit_: BigNumberish,
       passport_: Registration2.PassportStruct,
-      zkPoints_: VerifierHelper.ProofPointsStruct
+      zkPoints_: VerifierHelper.ProofPointsStruct,
     ],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
   getFunction(
-    nameOrSignature: "registerCertificate"
+    nameOrSignature: 'registerCertificate',
   ): TypedContractMethod<
     [
       certificate_: Registration2.CertificateStruct,
       icaoMember_: Registration2.ICAOMemberStruct,
-      icaoMerkleProof_: BytesLike[]
+      icaoMerkleProof_: BytesLike[],
     ],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
   getFunction(
-    nameOrSignature: "reissueIdentity"
+    nameOrSignature: 'reissueIdentity',
   ): TypedContractMethod<
     [
       certificatesRoot_: BytesLike,
       identityKey_: BigNumberish,
       dgCommit_: BigNumberish,
       passport_: Registration2.PassportStruct,
-      zkPoints_: VerifierHelper.ProofPointsStruct
+      zkPoints_: VerifierHelper.ProofPointsStruct,
     ],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
   getFunction(
-    nameOrSignature: "revoke"
+    nameOrSignature: 'revoke',
   ): TypedContractMethod<
     [identityKey_: BigNumberish, passport_: Registration2.PassportStruct],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
   getFunction(
-    nameOrSignature: "revokeCertificate"
-  ): TypedContractMethod<[certificateKey_: BytesLike], [void], "nonpayable">;
+    nameOrSignature: 'revokeCertificate',
+  ): TypedContractMethod<[certificateKey_: BytesLike], [void], 'nonpayable'>
+  getFunction(nameOrSignature: 'signer'): TypedContractMethod<[], [string], 'view'>
+  getFunction(nameOrSignature: 'stateKeeper'): TypedContractMethod<[], [string], 'view'>
   getFunction(
-    nameOrSignature: "signer"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "stateKeeper"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "updateDependency"
+    nameOrSignature: 'updateDependency',
   ): TypedContractMethod<
     [methodId_: BigNumberish, data_: BytesLike, proof_: BytesLike],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
   getFunction(
-    nameOrSignature: "upgradeTo"
-  ): TypedContractMethod<
-    [newImplementation: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'upgradeTo',
+  ): TypedContractMethod<[newImplementation: AddressLike], [void], 'nonpayable'>
   getFunction(
-    nameOrSignature: "upgradeToAndCall"
-  ): TypedContractMethod<
-    [newImplementation: AddressLike, data: BytesLike],
-    [void],
-    "payable"
-  >;
+    nameOrSignature: 'upgradeToAndCall',
+  ): TypedContractMethod<[newImplementation: AddressLike, data: BytesLike], [void], 'payable'>
   getFunction(
-    nameOrSignature: "upgradeToAndCallWithProof"
+    nameOrSignature: 'upgradeToAndCallWithProof',
   ): TypedContractMethod<
     [newImplementation_: AddressLike, proof_: BytesLike, data_: BytesLike],
     [void],
-    "nonpayable"
-  >;
+    'nonpayable'
+  >
   getFunction(
-    nameOrSignature: "upgradeToWithProof"
-  ): TypedContractMethod<
-    [newImplementation_: AddressLike, proof_: BytesLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'upgradeToWithProof',
+  ): TypedContractMethod<[newImplementation_: AddressLike, proof_: BytesLike], [void], 'nonpayable'>
 
   getEvent(
-    key: "AdminChanged"
+    key: 'AdminChanged',
   ): TypedContractEvent<
     AdminChangedEvent.InputTuple,
     AdminChangedEvent.OutputTuple,
     AdminChangedEvent.OutputObject
-  >;
+  >
   getEvent(
-    key: "BeaconUpgraded"
+    key: 'BeaconUpgraded',
   ): TypedContractEvent<
     BeaconUpgradedEvent.InputTuple,
     BeaconUpgradedEvent.OutputTuple,
     BeaconUpgradedEvent.OutputObject
-  >;
+  >
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
-  >;
+  >
   getEvent(
-    key: "Upgraded"
+    key: 'Upgraded',
   ): TypedContractEvent<
     UpgradedEvent.InputTuple,
     UpgradedEvent.OutputTuple,
     UpgradedEvent.OutputObject
-  >;
+  >
 
   filters: {
-    "AdminChanged(address,address)": TypedContractEvent<
+    'AdminChanged(address,address)': TypedContractEvent<
       AdminChangedEvent.InputTuple,
       AdminChangedEvent.OutputTuple,
       AdminChangedEvent.OutputObject
-    >;
+    >
     AdminChanged: TypedContractEvent<
       AdminChangedEvent.InputTuple,
       AdminChangedEvent.OutputTuple,
       AdminChangedEvent.OutputObject
-    >;
+    >
 
-    "BeaconUpgraded(address)": TypedContractEvent<
+    'BeaconUpgraded(address)': TypedContractEvent<
       BeaconUpgradedEvent.InputTuple,
       BeaconUpgradedEvent.OutputTuple,
       BeaconUpgradedEvent.OutputObject
-    >;
+    >
     BeaconUpgraded: TypedContractEvent<
       BeaconUpgradedEvent.InputTuple,
       BeaconUpgradedEvent.OutputTuple,
       BeaconUpgradedEvent.OutputObject
-    >;
+    >
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
-    >;
+    >
     Initialized: TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
-    >;
+    >
 
-    "Upgraded(address)": TypedContractEvent<
+    'Upgraded(address)': TypedContractEvent<
       UpgradedEvent.InputTuple,
       UpgradedEvent.OutputTuple,
       UpgradedEvent.OutputObject
-    >;
+    >
     Upgraded: TypedContractEvent<
       UpgradedEvent.InputTuple,
       UpgradedEvent.OutputTuple,
       UpgradedEvent.OutputObject
-    >;
-  };
+    >
+  }
 }

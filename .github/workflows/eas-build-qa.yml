@@ -45,4 +45,3 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           VERSION: ${{ github.event.release.tag_name }}
           IOS: true
-

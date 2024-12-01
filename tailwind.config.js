@@ -5,6 +5,7 @@ import {
   cssVars,
 } from './src/theme/config'
 import plugin from "tailwindcss/plugin";
+import {zIndex} from "./src/theme/config/z-index";
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -35,6 +36,12 @@ module.exports = {
 
     plugin(({addUtilities}) => {
       addUtilities(typography, {
+        variants: ["responsive", "hover"],
+      })
+    }),
+
+    plugin(({addUtilities}) => {
+      addUtilities(zIndex, {
         variants: ["responsive", "hover"],
       })
     }),

@@ -186,6 +186,7 @@ If changes are not applied after modifying the `.env` files, try restart the dev
 `yarn start`
 
 #### For EAS Build:
+
 The .env files are not included in the eas build, no matter it local or not, so we added `.easignore`, which repeats `.gitignore` rules, except `.env.secrets` files, so they will be included in eas build archive.
 
 And that should be enough to build the app with `yarn prebuild:staging && yarn build:staging:ios && yarn build:staging:android`. (and `--local`)
@@ -248,6 +249,7 @@ yarn android
 **Note:** Ensure that you have a simulator or device connected.
 
 ### IMPORTANT! IOS SIMULATOR NOT WORKS
+
 Due to `e-document` module, and `NFCPassportReader` pod limitations. The iOS build can't be run on the simulator. Please use a real device for testing.
 
 Or if you don't need this module, simply remove [e-document](modules/e-document) directory from the app, all imports and usages of this module, `extraPods` `NFCPassportReader` from [app.config.ts](app.config.ts) and then run the app on the simulator.
@@ -264,21 +266,21 @@ Let's assume you finish your feature branch.
 
 1. **Create a Pull Request (PR):**
 
-  - GitHub Actions will lint and type-check your code.
+- GitHub Actions will lint and type-check your code.
 
 2. **Merge the PR:**
 
-  - After merging, you have two options to release your app for internal distribution (QA):
-    - Select the **New App Version** workflow in GitHub Actions and choose the release type.
-    - Or run `yarn app-release` locally; it will do the same as the action above and push changes to trigger the next GitHub Actions.
+- After merging, you have two options to release your app for internal distribution (QA):
+  - Select the **New App Version** workflow in GitHub Actions and choose the release type.
+  - Or run `yarn app-release` locally; it will do the same as the action above and push changes to trigger the next GitHub Actions.
 
 3. **Build and Publish the App:**
 
-  - Run the `eas-build-qa` workflow; it will build and publish the app for internal distribution via EAS.
+- Run the `eas-build-qa` workflow; it will build and publish the app for internal distribution via EAS.
 
 4. **Production Release:**
 
-  - The `Production` release works the same way by running the `eas-production-build` workflow.
+- The `Production` release works the same way by running the `eas-production-build` workflow.
 
 **Note:** This template doesn't submit the app to stores automatically. You should do it manually via the EAS dashboard or configure auto-submit in GitHub Actions. In that case, you need to check the EAS submit configuration and follow the steps from the [EAS Submit documentation](https://docs.expo.dev/submit/introduction/).
 
@@ -304,9 +306,9 @@ To customize the workflows, edit the YAML files as needed.
 
 Ensure that GitHub Actions has the necessary permissions to run workflows. Check your repository settings under **Settings > Actions > General** and adjust the **Workflow permissions** accordingly.
 
-[//]: # (TBD: GH BOT?)
-[//]: # (TBD: EAS UPDATE?)
-[//]: # (TBD: EAS SUBMIT?)
+[//]: # 'TBD: GH BOT?'
+[//]: # 'TBD: EAS UPDATE?'
+[//]: # 'TBD: EAS SUBMIT?'
 
 ### Second Important! EAS First Build
 
@@ -368,8 +370,8 @@ brew install bundletool
    bundletool build-apks --bundle=app-release.aab --output=dist/app.apks --mode=universal
    ```
 
-  - Replace `app-release.aab` with the name of your generated AAB file.
-  - The output `app.apks` file is actually a ZIP archive.
+- Replace `app-release.aab` with the name of your generated AAB file.
+- The output `app.apks` file is actually a ZIP archive.
 
 3. **Extract the Universal APK:**
 
@@ -379,7 +381,7 @@ brew install bundletool
 
 4. **Locate the `universal.apk` File:**
 
-  - The `universal.apk` file inside the `dist` directory is the APK you can distribute to your QA team.
+- The `universal.apk` file inside the `dist` directory is the APK you can distribute to your QA team.
 
 **Note:** Ensure that you have Java installed on your machine, as `bundletool` requires it.
 
@@ -395,12 +397,12 @@ When you add a new dependency that requires native modules:
 
 1. **Update `app.config.ts`:**
 
-  - Add any necessary configuration for the dependency.
+- Add any necessary configuration for the dependency.
 
 2. **Modify Native Code (if required):**
 
-  - For iOS, update the `Podfile` or relevant files.
-  - For Android, modify `build.gradle` or other necessary files.
+- For iOS, update the `Podfile` or relevant files.
+- For Android, modify `build.gradle` or other necessary files.
 
 3. **Rebuild Native Code:**
 
@@ -433,7 +435,7 @@ If you get a file URI from the Expo FileSystem, don't forget to remove `file://`
 const zkProofBytes = await groth16ProveWithZKeyFilePath(
   authWtns,
   zkeyAsset.localUri.replace('file://', ''),
-);
+)
 ```
 
 For the release build, it's better to wrap the path string in native module functions:
@@ -520,4 +522,3 @@ This error indicates a permission issue with Gradle wrapper scripts.
 ---
 
 **Happy Coding!**
-

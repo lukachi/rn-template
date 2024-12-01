@@ -31,20 +31,20 @@ jobs:
       - name: 📦 Setup Node + YARN + install deps
         uses: ./.github/actions/setup-node-yarn-install
 
-#      - name: 📦 Install Reviewdog
-#        if: github.event_name == 'pull_request'
-#        uses: reviewdog/action-setup@v1
+      #      - name: 📦 Install Reviewdog
+      #        if: github.event_name == 'pull_request'
+      #        uses: reviewdog/action-setup@v1
 
-#      - name: 🏃‍♂️ Run TypeScript PR # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
-#        # We only need to add the reviewdog step if it's a pull request
-#        if: github.event_name == 'pull_request'
-#        run: |
-#          yarn type-check | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee
-#        env:
-#          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #      - name: 🏃‍♂️ Run TypeScript PR # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
+      #        # We only need to add the reviewdog step if it's a pull request
+      #        if: github.event_name == 'pull_request'
+      #        run: |
+      #          yarn type-check | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee
+      #        env:
+      #          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name:
           🏃‍♂️ Run TypeScript Commit
           # If it's not a Pull Request then we just need to run the type-check
-#        if: github.event_name != 'pull_request'
+        #        if: github.event_name != 'pull_request'
         run: yarn type-check

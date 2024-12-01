@@ -5,29 +5,14 @@
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "resolveJsonModule": true,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@assets/*": [
-        "./assets/*"
-      ],
-      "@modules/*": [
-        "./modules/*"
-      ],
-      "@env": [
-        "./src/core/env.js"
-      ]
+      "@/*": ["./src/*"],
+      "@assets/*": ["./assets/*"],
+      "@modules/*": ["./modules/*"],
+      "@env": ["./src/core/env.js"]
     },
-    "types": [
-      "lodash"
-    ]
+    "types": ["lodash"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "declarations.d.ts",
-    "nativewind-env.d.ts"
-  ],
+  "include": ["**/*.ts", "**/*.tsx", "declarations.d.ts", "nativewind-env.d.ts"],
   "exclude": [
     "node_modules",
     "babel.config.js",
