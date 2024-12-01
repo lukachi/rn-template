@@ -9,6 +9,7 @@ import { View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { APIProvider } from '@/api/client'
+import { initInterceptors } from '@/api/interceptors'
 import { AppInitializationErrorBoundary } from '@/common'
 import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
@@ -42,6 +43,7 @@ export default function App() {
     try {
       // verifyInstallation()
       await initLocalAuthStore()
+      initInterceptors()
     } catch (e) {
       setAppInitError(e)
       setIsAppInitializingFailed(true)
