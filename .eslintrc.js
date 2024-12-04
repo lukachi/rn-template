@@ -24,8 +24,7 @@ module.exports = {
         'prettier/prettier': [
           'error',
           {
-            singleQuote: true,
-            endOfLine: 'auto',
+            usePrettierrc: true,
           },
         ],
         'max-params': ['error', 8], // Limit the number of parameters in a function to use object instead
