@@ -4,6 +4,7 @@ import {ClientEnv, Env} from './env';
 
 export default ({config}: ConfigContext): ExpoConfig => ({
   ...config,
+  newArchEnabled: true,
   name: Env.NAME,
   description: `${Env.NAME} Mobile App`,
   owner: Env.EXPO_ACCOUNT_OWNER,
@@ -83,10 +84,8 @@ export default ({config}: ConfigContext): ExpoConfig => ({
           kotlinVersion: '1.7.22', // this is for softinput package
           minSdkVersion: 27,
           targetSdkVersion: 34,
-          // newArchEnabled: true
         },
         ios: {
-          // newArchEnabled: true,
           deploymentTarget: '17.5',
 
           extraPods: [ // related to "./modules/e-document/app.plugin.js"
