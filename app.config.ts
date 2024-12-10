@@ -81,7 +81,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
       'expo-build-properties',
       {
         android: {
-          kotlinVersion: '1.7.22', // this is for softinput package
+          // kotlinVersion: '1.8.0', // this is for softinput package
           minSdkVersion: 27,
           targetSdkVersion: 34,
         },
