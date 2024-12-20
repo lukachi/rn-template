@@ -2,7 +2,7 @@ const path = require('path')
 
 /** @type {import("eslint").Linter.Config} */
 module.exports = {
-  extends: ['@react-native-community', 'plugin:prettier/recommended'],
+  extends: ['plugin:prettier/recommended'],
   ignorePatterns: [
     // Ignore dotfiles
     // ".*.js",
@@ -10,13 +10,20 @@ module.exports = {
     '*.js',
     'node_modules/',
     'dist/',
+    'ios/',
+    'android/',
   ],
   overrides: [
     // Configuration for TypeScript files
     {
       files: ['**/*.ts', '**/*.tsx', '**/*.js'],
-      plugins: ['@typescript-eslint', 'unused-imports', 'simple-import-sort'],
-      extends: ['@react-native-community', 'plugin:prettier/recommended'],
+      extends: [
+        '@react-native',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:prettier/recommended',
+      ],
+      plugins: ['unused-imports', 'simple-import-sort'],
+      parser: '@typescript-eslint/parser',
       parserOptions: {
         project: './tsconfig.json',
       },
@@ -32,7 +39,7 @@ module.exports = {
         'react/destructuring-assignment': 'off', // Vscode doesn't support automatically destructuring, it's a pain to add a new variable
         'react/require-default-props': 'off', // Allow non-defined react props as undefined
         '@typescript-eslint/comma-dangle': 'off', // Avoid conflict rule between Eslint and Prettier
-        '@typescript-eslint/consistent-type-imports': 'error', // Ensure `import type` is used when it's necessary
+        // '@typescript-eslint/consistent-type-imports': 'warn', // Ensure `import type` is used when it's necessary
         'import/prefer-default-export': 'off', // Named export is easier to refactor automatically
         'simple-import-sort/imports': 'error', // Import configuration for `eslint-plugin-simple-import-sort`
         'simple-import-sort/exports': 'error', // Export configuration for `eslint-plugin-simple-import-sort`
@@ -43,13 +50,20 @@ module.exports = {
           {
             argsIgnorePattern: '^_',
             varsIgnorePattern: '^_',
-            caughtErrorsIgnorePattern: '^_',
+            caughtErrorsIgnorePattern: '^_|error',
           },
         ],
 
         'react/react-in-jsx-scope': 'off',
         'react-native/no-inline-styles': 'off',
         'react/no-unstable-nested-components': 'off',
+        '@typescript-eslint/no-empty-object-type': [
+          'warn',
+          { allowInterfaces: 'with-single-extends' },
+        ],
+        'react/jsx-curly-brace-presence': ['warn', 'never'],
+        '@typescript-eslint/no-require-imports': 'off',
+        '@typescript-eslint/no-namespace': 'off',
       },
     },
     // Configuration for translations files (i18next)

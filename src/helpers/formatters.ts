@@ -117,6 +117,12 @@ export function formatAmount(
       ...(decimals && { decimals }),
     }
 
+    if (Number(decimals) === 0) {
+      const newAmount = BN.fromRaw(amount?.toString(), 18)
+
+      return removeTrailingZeros(BN.fromBigInt(newAmount, 18).format(formatCfg))
+    }
+
     return removeTrailingZeros(BN.fromBigInt(amount, decimalsOrConfig).format(formatCfg))
   } catch (error) {
     return '0'

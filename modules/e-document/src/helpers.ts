@@ -19,6 +19,7 @@ export function getDocType(documentCode: string): DocType | null {
   return null
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseDocumentIOS(object: any, docType: DocType): EDocument {
   const eDocument: EDocument = {
     docType: docType,
@@ -43,6 +44,7 @@ export function parseDocumentIOS(object: any, docType: DocType): EDocument {
   return eDocument
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseDocumentAndroid(object: any, docType: DocType): EDocument {
   const eDocument: EDocument = {
     docType: docType,

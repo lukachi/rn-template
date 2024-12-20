@@ -12,7 +12,7 @@ export default function DocumentPreviewStep() {
   const { firstName, lastName, gender, passportImageRaw, ...restDetails } = eDoc?.personDetails
 
   return (
-    <View className={'flex-1 flex-col gap-4 p-5'}>
+    <View className='flex-1 flex-col gap-4 p-5'>
       <UiCard>
         <View className='flex flex-row'>
           <View className='flex flex-1 flex-col gap-2'>
@@ -71,8 +71,8 @@ export default function DocumentPreviewStep() {
         </View>
       </View>
 
-      <View className={'mt-auto'}>
-        <UiHorizontalDivider className={'my-5'} />
+      <View className='mt-auto'>
+        <UiHorizontalDivider className='my-5' />
         <UiButton title='Generate Proof' onPress={createIdentity} />
       </View>
     </View>

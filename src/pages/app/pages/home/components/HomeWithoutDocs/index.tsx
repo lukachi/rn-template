@@ -40,22 +40,20 @@ export default function HomeWithoutDocs() {
         className='gap-3'
       >
         <UiCard>
-          <UiIcon customIcon={'starFillIcon'} className={'m-auto mb-5 size-[110]'} />
-          <View className={'flex flex-col gap-2'}>
-            <Text className={'text-center text-textPrimary typography-h6'}>
-              Join Rewards Program
-            </Text>
-            <Text className={'text-center text-textPrimary typography-body2'}>
+          <UiIcon customIcon='starFillIcon' className='m-auto mb-5 size-[110]' />
+          <View className='flex flex-col gap-2'>
+            <Text className='text-center text-textPrimary typography-h6'>Join Rewards Program</Text>
+            <Text className='text-center text-textPrimary typography-body2'>
               Check your eligibility
             </Text>
           </View>
 
-          <UiHorizontalDivider className={'my-5'} />
+          <UiHorizontalDivider className='my-5' />
 
           <UiButton
-            className={'w-full'}
-            size={'large'}
-            title={"Let's start"}
+            className='w-full'
+            size='large'
+            title="Let's start"
             trailingIconProps={{
               customIcon: 'arrowRightIcon',
             }}
@@ -71,13 +69,11 @@ export default function HomeWithoutDocs() {
               aboutAppBottomSheet.present()
             },
           }}
-          title={'The App'}
-          subtitle={'Learn more about the app'}
-          leadingContent={
-            <UiIcon customIcon={'infoIcon'} className={'size-[40] text-primaryMain'} />
-          }
+          title='The App'
+          subtitle='Learn more about the app'
+          leadingContent={<UiIcon customIcon='infoIcon' className='size-[40] text-primaryMain' />}
           trailingContent={
-            <UiIcon customIcon={'arrowRightIcon'} className={'size-[24] text-textPrimary'} />
+            <UiIcon customIcon='arrowRightIcon' className='size-[24] text-textPrimary' />
           }
         />
 
@@ -90,11 +86,11 @@ export default function HomeWithoutDocs() {
         >
           <BottomSheetView style={{ paddingBottom: insets.bottom }}>
             <View className={cn('py-0, flex flex-col items-center gap-4 p-5')}>
-              <UiIcon customIcon={'infoIcon'} className={'size-[80] text-primaryMain'} />
+              <UiIcon customIcon='infoIcon' className='size-[80] text-primaryMain' />
 
               <Text className='text-textPrimary typography-h5'>About the App</Text>
 
-              <UiHorizontalDivider className={'my-4'} />
+              <UiHorizontalDivider className='my-4' />
 
               <Text className='text-textSecondary typography-body2'>
                 This is a sample app built using the following technologies: This is a sample app
@@ -113,8 +109,8 @@ export default function HomeWithoutDocs() {
               </Text>
 
               <UiButton
-                className={'mt-auto w-full'}
-                title={'Okay'}
+                className='mt-auto w-full'
+                title='Okay'
                 onPress={() => {
                   aboutAppBottomSheet.dismiss()
                 }}
@@ -132,11 +128,11 @@ export default function HomeWithoutDocs() {
         >
           <BottomSheetView style={{ paddingBottom: insets.bottom }}>
             <View className={cn('py-0, flex flex-col items-center gap-4 p-5')}>
-              <UiIcon customIcon={'infoIcon'} className={'size-[80] text-primaryMain'} />
+              <UiIcon customIcon='infoIcon' className='size-[80] text-primaryMain' />
 
               <Text className='text-textPrimary typography-h5'>Start scan</Text>
 
-              <UiHorizontalDivider className={'my-4'} />
+              <UiHorizontalDivider className='my-4' />
 
               <Text className='text-textSecondary typography-body2'>
                 This is a sample app built using the following technologies: This is a sample app
@@ -155,8 +151,8 @@ export default function HomeWithoutDocs() {
               </Text>
 
               <UiButton
-                className={'mt-auto w-full'}
-                title={'Okay'}
+                className='mt-auto w-full'
+                title='Okay'
                 onPress={() => {
                   startScanBottomSheet.dismiss()
                   navigation.navigate('App', {

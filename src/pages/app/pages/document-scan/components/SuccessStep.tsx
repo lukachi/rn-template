@@ -10,17 +10,17 @@ export default function DocumentPreviewStep() {
   const navigation = useNavigation()
 
   return (
-    <View className={'flex-1 flex-col gap-4 p-5'}>
+    <View className='flex-1 flex-col gap-4 p-5'>
       <UiCard>
-        <Text className={'text-textPrimary'}>{JSON.stringify(eDoc)?.length}</Text>
+        <Text className='text-textPrimary'>{JSON.stringify(eDoc)?.length}</Text>
       </UiCard>
       <UiCard>
-        <Text className={'text-textPrimary'}>{JSON.stringify(regProof)?.length}</Text>
+        <Text className='text-textPrimary'>{JSON.stringify(regProof)?.length}</Text>
       </UiCard>
 
       <UiButton
-        title={'Okay'}
-        className={'mt-auto w-full'}
+        title='Okay'
+        className='mt-auto w-full'
         onPress={() => {
           navigation.navigate('App', {
             screen: 'Tabs',

@@ -29,11 +29,11 @@ export default function UiActionCard({
       <UiCard {...rest} className={cn('flex flex-row items-center gap-4', className)}>
         {leadingContent && <View>{leadingContent}</View>}
 
-        <View className={'flex flex-1 flex-col gap-2'}>
+        <View className='flex flex-1 flex-col gap-2'>
           {children || (
             <>
-              <Text className={'text-textPrimary typography-subtitle3'}>{title}</Text>
-              <Text className={'text-textPrimary typography-body3'}>{subtitle}</Text>
+              <Text className='text-textPrimary typography-subtitle3'>{title}</Text>
+              <Text className='text-textPrimary typography-body3'>{subtitle}</Text>
             </>
           )}
         </View>

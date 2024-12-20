@@ -71,7 +71,7 @@ export default function AppRoutes() {
             <>
               {isUserNeedToLocalAuth ? (
                 <Stack.Screen
-                  name={'LocalAuth'}
+                  name='LocalAuth'
                   component={LocalAuthScreen}
                   options={{
                     headerShown: false,
@@ -79,7 +79,7 @@ export default function AppRoutes() {
                 />
               ) : (
                 <Stack.Screen
-                  name={'App'}
+                  name='App'
                   component={AppScreen}
                   options={{
                     headerShown: false,
@@ -89,7 +89,7 @@ export default function AppRoutes() {
             </>
           ) : (
             <Stack.Screen
-              name={'Auth'}
+              name='Auth'
               component={AuthScreen}
               options={{
                 headerShown: false,

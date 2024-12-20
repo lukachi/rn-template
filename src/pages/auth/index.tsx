@@ -8,16 +8,16 @@ const Stack = createNativeStackNavigator<AuthStackParamsList>()
 
 export default function Auth({}: RootStackScreenProps<'Auth'>) {
   return (
-    <Stack.Navigator initialRouteName={'Intro'}>
+    <Stack.Navigator initialRouteName='Intro'>
       <Stack.Screen
-        name={'Intro'}
+        name='Intro'
         component={Intro}
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name={'CreateWallet'}
+        name='CreateWallet'
         component={CreateWallet}
         options={{
           headerShown: false,

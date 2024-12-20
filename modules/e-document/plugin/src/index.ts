@@ -26,6 +26,7 @@ function withIosPermission(
 }
 
 function addValuesToArray(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: Record<string, any>,
   key: string,
   values: string[] | string | undefined,

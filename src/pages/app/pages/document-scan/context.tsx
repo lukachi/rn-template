@@ -576,16 +576,14 @@ export function ScanContextProvider({ docType, children }: Props) {
   const identityCreationProcess = useMemo(() => {
     return (
       <View>
-        <Text className={'text-textPrimary typography-subtitle4'}>Downloading Progress:</Text>
-        <Text className={'text-textPrimary typography-body3'}>
-          {restCircuit.downloadingProgress}
-        </Text>
+        <Text className='text-textPrimary typography-subtitle4'>Downloading Progress:</Text>
+        <Text className='text-textPrimary typography-body3'>{restCircuit.downloadingProgress}</Text>
 
-        <Text className={'text-textPrimary typography-subtitle4'}>isLoaded:</Text>
-        <Text className={'text-textPrimary typography-body3'}>{String(restCircuit.isLoaded)}</Text>
+        <Text className='text-textPrimary typography-subtitle4'>isLoaded:</Text>
+        <Text className='text-textPrimary typography-body3'>{String(restCircuit.isLoaded)}</Text>
 
-        <Text className={'text-textPrimary typography-subtitle4'}>isCircuitsLoadFailed:</Text>
-        <Text className={'text-textPrimary typography-body3'}>
+        <Text className='text-textPrimary typography-subtitle4'>isCircuitsLoadFailed:</Text>
+        <Text className='text-textPrimary typography-body3'>
           {String(restCircuit.isLoadFailed)}
         </Text>
       </View>

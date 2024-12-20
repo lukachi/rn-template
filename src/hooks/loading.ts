@@ -17,6 +17,7 @@ export const useLoading = <T>(
   initialState: T,
   loadFn: () => Promise<T>,
   options?: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     loadArgs?: any[] | null
     loadOnMount?: boolean
     // in case if we need to paginate through all pages and concat in to one array

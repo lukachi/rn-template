@@ -33,10 +33,10 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
           paddingRight: right,
         },
       }}
-      initialRouteName={'Home'}
+      initialRouteName='Home'
     >
       <Tab.Screen
-        name={'Home'}
+        name='Home'
         component={HomeScreen}
         options={{
           headerShown: false,
@@ -46,7 +46,7 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         }}
       />
       <Tab.Screen
-        name={'Profile'}
+        name='Profile'
         component={ProfileScreen}
         options={{
           headerShown: false,
@@ -63,14 +63,14 @@ export default function App({}: RootStackScreenProps<'App'>) {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name={'Tabs'}
+        name='Tabs'
         component={AppTabs}
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name={'Scan'}
+        name='Scan'
         component={DocumentScanScreen}
         options={{
           headerShown: false,

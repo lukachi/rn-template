@@ -10,6 +10,7 @@ type RecursiveKeyOfInner<TObj extends object> = {
   >
 }[keyof TObj & (string | number)]
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RecursiveKeyOfHandleValue<TValue, Text extends string> = TValue extends any[]
   ? Text
   : TValue extends object

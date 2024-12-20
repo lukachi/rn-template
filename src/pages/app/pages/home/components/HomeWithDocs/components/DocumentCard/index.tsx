@@ -95,9 +95,9 @@ export default function DocumentCard({ identity }: Props) {
 
   return (
     <>
-      <Container className={'relative overflow-hidden rounded-3xl p-6'} docCardUI={documentCardUi}>
-        <View className={'flex flex-row'}>
-          <View className={'flex gap-6'}>
+      <Container className='relative overflow-hidden rounded-3xl p-6' docCardUI={documentCardUi}>
+        <View className='flex flex-row'>
+          <View className='flex gap-6'>
             <Image
               style={{ width: 56, height: 56, borderRadius: 9999 }}
               source={{
@@ -105,19 +105,19 @@ export default function DocumentCard({ identity }: Props) {
               }}
             />
 
-            <View className={'flex gap-2'}>
-              <Text {...documentCardUi.foregroundValues} className={'typography-h6'}>
+            <View className='flex gap-2'>
+              <Text {...documentCardUi.foregroundValues} className='typography-h6'>
                 {fullName}
               </Text>
-              <Text {...documentCardUi.foregroundLabels} className={'typography-body2'}>
+              <Text {...documentCardUi.foregroundLabels} className='typography-body2'>
                 {age} Years old
               </Text>
             </View>
           </View>
         </View>
-        <UiHorizontalDivider className={'mb-6 mt-8'} />
+        <UiHorizontalDivider className='mb-6 mt-8' />
 
-        <View className={'flex w-full gap-4'}>
+        <View className='flex w-full gap-4'>
           {documentCardUi.personalDetailsShown?.map((el, idx) => {
             return (
               <DocumentCardRow
@@ -149,14 +149,14 @@ export default function DocumentCard({ identity }: Props) {
             )}
           >
             <BlurView
-              experimentalBlurMethod={'dimezisBlurView'}
+              experimentalBlurMethod='dimezisBlurView'
               intensity={35}
-              className={'size-full'}
+              className='size-full'
             />
           </Pressable>
         )}
 
-        <View className={'absolute right-5 top-5 z-20 flex flex-row items-center gap-4'}>
+        <View className='absolute right-5 top-5 z-20 flex flex-row items-center gap-4'>
           <CardActionIconButton
             iconComponentNameProps={{ customIcon: 'passwordIcon' }}
             pressableProps={{
@@ -178,9 +178,9 @@ export default function DocumentCard({ identity }: Props) {
         ref={cardUiSettingsBottomSheet.ref}
         headerComponent={
           <BottomSheetHeader
-            title={'Settings'}
+            title='Settings'
             dismiss={cardUiSettingsBottomSheet.dismiss}
-            className={'px-5'}
+            className='px-5'
           />
         }
         backgroundStyle={{
@@ -192,10 +192,10 @@ export default function DocumentCard({ identity }: Props) {
         <BottomSheetScrollView style={{ paddingBottom: insets.bottom }}>
           <View className={cn('flex flex-col gap-4 p-5 pb-10')}>
             <View className={cn('flex flex-col gap-4')}>
-              <Text className={'text-textSecondary typography-overline3'}>CARD VISUAL</Text>
+              <Text className='text-textSecondary typography-overline3'>CARD VISUAL</Text>
 
               <ScrollView horizontal={true}>
-                <View className={'flex flex-row gap-6'}>
+                <View className='flex flex-row gap-6'>
                   {uiVariants.map((el, idx) => {
                     const isActive = isEqual(documentCardUi, el)
 
@@ -254,7 +254,7 @@ export default function DocumentCard({ identity }: Props) {
                               />
                             ))}
                           </Container>
-                          <Text className={'text-textPrimary typography-buttonMedium'}>
+                          <Text className='text-textPrimary typography-buttonMedium'>
                             {el.title}
                           </Text>
                         </View>
@@ -269,16 +269,16 @@ export default function DocumentCard({ identity }: Props) {
 
             <View className={cn('flex flex-col gap-4')}>
               <View className={cn('flex flex-col gap-2')}>
-                <Text className={'text-textSecondary typography-overline3'}>DATA</Text>
-                <Text className={'text-textSecondary typography-body4'}>
+                <Text className='text-textSecondary typography-overline3'>DATA</Text>
+                <Text className='text-textSecondary typography-body4'>
                   Shows two identifiers on the card
                 </Text>
               </View>
 
-              <View className={'flex flex-col gap-4'}>
+              <View className='flex flex-col gap-4'>
                 {personalDetailsShownVariants.map((el, idx) => (
-                  <View key={idx} className={'flex flex-row items-center justify-between'}>
-                    <Text className={'text-textPrimary typography-subtitle4'}>{el}</Text>
+                  <View key={idx} className='flex flex-row items-center justify-between'>
+                    <Text className='text-textPrimary typography-subtitle4'>{el}</Text>
                     <UiSwitcher
                       value={documentCardUi.personalDetailsShown?.includes(el)}
                       onValueChange={() => togglePersonalDetailsVisibility(el)}

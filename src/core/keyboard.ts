@@ -1,5 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native'
-import { AvoidSoftInput } from 'react-native-avoid-softinput'
+import { useState } from 'react'
+import { AvoidSoftInput, useSoftInputHeightChanged } from 'react-native-avoid-softinput'
 
 /**
  *  Mostly used for ios devices
@@ -7,11 +8,21 @@ import { AvoidSoftInput } from 'react-native-avoid-softinput'
  *  This is not a one for all solution, if you want more customization please refer to those examples: https://mateusz1913.github.io/react-native-avoid-softinput/docs/recipes/recipes-form
  */
 
-export const useSoftKeyboardEffect = () => {
+export const useSoftKeyboardEffect = (avoidOffset = 50) => {
+  const [softInputKeyboardHeight, setSoftInputKeyboardHeight] = useState(0)
+
+  useSoftInputHeightChanged(({ softInputHeight }) => {
+    setSoftInputKeyboardHeight(softInputHeight)
+  })
+
   useFocusEffect(() => {
     AvoidSoftInput.setShouldMimicIOSBehavior(true)
     AvoidSoftInput.setEnabled(true)
-    // AvoidSoftInput.setAvoidOffset(30);
+
+    if (avoidOffset) {
+      AvoidSoftInput.setAvoidOffset(avoidOffset)
+    }
+
     AvoidSoftInput.setShowAnimationDelay(0)
     AvoidSoftInput.setShowAnimationDuration(150)
     AvoidSoftInput.setHideAnimationDuration(150)
@@ -22,4 +33,6 @@ export const useSoftKeyboardEffect = () => {
       AvoidSoftInput.setShouldMimicIOSBehavior(false)
     }
   })
+
+  return { softInputKeyboardHeight }
 }

@@ -33,11 +33,12 @@ import { Pressable, Text, View } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { cn, useAppTheme } from '@/theme'
+import { cn, useAppPaddings, useAppTheme } from '@/theme'
 
 type UiBottomSheetProps = BottomSheetModalProps & {
   title?: string
   headerComponent?: ReactNode
+  isCloseDisabled?: boolean
 }
 
 export const useUiBottomSheet = () => {
@@ -80,11 +81,13 @@ export const UiBottomSheet = forwardRef<BottomSheetModal, UiBottomSheetProps>(
       title,
       detached = false,
       headerComponent,
+      isCloseDisabled,
       children,
       ...rest
     },
     ref,
   ) => {
+    const { palette } = useAppTheme()
     const insets = useSafeAreaInsets()
 
     const detachedProps = useDetachedProps()
@@ -96,8 +99,14 @@ export const UiBottomSheet = forwardRef<BottomSheetModal, UiBottomSheetProps>(
     useImperativeHandle(ref, () => (uiBottomSheet.ref.current as BottomSheetModal) || null)
 
     const renderHandleComponent = useCallback(
-      () => headerComponent || <BottomSheetHeader title={title} dismiss={uiBottomSheet.dismiss} />,
-      [headerComponent, title, uiBottomSheet.dismiss],
+      () =>
+        headerComponent || (
+          <BottomSheetHeader
+            title={title}
+            dismiss={isCloseDisabled ? () => {} : uiBottomSheet.dismiss}
+          />
+        ),
+      [headerComponent, isCloseDisabled, title, uiBottomSheet.dismiss],
     )
 
     return (
@@ -111,6 +120,12 @@ export const UiBottomSheet = forwardRef<BottomSheetModal, UiBottomSheetProps>(
         handleComponent={renderHandleComponent}
         topInset={insets.top}
         children={children}
+        enablePanDownToClose={!isCloseDisabled}
+        backgroundStyle={{
+          backgroundColor: palette.backgroundContainer,
+          borderRadius: 20,
+          ...(rest.backgroundStyle as object),
+        }}
       />
     )
   },
@@ -148,10 +163,21 @@ type BottomSheetHeaderProps = {
 export const BottomSheetHeader = memo(
   ({ title, dismiss, className, ...rest }: BottomSheetHeaderProps) => {
     const { palette } = useAppTheme()
+    const appPaddings = useAppPaddings()
 
     return (
-      <View {...rest} className={cn('flex-row items-center rounded-t-2xl px-2 py-4', className)}>
-        <View className={'relative w-full'}>
+      <View
+        {...rest}
+        className={cn('flex-row items-center rounded-t-2xl py-6 pb-0', className)}
+        style={[
+          rest.style,
+          {
+            paddingLeft: appPaddings.left,
+            paddingRight: appPaddings.right,
+          },
+        ]}
+      >
+        <View className='relative w-full'>
           {title && (
             <Text className='flex-1 text-[16px] font-bold text-textPrimary typography-h5'>
               {title}

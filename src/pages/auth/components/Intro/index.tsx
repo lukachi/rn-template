@@ -121,9 +121,9 @@ export default function Intro() {
       <UiBottomSheet
         headerComponent={
           <BottomSheetHeader
-            title={'Authorization'}
+            title='Authorization'
             dismiss={bottomSheet.dismiss}
-            className={'px-5 text-center'}
+            className='px-5 text-center'
           />
         }
         ref={bottomSheet.ref}
