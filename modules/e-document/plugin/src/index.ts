@@ -8,6 +8,7 @@ import {
   withInfoPlist,
 } from '@expo/config-plugins'
 import { withBuildProperties } from 'expo-build-properties'
+import type { PluginConfigType } from 'expo-build-properties/build/pluginConfig'
 
 const NFC_READER = 'Interact with nearby NFC devices'
 
@@ -127,11 +128,19 @@ function withIosNfcSystemCodes(
   })
 }
 
-function withNFCPassportReader(c: ExpoConfig) {
+// FIXME: app.config.ts plugin expo-build-properties rewrites this configuration
+const withNFCPassportReader: ConfigPlugin<PluginConfigType> = (c: ExpoConfig, props) => {
   return withBuildProperties(c, {
+    ...props,
     ios: {
+      ...props.ios,
       extraPods: [
-        { name: 'NFCPassportReader', git: 'https://github.com/rarimo/NFCPassportReader.git' },
+        ...(props?.ios?.extraPods ?? []),
+        {
+          name: 'NFCPassportReader',
+          git: 'https://github.com/rarimo/NFCPassportReader.git',
+          commit: '4c463a687f59eb6cc5c7955af854c7d41295d54f',
+        },
       ],
     },
   })
@@ -185,18 +194,20 @@ const withNfcAndroidManifest: ConfigPlugin = c => {
   })
 }
 
-export const withNfc: ConfigPlugin<{
-  includeNdefEntitlement?: boolean
-  nfcPermission?: boolean
-  selectIdentifiers?: string[]
-  systemCodes?: string[]
-}> = (config, props = {}) => {
+export const withNfc: ConfigPlugin<
+  PluginConfigType & {
+    includeNdefEntitlement?: boolean
+    nfcPermission?: boolean
+    selectIdentifiers?: string[]
+    systemCodes?: string[]
+  }
+> = (config, props = {}) => {
   const { nfcPermission, selectIdentifiers, systemCodes, includeNdefEntitlement } = props
   config = withIosNfcEntitlement(config, { includeNdefEntitlement })
   config = withIosNfcSelectIdentifiers(config, { selectIdentifiers })
   config = withIosNfcSystemCodes(config, { systemCodes })
   config = withCustomBuildGradle(config)
-  config = withNFCPassportReader(config)
+  config = withNFCPassportReader(config, props)
 
   // We start to support Android 12 from v3.11.1, and you will need to update compileSdkVersion to 31,
   // otherwise the build will fail:
@@ -210,6 +221,7 @@ export const withNfc: ConfigPlugin<{
     config = AndroidConfig.Permissions.withPermissions(config, ['android.permission.NFC'])
     config = withNfcAndroidManifest(config)
   }
+
   return config
 }
 

@@ -2,6 +2,25 @@ import type {ConfigContext, ExpoConfig} from '@expo/config';
 
 import {ClientEnv, Env} from './env';
 
+const defaultCustomBuildPropertiesProps = {
+  android: {
+    // kotlinVersion: '1.8.0', // this is for softinput package
+    minSdkVersion: 27,
+    targetSdkVersion: 34,
+  },
+  ios: {
+    deploymentTarget: '17.5',
+
+    // extraPods: [ // related to "./modules/e-document/app.plugin.js"
+    //   {
+    //     name: 'NFCPassportReader',
+    //     git: 'https://github.com/rarimo/NFCPassportReader.git',
+    //     commit: '4c463a687f59eb6cc5c7955af854c7d41295d54f',
+    //   }
+    // ],
+  },
+}
+
 export default ({config}: ConfigContext): ExpoConfig => ({
   ...config,
   newArchEnabled: true,
@@ -84,18 +103,17 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
       }
     ],
+    // since "modules/e-document" uses custom pod,
+    // we need to use `withBuildProperties` in module's plugin
+    // in order to incapsulate per module configuration.
+    // But `withBuildProperties` method ain't supposed to be called multiple times,
+    // so we treat this case as we merge objects
+    // plugins order matter: the later one would run first
+    // https://github.com/expo/expo/blob/sdk-52/packages/expo-build-properties/src/withBuildProperties.ts#L31C6-L31C57
+    ['./modules/e-document/app.plugin.js', defaultCustomBuildPropertiesProps],
     [
       'expo-build-properties',
-      {
-        android: {
-          // kotlinVersion: '1.8.0', // this is for softinput package
-          minSdkVersion: 27,
-          targetSdkVersion: 34,
-        },
-        ios: {
-          deploymentTarget: '17.5',
-        },
-      },
+      defaultCustomBuildPropertiesProps,
     ],
     [
       'app-icon-badge',
@@ -124,7 +142,6 @@ export default ({config}: ConfigContext): ExpoConfig => ({
     [ "react-native-vision-camera", {
       "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
     }],
-    ['./modules/e-document/app.plugin.js'],
     ['./plugins/withLocalAar.plugin.js']
   ],
   extra: {
