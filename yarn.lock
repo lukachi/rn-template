@@ -16185,15 +16185,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-reanimated-carousel@npm:4.0.0-canary.23":
-  version: 4.0.0-canary.23
-  resolution: "react-native-reanimated-carousel@npm:4.0.0-canary.23"
+"react-native-reanimated-carousel@npm:4.0.2":
+  version: 4.0.2
+  resolution: "react-native-reanimated-carousel@npm:4.0.2"
   peerDependencies:
     react: ">=18.0.0"
     react-native: ">=0.70.3"
     react-native-gesture-handler: ">=2.9.0"
     react-native-reanimated: ">=3.0.0"
-  checksum: 10/3feac5afbdbd7285148203e17d1307d745d119c46b153987234b5d7e870831480dd1f21ef590e4313d3811e0e018923593263092a6381e3b9b870b54814faedc
+  checksum: 10/28361fd408f91b68ff1accf9c0aec934295a0dacab24395d848925dd5076ac59c78e3f0eac24fe53f18cd05c3a2b0cba9a2cb3297e90bf205a9e803bd6dfd76c
   languageName: node
   linkType: hard
 
@@ -18631,7 +18631,7 @@ __metadata:
     react-native-mmkv: "npm:3.1.0"
     react-native-quick-base64: "npm:^2.1.2"
     react-native-reanimated: "npm:3.16.3"
-    react-native-reanimated-carousel: "npm:4.0.0-canary.23"
+    react-native-reanimated-carousel: "npm:4.0.2"
     react-native-restart: "npm:^0.0.27"
     react-native-safe-area-context: "npm:4.14.0"
     react-native-screens: "npm:4.3.0"

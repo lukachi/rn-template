@@ -7,7 +7,6 @@ import type {
   AppTabParamsList,
   RootStackScreenProps,
 } from '@/route-types'
-import { useAppPaddings } from '@/theme'
 import { UiIcon } from '@/ui'
 
 import BottomTabBar from './components/BottomTabBarTabBar'
@@ -21,8 +20,6 @@ const Tab = createBottomTabNavigator<AppTabParamsList>()
 
 // eslint-disable-next-line no-empty-pattern
 function AppTabs({}: AppStackScreenProps<'Tabs'>) {
-  const { left, right } = useAppPaddings()
-
   return (
     <Tab.Navigator
       tabBar={props => <BottomTabBar {...props} />}
