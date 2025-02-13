@@ -344,6 +344,18 @@ This will create `.ipa` and `.apk` files in the root folder, which you can insta
 
 #### Updated: fixed by [this plugin](./plugins/withLocalAar.plugin.js), and not necessary anymore
 
+Note:
+To know what to put instead of `my-module-with-lib` in `dirs project(':my-module-with-lib').projectDir.absolutePath + '/libs'`
+
+you can run android project at the android studio e.g.
+
+```bash
+studio android
+```
+
+config gradle plugin e.g. zulu 17 at this moment. And in logs you will see all modules names, including yours.
+that is the name you should use.
+
 Due to [this issue](https://github.com/expo/expo/issues/27985), building an `.apk` file directly may not be possible when using `*.aar` files. As a workaround, we'll build an `.aab` file and convert it to a universal `.apk` using `bundletool`.
 
 **Install Bundletool:**

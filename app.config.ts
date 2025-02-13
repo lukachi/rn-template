@@ -94,13 +94,6 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         },
         ios: {
           deploymentTarget: '17.5',
-
-          extraPods: [ // related to "./modules/e-document/app.plugin.js"
-            {
-              name: 'NFCPassportReader',
-              git: 'https://github.com/rarimo/NFCPassportReader.git',
-            }
-          ],
         },
       },
     ],

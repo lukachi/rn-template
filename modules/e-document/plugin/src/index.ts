@@ -7,6 +7,7 @@ import {
   withEntitlementsPlist,
   withInfoPlist,
 } from '@expo/config-plugins'
+import { withBuildProperties } from 'expo-build-properties'
 
 const NFC_READER = 'Interact with nearby NFC devices'
 
@@ -126,6 +127,16 @@ function withIosNfcSystemCodes(
   })
 }
 
+function withNFCPassportReader(c: ExpoConfig) {
+  return withBuildProperties(c, {
+    ios: {
+      extraPods: [
+        { name: 'NFCPassportReader', git: 'https://github.com/rarimo/NFCPassportReader.git' },
+      ],
+    },
+  })
+}
+
 function addNfcUsesFeatureTagToManifest(androidManifest: AndroidManifest) {
   if (!Array.isArray(androidManifest.manifest['uses-feature'])) {
     androidManifest.manifest['uses-feature'] = []
@@ -185,6 +196,7 @@ export const withNfc: ConfigPlugin<{
   config = withIosNfcSelectIdentifiers(config, { selectIdentifiers })
   config = withIosNfcSystemCodes(config, { systemCodes })
   config = withCustomBuildGradle(config)
+  config = withNFCPassportReader(config)
 
   // We start to support Android 12 from v3.11.1, and you will need to update compileSdkVersion to 31,
   // otherwise the build will fail:

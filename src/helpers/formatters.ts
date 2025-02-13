@@ -149,3 +149,17 @@ export function formatBalance(
     return '0'
   }
 }
+
+export function formatByteLength(length: number) {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+
+  let unitIndex = 0
+  let currentLength = length
+
+  while (currentLength > 1024 && unitIndex < units.length) {
+    currentLength /= 1024
+    unitIndex++
+  }
+
+  return `${currentLength.toFixed(2)} ${units[unitIndex]}`
+}
