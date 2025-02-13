@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
+import InviteOthers from '@/pages/app/pages/invite-others'
 import type {
   AppStackParamsList,
   AppStackScreenProps,
@@ -38,7 +39,7 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <UiIcon libIcon={'FontAwesome'} name={'home'} size={size} color={color} />
+            <UiIcon libIcon='FontAwesome' name='home' size={size} color={color} />
           ),
         }}
       />
@@ -48,7 +49,7 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <UiIcon libIcon={'Fontisto'} name={'passport-alt'} size={size} color={color} />
+            <UiIcon libIcon='Fontisto' name='passport-alt' size={size} color={color} />
           ),
         }}
       />
@@ -58,12 +59,7 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <UiIcon
-              libIcon={'MaterialCommunityIcons'}
-              name={'line-scan'}
-              size={size}
-              color={color}
-            />
+            <UiIcon libIcon='MaterialCommunityIcons' name='line-scan' size={size} color={color} />
           ),
         }}
       />
@@ -84,14 +80,13 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
 // eslint-disable-next-line no-empty-pattern
 export default function App({}: RootStackScreenProps<'App'>) {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name='Tabs'
-        component={AppTabs}
-        options={{
-          headerShown: false,
-        }}
-      />
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name='Tabs' component={AppTabs} />
+      <Stack.Screen name='InviteOthers' component={InviteOthers} />
     </Stack.Navigator>
   )
 }

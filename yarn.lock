@@ -9396,6 +9396,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-linear-gradient@npm:^14.0.2":
+  version: 14.0.2
+  resolution: "expo-linear-gradient@npm:14.0.2"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10/73471a435fa720137c5bb16ddc699c64181101db081cd4ff892b383e9f047db56039fd1235f3570dd2fccd099214230f98405963c9c8afc32891c43eabae2c60
+  languageName: node
+  linkType: hard
+
 "expo-linking@npm:~7.0.3":
   version: 7.0.3
   resolution: "expo-linking@npm:7.0.3"
@@ -16153,16 +16164,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-linear-gradient@npm:^2.8.3":
-  version: 2.8.3
-  resolution: "react-native-linear-gradient@npm:2.8.3"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 10/db18c7ae4b68afe8b6f12c67defeeccda7a3cff4ee14a0b2d92ff2581d53bd2e65bf29837cf2828abb3d8d1f3cef3f808e8cc1c5d4c8da5dd6f1d09e2b9c2c55
-  languageName: node
-  linkType: hard
-
 "react-native-mmkv@npm:3.1.0":
   version: 3.1.0
   resolution: "react-native-mmkv@npm:3.1.0"
@@ -18593,6 +18594,7 @@ __metadata:
     expo-haptics: "npm:~14.0.0"
     expo-image: "npm:2.0.3"
     expo-image-picker: "npm:^16.0.6"
+    expo-linear-gradient: "npm:^14.0.2"
     expo-linking: "npm:~7.0.3"
     expo-local-authentication: "npm:~15.0.1"
     expo-module-scripts: "npm:^3.5.2"
@@ -18627,7 +18629,6 @@ __metadata:
     react-native-crypto: "npm:^2.2.0"
     react-native-gesture-handler: "npm:2.21.2"
     react-native-get-random-values: "npm:^1.11.0"
-    react-native-linear-gradient: "npm:^2.8.3"
     react-native-mmkv: "npm:3.1.0"
     react-native-quick-base64: "npm:^2.1.2"
     react-native-reanimated: "npm:3.16.3"

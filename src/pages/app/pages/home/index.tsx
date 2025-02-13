@@ -1,7 +1,14 @@
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
+import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
 import { Dimensions, Pressable, Text, View } from 'react-native'
-import Animated, { Extrapolation, interpolate, useSharedValue } from 'react-native-reanimated'
+import Animated, {
+  Extrapolation,
+  interpolate,
+  SharedTransitionType,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated'
 import Carousel, { Pagination } from 'react-native-reanimated-carousel'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -16,6 +23,27 @@ const screenWidth = Dimensions.get('window').width
 
 const defaultDataWith6Colors = ['#B0604D', '#899F9C', '#B3C680', '#5C6265', '#F5D399', '#F1F1F1']
 
+import { SharedTransition } from 'react-native-reanimated'
+
+const transition = SharedTransition.custom(values => {
+  'worklet'
+  return {
+    height: withSpring(values.targetHeight),
+    width: withSpring(values.targetWidth),
+  }
+})
+  .progressAnimation((values, progress) => {
+    'worklet'
+    const getValue = (progress: number, target: number, current: number): number => {
+      return progress * (target - current) + current
+    }
+    return {
+      width: getValue(progress, values.targetWidth, values.currentWidth),
+      height: getValue(progress, values.targetHeight, values.currentHeight),
+    }
+  })
+  .defaultTransitionType(SharedTransitionType.ANIMATION)
+
 // eslint-disable-next-line no-empty-pattern
 export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
   const { palette } = useAppTheme()
@@ -26,6 +54,8 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
 
   const progress = useSharedValue<number>(0)
   const [containerHeight, setContainerHeight] = useState(0)
+
+  const navigation = useNavigation()
 
   return (
     <AppContainer>
@@ -48,16 +78,14 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
               paddingRight: appPaddings.right,
             }}
           >
-            <Text className={'!font-normal text-textPrimary typography-h5'}>Hi Stranger</Text>
+            <Text className='!font-normal text-textPrimary typography-h5'>Hi Stranger</Text>
 
-            <Pressable className={'relative size-10 rounded-full bg-backgroundContainer'}>
+            <Pressable className='relative size-10 rounded-full bg-backgroundContainer'>
               <UiIcon
-                libIcon={'FontAwesome'}
-                name={'user-o'}
+                libIcon='FontAwesome'
+                name='user-o'
                 size={16}
-                className={
-                  'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-textPrimary'
-                }
+                className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-textPrimary'
               />
             </Pressable>
           </View>
@@ -78,14 +106,27 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                 onProgressChange={progress}
                 renderItem={({ index }) => {
                   return (
-                    <Animated.View
-                      style={{
-                        width: '100%',
-                        height: '95%',
-                        backgroundColor: defaultDataWith6Colors[index],
-                        borderRadius: 32,
+                    <Pressable
+                      onPress={() => {
+                        navigation.navigate('App', {
+                          screen: 'InviteOthers',
+                          params: {
+                            tag: `my-tag-${index}`,
+                          },
+                        })
                       }}
-                    ></Animated.View>
+                    >
+                      <Animated.View
+                        sharedTransitionTag={`my-tag-${index}`}
+                        sharedTransitionStyle={transition}
+                        style={{
+                          width: '100%',
+                          height: '95%',
+                          backgroundColor: defaultDataWith6Colors[index],
+                          borderRadius: 32,
+                        }}
+                      />
+                    </Pressable>
                   )
                 }}
                 customAnimation={parallaxLayout(
