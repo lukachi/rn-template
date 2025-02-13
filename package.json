@@ -2,6 +2,9 @@
   "name": "template-v1",
   "main": "src/main.ts",
   "version": "1.2.0",
+  "gitHooks": {
+    "pre-push": "yarn lint && yarn type-check"
+  },
   "scripts": {
     "prebuild": "npx expo prebuild --clean && npx pod-install",
     "start": "npx expo start --clear",
@@ -183,7 +186,8 @@
     "ts-jest": "^29.1.2",
     "typechain": "^8.3.2",
     "typescript": "~5.7.3",
-    "typescript-eslint": "^8.23.0"
+    "typescript-eslint": "^8.23.0",
+    "yorkie": "^2.0.0"
   },
   "private": true,
   "packageManager": "yarn@4.5.0"
