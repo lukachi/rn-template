@@ -14,3 +14,5 @@ ios/
 .expo
 .expo-shared
 .yarn/
+*.d.ts
+modules/**/*.js

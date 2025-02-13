@@ -33,7 +33,6 @@ export class FileSystemUtil {
     const dirInfo = await FileSystem.getInfoAsync(APP_DIR_PATHS[dir])
 
     if (!dirInfo.exists) {
-      console.log('Creating directory:', dir)
       await FileSystem.makeDirectoryAsync(APP_DIR_PATHS[dir])
     }
   }

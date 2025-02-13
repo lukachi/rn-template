@@ -1,7 +1,7 @@
 // Import the native module. On web, it will be resolved to EDocument.web.ts
 // and on native platforms to EDocument.ts
 
-import type { Subscription } from 'expo-modules-core'
+import type { EventSubscription } from 'expo-modules-core'
 import { EventEmitter } from 'expo-modules-core'
 import { Platform } from 'react-native'
 
@@ -70,11 +70,17 @@ const EDocumentModuleEmitter = new EventEmitter(EDocumentModule)
 export function EDocumentModuleListener(
   eventName: EDocumentModuleEvents,
   listener: (payload: unknown) => void,
-): Subscription {
+): EventSubscription {
+  // FIXME: add event types for module
+  /* eslint-disable-next-line */
+  // @ts-ignore
   return EDocumentModuleEmitter.addListener(eventName, listener)
 }
 
 export function EDocumentModuleRemoveAllListeners(eventName: EDocumentModuleEvents): void {
+  // FIXME: add event types for module
+  /* eslint-disable-next-line */
+  // @ts-ignore
   EDocumentModuleEmitter.removeAllListeners(eventName)
 }
 

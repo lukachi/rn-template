@@ -8,6 +8,7 @@ import { registrationChallenge } from '@modules/rarime-sdk'
 import { useCallback, useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 
+import { ErrorHandler } from '@/core'
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
 import { walletStore } from '@/store'
 import { UiButton, UiIcon } from '@/ui'
@@ -48,7 +49,7 @@ export default function ScanNfcStep() {
 
       setEDoc(eDocumentResponse)
     } catch (error) {
-      console.log(error)
+      ErrorHandler.processWithoutFeedback(error)
     }
 
     setIsScanning(false)
@@ -64,35 +65,27 @@ export default function ScanNfcStep() {
 
   useEffect(() => {
     EDocumentModuleListener(EDocumentModuleEvents.ScanStarted, () => {
-      console.log('ScanStarted')
       setTitle('ScanStarted')
     })
     EDocumentModuleListener(EDocumentModuleEvents.RequestPresentPassport, () => {
-      console.log('RequestPresentPassport')
       setTitle('RequestPresentPassport')
     })
     EDocumentModuleListener(EDocumentModuleEvents.AuthenticatingWithPassport, () => {
-      console.log('AuthenticatingWithPassport')
       setTitle('AuthenticatingWithPassport')
     })
     EDocumentModuleListener(EDocumentModuleEvents.ReadingDataGroupProgress, () => {
-      console.log('ReadingDataGroupProgress')
       setTitle('ReadingDataGroupProgress')
     })
     EDocumentModuleListener(EDocumentModuleEvents.ActiveAuthentication, () => {
-      console.log('ActiveAuthentication')
       setTitle('ActiveAuthentication')
     })
     EDocumentModuleListener(EDocumentModuleEvents.SuccessfulRead, () => {
-      console.log('SuccessfulRead')
       setTitle('SuccessfulRead')
     })
     EDocumentModuleListener(EDocumentModuleEvents.ScanError, () => {
-      console.log('ScanError')
       setTitle('ScanError')
     })
     EDocumentModuleListener(EDocumentModuleEvents.ScanStopped, () => {
-      console.log('ScanStopped')
       setTitle('ScanStopped')
     })
 

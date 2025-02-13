@@ -70,7 +70,6 @@ export const initInterceptors = () => {
           // Handle refresh token errors by clearing stored tokens and redirecting to the login page.
           console.error('Token refresh failed:', refreshError)
 
-          console.log('logout')
           logout()
 
           return Promise.reject(refreshError)

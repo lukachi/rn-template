@@ -11,6 +11,7 @@ import SetPasscodeScreen from './pages/set-passcode'
 
 const Stack = createNativeStackNavigator<LocalAuthStackParamsList>()
 
+// eslint-disable-next-line no-empty-pattern
 export default function LocalAuthLayout({}: RootStackScreenProps<'LocalAuth'>) {
   const [localAuthNextRouteName, setLocalAuthNextRouteName] =
     useState<keyof LocalAuthStackParamsList>()

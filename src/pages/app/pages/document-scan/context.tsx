@@ -185,15 +185,9 @@ export function ScanContextProvider({ docType, children }: Props) {
   const getPassportInfo = useCallback(
     async (eDoc: EDocument, regProof: ZKProof): Promise<PassportInfo | null> => {
       try {
-        console.log('getPassportInfo')
-        console.log('\n\n\n')
-        console.log('regProof.pub_signals', JSON.stringify(regProof.pub_signals))
-        console.log('\n\n\n')
         const passportInfoKeyBigIntString = eDoc.dg15?.length
           ? regProof.pub_signals[0]
           : regProof.pub_signals[1]
-
-        console.log('passportInfoKeyBigIntString', passportInfoKeyBigIntString)
 
         const passportInfoKeyBytes = ethers.zeroPadValue(
           '0x' + ethers.getBigInt(passportInfoKeyBigIntString).toString(16),
@@ -279,14 +273,11 @@ export function ScanContextProvider({ docType, children }: Props) {
       circuitTypeCertificatePubKeySize: number,
       isRevoked: boolean,
     ) => {
-      console.log('requestRelayerRegisterMethod')
       if (!eDoc.dg15) throw new TypeError('DG15 not found')
 
       if (!eDoc.signature) throw new TypeError('Signature not found')
 
       const dg15PubKeyPem = await getDG15PubKeyPem(ethers.decodeBase64(eDoc.dg15))
-
-      console.log('eDoc.signature', eDoc.signature)
 
       const registerCallData = await buildRegisterCallData(
         Buffer.from(JSON.stringify(regProof)),
@@ -296,12 +287,7 @@ export function ScanContextProvider({ docType, children }: Props) {
         circuitTypeCertificatePubKeySize,
         isRevoked,
       )
-      console.log(
-        `registerCallData (${registerCallData.length}): `,
-        ethers.hexlify(registerCallData),
-      )
 
-      console.log('relayerRegister')
       const { data } = await relayerRegister(
         ethers.hexlify(registerCallData),
         Config.REGISTRATION_CONTRACT_ADDRESS,
@@ -347,7 +333,6 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       if (isPassportRegisteredWithCurrentPK) {
         // TODO: save eDoc, regProof, and proceed complete
-        console.log('isPassportRegisteredWithCurrentPK')
       }
 
       throw new PassportRegisteredWithAnotherPKError()
@@ -356,7 +341,6 @@ export function ScanContextProvider({ docType, children }: Props) {
   )
 
   const getRevocationChallenge = useCallback(async (): Promise<Uint8Array> => {
-    console.log('getRevocationChallenge')
     if (!eDocument) throw new TypeError('eDocument not found')
 
     if (!registrationProof) throw new TypeError('Registration proof not found')
@@ -366,14 +350,7 @@ export function ScanContextProvider({ docType, children }: Props) {
     if (!passportInfo?.passportInfo_.activeIdentity)
       throw new TypeError('Active identity not found')
 
-    console.log(
-      'passportInfo?.passportInfo_.activeIdentity',
-      passportInfo?.passportInfo_.activeIdentity,
-    )
-
     const challenge = ethers.getBytes(passportInfo.passportInfo_.activeIdentity).slice(24, 32)
-
-    console.log('challenge', challenge)
 
     return challenge
   }, [eDocument, getPassportInfo, registrationProof])
@@ -388,7 +365,6 @@ export function ScanContextProvider({ docType, children }: Props) {
       circuitType: CircuitType,
       regProof: ZKProof,
     ) => {
-      console.log('revokeIdentity')
       setCurrentStep(Steps.RevocationStep)
 
       const revokeEDoc = await new Promise<EDocument>((resolve, reject) => {
@@ -411,26 +387,16 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const dg15PubKeyPem = await getDG15PubKeyPem(ethers.decodeBase64(revokeEDoc.dg15))
 
-      console.log(
-        'passportInfo?.passportInfo_.activeIdentity',
-        passportInfo?.passportInfo_.activeIdentity,
-      )
-
       const activeIdentityBytes = ethers.getBytes(passportInfo?.passportInfo_.activeIdentity)
-
-      console.log('ZERO_BYTES32', ZERO_BYTES32_HEX)
 
       const isPassportRegistered = passportInfo?.passportInfo_.activeIdentity !== ZERO_BYTES32_HEX
 
       if (isPassportRegistered) {
-        console.log('buildRevoceCalldata')
         const calldata = await buildRevoceCalldata(
           activeIdentityBytes,
           revokeEDocEDocSignature,
           dg15PubKeyPem,
         )
-
-        console.log(`callData hex (${calldata.length}): `, ethers.hexlify(calldata))
 
         try {
           const { data } = await relayerRegister(
@@ -460,8 +426,6 @@ export function ScanContextProvider({ docType, children }: Props) {
           }
         }
       }
-
-      console.log('reissuing registration')
 
       const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
 
@@ -549,8 +513,6 @@ export function ScanContextProvider({ docType, children }: Props) {
       if (axiosError.response?.data) {
         console.warn(JSON.stringify(axiosError.response?.data))
       }
-
-      console.log('\n\n\n')
 
       console.error(error)
 

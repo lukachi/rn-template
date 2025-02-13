@@ -70,10 +70,7 @@ export const useCircuit = () => {
           throw new TypeError('Download failed: downloadResult is undefined')
         }
 
-        console.log('Finished downloading to ', downloadResult.uri)
-
         await unzip(downloadResult.uri, targetPath)
-        console.log('Unzipped to ', targetPath)
 
         const dat = await FileSystem.readAsStringAsync(datPath, {
           encoding: FileSystem.EncodingType.Base64,

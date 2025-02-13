@@ -6,6 +6,7 @@ import { CreateWallet, Intro } from './components'
 
 const Stack = createNativeStackNavigator<AuthStackParamsList>()
 
+// eslint-disable-next-line no-empty-pattern
 export default function Auth({}: RootStackScreenProps<'Auth'>) {
   return (
     <Stack.Navigator initialRouteName='Intro'>

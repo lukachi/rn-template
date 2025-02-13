@@ -18,6 +18,7 @@ import ProfileScreen from './pages/profile'
 const Stack = createNativeStackNavigator<AppStackParamsList>()
 const Tab = createBottomTabNavigator<AppTabParamsList>()
 
+// eslint-disable-next-line no-empty-pattern
 function AppTabs({}: AppStackScreenProps<'Tabs'>) {
   const { left, right } = useAppPaddings()
 
@@ -59,6 +60,7 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
   )
 }
 
+// eslint-disable-next-line no-empty-pattern
 export default function App({}: RootStackScreenProps<'App'>) {
   return (
     <Stack.Navigator>
