@@ -16,6 +16,8 @@ import unusedImports from 'eslint-plugin-unused-imports'
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript'
 import i18nJsonPlugin from 'eslint-plugin-i18n-json'
 import path from 'path'
+import rnEslintPlugin from 'eslint-plugin-react-native'
+import { fixupPluginRules } from '@eslint/compat'
 
 export default tseslint.config(
   // core
@@ -177,6 +179,21 @@ export default tseslint.config(
           endOfLine: 'auto',
         },
       ],
+    },
+  },
+
+  {
+    name: 'eslint-plugin-react-native',
+    plugins: {
+      'react-native': fixupPluginRules({
+        rules: rnEslintPlugin.rules,
+      }),
+    },
+    rules: {
+      ...rnEslintPlugin.configs.all.rules,
+      'react-native/sort-styles': 'warn',
+      'react-native/no-inline-styles': 'off',
+      'react-native/no-color-literals': 'off',
     },
   },
 
