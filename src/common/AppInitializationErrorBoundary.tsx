@@ -8,10 +8,8 @@ type Props = {
   error: Error
 } & ViewProps
 
-export default function AppInitializationErrorBoundary({ error, className, ...rest }: Props) {
+export default function AppInitializationErrorBoundary({ className, ...rest }: Props) {
   const { palette } = useAppTheme()
-
-  console.log(error)
 
   return (
     <View

@@ -9,6 +9,7 @@ import { localAuthStore } from '@/store'
 import { cn, useAppTheme } from '@/theme'
 import { UiButton, UiIcon, UiScreenScrollable } from '@/ui'
 
+// eslint-disable-next-line no-empty-pattern
 export default function EnablePasscode({}: LocalAuthStackScreenProps<'EnablePasscode'>) {
   const disablePasscode = localAuthStore.useLocalAuthStore(state => state.disablePasscode)
 

@@ -8,6 +8,7 @@ import { localAuthStore } from '@/store'
 import { cn, useAppTheme } from '@/theme'
 import { UiButton, UiIcon } from '@/ui'
 
+// eslint-disable-next-line no-empty-pattern
 export default function EnableBiometrics({}: LocalAuthStackScreenProps<'EnableBiometrics'>) {
   const { palette } = useAppTheme()
 

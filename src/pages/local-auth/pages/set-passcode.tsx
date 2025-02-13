@@ -9,6 +9,7 @@ import { BiometricStatuses, localAuthStore } from '@/store'
 import { cn } from '@/theme'
 import { UiButton, UiNumPad, UiScreenScrollable } from '@/ui'
 
+// eslint-disable-next-line no-empty-pattern
 export default function SetPasscode({}: LocalAuthStackScreenProps<'SetPasscode'>) {
   const [passcode, setPasscode] = useState('')
   const setPasscodeStore = localAuthStore.useLocalAuthStore(state => state.setPasscode)

@@ -16,7 +16,6 @@ export const useSoftKeyboardEffect = (avoidOffset = 50) => {
   })
 
   useFocusEffect(() => {
-    AvoidSoftInput.setShouldMimicIOSBehavior(true)
     AvoidSoftInput.setEnabled(true)
 
     if (avoidOffset) {
@@ -27,10 +26,10 @@ export const useSoftKeyboardEffect = (avoidOffset = 50) => {
     AvoidSoftInput.setShowAnimationDuration(150)
     AvoidSoftInput.setHideAnimationDuration(150)
     AvoidSoftInput.setHideAnimationDelay(0)
+
     return () => {
       AvoidSoftInput.setAvoidOffset(0)
       AvoidSoftInput.setEnabled(false)
-      AvoidSoftInput.setShouldMimicIOSBehavior(false)
     }
   })
 

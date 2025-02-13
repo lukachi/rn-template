@@ -9,7 +9,7 @@ export default function DocumentPreviewStep() {
 
   if (!eDoc?.personDetails) return null
 
-  const { firstName, lastName, gender, passportImageRaw, ...restDetails } = eDoc?.personDetails
+  const { firstName, lastName, gender, passportImageRaw, ...restDetails } = eDoc.personDetails
 
   return (
     <View className='flex-1 flex-col gap-4 p-5'>

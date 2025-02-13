@@ -15,7 +15,7 @@ import {
 import { useTextRecognition } from 'react-native-vision-camera-text-recognition'
 import { Worklets } from 'react-native-worklets-core'
 
-import { bus, DefaultBusEvents } from '@/core'
+import { bus, DefaultBusEvents, ErrorHandler } from '@/core'
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
 import { UiButton } from '@/ui'
 
@@ -33,8 +33,6 @@ const useMrzParser = (docType: DocType) => {
     const sanitizedMRZLines = possibleMRZLines.map(el => {
       return el.replaceAll('«', '<<').replaceAll(' ', '').toUpperCase()
     })
-
-    console.log(sanitizedMRZLines)
 
     sanitizedMRZLines[2] = sanitizedMRZLines[2].padEnd(tdLength, '<').toUpperCase()
 
@@ -72,6 +70,7 @@ const useMrzParser = (docType: DocType) => {
 
 type Props = {} & ViewProps
 
+// eslint-disable-next-line no-empty-pattern
 export default function ScanMrzStep({}: Props) {
   const { docType, setMrz } = useDocumentScanContext()
 
@@ -98,7 +97,7 @@ export default function ScanMrzStep({}: Props) {
         setMrz(result.fields)
       }
     } catch (error) {
-      console.log(error)
+      ErrorHandler.processWithoutFeedback(error)
     }
   })
 
@@ -116,12 +115,9 @@ export default function ScanMrzStep({}: Props) {
           let resultText: string = ''
 
           if (data) {
-            console.log('data')
             if (data?.length) {
-              console.log('Array.isArray')
               resultText = data.map(el => el.resultText).join('\n')
             } else if ('resultText' in data) {
-              console.log('isObject')
               resultText = data.resultText as string
             } else {
               resultText = ''
@@ -132,9 +128,7 @@ export default function ScanMrzStep({}: Props) {
             }
           }
         } catch (error) {
-          console.log('error', {
-            ...error,
-          })
+          ErrorHandler.processWithoutFeedback(error)
         }
       })
     },

@@ -40,6 +40,7 @@ const useUnlockWithBiometrics = () => {
   }
 }
 
+// eslint-disable-next-line no-empty-pattern
 export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) {
   const biometricStatus = localAuthStore.useLocalAuthStore(state => state.biometricStatus)
   const attemptsLeft = localAuthStore.useLocalAuthStore(state => state.attemptsLeft)

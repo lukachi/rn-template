@@ -18,6 +18,7 @@ import { UiButton, UiCard, UiScreenScrollable, UiSwitcher } from '@/ui'
 
 import AppContainer from '../../components/AppContainer'
 
+// eslint-disable-next-line no-empty-pattern
 export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
   const insets = useSafeAreaInsets()
   const appPaddings = useAppPaddings()
@@ -198,6 +199,7 @@ function TestsCard() {
   const testAuthProof = async () => {
     try {
       const zkProof = await genAuthProof(pk)
+      /* eslint-disable-next-line no-console */
       console.log(zkProof)
     } catch (error) {
       ErrorHandler.process(error)

@@ -90,6 +90,8 @@ export function ControlledUiSwitcher<T extends FieldValues>({
   name,
   control,
   rules,
+
+  onValueChange,
   ...rest
 }: ControlledSwitchProps<T>) {
   const { field, fieldState } = useController({ control, name, rules: rules })
@@ -97,7 +99,11 @@ export function ControlledUiSwitcher<T extends FieldValues>({
   return (
     <UiSwitcher
       ref={field.ref}
-      onChange={field.onChange}
+      onValueChange={v => {
+        field.onChange(v)
+
+        onValueChange?.(v)
+      }}
       value={field.value}
       errorMessage={fieldState.error?.message}
       {...rest}

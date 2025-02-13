@@ -10,6 +10,8 @@ import { StyleSheet } from 'react-native'
 import { ImageBackground } from 'react-native'
 import { Pressable } from 'react-native'
 import { Text, View } from 'react-native'
+import type { StyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet'
+import type { ViewStyle } from 'react-native/Libraries/StyleSheet/StyleSheetTypes'
 import { ScrollView } from 'react-native-gesture-handler'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -221,8 +223,8 @@ export default function DocumentCard({ identity }: Props) {
                             }}
                           >
                             <View
-                              style={StyleSheet.flatten([
-                                el.foregroundLabels.style,
+                              style={[
+                                el.foregroundLabels.style as StyleProp<ViewStyle>,
                                 {
                                   backgroundColor: get(
                                     el.foregroundLabels.style,
@@ -233,13 +235,12 @@ export default function DocumentCard({ identity }: Props) {
                                   height: 12,
                                   borderRadius: 9999,
                                 },
-                              ])}
+                              ]}
                             />
                             {[0, 0].map((_, index) => (
                               <View
                                 key={index}
-                                style={StyleSheet.flatten([
-                                  el.foregroundValues.style,
+                                style={[
                                   {
                                     backgroundColor: get(
                                       el.foregroundValues.style,
@@ -250,7 +251,8 @@ export default function DocumentCard({ identity }: Props) {
                                     height: 5,
                                     borderRadius: 12,
                                   },
-                                ])}
+                                  el.foregroundValues.style as StyleProp<ViewStyle>,
+                                ]}
                               />
                             ))}
                           </Container>

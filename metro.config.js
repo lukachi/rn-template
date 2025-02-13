@@ -2,6 +2,9 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const { mergeConfig } = require('metro-config');
 const { withNativeWind } = require('nativewind/metro');
+const {
+  wrapWithReanimatedMetroConfig,
+} = require('react-native-reanimated/metro-config');
 
 /**
  *
@@ -57,6 +60,7 @@ module.exports = (() => {
   return mergeConfig(
     withSvgTransformer(config),
     withCircomFilesAndPolyfills(config),
+    wrapWithReanimatedMetroConfig(config),
     withNativeWind(config, { input: './src/theme/global.css' })
   )
 })()

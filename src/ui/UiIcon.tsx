@@ -1,5 +1,6 @@
 import AntDesign from '@expo/vector-icons/AntDesign'
 import type { Icon, IconProps } from '@expo/vector-icons/build/createIconSet'
+import Entypo from '@expo/vector-icons/Entypo'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
@@ -106,6 +107,7 @@ const ICON_COMPONENTS = {
   FontAwesome,
   SimpleLineIcons,
   Ionicons,
+  Entypo,
 }
 
 type LibIconsKeys = keyof typeof ICON_COMPONENTS
@@ -192,11 +194,23 @@ type Props<T extends CustomIconsKeys | LibIconsKeys> = T extends CustomIconsKeys
     ? LibIconProps<T>
     : undefined
 
-function UiIcon<T extends CustomIconsKeys | LibIconsKeys>(props: Props<T> & CommonProps) {
+function UiIcon<T extends CustomIconsKeys | LibIconsKeys>(
+  props: Props<T> & CommonProps,
+): T extends CustomIconsKeys
+  ? ReturnType<typeof CustomIcon>
+  : T extends LibIconsKeys
+    ? ReturnType<typeof LibIcon>
+    : never {
   if ('libIcon' in props) {
+    // TODO: remove eslint-disable, once ts 5.8 release
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return <LibIcon {...(props as LibIconProps<LibIconsKeys>)} />
   }
 
+  // TODO: remove eslint-disable, once ts 5.8 release
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return <CustomIcon {...(props as CustomIconProps<CustomIconsKeys>)} />
 }
 

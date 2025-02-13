@@ -51,9 +51,6 @@ export default function RevocationStep() {
         challenge,
       )
 
-      console.log('eDoc.signature', eDoc.signature)
-      console.log('eDocumentResponse.signature', eDocumentResponse.signature)
-
       resolveRevocationEDoc({
         ...(eDoc || eDocumentResponse),
         signature: eDocumentResponse.signature,
@@ -84,35 +81,27 @@ export default function RevocationStep() {
 
   useEffect(() => {
     EDocumentModuleListener(EDocumentModuleEvents.ScanStarted, () => {
-      console.log('ScanStarted')
       setTitle('ScanStarted')
     })
     EDocumentModuleListener(EDocumentModuleEvents.RequestPresentPassport, () => {
-      console.log('RequestPresentPassport')
       setTitle('RequestPresentPassport')
     })
     EDocumentModuleListener(EDocumentModuleEvents.AuthenticatingWithPassport, () => {
-      console.log('AuthenticatingWithPassport')
       setTitle('AuthenticatingWithPassport')
     })
     EDocumentModuleListener(EDocumentModuleEvents.ReadingDataGroupProgress, () => {
-      console.log('ReadingDataGroupProgress')
       setTitle('ReadingDataGroupProgress')
     })
     EDocumentModuleListener(EDocumentModuleEvents.ActiveAuthentication, () => {
-      console.log('ActiveAuthentication')
       setTitle('ActiveAuthentication')
     })
     EDocumentModuleListener(EDocumentModuleEvents.SuccessfulRead, () => {
-      console.log('SuccessfulRead')
       setTitle('SuccessfulRead')
     })
     EDocumentModuleListener(EDocumentModuleEvents.ScanError, () => {
-      console.log('ScanError')
       setTitle('ScanError')
     })
     EDocumentModuleListener(EDocumentModuleEvents.ScanStopped, () => {
-      console.log('ScanStopped')
       setTitle('ScanStopped')
     })
 
