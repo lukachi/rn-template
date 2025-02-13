@@ -7,20 +7,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import AppContainer from '@/pages/app/components/AppContainer'
 import type { AppTabScreenProps } from '@/route-types'
-import { useAppPaddings, useAppTheme } from '@/theme'
+import { useAppPaddings } from '@/theme'
 import { UiScreenScrollable } from '@/ui'
 
 import { parallaxLayout } from './helpers/parallax'
 
 const screenWidth = Dimensions.get('window').width
-const screenHeight = Dimensions.get('window').height
 
 const defaultDataWith6Colors = ['#B0604D', '#899F9C', '#B3C680', '#5C6265', '#F5D399', '#F1F1F1']
 
 // eslint-disable-next-line no-empty-pattern
 export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
-  const { palette } = useAppTheme()
-
   const insets = useSafeAreaInsets()
   const appPaddings = useAppPaddings()
   const bottomBarHeight = useBottomTabBarHeight()
@@ -98,7 +95,14 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                     parallaxScrollingOffset: -120,
                   },
                 )}
-                scrollAnimationDuration={1200}
+                scrollAnimationDuration={500}
+                withAnimation={{
+                  type: 'spring',
+                  config: {
+                    mass: 0.6,
+                    stiffness: 92,
+                  },
+                }}
               />
             )}
           </View>

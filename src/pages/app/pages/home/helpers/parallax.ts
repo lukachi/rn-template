@@ -58,6 +58,7 @@ export function parallaxLayout(baseConfig: TBaseConfig, modeConfig: ILayoutConfi
     )
 
     return {
+      type: 'spring',
       transform: [
         vertical
           ? {
