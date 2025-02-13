@@ -16,7 +16,7 @@ import {
   useUiBottomSheet,
 } from '@/ui'
 
-export default function HomeWithoutDocs() {
+export default function DocumentsWithoutDocs() {
   const { palette } = useAppTheme()
 
   const insets = useSafeAreaInsets()
@@ -156,7 +156,10 @@ export default function HomeWithoutDocs() {
                 onPress={() => {
                   startScanBottomSheet.dismiss()
                   navigation.navigate('App', {
-                    screen: 'Scan',
+                    screen: 'Tabs',
+                    params: {
+                      screen: 'Scan',
+                    },
                   })
                 }}
               />

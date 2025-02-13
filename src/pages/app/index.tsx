@@ -12,6 +12,7 @@ import { UiIcon } from '@/ui'
 
 import BottomTabBar from './components/BottomTabBarTabBar'
 import DocumentScanScreen from './pages/document-scan'
+import DocumentsScreen from './pages/documents'
 import HomeScreen from './pages/home'
 import ProfileScreen from './pages/profile'
 
@@ -30,8 +31,6 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
           position: 'absolute',
           bottom: 0,
           left: 0,
-          paddingLeft: left,
-          paddingRight: right,
         },
       }}
       initialRouteName='Home'
@@ -42,7 +41,32 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <UiIcon customIcon='houseSimpleIcon' size={size} color={color} />
+            <UiIcon libIcon={'FontAwesome'} name={'home'} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name='Documents'
+        component={DocumentsScreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <UiIcon libIcon={'Fontisto'} name={'passport-alt'} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name='Scan'
+        component={DocumentScanScreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <UiIcon
+              libIcon={'MaterialCommunityIcons'}
+              name={'line-scan'}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -52,7 +76,7 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <UiIcon customIcon='userIcon' size={size} color={color} />
+            <UiIcon customIcon='walletIcon' size={size} color={color} />
           ),
         }}
       />
@@ -67,13 +91,6 @@ export default function App({}: RootStackScreenProps<'App'>) {
       <Stack.Screen
         name='Tabs'
         component={AppTabs}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name='Scan'
-        component={DocumentScanScreen}
         options={{
           headerShown: false,
         }}

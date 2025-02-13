@@ -2,6 +2,7 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import type { Icon, IconProps } from '@expo/vector-icons/build/createIconSet'
 import Entypo from '@expo/vector-icons/Entypo'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
+import Fontisto from '@expo/vector-icons/Fontisto'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons'
@@ -101,16 +102,17 @@ const CUSTOM_ICONS = {
   xCircleIcon: require('@assets/icons/x-circle-icon.svg').default,
 }
 
-const ICON_COMPONENTS = {
+const ICON_LIBRARIES = {
   MaterialCommunityIcons,
   AntDesign,
   FontAwesome,
   SimpleLineIcons,
   Ionicons,
   Entypo,
+  Fontisto,
 }
 
-type LibIconsKeys = keyof typeof ICON_COMPONENTS
+type LibIconsKeys = keyof typeof ICON_LIBRARIES
 
 type CustomIconsKeys = keyof typeof CUSTOM_ICONS
 
@@ -164,7 +166,7 @@ cssInterop(CustomIcon, {
 
 type LibIconProps<L extends LibIconsKeys> = {
   libIcon: L
-  name: keyof (typeof ICON_COMPONENTS)[L]['glyphMap']
+  name: keyof (typeof ICON_LIBRARIES)[L]['glyphMap']
   customIcon?: never
 } & Omit<IconProps<string>, 'name' | 'color'>
 
@@ -177,7 +179,7 @@ function LibIcon<L extends LibIconsKeys>({
 
   ...rest
 }: CommonProps & LibIconProps<L>) {
-  const IconComponent = ICON_COMPONENTS[libIcon] as Icon<string, string>
+  const IconComponent = ICON_LIBRARIES[libIcon] as Icon<string, string>
 
   return <IconComponent {...rest} name={name as string} size={size} color={color} />
 }

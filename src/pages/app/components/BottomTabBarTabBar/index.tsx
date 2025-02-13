@@ -19,11 +19,16 @@ export default function BottomTabBar({
     <View
       style={{
         ...(tabBarStyle as object),
-        paddingBottom: insets.bottom,
       }}
       className={cn('flex w-full items-center justify-center')}
     >
-      <View className='flex h-[82] w-full flex-row items-center justify-around rounded-full bg-backgroundContainer'>
+      <View
+        className='flex w-full flex-row items-center justify-around bg-backgroundPrimary'
+        style={{
+          paddingTop: 12,
+          paddingBottom: insets.bottom,
+        }}
+      >
         {state.routes.map((route, idx) => {
           const isFocused = idx === state.index
 
@@ -32,7 +37,7 @@ export default function BottomTabBar({
           const routeIcon = descriptor.options.tabBarIcon?.({
             focused: isFocused,
             size: 24,
-            color: isFocused ? palette.baseWhite : palette.textPrimary,
+            color: isFocused ? palette.textPrimary : palette.textSecondary,
           })
 
           return (
@@ -45,7 +50,7 @@ export default function BottomTabBar({
               <View
                 className={cn(
                   'flex size-[50] items-center justify-center rounded-full',
-                  isFocused && 'bg-primaryMain',
+                  isFocused && 'bg-backgroundContainer',
                 )}
               >
                 {routeIcon}

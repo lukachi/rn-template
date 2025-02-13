@@ -1,15 +1,8 @@
-import type { AppTabScreenProps } from '@/route-types'
-import { identityStore } from '@/store'
+import { View } from 'react-native'
 
-import { HomeWithDocs, HomeWithoutDocs } from './components'
+import type { AppTabScreenProps } from '@/route-types'
 
 // eslint-disable-next-line no-empty-pattern
 export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
-  const identities = identityStore.useIdentityStore(state => state.identities)
-
-  if (!identities.length) {
-    return <HomeWithoutDocs />
-  }
-
-  return <HomeWithDocs />
+  return <View />
 }
