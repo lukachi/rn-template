@@ -23,6 +23,7 @@ const screenWidth = Dimensions.get('window').width
 
 const defaultDataWith6Colors = ['#B0604D', '#899F9C', '#B3C680', '#5C6265', '#F5D399', '#F1F1F1']
 
+import * as Haptics from 'expo-haptics'
 import { SharedTransition } from 'react-native-reanimated'
 
 const transition = SharedTransition.custom(values => {
@@ -37,6 +38,7 @@ const transition = SharedTransition.custom(values => {
     const getValue = (progress: number, target: number, current: number): number => {
       return progress * (target - current) + current
     }
+
     return {
       width: getValue(progress, values.targetWidth, values.currentWidth),
       height: getValue(progress, values.targetHeight, values.currentHeight),
@@ -104,6 +106,9 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                 vertical={true}
                 mode='parallax'
                 onProgressChange={progress}
+                onScrollStart={() => {
+                  Haptics.selectionAsync()
+                }}
                 renderItem={({ index }) => {
                   return (
                     <Pressable

@@ -55,6 +55,7 @@ export type AppTabParamsList = {
         documentType?: DocType
       }
     | undefined
+  ScanFace: undefined
 }
 
 export type AppTabScreenProps<T extends keyof AppTabParamsList> = CompositeScreenProps<

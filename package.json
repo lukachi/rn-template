@@ -58,6 +58,7 @@
     "@react-navigation/native": "7.0.0-rc.20",
     "@react-navigation/native-stack": "7.0.0-rc.27",
     "@shopify/flash-list": "^1.7.3",
+    "@shopify/react-native-skia": "^1.11.7",
     "@tanstack/react-query": "^5.51.9",
     "app-icon-badge": "^0.0.15",
     "axios": "^1.7.2",
@@ -115,6 +116,7 @@
     "react-native-screens": "4.3.0",
     "react-native-toast-message": "^2.2.0",
     "react-native-vision-camera": "4.6.3",
+    "react-native-vision-camera-face-detector": "^1.8.1",
     "react-native-vision-camera-text-recognition": "^3.1.1",
     "react-native-worklets-core": "1.5.0",
     "react-native-zip-archive": "^7.0.1",
@@ -126,6 +128,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tinycolor2": "^1.6.0",
     "uuid": "^10.0.0",
+    "vision-camera-resize-plugin": "^3.2.0",
     "yup": "^1.4.0",
     "zod": "^3.23.8",
     "zustand": "^4.5.4"

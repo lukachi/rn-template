@@ -4027,6 +4027,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shopify/react-native-skia@npm:^1.11.7":
+  version: 1.11.7
+  resolution: "@shopify/react-native-skia@npm:1.11.7"
+  dependencies:
+    canvaskit-wasm: "npm:0.39.1"
+    react-reconciler: "npm:0.27.0"
+  peerDependencies:
+    react: ">=18.0"
+    react-native: ">=0.64"
+    react-native-reanimated: ">=2.0.0"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-reanimated:
+      optional: true
+  bin:
+    setup-skia-web: ./scripts/setup-canvaskit.js
+  checksum: 10/c044e414a09bdf4698c11f2f60c60d62ea58bd4cd3d6dedb028921b5ba60f609057ec9ab7d216d5d3fdb5cd9d7f26230915900a67ce3fd1d9cfab30452b15564
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.27.8":
   version: 0.27.8
   resolution: "@sinclair/typebox@npm:0.27.8"
@@ -4995,6 +5016,13 @@ __metadata:
   version: 1.0.0
   resolution: "@web3-storage/multipart-parser@npm:1.0.0"
   checksum: 10/20d7a4330392d83f727586477fc6e709f8fca3b3664365b0d9d3041abe2aeb13f53030a3997a28a39cc74930863ebb625878b8c90789e5c990e4b64d9f22a93d
+  languageName: node
+  linkType: hard
+
+"@webgpu/types@npm:0.1.21":
+  version: 0.1.21
+  resolution: "@webgpu/types@npm:0.1.21"
+  checksum: 10/73fc5f2bebb1abf084b146c26c237c6450747b8119cdf3733643ff90968f6e7790d0ae0ad6aa6dc7b0783a502571d348a76d22c8e8466b3b7f7c9ee956da7e5b
   languageName: node
   linkType: hard
 
@@ -6482,6 +6510,15 @@ __metadata:
   version: 1.0.30001673
   resolution: "caniuse-lite@npm:1.0.30001673"
   checksum: 10/e2e053faa5d424a57204a8631b015ef51415c12bcb85622643ea41aff4d5127114017d27df7391d46737e1bbcd9bd8ed004cf370920c9f264f63fca60303a81d
+  languageName: node
+  linkType: hard
+
+"canvaskit-wasm@npm:0.39.1":
+  version: 0.39.1
+  resolution: "canvaskit-wasm@npm:0.39.1"
+  dependencies:
+    "@webgpu/types": "npm:0.1.21"
+  checksum: 10/962f0ec74717eabd7de196a3397215f34fd6b8e9cfc1781c00d0f61695cc7521a77e7c80db061ec9cd6e92774db835edb7f6bed9ea69457ef7cceb08caad8aac
   languageName: node
   linkType: hard
 
@@ -16293,6 +16330,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-vision-camera-face-detector@npm:^1.8.1":
+  version: 1.8.1
+  resolution: "react-native-vision-camera-face-detector@npm:1.8.1"
+  peerDependencies:
+    react: ">= 18"
+    react-native: ">= 0.76"
+    react-native-vision-camera: ">= 4.0"
+  checksum: 10/397d564e2a0b119059b369932fbea50794f0455699c43541793181437438353993cf03e43aa624296a1d977f70cd8c08cfa78b7efa3ee8858d36d0f81a9ab189
+  languageName: node
+  linkType: hard
+
 "react-native-vision-camera-text-recognition@npm:^3.1.1":
   version: 3.1.1
   resolution: "react-native-vision-camera-text-recognition@npm:3.1.1"
@@ -16398,6 +16446,18 @@ __metadata:
   bin:
     react-native: cli.js
   checksum: 10/124e81360348bae8ff7e277e2d963174f015a29ee50a2fd439f4f2d64ab5b88335b6104358ebeb00ca69afeb73df074c52b4f56842528ca0a53ce33d0bba83fa
+  languageName: node
+  linkType: hard
+
+"react-reconciler@npm:0.27.0":
+  version: 0.27.0
+  resolution: "react-reconciler@npm:0.27.0"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+    scheduler: "npm:^0.21.0"
+  peerDependencies:
+    react: ^18.0.0
+  checksum: 10/7c4bfd76b0ba7802fefaa0fc8b93610eae20044693af85e8a1d605faad4d82fa47b8ffe4af409c67d45d0c9d93a8f0ed407ae506163fc5e4ab3145bdec0d5602
   languageName: node
   linkType: hard
 
@@ -17173,6 +17233,15 @@ __metadata:
   dependencies:
     loose-envify: "npm:^1.1.0"
   checksum: 10/862881c8d3ece854331516cc048e26a86af461e896ab412506a5b1ffcc82990a08445e0127545ab524df15f88c2a691d8505fc2226a9bddf99bf8a8425bdcc0e
+  languageName: node
+  linkType: hard
+
+"scheduler@npm:^0.21.0":
+  version: 0.21.0
+  resolution: "scheduler@npm:0.21.0"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+  checksum: 10/216dbe36490f8c3133eee8352061803c377de6eb80d4a8f7f290819a721a21135aba145db28ad3e34056115f1a8c0d7e1cd477cebd3d01f6d98e28cc31fc702a
   languageName: node
   linkType: hard
 
@@ -18538,6 +18607,7 @@ __metadata:
     "@react-navigation/native": "npm:7.0.0-rc.20"
     "@react-navigation/native-stack": "npm:7.0.0-rc.27"
     "@shopify/flash-list": "npm:^1.7.3"
+    "@shopify/react-native-skia": "npm:^1.11.7"
     "@stylistic/eslint-plugin-js": "npm:^3.0.1"
     "@stylistic/eslint-plugin-jsx": "npm:^3.0.1"
     "@stylistic/eslint-plugin-ts": "npm:^3.0.1"
@@ -18640,6 +18710,7 @@ __metadata:
     react-native-svg-transformer: "npm:^1.5.0"
     react-native-toast-message: "npm:^2.2.0"
     react-native-vision-camera: "npm:4.6.3"
+    react-native-vision-camera-face-detector: "npm:^1.8.1"
     react-native-vision-camera-text-recognition: "npm:^3.1.1"
     react-native-worklets-core: "npm:1.5.0"
     react-native-zip-archive: "npm:^7.0.1"
@@ -18655,6 +18726,7 @@ __metadata:
     typescript: "npm:~5.7.3"
     typescript-eslint: "npm:^8.23.0"
     uuid: "npm:^10.0.0"
+    vision-camera-resize-plugin: "npm:^3.2.0"
     yorkie: "npm:^2.0.0"
     yup: "npm:^1.4.0"
     zod: "npm:^3.23.8"
@@ -19643,6 +19715,18 @@ __metadata:
   version: 1.1.2
   resolution: "vary@npm:1.1.2"
   checksum: 10/31389debef15a480849b8331b220782230b9815a8e0dbb7b9a8369559aed2e9a7800cd904d4371ea74f4c3527db456dc8e7ac5befce5f0d289014dbdf47b2242
+  languageName: node
+  linkType: hard
+
+"vision-camera-resize-plugin@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "vision-camera-resize-plugin@npm:3.2.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-vision-camera: ">=4.0.1"
+    react-native-worklets-core: ">=1.2.0"
+  checksum: 10/39f06e35e0fb92e77815d97d7967aec84c4875c99128d7178f2784a9b0f2967e76fc7bb608768d18ee618a64ae899e0318d688c3c9f8556534876b295f008244
   languageName: node
   linkType: hard
 

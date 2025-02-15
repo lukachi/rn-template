@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import InviteOthers from '@/pages/app/pages/invite-others'
+import ScanFace from '@/pages/app/pages/scan-face'
 import type {
   AppStackParamsList,
   AppStackScreenProps,
@@ -70,6 +71,16 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <UiIcon customIcon='walletIcon' size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name='ScanFace'
+        component={ScanFace}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <UiIcon libIcon='MaterialCommunityIcons' name='head' size={size} color={color} />
           ),
         }}
       />
