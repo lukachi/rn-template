@@ -5,7 +5,7 @@ import type { SkPaint } from '@shopify/react-native-skia/src/skia/types/Paint'
 import { Buffer } from 'buffer'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
-import { DataTypes, ObjectType, OpenCV } from 'react-native-fast-opencv'
+import { ColorConversionCodes, DataTypes, ObjectType, OpenCV } from 'react-native-fast-opencv'
 import Reanimated, {
   useAnimatedReaction,
   useSharedValue as useReanimatedSharedValue,
@@ -31,6 +31,8 @@ Reanimated.addWhitelistedNativeProps({
   zoom: true,
 })
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
+
+const CROP_SIZE = 112
 
 type Props = {
   onFaceResized: (image: Uint8Array<ArrayBufferLike>) => void
@@ -170,8 +172,8 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
               try {
                 const resized = resize(frame, {
                   scale: {
-                    width: 112,
-                    height: 112,
+                    width: CROP_SIZE,
+                    height: CROP_SIZE,
                   },
                   crop: {
                     x: face.bounds.x,
@@ -187,21 +189,39 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 OpenCV.clearBuffers()
 
                 // Create a Mat from the resized buffer.
-                // We assume the resized buffer has length = 112 * 112 * 3.
+                // We assume the resized buffer has length = CROP_SIZE * CROP_SIZE * 3.
                 // We pass the new Uint8Array of the resized buffer.
-                const mat = OpenCV.frameBufferToMat(112, 112, 3, new Uint8Array(resized.buffer))
+                const mat = OpenCV.frameBufferToMat(
+                  CROP_SIZE,
+                  CROP_SIZE,
+                  3,
+                  new Uint8Array(resized.buffer),
+                )
 
                 // Create a destination Mat of the correct dimensions.
-                const dst = OpenCV.createObject(ObjectType.Mat, 112, 112, DataTypes.CV_8U)
+                const dst = OpenCV.createObject(
+                  ObjectType.Mat,
+                  CROP_SIZE,
+                  CROP_SIZE,
+                  DataTypes.CV_8U,
+                )
 
-                // Since our resized image is already 112x112,
+                // Since our resized image is already CROP_SIZExCROP_SIZE,
                 // the ROI for crop is the entire image (starting at 0,0).
-                const roi = OpenCV.createObject(ObjectType.Rect, 0, 0, 112, 112)
+                const roi = OpenCV.createObject(ObjectType.Rect, 0, 0, CROP_SIZE, CROP_SIZE)
 
                 // Crop: mat -> dst using ROI.
                 OpenCV.invoke('crop', mat, dst, roi)
 
-                const result = OpenCV.toJSValue(dst)
+                const rgbMat = OpenCV.createObject(
+                  ObjectType.Mat,
+                  CROP_SIZE,
+                  CROP_SIZE,
+                  DataTypes.CV_8U,
+                )
+                OpenCV.invoke('cvtColor', mat, rgbMat, ColorConversionCodes.COLOR_BGR2RGB)
+
+                const result = OpenCV.toJSValue(rgbMat)
 
                 OpenCV.clearBuffers()
 
