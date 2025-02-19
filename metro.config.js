@@ -54,12 +54,27 @@ const withCircomFilesAndPolyfills = (config) => {
   return config
 }
 
+const withTfliteFiles = (config) => {
+  const { resolver } = config
+
+  config.resolver = {
+    ...resolver,
+    assetExts: [
+      ...resolver.assetExts,
+      'tflite',
+    ],
+  }
+
+  return config
+}
+
 module.exports = (() => {
   let config = getDefaultConfig(__dirname)
 
   return mergeConfig(
     withSvgTransformer(config),
     withCircomFilesAndPolyfills(config),
+    withTfliteFiles(config),
     wrapWithReanimatedMetroConfig(config),
     withNativeWind(config, { input: './src/theme/global.css' })
   )

@@ -1,0 +1,17 @@
+{
+  "platforms": [
+    "apple",
+    "android",
+    "web"
+  ],
+  "apple": {
+    "modules": [
+      "TfExecModule"
+    ]
+  },
+  "android": {
+    "modules": [
+      "expo.modules.tfexec.TfExecModule"
+    ]
+  }
+}

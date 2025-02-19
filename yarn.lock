@@ -16165,6 +16165,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-fast-opencv@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "react-native-fast-opencv@npm:0.4.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10/ec89e4ea3a6495834fc6f703ca1b7f42c5c8f01083e28bffbad948e4885994c4280aa54f8f28e5f5153225e7dd7b82a73cc0b1dd60b70e663f44320bcb989eb6
+  languageName: node
+  linkType: hard
+
 "react-native-gesture-handler@npm:2.21.2":
   version: 2.21.2
   resolution: "react-native-gesture-handler@npm:2.21.2"
@@ -18697,6 +18707,7 @@ __metadata:
     react-native: "npm:0.76.5"
     react-native-avoid-softinput: "npm:7.0.0"
     react-native-crypto: "npm:^2.2.0"
+    react-native-fast-opencv: "npm:^0.4.0"
     react-native-gesture-handler: "npm:2.21.2"
     react-native-get-random-values: "npm:^1.11.0"
     react-native-mmkv: "npm:3.1.0"

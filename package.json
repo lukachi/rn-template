@@ -105,6 +105,7 @@
     "react-native": "0.76.5",
     "react-native-avoid-softinput": "7.0.0",
     "react-native-crypto": "^2.2.0",
+    "react-native-fast-opencv": "^0.4.0",
     "react-native-gesture-handler": "2.21.2",
     "react-native-get-random-values": "^1.11.0",
     "react-native-mmkv": "3.1.0",
