@@ -1,29 +1,29 @@
 import { Asset } from 'expo-asset'
-import { createContext, PropsWithChildren, useContext } from 'react'
-import {
-  type ISharedValue,
-  useSharedValue as useWorkletSharedValue,
-} from 'react-native-worklets-core'
+import { createContext, PropsWithChildren, useContext, useState } from 'react'
 
 import { useLoading } from '@/hooks'
 
 type ScanFaceContext = {
-  firstFeatureVectors: ISharedValue<Uint8Array<ArrayBufferLike>>
-  secondFeatureVectors: ISharedValue<Uint8Array<ArrayBufferLike>>
+  firstFeatureVectors: Uint8Array<ArrayBufferLike>
+  setFirstFeatureVectors: (value: Uint8Array<ArrayBufferLike>) => void
+  secondFeatureVectors: Uint8Array<ArrayBufferLike>
+  setSecondFeatureVectors: (value: Uint8Array<ArrayBufferLike>) => void
 
   arcFaceAsset: Asset
 }
 
 const scanFaceContext = createContext<ScanFaceContext>({
-  firstFeatureVectors: {} as ISharedValue<Uint8Array<ArrayBufferLike>>,
-  secondFeatureVectors: {} as ISharedValue<Uint8Array<ArrayBufferLike>>,
+  firstFeatureVectors: new Uint8Array(),
+  setFirstFeatureVectors: () => {},
+  secondFeatureVectors: new Uint8Array(),
+  setSecondFeatureVectors: () => {},
 
   arcFaceAsset: {} as Asset,
 })
 
 export const ScanFaceContextProvider = (props: PropsWithChildren) => {
-  const firstFeatureVectors = useWorkletSharedValue<Uint8Array>(new Uint8Array())
-  const secondFeatureVectors = useWorkletSharedValue<Uint8Array>(new Uint8Array())
+  const [firstFeatureVectors, setFirstFeatureVectors] = useState<Uint8Array>(new Uint8Array())
+  const [secondFeatureVectors, setSecondFeatureVectors] = useState<Uint8Array>(new Uint8Array())
 
   const { data: arcFaceAsset } = useLoading<Asset | undefined>(undefined, async () => {
     const response = Asset.fromModule(require('@assets/models/arcface_2.tflite'))
@@ -40,7 +40,13 @@ export const ScanFaceContextProvider = (props: PropsWithChildren) => {
   return (
     <scanFaceContext.Provider
       {...props}
-      value={{ firstFeatureVectors, secondFeatureVectors, arcFaceAsset }}
+      value={{
+        firstFeatureVectors,
+        setFirstFeatureVectors,
+        secondFeatureVectors,
+        setSecondFeatureVectors,
+        arcFaceAsset,
+      }}
     />
   )
 }

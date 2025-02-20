@@ -228,7 +228,8 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 if (result?.base64) {
                   updatePreviewImage(result.base64)
 
-                  handleFaceResized(result.base64)
+                  onFaceResized(new Uint8Array(resized.buffer))
+                  // handleFaceResized(result.base64)
                 }
               } catch (error) {
                 console.error(error)

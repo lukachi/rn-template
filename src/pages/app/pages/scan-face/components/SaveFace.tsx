@@ -1,7 +1,7 @@
 import { execTFLite } from '@modules/tf-exec'
-import { useCallback, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
-import { useSharedValue as useWorkletSharedValue } from 'react-native-worklets-core'
+import { useSharedValue as useWorkletSharedValue, Worklets } from 'react-native-worklets-core'
 
 import { ErrorHandler } from '@/core'
 import ScanFaceCamera from '@/pages/app/pages/scan-face/components/ScanFaceCamera'
@@ -13,34 +13,31 @@ type Props = {
 }
 
 export default function SaveFace({ onFaceSaved }: Props) {
-  const { firstFeatureVectors, arcFaceAsset } = useScanFaceContext()
+  const { firstFeatureVectors, setFirstFeatureVectors, arcFaceAsset } = useScanFaceContext()
 
   const [isProcessed, setIsProcessed] = useState(false)
 
   const resizedImages = useWorkletSharedValue<Uint8Array<ArrayBufferLike>[]>([])
 
-  const handleFaceResized = useCallback(
-    async (resized: Uint8Array<ArrayBufferLike>) => {
-      console.log('handleFaceResized')
-      if (!arcFaceAsset.localUri) return
+  const handleFaceResized = useMemo(
+    () =>
+      Worklets.createRunOnJS(async (resized: Uint8Array<ArrayBufferLike>) => {
+        if (!arcFaceAsset.localUri || isProcessed) return
 
-      try {
-        console.log(resized.length)
+        try {
+          const normalized = Object.values(JSON.parse(JSON.stringify(resized))).map(el =>
+            String(Number(el) / 255),
+          )
 
-        const featVec = await execTFLite(
-          arcFaceAsset.localUri,
-          resized.map(el => el / 255),
-        )
-        firstFeatureVectors.value = featVec
+          const featVec = await execTFLite(arcFaceAsset.localUri, normalized)
+          setFirstFeatureVectors(featVec)
 
-        setIsProcessed(true)
-
-        // onFaceSaved()
-      } catch (error) {
-        ErrorHandler.processWithoutFeedback(error)
-      }
-    },
-    [arcFaceAsset.localUri, firstFeatureVectors],
+          setIsProcessed(true)
+        } catch (error) {
+          ErrorHandler.processWithoutFeedback(error)
+        }
+      }),
+    [arcFaceAsset.localUri, isProcessed, setFirstFeatureVectors],
   )
 
   return (
@@ -48,7 +45,7 @@ export default function SaveFace({ onFaceSaved }: Props) {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <ScanFaceCamera
           onFaceResized={resized => {
-            if (isProcessed) return
+            'worklet'
 
             if (resizedImages.value.length < 5) {
               resizedImages.value.push(resized)
@@ -59,7 +56,7 @@ export default function SaveFace({ onFaceSaved }: Props) {
             handleFaceResized(resized)
           }}
         />
-        <View className='flex-1'>
+        <View className='flex flex-1 gap-2 px-4'>
           <Text className='mt-8 text-center typography-subtitle1'>Saving face</Text>
 
           {isProcessed && (
@@ -70,6 +67,8 @@ export default function SaveFace({ onFaceSaved }: Props) {
               }}
             />
           )}
+
+          {firstFeatureVectors && <UiButton title='Next' onPress={onFaceSaved} />}
         </View>
       </ScrollView>
     </View>

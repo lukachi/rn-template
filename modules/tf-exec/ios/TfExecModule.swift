@@ -12,7 +12,7 @@ public class TfExecModule: Module {
     // The module will be accessible from `requireNativeModule('TfExec')` in JavaScript.
     Name("TfExec")
 
-    AsyncFunction("execTFLite") { (modelSrc: String, inputBytes: Data) in
+    AsyncFunction("execTFLite") { (modelSrc: String, inputs: [String]) in
       guard let modelSrcURL = URL(string: modelSrc.replacingOccurrences(of: "file://", with: "")) else {
         throw NSError(domain: "Invalid URL", code: 0, userInfo: nil)
       }
@@ -22,7 +22,15 @@ public class TfExecModule: Module {
 
         try interpreter.allocateTensors()
 
-        try interpreter.copy(inputBytes, toInputAt: 0)
+        var inputsData = Data()
+        for input in inputs {
+          // convert to float and append to inputsData
+          let inputFloat = Float(input) ?? 0.0
+//          inputsData.append(Data(bytes: [inputFloat.bitPattern], count: MemoryLayout<Float>.size))
+          inputsData.append(contentsOf: withUnsafeBytes(of: inputFloat) { Data($0) })
+        }
+
+        try interpreter.copy(inputsData, toInputAt: 0)
         
         try interpreter.invoke()
         
