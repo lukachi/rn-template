@@ -1,4 +1,5 @@
 import { execTFLite } from '@modules/tf-exec'
+import { Buffer } from 'buffer'
 import { useMemo, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -13,18 +14,23 @@ type Props = {
   onFaceChecked: () => void
 }
 
-function calculateCosineSimilarity(lhsFeature: Uint8Array, rhsFeature: Uint8Array): number | null {
-  console.log('calculateCosineSimilarity')
+function normalizeArcFaceOutput(outputTensor: Uint8Array): number[] {
+  // Interpret the buffer as Float32 data
+  const outputArrayFloat = new Float32Array(outputTensor)
+
+  // Calculate the sum of squares
+  const sumOfSquares = outputArrayFloat.reduce((sum, value) => sum + value * value, 0)
+
+  // Normalize each element by dividing by the square root of the sum of squares
+  return Array.from(outputArrayFloat, value => value / Math.sqrt(sumOfSquares))
+}
+
+function calculateCosineSimilarity(lhsFeature: number[], rhsFeature: number[]): number | null {
   if (lhsFeature.length !== rhsFeature.length) {
-    return null
+    throw new Error('Vectors must be of the same length')
   }
 
-  const squaredDifferences = lhsFeature.map((v1, index) => {
-    const v2 = rhsFeature[index]
-    return (v2 - v1) * (v2 - v1)
-  })
-
-  return squaredDifferences.reduce((sum, diff) => sum + diff, 0)
+  return lhsFeature.reduce((sum, v1, index) => sum + Math.pow(v1 - rhsFeature[index], 2), 0)
 }
 
 export default function CheckFace({ onFaceChecked }: Props) {
@@ -49,10 +55,12 @@ export default function CheckFace({ onFaceChecked }: Props) {
           const featVec = await execTFLite(arcFaceAsset.localUri, normalized)
           setSecondFeatureVectors(featVec)
 
-          console.log('firstFeatureVectors.value', firstFeatureVectors.length)
-          console.log('featVec', featVec.length)
+          console.log(Buffer.from(firstFeatureVectors).toJSON(), Buffer.from(featVec).toJSON())
 
-          const similarity = calculateCosineSimilarity(featVec, firstFeatureVectors)
+          const similarity = calculateCosineSimilarity(
+            normalizeArcFaceOutput(firstFeatureVectors),
+            normalizeArcFaceOutput(featVec),
+          )
 
           console.log('similarity', similarity)
 
@@ -81,7 +89,7 @@ export default function CheckFace({ onFaceChecked }: Props) {
             handleFaceResized(resized)
           }}
         />
-        <View className='flex-1'>
+        <View className='flex flex-1 gap-4 px-4'>
           <Text className='mt-8 text-center typography-subtitle1'>Check face</Text>
           <Text className='mt-8 text-center typography-subtitle2'>{similarity}</Text>
 
