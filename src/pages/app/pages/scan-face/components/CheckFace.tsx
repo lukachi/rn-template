@@ -1,5 +1,3 @@
-import { execTFLite } from '@modules/tf-exec'
-import { Buffer } from 'buffer'
 import { useMemo, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -36,42 +34,31 @@ function calculateCosineSimilarity(lhsFeature: number[], rhsFeature: number[]): 
 export default function CheckFace({ onFaceChecked }: Props) {
   const insets = useSafeAreaInsets()
 
-  const { firstFeatureVectors, setSecondFeatureVectors, arcFaceAsset } = useScanFaceContext()
-
-  const [isProcessed, setIsProcessed] = useState(false)
+  const { firstFeatureVectors, setSecondFeatureVectors, getFaceFeatureVectors, arcFaceAsset } =
+    useScanFaceContext()
 
   const [similarity, setSimilarity] = useState(0)
 
   const handleFaceResized = useMemo(
     () =>
       Worklets.createRunOnJS(async (resized: Uint8Array<ArrayBufferLike>) => {
-        if (!arcFaceAsset?.localUri || isProcessed) return
+        if (!arcFaceAsset?.localUri) return
 
         try {
-          const normalized = Object.values(JSON.parse(JSON.stringify(resized))).map(el =>
-            String(Number(el) / 255),
-          )
-
-          const featVec = await execTFLite(arcFaceAsset.localUri, normalized)
+          const featVec = await getFaceFeatureVectors(resized)
           setSecondFeatureVectors(featVec)
-
-          console.log(Buffer.from(firstFeatureVectors).toJSON(), Buffer.from(featVec).toJSON())
 
           const similarity = calculateCosineSimilarity(
             normalizeArcFaceOutput(firstFeatureVectors),
             normalizeArcFaceOutput(featVec),
           )
 
-          console.log('similarity', similarity)
-
           setSimilarity(similarity ?? 0)
-
-          setIsProcessed(true)
         } catch (error) {
           ErrorHandler.processWithoutFeedback(error)
         }
       }),
-    [arcFaceAsset.localUri, firstFeatureVectors, isProcessed, setSecondFeatureVectors],
+    [arcFaceAsset?.localUri, firstFeatureVectors, getFaceFeatureVectors, setSecondFeatureVectors],
   )
 
   return (
@@ -92,13 +79,6 @@ export default function CheckFace({ onFaceChecked }: Props) {
         <View className='flex flex-1 gap-4 px-4'>
           <Text className='mt-8 text-center typography-subtitle1'>Check face</Text>
           <Text className='mt-8 text-center typography-subtitle2'>{similarity}</Text>
-
-          <UiButton
-            title='re-Check'
-            onPress={() => {
-              setIsProcessed(false)
-            }}
-          />
 
           {!!similarity && (
             <UiButton

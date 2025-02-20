@@ -32,7 +32,7 @@ Reanimated.addWhitelistedNativeProps({
 })
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 
-const CROP_SIZE = 112
+const CROP_SIZE = 48
 
 type Props = {
   onFaceResized: (image: Uint8Array<ArrayBufferLike>) => void
@@ -181,7 +181,7 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                     width: face.bounds.width,
                     height: face.bounds.height,
                   },
-                  pixelFormat: 'rgb',
+                  pixelFormat: 'rgba',
                   dataType: 'uint8',
                   rotation: '90deg',
                 })
@@ -194,7 +194,7 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 const mat = OpenCV.frameBufferToMat(
                   CROP_SIZE,
                   CROP_SIZE,
-                  3,
+                  4,
                   new Uint8Array(resized.buffer),
                 )
 
@@ -213,24 +213,36 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 // Crop: mat -> dst using ROI.
                 OpenCV.invoke('crop', mat, dst, roi)
 
-                const rgbMat = OpenCV.createObject(
+                // const rgbMat = OpenCV.createObject(
+                //   ObjectType.Mat,
+                //   CROP_SIZE,
+                //   CROP_SIZE,
+                //   DataTypes.CV_8U,
+                // )
+                // OpenCV.invoke('cvtColor', mat, rgbMat, ColorConversionCodes.COLOR_BGR2RGB)
+                //
+                // const resBuff = OpenCV.matToBuffer(rgbMat, 'uint8')
+                // onFaceResized(resBuff.buffer)
+
+                // const result = OpenCV.toJSValue(rgbMat)
+
+                const grayscaleMat = OpenCV.createObject(
                   ObjectType.Mat,
                   CROP_SIZE,
                   CROP_SIZE,
                   DataTypes.CV_8U,
                 )
-                OpenCV.invoke('cvtColor', mat, rgbMat, ColorConversionCodes.COLOR_BGR2RGB)
+                OpenCV.invoke('cvtColor', mat, grayscaleMat, ColorConversionCodes.COLOR_RGBA2GRAY)
 
-                const result = OpenCV.toJSValue(rgbMat)
+                const resBuff = OpenCV.matToBuffer(grayscaleMat, 'uint8')
+                onFaceResized(new Uint8Array(resBuff.buffer))
+
+                try {
+                  const result = OpenCV.toJSValue(grayscaleMat)
+                  updatePreviewImage(result.base64)
+                } catch (error) {}
 
                 OpenCV.clearBuffers()
-
-                if (result?.base64) {
-                  updatePreviewImage(result.base64)
-
-                  onFaceResized(new Uint8Array(resized.buffer))
-                  // handleFaceResized(result.base64)
-                }
               } catch (error) {
                 console.error(error)
               }

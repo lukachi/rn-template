@@ -1,7 +1,6 @@
-import { execTFLite } from '@modules/tf-exec'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { ScrollView, Text, View } from 'react-native'
-import { useSharedValue as useWorkletSharedValue, Worklets } from 'react-native-worklets-core'
+import { Worklets } from 'react-native-worklets-core'
 
 import { ErrorHandler } from '@/core'
 import ScanFaceCamera from '@/pages/app/pages/scan-face/components/ScanFaceCamera'
@@ -13,31 +12,22 @@ type Props = {
 }
 
 export default function SaveFace({ onFaceSaved }: Props) {
-  const { firstFeatureVectors, setFirstFeatureVectors, arcFaceAsset } = useScanFaceContext()
-
-  const [isProcessed, setIsProcessed] = useState(false)
-
-  const resizedImages = useWorkletSharedValue<Uint8Array<ArrayBufferLike>[]>([])
+  const { firstFeatureVectors, setFirstFeatureVectors, getFaceFeatureVectors, arcFaceAsset } =
+    useScanFaceContext()
 
   const handleFaceResized = useMemo(
     () =>
       Worklets.createRunOnJS(async (resized: Uint8Array<ArrayBufferLike>) => {
-        if (!arcFaceAsset.localUri || isProcessed) return
+        if (!arcFaceAsset.localUri) return
 
         try {
-          const normalized = Object.values(JSON.parse(JSON.stringify(resized))).map(el =>
-            String(Number(el) / 255),
-          )
-
-          const featVec = await execTFLite(arcFaceAsset.localUri, normalized)
+          const featVec = await getFaceFeatureVectors(resized)
           setFirstFeatureVectors(featVec)
-
-          setIsProcessed(true)
         } catch (error) {
           ErrorHandler.processWithoutFeedback(error)
         }
       }),
-    [arcFaceAsset.localUri, isProcessed, setFirstFeatureVectors],
+    [arcFaceAsset.localUri, getFaceFeatureVectors, setFirstFeatureVectors],
   )
 
   return (
@@ -47,26 +37,17 @@ export default function SaveFace({ onFaceSaved }: Props) {
           onFaceResized={resized => {
             'worklet'
 
-            if (resizedImages.value.length < 5) {
-              resizedImages.value.push(resized)
-
-              return
-            }
+            // if (resizedImages.value.length < 5) {
+            //   resizedImages.value.push(resized)
+            //
+            //   return
+            // }
 
             handleFaceResized(resized)
           }}
         />
         <View className='flex flex-1 gap-2 px-4'>
           <Text className='mt-8 text-center typography-subtitle1'>Saving face</Text>
-
-          {isProcessed && (
-            <UiButton
-              title='re-Try'
-              onPress={() => {
-                setIsProcessed(false)
-              }}
-            />
-          )}
 
           {firstFeatureVectors && <UiButton title='Next' onPress={onFaceSaved} />}
         </View>
