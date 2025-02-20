@@ -50,9 +50,7 @@ export const ScanFaceContextProvider = (props: PropsWithChildren) => {
       String(Number(el) / 255),
     )
 
-    const featVec = await execTFLite(arcFaceAsset.localUri, normalized)
-
-    return featVec
+    return execTFLite(arcFaceAsset.localUri, normalized)
   }
 
   if (!arcFaceAsset) return null

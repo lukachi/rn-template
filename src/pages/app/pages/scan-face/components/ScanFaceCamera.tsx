@@ -4,7 +4,7 @@ import { PaintStyle, Skia } from '@shopify/react-native-skia'
 import type { SkPaint } from '@shopify/react-native-skia/src/skia/types/Paint'
 import { Buffer } from 'buffer'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Text, View } from 'react-native'
+import { Platform, Text, View } from 'react-native'
 import { ColorConversionCodes, DataTypes, ObjectType, OpenCV } from 'react-native-fast-opencv'
 import Reanimated, {
   useAnimatedReaction,
@@ -19,6 +19,7 @@ import {
   runAtTargetFps,
   useCameraDevice,
   useCameraPermission,
+  useFrameProcessor,
   useSkiaFrameProcessor,
 } from 'react-native-vision-camera'
 import { useFaceDetector } from 'react-native-vision-camera-face-detector'
@@ -82,6 +83,16 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
       scanProgressWorkletSharedValue.value = value
     },
   )
+
+  const [initializationDelay, setInitializationDelay] = useState(false)
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setInitializationDelay(true)
+    }, 1000)
+
+    return () => clearTimeout(timeout)
+  }, [])
 
   const camera = useRef<Camera>(null)
 
@@ -240,7 +251,9 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 try {
                   const result = OpenCV.toJSValue(grayscaleMat, 'png')
                   updatePreviewImage(result.base64)
-                } catch (error) {}
+                } catch (error) {
+                  /* empty */
+                }
 
                 OpenCV.clearBuffers()
               } catch (error) {
@@ -258,6 +271,84 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
       scanProgressWorkletSharedValue.value,
     ],
   )
+
+  const androidFrameProcessor = useFrameProcessor(frame => {
+    'worklet'
+
+    const _faces = detectFaces(frame)
+
+    _faces.forEach(face => {
+      if (face.bounds) {
+        const delta = 5
+
+        const isPitchAngleValid = face.pitchAngle > -delta && face.pitchAngle < delta
+        const isRollAngleValid = face.rollAngle > -delta && face.rollAngle < delta
+        const isYawAngleValid = face.yawAngle > -delta && face.yawAngle < delta
+
+        if (isPitchAngleValid && isRollAngleValid && isYawAngleValid) {
+          runAtTargetFps(1, () => {
+            'worklet'
+
+            try {
+              const resized = resize(frame, {
+                scale: {
+                  width: CROP_SIZE,
+                  height: CROP_SIZE,
+                },
+                crop: {
+                  /* flip coordinates because for android camera is rotated */
+                  x: face.bounds.y,
+                  y: face.bounds.x,
+                  width: face.bounds.height,
+                  height: face.bounds.width,
+                },
+                pixelFormat: 'rgba',
+                dataType: 'uint8',
+                rotation: '270deg',
+              })
+
+              OpenCV.clearBuffers()
+
+              const mat = OpenCV.frameBufferToMat(
+                CROP_SIZE,
+                CROP_SIZE,
+                4,
+                new Uint8Array(resized.buffer),
+              )
+
+              const dst = OpenCV.createObject(ObjectType.Mat, CROP_SIZE, CROP_SIZE, DataTypes.CV_8U)
+
+              const roi = OpenCV.createObject(ObjectType.Rect, 0, 0, CROP_SIZE, CROP_SIZE)
+
+              OpenCV.invoke('crop', mat, dst, roi)
+
+              const grayscaleMat = OpenCV.createObject(
+                ObjectType.Mat,
+                CROP_SIZE,
+                CROP_SIZE,
+                DataTypes.CV_8U,
+              )
+              OpenCV.invoke('cvtColor', mat, grayscaleMat, ColorConversionCodes.COLOR_RGBA2GRAY)
+
+              const resBuff = OpenCV.matToBuffer(grayscaleMat, 'uint8')
+              onFaceResized(new Uint8Array(resBuff.buffer))
+
+              try {
+                const result = OpenCV.toJSValue(grayscaleMat, 'png')
+                updatePreviewImage(result.base64)
+              } catch (error) {
+                /* empty */
+              }
+
+              OpenCV.clearBuffers()
+            } catch (error) {
+              console.error(error)
+            }
+          })
+        }
+      }
+    })
+  }, [])
 
   const isActive = useMemo(() => {
     return isFocused && currentAppState === 'active'
@@ -292,7 +383,13 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                   }}
                   device={device}
                   isActive={isActive}
-                  frameProcessor={frameProcessor}
+                  frameProcessor={
+                    initializationDelay
+                      ? Platform.OS === 'android'
+                        ? androidFrameProcessor
+                        : frameProcessor
+                      : undefined
+                  }
                   // animatedProps={zoomAnimatedProps}
                 />
               </View>
@@ -311,7 +408,7 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
 
       {previewImage && (
         <UiImage
-          className='absolute bottom-0 right-10 rounded-full'
+          className='absolute bottom-0 right-10'
           source={previewImage}
           style={{
             width: 112,
