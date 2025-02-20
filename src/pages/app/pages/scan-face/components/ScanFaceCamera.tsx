@@ -238,7 +238,7 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 onFaceResized(new Uint8Array(resBuff.buffer))
 
                 try {
-                  const result = OpenCV.toJSValue(grayscaleMat)
+                  const result = OpenCV.toJSValue(grayscaleMat, 'png')
                   updatePreviewImage(result.base64)
                 } catch (error) {}
 

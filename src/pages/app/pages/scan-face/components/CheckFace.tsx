@@ -1,3 +1,4 @@
+import Slider from '@react-native-community/slider'
 import { useMemo, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -6,6 +7,7 @@ import { Worklets } from 'react-native-worklets-core'
 import { ErrorHandler } from '@/core'
 import ScanFaceCamera from '@/pages/app/pages/scan-face/components/ScanFaceCamera'
 import { useScanFaceContext } from '@/pages/app/pages/scan-face/context'
+import { cn, useAppTheme } from '@/theme'
 import { UiButton } from '@/ui'
 
 type Props = {
@@ -32,12 +34,14 @@ function calculateCosineSimilarity(lhsFeature: number[], rhsFeature: number[]): 
 }
 
 export default function CheckFace({ onFaceChecked }: Props) {
+  const { palette } = useAppTheme()
   const insets = useSafeAreaInsets()
 
   const { firstFeatureVectors, setSecondFeatureVectors, getFaceFeatureVectors, arcFaceAsset } =
     useScanFaceContext()
 
   const [similarity, setSimilarity] = useState(0)
+  const [threshold, setThreshold] = useState(0.5)
 
   const handleFaceResized = useMemo(
     () =>
@@ -78,7 +82,14 @@ export default function CheckFace({ onFaceChecked }: Props) {
         />
         <View className='flex flex-1 gap-4 px-4'>
           <Text className='mt-8 text-center typography-subtitle1'>Check face</Text>
-          <Text className='mt-8 text-center typography-subtitle2'>{similarity}</Text>
+          <Text
+            className={cn(
+              'mt-8 text-center typography-subtitle2',
+              Number(similarity) <= Number(threshold) ? 'text-successMain' : 'text-errorMain',
+            )}
+          >
+            {similarity}
+          </Text>
 
           {!!similarity && (
             <UiButton
@@ -88,6 +99,23 @@ export default function CheckFace({ onFaceChecked }: Props) {
               }}
             />
           )}
+
+          <View className='flex items-center gap-2'>
+            <Text className='self-start text-textPrimary typography-subtitle3'>
+              Threshold: {threshold.toFixed(1)}
+            </Text>
+            <Slider
+              style={{ flex: 1, width: '100%', height: 40 }}
+              minimumValue={0}
+              maximumValue={1}
+              step={0.1}
+              onValueChange={setThreshold}
+              value={threshold}
+              thumbTintColor={palette.primaryMain}
+              minimumTrackTintColor={palette.primaryMain}
+              maximumTrackTintColor={palette.primaryMain}
+            />
+          </View>
         </View>
       </ScrollView>
     </View>
