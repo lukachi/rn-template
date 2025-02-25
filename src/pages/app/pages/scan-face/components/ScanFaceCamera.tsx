@@ -2,7 +2,6 @@ import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
 import { PaintStyle, Skia } from '@shopify/react-native-skia'
 import type { SkPaint } from '@shopify/react-native-skia/src/skia/types/Paint'
-import { Buffer } from 'buffer'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Platform, Text, View } from 'react-native'
 import { ColorConversionCodes, DataTypes, ObjectType, OpenCV } from 'react-native-fast-opencv'
@@ -34,6 +33,11 @@ Reanimated.addWhitelistedNativeProps({
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 
 const CROP_SIZE = 48
+const PIXEL_FORMAT = 'bgra'
+const PEXELS_PER_ROW = 4
+const DATA_TYPE = 'uint8'
+const OPENCV_DATA_TYPE = DataTypes.CV_8U
+const COLOR_CONVERSION_CODES = ColorConversionCodes.COLOR_BGRA2GRAY
 
 type Props = {
   onFaceResized: (image: Uint8Array<ArrayBufferLike>) => void
@@ -117,22 +121,6 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
     [],
   )
 
-  const handleFaceResized = useMemo(
-    () =>
-      Worklets.createRunOnJS((resizedBase64: string) => {
-        try {
-          const croppedBytes = Buffer.from(`data:image/png;base64,${resizedBase64}`, 'base64')
-
-          console.log(croppedBytes.length)
-
-          onFaceResized(new Uint8Array(croppedBytes.buffer))
-        } catch (error) {
-          console.error(error)
-        }
-      }),
-    [onFaceResized],
-  )
-
   const frameProcessor = useSkiaFrameProcessor(
     frame => {
       'worklet'
@@ -192,8 +180,8 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                     width: face.bounds.width,
                     height: face.bounds.height,
                   },
-                  pixelFormat: 'rgba',
-                  dataType: 'uint8',
+                  pixelFormat: PIXEL_FORMAT,
+                  dataType: DATA_TYPE,
                   rotation: '90deg',
                 })
 
@@ -205,7 +193,7 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 const mat = OpenCV.frameBufferToMat(
                   CROP_SIZE,
                   CROP_SIZE,
-                  4,
+                  PEXELS_PER_ROW,
                   new Uint8Array(resized.buffer),
                 )
 
@@ -214,7 +202,7 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                   ObjectType.Mat,
                   CROP_SIZE,
                   CROP_SIZE,
-                  DataTypes.CV_8U,
+                  OPENCV_DATA_TYPE,
                 )
 
                 // Since our resized image is already CROP_SIZExCROP_SIZE,
@@ -228,7 +216,7 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 //   ObjectType.Mat,
                 //   CROP_SIZE,
                 //   CROP_SIZE,
-                //   DataTypes.CV_8U,
+                //   OPENCV_DATA_TYPE,
                 // )
                 // OpenCV.invoke('cvtColor', mat, rgbMat, ColorConversionCodes.COLOR_BGR2RGB)
                 //
@@ -241,11 +229,11 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                   ObjectType.Mat,
                   CROP_SIZE,
                   CROP_SIZE,
-                  DataTypes.CV_8U,
+                  OPENCV_DATA_TYPE,
                 )
-                OpenCV.invoke('cvtColor', mat, grayscaleMat, ColorConversionCodes.COLOR_RGBA2GRAY)
+                OpenCV.invoke('cvtColor', mat, grayscaleMat, COLOR_CONVERSION_CODES)
 
-                const resBuff = OpenCV.matToBuffer(grayscaleMat, 'uint8')
+                const resBuff = OpenCV.matToBuffer(grayscaleMat, DATA_TYPE)
                 onFaceResized(new Uint8Array(resBuff.buffer))
 
                 try {
@@ -264,12 +252,7 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
         }
       })
     },
-    [
-      detectFaces,
-      faceContainerPaints.value,
-      handleFaceResized,
-      scanProgressWorkletSharedValue.value,
-    ],
+    [detectFaces, faceContainerPaints.value, scanProgressWorkletSharedValue.value],
   )
 
   const androidFrameProcessor = useFrameProcessor(frame => {
@@ -296,14 +279,14 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                   height: CROP_SIZE,
                 },
                 crop: {
-                  /* flip coordinates because for android camera is rotated */
+                  /* flip coordinates because of android camera is rotated */
                   x: face.bounds.y,
                   y: face.bounds.x,
                   width: face.bounds.height,
                   height: face.bounds.width,
                 },
-                pixelFormat: 'rgba',
-                dataType: 'uint8',
+                pixelFormat: PIXEL_FORMAT,
+                dataType: DATA_TYPE,
                 rotation: '270deg',
               })
 
@@ -312,11 +295,16 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
               const mat = OpenCV.frameBufferToMat(
                 CROP_SIZE,
                 CROP_SIZE,
-                4,
+                PEXELS_PER_ROW,
                 new Uint8Array(resized.buffer),
               )
 
-              const dst = OpenCV.createObject(ObjectType.Mat, CROP_SIZE, CROP_SIZE, DataTypes.CV_8U)
+              const dst = OpenCV.createObject(
+                ObjectType.Mat,
+                CROP_SIZE,
+                CROP_SIZE,
+                OPENCV_DATA_TYPE,
+              )
 
               const roi = OpenCV.createObject(ObjectType.Rect, 0, 0, CROP_SIZE, CROP_SIZE)
 
@@ -326,11 +314,11 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 ObjectType.Mat,
                 CROP_SIZE,
                 CROP_SIZE,
-                DataTypes.CV_8U,
+                OPENCV_DATA_TYPE,
               )
-              OpenCV.invoke('cvtColor', mat, grayscaleMat, ColorConversionCodes.COLOR_RGBA2GRAY)
+              OpenCV.invoke('cvtColor', mat, grayscaleMat, COLOR_CONVERSION_CODES)
 
-              const resBuff = OpenCV.matToBuffer(grayscaleMat, 'uint8')
+              const resBuff = OpenCV.matToBuffer(grayscaleMat, DATA_TYPE)
               onFaceResized(new Uint8Array(resBuff.buffer))
 
               try {
@@ -384,10 +372,12 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                   device={device}
                   isActive={isActive}
                   frameProcessor={
-                    initializationDelay
-                      ? Platform.OS === 'android'
-                        ? androidFrameProcessor
-                        : frameProcessor
+                    isActive
+                      ? initializationDelay
+                        ? Platform.OS === 'android'
+                          ? androidFrameProcessor
+                          : frameProcessor
+                        : undefined
                       : undefined
                   }
                   // animatedProps={zoomAnimatedProps}

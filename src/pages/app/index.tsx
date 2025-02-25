@@ -97,7 +97,13 @@ export default function App({}: RootStackScreenProps<'App'>) {
       }}
     >
       <Stack.Screen name='Tabs' component={AppTabs} />
-      <Stack.Screen name='InviteOthers' component={InviteOthers} />
+      <Stack.Screen
+        name='InviteOthers'
+        component={InviteOthers}
+        options={{
+          animation: 'fade',
+        }}
+      />
     </Stack.Navigator>
   )
 }

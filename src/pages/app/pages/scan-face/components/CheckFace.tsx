@@ -1,4 +1,6 @@
+import { useAppState } from '@react-native-community/hooks'
 import Slider from '@react-native-community/slider'
+import { useIsFocused } from '@react-navigation/native'
 import { useMemo, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -34,6 +36,9 @@ function calculateCosineSimilarity(lhsFeature: number[], rhsFeature: number[]): 
 }
 
 export default function CheckFace({ onFaceChecked }: Props) {
+  const isFocused = useIsFocused()
+  const currentAppState = useAppState()
+
   const { palette } = useAppTheme()
   const insets = useSafeAreaInsets()
 
@@ -41,7 +46,7 @@ export default function CheckFace({ onFaceChecked }: Props) {
     useScanFaceContext()
 
   const [similarity, setSimilarity] = useState(0)
-  const [threshold, setThreshold] = useState(0.5)
+  const [threshold, setThreshold] = useState(0.3)
 
   const handleFaceResized = useMemo(
     () =>
@@ -49,12 +54,23 @@ export default function CheckFace({ onFaceChecked }: Props) {
         if (!arcFaceAsset?.localUri) return
 
         try {
+          console.log('\n\n\n\n\n\nSecond Face:')
           const featVec = await getFaceFeatureVectors(resized)
           setSecondFeatureVectors(featVec)
 
+          const normalizedFirstFeatureVectors = normalizeArcFaceOutput(firstFeatureVectors)
+          const normalizedSecondFeatureVectors = normalizeArcFaceOutput(featVec)
+
+          console.log(
+            JSON.stringify({
+              normalizedFirstFeatureVectors,
+              normalizedSecondFeatureVectors,
+            }),
+          )
+
           const similarity = calculateCosineSimilarity(
-            normalizeArcFaceOutput(firstFeatureVectors),
-            normalizeArcFaceOutput(featVec),
+            normalizedFirstFeatureVectors,
+            normalizedSecondFeatureVectors,
           )
 
           setSimilarity(similarity ?? 0)
@@ -73,13 +89,15 @@ export default function CheckFace({ onFaceChecked }: Props) {
       }}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <ScanFaceCamera
-          onFaceResized={resized => {
-            'worklet'
+        {isFocused && currentAppState === 'active' && (
+          <ScanFaceCamera
+            onFaceResized={resized => {
+              'worklet'
 
-            handleFaceResized(resized)
-          }}
-        />
+              handleFaceResized(resized)
+            }}
+          />
+        )}
         <View className='flex flex-1 gap-4 px-4'>
           <Text className='mt-8 text-center typography-subtitle1'>Check face</Text>
           <Text

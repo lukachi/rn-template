@@ -50,6 +50,10 @@ export const ScanFaceContextProvider = (props: PropsWithChildren) => {
       String(Number(el) / 255),
     )
 
+    console.log('\n\n\nnormalized:')
+    console.log(JSON.stringify(normalized))
+    console.log('\n\n\n')
+
     return execTFLite(arcFaceAsset.localUri, normalized)
   }
 

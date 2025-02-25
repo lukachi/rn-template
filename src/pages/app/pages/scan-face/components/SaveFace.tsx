@@ -1,3 +1,5 @@
+import { useAppState } from '@react-native-community/hooks'
+import { useIsFocused } from '@react-navigation/native'
 import { useMemo } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { Worklets } from 'react-native-worklets-core'
@@ -12,15 +14,19 @@ type Props = {
 }
 
 export default function SaveFace({ onFaceSaved }: Props) {
+  const isFocused = useIsFocused()
+  const currentAppState = useAppState()
+
   const { firstFeatureVectors, setFirstFeatureVectors, getFaceFeatureVectors, arcFaceAsset } =
     useScanFaceContext()
 
   const handleFaceResized = useMemo(
     () =>
       Worklets.createRunOnJS(async (resized: Uint8Array<ArrayBufferLike>) => {
-        if (!arcFaceAsset.localUri) return
+        if (!arcFaceAsset.localUri || firstFeatureVectors.length) return
 
         try {
+          console.log('\n\n\n\n\n\nFirst Face:')
           const featVec = await getFaceFeatureVectors(resized)
           setFirstFeatureVectors(featVec)
         } catch (error) {
@@ -33,19 +39,21 @@ export default function SaveFace({ onFaceSaved }: Props) {
   return (
     <View className='flex flex-1 flex-col'>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <ScanFaceCamera
-          onFaceResized={resized => {
-            'worklet'
+        {isFocused && currentAppState === 'active' && (
+          <ScanFaceCamera
+            onFaceResized={resized => {
+              'worklet'
 
-            // if (resizedImages.value.length < 5) {
-            //   resizedImages.value.push(resized)
-            //
-            //   return
-            // }
+              // if (resizedImages.value.length < 5) {
+              //   resizedImages.value.push(resized)
+              //
+              //   return
+              // }
 
-            handleFaceResized(resized)
-          }}
-        />
+              handleFaceResized(resized)
+            }}
+          />
+        )}
         <View className='flex flex-1 gap-2 px-4'>
           <Text className='mt-8 text-center typography-subtitle1'>Saving face</Text>
 
