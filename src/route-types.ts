@@ -36,11 +36,9 @@ export type LocalAuthStackScreenProps<T extends keyof LocalAuthStackParamsList> 
 
 export type AppStackParamsList = {
   Tabs?: NavigatorScreenParams<AppTabParamsList>
-  Scan:
-    | {
-        documentType?: DocType
-      }
-    | undefined
+  InviteOthers?: {
+    tag?: string
+  }
 }
 
 export type AppStackScreenProps<T extends keyof AppStackParamsList> = NativeStackScreenProps<
@@ -49,8 +47,14 @@ export type AppStackScreenProps<T extends keyof AppStackParamsList> = NativeStac
 >
 
 export type AppTabParamsList = {
+  Documents: undefined
   Home: undefined
   Profile: undefined
+  Scan:
+    | {
+        documentType?: DocType
+      }
+    | undefined
 }
 
 export type AppTabScreenProps<T extends keyof AppTabParamsList> = CompositeScreenProps<

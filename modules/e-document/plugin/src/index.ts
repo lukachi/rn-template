@@ -7,7 +7,6 @@ import {
   withEntitlementsPlist,
   withInfoPlist,
 } from '@expo/config-plugins'
-import { withBuildProperties } from 'expo-build-properties'
 import type { PluginConfigType } from 'expo-build-properties/build/pluginConfig'
 
 const NFC_READER = 'Interact with nearby NFC devices'
@@ -128,23 +127,23 @@ function withIosNfcSystemCodes(
   })
 }
 
-// FIXME: app.config.ts plugin expo-build-properties rewrites this configuration
-const withNFCPassportReader: ConfigPlugin<PluginConfigType> = (c: ExpoConfig, props) => {
-  return withBuildProperties(c, {
-    ...props,
-    ios: {
-      ...props.ios,
-      extraPods: [
-        ...(props?.ios?.extraPods ?? []),
-        {
-          name: 'NFCPassportReader',
-          git: 'https://github.com/rarimo/NFCPassportReader.git',
-          commit: '4c463a687f59eb6cc5c7955af854c7d41295d54f',
-        },
-      ],
-    },
-  })
-}
+// FIXME: couldn't be chained with other similar configs
+// const withNFCPassportReader: ConfigPlugin<PluginConfigType> = (c: ExpoConfig, props) => {
+//   return withBuildProperties(c, {
+//     ...props,
+//     ios: {
+//       ...props.ios,
+//       extraPods: [
+//         ...(props?.ios?.extraPods ?? []),
+//         {
+//           name: 'NFCPassportReader',
+//           git: 'https://github.com/rarimo/NFCPassportReader.git',
+//           commit: '4c463a687f59eb6cc5c7955af854c7d41295d54f',
+//         },
+//       ],
+//     },
+//   })
+// }
 
 function addNfcUsesFeatureTagToManifest(androidManifest: AndroidManifest) {
   if (!Array.isArray(androidManifest.manifest['uses-feature'])) {
@@ -207,7 +206,7 @@ export const withNfc: ConfigPlugin<
   config = withIosNfcSelectIdentifiers(config, { selectIdentifiers })
   config = withIosNfcSystemCodes(config, { systemCodes })
   config = withCustomBuildGradle(config)
-  config = withNFCPassportReader(config, props)
+  // config = withNFCPassportReader(config, props)
 
   // We start to support Android 12 from v3.11.1, and you will need to update compileSdkVersion to 31,
   // otherwise the build will fail:

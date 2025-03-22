@@ -7,7 +7,7 @@ import { UiScreenScrollable } from '@/ui'
 
 import { DocumentCard } from './components'
 
-export default function HomeWithDocs() {
+export default function DocumentsWithDocs() {
   const identities = identityStore.useIdentityStore(state => state.identities)
 
   const insets = useSafeAreaInsets()

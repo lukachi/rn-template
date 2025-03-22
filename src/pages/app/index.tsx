@@ -1,17 +1,18 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
+import InviteOthers from '@/pages/app/pages/invite-others'
 import type {
   AppStackParamsList,
   AppStackScreenProps,
   AppTabParamsList,
   RootStackScreenProps,
 } from '@/route-types'
-import { useAppPaddings } from '@/theme'
 import { UiIcon } from '@/ui'
 
 import BottomTabBar from './components/BottomTabBarTabBar'
 import DocumentScanScreen from './pages/document-scan'
+import DocumentsScreen from './pages/documents'
 import HomeScreen from './pages/home'
 import ProfileScreen from './pages/profile'
 
@@ -20,8 +21,6 @@ const Tab = createBottomTabNavigator<AppTabParamsList>()
 
 // eslint-disable-next-line no-empty-pattern
 function AppTabs({}: AppStackScreenProps<'Tabs'>) {
-  const { left, right } = useAppPaddings()
-
   return (
     <Tab.Navigator
       tabBar={props => <BottomTabBar {...props} />}
@@ -30,8 +29,6 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
           position: 'absolute',
           bottom: 0,
           left: 0,
-          paddingLeft: left,
-          paddingRight: right,
         },
       }}
       initialRouteName='Home'
@@ -42,7 +39,27 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <UiIcon customIcon='houseSimpleIcon' size={size} color={color} />
+            <UiIcon libIcon='FontAwesome' name='home' size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name='Documents'
+        component={DocumentsScreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <UiIcon libIcon='Fontisto' name='passport-alt' size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name='Scan'
+        component={DocumentScanScreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <UiIcon libIcon='MaterialCommunityIcons' name='line-scan' size={size} color={color} />
           ),
         }}
       />
@@ -63,19 +80,17 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
 // eslint-disable-next-line no-empty-pattern
 export default function App({}: RootStackScreenProps<'App'>) {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name='Tabs' component={AppTabs} />
       <Stack.Screen
-        name='Tabs'
-        component={AppTabs}
+        name='InviteOthers'
+        component={InviteOthers}
         options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name='Scan'
-        component={DocumentScanScreen}
-        options={{
-          headerShown: false,
+          animation: 'fade',
         }}
       />
     </Stack.Navigator>

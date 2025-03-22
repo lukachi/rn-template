@@ -54,8 +54,8 @@ export const lightPalette = {
   componentSelected: getRgba('#000000', 0.05),
   componentDisabled: getRgba('#000000', 0.05),
 
-  backgroundPrimary: '#f5f6f6',
-  backgroundContainer: '#ffffff',
+  backgroundPrimary: '#ffffff',
+  backgroundContainer: '#F2F2F2',
   backgroundPure: '#ffffff',
 
   additionalLayerBorder: '#ffffff',

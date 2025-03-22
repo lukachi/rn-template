@@ -1,14 +1,21 @@
 import { DocType } from '@modules/e-document'
 import { Pressable, ScrollView, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
 import { UiCard, UiIcon } from '@/ui'
 
 export default function SelectDocTypeStep() {
   const { setDocType } = useDocumentScanContext()
+  const insets = useSafeAreaInsets()
 
   return (
-    <View className='flex flex-1 flex-col'>
+    <View
+      className='flex flex-1 flex-col'
+      style={{
+        paddingTop: insets.top,
+      }}
+    >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View className='flex flex-1 flex-col gap-4 p-5'>
           <Text className='my-4 text-center text-textPrimary typography-h4'>
