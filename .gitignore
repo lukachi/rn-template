@@ -38,6 +38,7 @@ web-build/
 .next
 .vercel
 .idea
+.vscode
 
 # local env files
 #.env
