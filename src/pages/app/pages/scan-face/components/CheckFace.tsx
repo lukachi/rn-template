@@ -54,19 +54,11 @@ export default function CheckFace({ onFaceChecked }: Props) {
         if (!arcFaceAsset?.localUri) return
 
         try {
-          console.log('\n\n\n\n\n\nSecond Face:')
           const featVec = await getFaceFeatureVectors(resized)
           setSecondFeatureVectors(featVec)
 
           const normalizedFirstFeatureVectors = normalizeArcFaceOutput(firstFeatureVectors)
           const normalizedSecondFeatureVectors = normalizeArcFaceOutput(featVec)
-
-          console.log(
-            JSON.stringify({
-              normalizedFirstFeatureVectors,
-              normalizedSecondFeatureVectors,
-            }),
-          )
 
           const similarity = calculateCosineSimilarity(
             normalizedFirstFeatureVectors,

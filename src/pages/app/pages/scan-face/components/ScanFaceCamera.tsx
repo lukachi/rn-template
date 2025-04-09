@@ -190,7 +190,8 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
                 // Create a Mat from the resized buffer.
                 // We assume the resized buffer has length = CROP_SIZE * CROP_SIZE * 3.
                 // We pass the new Uint8Array of the resized buffer.
-                const mat = OpenCV.frameBufferToMat(
+                const mat = OpenCV.bufferToMat(
+                  'uint8',
                   CROP_SIZE,
                   CROP_SIZE,
                   PEXELS_PER_ROW,

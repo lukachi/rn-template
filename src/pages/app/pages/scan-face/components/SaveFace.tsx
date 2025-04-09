@@ -26,7 +26,6 @@ export default function SaveFace({ onFaceSaved }: Props) {
         if (!arcFaceAsset.localUri || firstFeatureVectors.length) return
 
         try {
-          console.log('\n\n\n\n\n\nFirst Face:')
           const featVec = await getFaceFeatureVectors(resized)
           setFirstFeatureVectors(featVec)
         } catch (error) {
