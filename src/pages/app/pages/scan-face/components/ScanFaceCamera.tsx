@@ -78,6 +78,7 @@ export default function ScanFaceCamera({ onFaceResized }: Props) {
         // true, // Reverse direction
       ),
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const scanProgressWorkletSharedValue = useWorkletSharedValue(0)

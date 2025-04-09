@@ -8,7 +8,7 @@ lastWarn = undefined
 
 function warnNotSupported(pixelFormat: PixelFormat) {
   if (lastWarn !== pixelFormat) {
-    console.log(
+    console.warn(
       `Pixel Format '${pixelFormat}' is not natively supported by Skia! ` +
         `Displaying a fall-back format that might use wrong colors instead...`,
     )

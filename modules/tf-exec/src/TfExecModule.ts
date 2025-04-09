@@ -1,6 +1,6 @@
 import { NativeModule, requireNativeModule } from 'expo'
 
-declare class TfExecModule extends NativeModule<{}> {}
+declare class TfExecModule extends NativeModule {}
 
 // This call loads the native module object from the JSI.
 export default requireNativeModule<

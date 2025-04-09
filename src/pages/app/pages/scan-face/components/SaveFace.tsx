@@ -32,7 +32,12 @@ export default function SaveFace({ onFaceSaved }: Props) {
           ErrorHandler.processWithoutFeedback(error)
         }
       }),
-    [arcFaceAsset.localUri, getFaceFeatureVectors, setFirstFeatureVectors],
+    [
+      arcFaceAsset.localUri,
+      firstFeatureVectors.length,
+      getFaceFeatureVectors,
+      setFirstFeatureVectors,
+    ],
   )
 
   return (
