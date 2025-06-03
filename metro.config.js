@@ -40,8 +40,7 @@ const withCircomFilesAndPolyfills = (config) => {
       'pem',
     ],
     extraNodeModules: {
-      crypto: require.resolve('react-native-crypto'),
-      // buffer: require.resolve('buffer/'),
+      crypto: require.resolve('crypto-browserify'),
       fs: require.resolve('buffer/'),
       http: require.resolve('stream-http'),
       os: require.resolve('os-browserify/browser.js'),

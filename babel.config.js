@@ -18,6 +18,10 @@ module.exports = (api) => {
             '@assets': './assets',
             '@modules': './modules',
             '@env': './src/core/env.js',
+
+            'crypto': 'crypto-browserify',
+            'stream': 'readable-stream',
+            '@iden3/js-crypto': '@iden3/js-crypto/dist/browser/esm/index.js',
           },
           extensions: [
             '.ios.ts',

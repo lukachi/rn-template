@@ -1,12 +1,13 @@
 import type { CircuitType, DocType, EDocument } from '@modules/e-document'
 import { getCircuitDetailsByType } from '@modules/e-document'
 import { getDG15PubKeyPem } from '@modules/e-document'
-import { getCircuitType, getPublicKeyPem, getSlaveCertificatePem } from '@modules/e-document'
+import { getCircuitType } from '@modules/e-document'
 import {
   getSodEncapsulatedContent,
   getSodSignature,
   getSodSignedAttributes,
 } from '@modules/e-document'
+import { Sod } from '@modules/e-document/src/sod'
 import type { ZKProof } from '@modules/rapidsnark-wrp'
 import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
 import {
@@ -15,8 +16,6 @@ import {
   buildRegisterIdentityInputs,
   buildRevoceCalldata,
   getPublicKeyHash,
-  getSlaveCertIndex,
-  getX509RSASize,
 } from '@modules/rarime-sdk'
 import type { AxiosError } from 'axios'
 import { Buffer } from 'buffer'
@@ -459,10 +458,12 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const sodBytes = ethers.decodeBase64(eDocument.sod)
 
-      const publicKeyPem = await getPublicKeyPem(sodBytes)
-      const pubKeySize = await getX509RSASize(publicKeyPem)
-      const slaveCertPem = await getSlaveCertificatePem(sodBytes)
-      const slaveCertIdx = await getSlaveCertIndex(slaveCertPem, icaoBytes)
+      const sodInstance = new Sod(sodBytes)
+      const publicKeyPem = sodInstance.publicKeyPemBytes
+      const pubKeySize = sodInstance.X509RSASize
+      const slaveCertPem = sodInstance.slaveCertPemBytes
+      const slaveCertIdx = await sodInstance.getSlaveCertificateIndex(slaveCertPem, icaoBytes)
+
       const circuitType = getCircuitType(pubKeySize)
 
       if (!circuitType) throw new TypeError('Unsupported public key size')

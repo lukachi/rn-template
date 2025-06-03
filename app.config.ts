@@ -124,6 +124,12 @@ export default ({config}: ConfigContext): ExpoConfig => ({
           //   git: 'https://github.com/rarimo/TensorFlowLiteSwift.git',
           //   commit: '8c3b0f9638eedfa9138789cf07b55433c03b8225',
           // },
+
+          {
+            name: "OpenSSL-Universal",
+            configurations: ["Release", "Debug"],
+            modular_headers: true,
+          },
           {
             name: 'NFCPassportReader',
             git: 'https://github.com/rarimo/NFCPassportReader.git',

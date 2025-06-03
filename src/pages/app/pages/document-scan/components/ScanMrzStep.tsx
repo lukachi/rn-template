@@ -169,15 +169,11 @@ export default function ScanMrzStep({}: Props) {
                 )}
               </>
             ) : (
-              <>
-                <View>
-                  <Text className='text-textPrimary typography-h4'>
-                    Requesting Camera Permission
-                  </Text>
+              <View>
+                <Text className='text-textPrimary typography-h4'>Requesting Camera Permission</Text>
 
-                  <UiButton onPress={requestPermission} title='Request Permission' />
-                </View>
-              </>
+                <UiButton onPress={requestPermission} title='Request Permission' />
+              </View>
             )}
           </>
         )}
