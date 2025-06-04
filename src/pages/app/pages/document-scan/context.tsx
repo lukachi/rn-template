@@ -7,7 +7,6 @@ import {
   getSodSignature,
   getSodSignedAttributes,
 } from '@modules/e-document'
-import { Sod } from '@modules/e-document/src/sod'
 import type { ZKProof } from '@modules/rapidsnark-wrp'
 import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
 import {
@@ -35,6 +34,7 @@ import { relayerRegister } from '@/api/modules/registration'
 import { Config } from '@/config'
 import { bus, DefaultBusEvents } from '@/core'
 import { createPoseidonSMTContract, createStateKeeperContract } from '@/helpers'
+import { Sod } from '@/helpers/sod'
 import { identityStore, walletStore } from '@/store'
 import {
   CertificateAlreadyRegisteredError,
@@ -465,6 +465,15 @@ export function ScanContextProvider({ docType, children }: Props) {
       const slaveCertIdx = await sodInstance.getSlaveCertificateIndex(slaveCertPem, icaoBytes)
 
       const circuitType = getCircuitType(pubKeySize)
+
+      const encapsulatedContent = sodInstance.encapsulatedContent
+
+      const signedAttributes = await getSodSignedAttributes(sodBytes)
+
+      console.log({ signedAttributes, newSignedAttributes: sodInstance.signedAttributes })
+      const sodSignature = await getSodSignature(sodBytes)
+
+      throw new TypeError('Purpose error')
 
       if (!circuitType) throw new TypeError('Unsupported public key size')
 
