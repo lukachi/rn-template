@@ -1,5 +1,6 @@
 import type { EDocument } from '@modules/e-document'
 import type { ZKProof } from '@modules/rapidsnark-wrp'
+import { FieldRecords } from 'mrz'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -17,8 +18,25 @@ const useIdentityStore = create(
         identities: [] as IdentityItem[],
 
         _hasHydrated: false,
+
+        // TODO: remove me
+        testEDoc: undefined as EDocument | undefined,
+        testMRZ: undefined as FieldRecords | undefined,
       },
       set => ({
+        // TODO: remove me
+        setTestEDoc: (value: EDocument) => {
+          set({
+            testEDoc: value,
+          })
+        },
+        // TODO: remove me
+        setTestMRZ: (value: FieldRecords) => {
+          set({
+            testMRZ: value,
+          })
+        },
+
         setHasHydrated: (value: boolean) => {
           set({
             _hasHydrated: value,
@@ -41,14 +59,18 @@ const useIdentityStore = create(
     ),
     {
       name: 'documents',
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => zustandStorage),
 
       onRehydrateStorage: () => state => {
         state?.setHasHydrated(true)
       },
 
-      partialize: state => ({ identities: state.identities }),
+      partialize: state => ({
+        identities: state.identities,
+        testEDoc: state.testEDoc,
+        testMRZ: state.testMRZ,
+      }),
     },
   ),
 )

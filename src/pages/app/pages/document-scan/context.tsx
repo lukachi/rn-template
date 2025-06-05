@@ -23,7 +23,7 @@ import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import type { FieldRecords } from 'mrz'
 import type { PropsWithChildren } from 'react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useCallback } from 'react'
 import { useState } from 'react'
 import { createContext, useContext } from 'react'
@@ -470,8 +470,23 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const signedAttributes = await getSodSignedAttributes(sodBytes)
 
-      console.log({ signedAttributes, newSignedAttributes: sodInstance.signedAttributes })
+      console.log({
+        signedAttributes,
+        signedAttributesBase64: ethers.encodeBase64(signedAttributes),
+        newSignedAttributes: sodInstance.signedAttributes,
+        newSignedAttributesBase64: ethers.encodeBase64(sodInstance.signedAttributes),
+      })
       const sodSignature = await getSodSignature(sodBytes)
+
+      try {
+        console.log({ sodSignature, base64: ethers.encodeBase64(sodSignature) })
+        console.log({
+          newSodSignature: sodInstance.signature,
+          base64: ethers.encodeBase64(sodInstance.signature),
+        })
+      } catch (error) {
+        console.error('Error while getting SOD signature:', error)
+      }
 
       throw new TypeError('Purpose error')
 
@@ -567,15 +582,43 @@ export function ScanContextProvider({ docType, children }: Props) {
     setCurrentStep(Steps.ScanMrzStep)
   }, [])
 
-  const handleSetMrz = useCallback((value: FieldRecords) => {
-    setMrz(value)
-    setCurrentStep(Steps.ScanNfcStep)
-  }, [])
+  const setTestEDoc = identityStore.useIdentityStore(state => state.setTestEDoc)
+  const setTestMRZ = identityStore.useIdentityStore(state => state.setTestMRZ)
 
-  const handleSetEDoc = useCallback((value: EDocument) => {
-    setEDocument(value)
-    setCurrentStep(Steps.DocumentPreviewStep)
-  }, [])
+  const handleSetMrz = useCallback(
+    (value: FieldRecords) => {
+      setMrz(value)
+      setTestMRZ(value) // TODO: remove me
+      setCurrentStep(Steps.ScanNfcStep)
+    },
+    [setTestMRZ],
+  )
+
+  const handleSetEDoc = useCallback(
+    (value: EDocument) => {
+      setEDocument(value)
+      setTestEDoc(value) // TODO: remove me
+      setCurrentStep(Steps.DocumentPreviewStep)
+    },
+    [setTestEDoc],
+  )
+
+  const testEDoc = identityStore.useIdentityStore(state => state.testEDoc) // TODO: remove me
+  const testMRZ = identityStore.useIdentityStore(state => state.testMRZ) // TODO: remove me
+
+  // TODO: remove me
+  const initted = useRef(false)
+  useEffect(() => {
+    if (initted.current || currentStep === Steps.DocumentPreviewStep) return
+
+    initted.current = true
+
+    if (testEDoc && testMRZ) {
+      setEDocument(testEDoc)
+      setMrz(testMRZ)
+      setCurrentStep(Steps.DocumentPreviewStep)
+    }
+  }, [currentStep, testEDoc, testMRZ])
 
   return (
     <documentScanContext.Provider

@@ -2,9 +2,9 @@ import { poseidon } from '@iden3/js-crypto'
 import { SOD } from '@li0ard/tsemrtd'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
 import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
-import { AsnConvert } from '@peculiar/asn1-schema'
+import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
-import { fromBER } from 'asn1js'
+import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
 import { getBytes } from 'ethers'
 
@@ -34,7 +34,7 @@ export function poseidonHash(inputs: bigint[]): Uint8Array {
  */
 export function hashPacked(x509Key: Uint8Array): Uint8Array {
   if (x509Key.length < 5 * 24) {
-    throw new Error('x509Key is too short')
+    throw new TypeError('x509Key is too short')
   }
 
   const decomposed: bigint[] = new Array(5)
@@ -42,7 +42,7 @@ export function hashPacked(x509Key: Uint8Array): Uint8Array {
 
   for (let i = 0; i < 5; i++) {
     if (position < 24) {
-      throw new Error('x509Key is too short')
+      throw new TypeError('x509Key is too short')
     }
 
     // Extract 24 bytes chunk (3 x 64-bit values = 24 bytes)
@@ -68,7 +68,7 @@ export function hashPacked(x509Key: Uint8Array): Uint8Array {
     // Compute Poseidon hash and return as bytes
     return poseidonHash(decomposed)
   } catch (error) {
-    throw new Error(`Failed to compute Poseidon hash: ${error}`)
+    throw new TypeError(`Failed to compute Poseidon hash: ${error}`)
   }
 }
 
@@ -127,10 +127,10 @@ export class Sod {
   get X509RSASize(): number {
     const spki = this.certSet[0].certificate?.tbsCertificate.subjectPublicKeyInfo
 
-    if (!spki) throw new Error('No SubjectPublicKeyInfo in certificate')
+    if (!spki) throw new TypeError('No SubjectPublicKeyInfo in certificate')
     if (spki.algorithm.algorithm !== id_rsaEncryption)
       // RSA OID
-      throw new Error('Public key is not RSA')
+      throw new TypeError('Public key is not RSA')
 
     /* 2. decode the RSAPublicKey SEQUENCE { n, e } --------------------- */
     const rsa = AsnConvert.parse(spki.subjectPublicKey, RSAPublicKey)
@@ -150,7 +150,7 @@ export class Sod {
     const contentInfo = AsnConvert.parse(this.valueBlockBytes, ContentInfo)
 
     if (contentInfo.contentType !== id_signedData) {
-      throw new Error(
+      throw new TypeError(
         `Invalid ContentType: Expected ${id_signedData} (SignedData), but got ${contentInfo.contentType}`,
       )
     }
@@ -164,7 +164,7 @@ export class Sod {
     const contentInfo = AsnConvert.parse(this.valueBlockBytes, ContentInfo)
 
     if (contentInfo.contentType !== id_signedData) {
-      throw new Error(
+      throw new TypeError(
         `Invalid ContentType: Expected ${id_signedData} (SignedData), but got ${contentInfo.contentType}`,
       )
     }
@@ -172,24 +172,40 @@ export class Sod {
     const signedData = AsnConvert.parse(contentInfo.content, SignedData)
 
     if (!signedData.signerInfos || signedData.signerInfos.length === 0) {
-      throw new Error('No signerInfos found in SignedData')
+      throw new TypeError('No signerInfos found in SignedData')
     }
-
-    console.log({ signedData })
 
     const signerInfo = signedData.signerInfos[0]
 
-    if (!signerInfo.signedAttrs || signerInfo.signedAttrs.length === 0) {
-      throw new Error('No signed attributes found in SignerInfo')
+    if (!signerInfo.signedAttrs?.length) {
+      throw new TypeError('No signed attributes found in SignerInfo')
     }
 
-    console.log({ signerInfo })
+    /* ----- The usual ICAO case: sign over the SET of attributes ----------- */
+    // Convert signed attributes to a SET structure using AsnConvert
+    const attrsSet = new Set({
+      value: signerInfo.signedAttrs.map(a => AsnSerializer.toASN(a)), // ⇐ ASN.1 objects
+    })
 
-    const signedAttrs = signerInfo.signedAttrs.map(el => AsnConvert.serialize(el))
+    return new Uint8Array(attrsSet.toBER(false)) // DER-encoded
+  }
 
-    return signedAttrs
-      .map(el => new Uint8Array(el))
-      .reduce((acc, cur) => new Uint8Array([...acc, ...cur]), new Uint8Array())
+  get signature(): Uint8Array {
+    const contentInfo = AsnConvert.parse(this.valueBlockBytes, ContentInfo)
+    if (contentInfo.contentType !== id_signedData) {
+      throw new TypeError(
+        `Invalid ContentType: Expected ${id_signedData} (SignedData), but got ${contentInfo.contentType}`,
+      )
+    }
+    const signedData = AsnConvert.parse(contentInfo.content, SignedData)
+    if (!signedData.signerInfos || signedData.signerInfos.length === 0) {
+      throw new TypeError('No signerInfos found in SignedData')
+    }
+    const signerInfo = signedData.signerInfos[0]
+    if (!signerInfo.signature) {
+      throw new TypeError('No signature found in SignerInfo')
+    }
+    return new Uint8Array(signerInfo.signature.buffer)
   }
 
   // FIXME: hasPacked from rsa pub key is valid, but master roots is not being verifyed
@@ -243,7 +259,7 @@ export class Sod {
     // }
 
     // if (!trustedRoots.length) {
-    //   throw new Error(
+    //   throw new TypeError(
     //     'No self-signed CSCA certificates identified as trust anchors from ICAO bytes.',
     //   )
     // }
@@ -298,18 +314,18 @@ export class Sod {
     //   }
     // } catch (error) {
     //   console.error('An error occurred during chain validation:', error)
-    //   // throw new Error(
+    //   // throw new TypeError(
     //   //   `Chain validation error: ${error instanceof Error ? error.message : String(error)}`,
     //   // )
     // }
 
     // if (!validationResult || !validationResult.result) {
-    //   throw new Error('Slave cert does not validate against ICAO roots.')
+    //   throw new TypeError('Slave cert does not validate against ICAO roots.')
     // }
 
     /* 4 ▸ extract RSA modulus from the slave public key ---------------- */
     if (slavePec.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm !== id_rsaEncryption) {
-      throw new Error('Slave public key is not RSA')
+      throw new TypeError('Slave public key is not RSA')
     }
 
     const rsa = AsnConvert.parse(
