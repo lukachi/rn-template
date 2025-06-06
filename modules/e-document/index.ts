@@ -41,30 +41,6 @@ export async function scanDocument(
   throw new TypeError('Unsupported platform')
 }
 
-export async function getPublicKeyPem(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getPublicKeyPem(new Uint8Array(sod))
-}
-
-export async function getSlaveCertificatePem(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getSlaveCertificatePem(new Uint8Array(sod))
-}
-
-export async function getSodEncapsulatedContent(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getSodEncapsulatedContent(new Uint8Array(sod))
-}
-
-export async function getSodSignedAttributes(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getSodSignedAttributes(new Uint8Array(sod))
-}
-
-export async function getSodSignature(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getSodSignature(new Uint8Array(sod))
-}
-
-export async function getDG15PubKeyPem(dg15FileBytes: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getDG15PubKeyPem(new Uint8Array(dg15FileBytes))
-}
-
 const EDocumentModuleEmitter = new EventEmitter(EDocumentModule)
 
 export function EDocumentModuleListener(

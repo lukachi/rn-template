@@ -103,54 +103,6 @@ class EDocumentModule : Module() {
       scanPromise = promise
     }
 
-    AsyncFunction("disableScan") {
-      disableNfcForegroundDispatch()
-    }
-
-    AsyncFunction("getPublicKeyPem") { sod: ByteArray ->
-      val sodFile = SODFile(sod.inputStream())
-
-      val publicKey = sodFile.docSigningCertificate.publicKey
-      val publicKeyPem = publicKey.publicKeyToPem()
-
-      return@AsyncFunction publicKeyPem.toByteArray()
-    }
-
-    AsyncFunction("getSlaveCertificatePem") { sod: ByteArray ->
-      val sodFile = SODFile(sod.inputStream())
-
-      val cert = sodFile.docSigningCertificate
-      val certPem = cert.convertToPem()
-
-      return@AsyncFunction certPem.toByteArray()
-    }
-
-    AsyncFunction("getSodEncapsulatedContent") { sod: ByteArray ->
-      val sodFile = SODFile(sod.inputStream())
-
-      return@AsyncFunction sodFile.readASN1Data().decodeHexString()
-    }
-
-    AsyncFunction("getSodSignedAttributes") { sod: ByteArray ->
-      val sodFile = SODFile(sod.inputStream())
-
-      return@AsyncFunction sodFile.eContent
-    }
-
-    AsyncFunction("getSodSignature") { sod: ByteArray ->
-      val sodFile = SODFile(sod.inputStream())
-
-      return@AsyncFunction sodFile.encryptedDigest
-    }
-
-    AsyncFunction("getDG15PubKeyPem") { dg15: ByteArray ->
-      val dG15File = DG15File(dg15.inputStream())
-
-      val pubKeyPem = dG15File.publicKey.publicKeyToPem()
-
-      return@AsyncFunction pubKeyPem.toByteArray()
-    }
-
     OnNewIntent { intent ->
       scanPromise?.let { handleNfcIntent(intent, it) }
     }
