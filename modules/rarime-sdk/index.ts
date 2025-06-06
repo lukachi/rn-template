@@ -3,10 +3,6 @@
 
 import RarimeSdkModule from './src/RarimeSdkModule'
 
-export async function generatePrivateKey(): Promise<Uint8Array> {
-  return await RarimeSdkModule.generatePrivateKey()
-}
-
 export async function calculateEventNullifierInt(
   event: string,
   privateKeyHex: string,
@@ -16,20 +12,6 @@ export async function calculateEventNullifierInt(
 
 export async function registrationChallenge(secretKey: string): Promise<Uint8Array> {
   return await RarimeSdkModule.registrationChallenge(secretKey)
-}
-
-export async function getSlaveCertIndex(
-  slaveCertPem: Uint8Array,
-  icaoBytes: Uint8Array,
-): Promise<Uint8Array> {
-  return await RarimeSdkModule.getSlaveCertIndex(
-    new Uint8Array(slaveCertPem),
-    new Uint8Array(icaoBytes),
-  )
-}
-
-export async function getX509RSASize(publicKeyPem: Uint8Array): Promise<number> {
-  return await RarimeSdkModule.getX509RSASize(new Uint8Array(publicKeyPem))
 }
 
 export async function buildRegisterCertificateCallData(

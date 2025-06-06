@@ -1,5 +1,8 @@
-import { calculateEventNullifierInt, generatePrivateKey } from '@modules/rarime-sdk'
+import { ffUtils, poseidon, PrivateKey } from '@iden3/js-crypto'
+import { calculateEventNullifierInt } from '@modules/rarime-sdk'
 import { Buffer } from 'buffer'
+import { getBytes, randomBytes } from 'ethers'
+import { useMemo } from 'react'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -41,10 +44,24 @@ const useWalletStore = create(
 
 const useGeneratePrivateKey = () => {
   return async () => {
-    const pkBytes = await generatePrivateKey()
-
-    return Buffer.from(pkBytes).toString('hex')
+    return Buffer.from(randomBytes(32)).toString('hex')
   }
+}
+
+const usePrivateKey = () => {
+  const privateKeyHex = useWalletStore(state => state.privateKey)
+
+  return new PrivateKey(getBytes('0x' + privateKeyHex))
+}
+
+const usePublicKeyHash = () => {
+  const privateKey = usePrivateKey()
+
+  return useMemo(() => {
+    const hash = poseidon.hash(privateKey.public().p)
+
+    return ffUtils.beInt2Buff(hash, 32)
+  }, [privateKey])
 }
 
 const usePointsNullifierHex = () => {
@@ -71,4 +88,5 @@ export const walletStore = {
   useGeneratePrivateKey: useGeneratePrivateKey,
   usePointsNullifierHex: usePointsNullifierHex,
   useDeletePrivateKey,
+  usePublicKeyHash,
 }

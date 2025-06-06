@@ -11,7 +11,7 @@ import {
 } from '@modules/rarime-sdk'
 import type { AxiosError } from 'axios'
 import { Buffer } from 'buffer'
-import { encodeBase64, ethers, JsonRpcProvider } from 'ethers'
+import { encodeBase64, ethers, hexlify, JsonRpcProvider } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import type { FieldRecords } from 'mrz'
@@ -209,8 +209,6 @@ export function ScanContextProvider({ docType, children }: Props) {
       const encapsulatedContent = sodInstance.encapsulatedContent
       const signedAttributes = sodInstance.signedAttributes
       const sodSignature = sodInstance.signature
-
-      throw new TypeError('purpose error')
 
       if (!eDoc.dg1) throw new TypeError('DG1 not found')
 
@@ -430,6 +428,8 @@ export function ScanContextProvider({ docType, children }: Props) {
     [requestRelayerRegisterMethod, rmoEvmJsonRpcProvider],
   )
 
+  const publicKeyHash = walletStore.usePublicKeyHash()
+
   const createIdentity = useCallback(async (): Promise<void> => {
     if (!eDocument) return
 
@@ -456,6 +456,15 @@ export function ScanContextProvider({ docType, children }: Props) {
       const slaveCertIdx = await sodInstance.getSlaveCertificateIndex(slaveCertPem, icaoBytes)
 
       const circuitType = getCircuitType(pubKeySize)
+
+      console.log({ privateKey })
+
+      const currentIdentityKey = await getPublicKeyHash(privateKey)
+
+      console.log({
+        currentIdentityKey: hexlify(currentIdentityKey),
+        newIdentityKey: hexlify(publicKeyHash),
+      })
 
       throw new TypeError('Purpose error')
 
@@ -522,6 +531,8 @@ export function ScanContextProvider({ docType, children }: Props) {
     eDocument,
     getIdentityRegProof,
     getPassportInfo,
+    privateKey,
+    publicKeyHash,
     registerCertificate,
     registerIdentity,
     revokeIdentity,
