@@ -1,12 +1,5 @@
 import type { CircuitType, DocType, EDocument } from '@modules/e-document'
-import { getCircuitDetailsByType } from '@modules/e-document'
-import { getDG15PubKeyPem } from '@modules/e-document'
-import { getCircuitType } from '@modules/e-document'
-import {
-  getSodEncapsulatedContent,
-  getSodSignature,
-  getSodSignedAttributes,
-} from '@modules/e-document'
+import { getCircuitDetailsByType, getCircuitType } from '@modules/e-document'
 import type { ZKProof } from '@modules/rapidsnark-wrp'
 import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
 import {
@@ -34,7 +27,7 @@ import { relayerRegister } from '@/api/modules/registration'
 import { Config } from '@/config'
 import { bus, DefaultBusEvents } from '@/core'
 import { createPoseidonSMTContract, createStateKeeperContract } from '@/helpers'
-import { Sod } from '@/helpers/sod'
+import { getDg15PubKeyPem, Sod } from '@/helpers/sod'
 import { identityStore, walletStore } from '@/store'
 import {
   CertificateAlreadyRegisteredError,
@@ -204,7 +197,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
   const getIdentityRegProof = useCallback(
     async (
-      eDoc: EDocument,
+      sodInstance: Sod,
       circuitType: CircuitType,
       publicKeyPem: Uint8Array,
       smtProof: SparseMerkleTree.ProofStructOutput,
@@ -213,13 +206,11 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
 
-      if (!eDoc.sod) throw new TypeError('SOD not found')
+      const encapsulatedContent = sodInstance.encapsulatedContent
+      const signedAttributes = sodInstance.signedAttributes
+      const sodSignature = sodInstance.signature
 
-      const sodBytes = ethers.decodeBase64(eDoc.sod)
-
-      const encapsulatedContent = await getSodEncapsulatedContent(sodBytes)
-      const signedAttributes = await getSodSignedAttributes(sodBytes)
-      const sodSignature = await getSodSignature(sodBytes)
+      throw new TypeError('purpose error')
 
       if (!eDoc.dg1) throw new TypeError('DG1 not found')
 
@@ -276,7 +267,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       if (!eDoc.signature) throw new TypeError('Signature not found')
 
-      const dg15PubKeyPem = await getDG15PubKeyPem(ethers.decodeBase64(eDoc.dg15))
+      const dg15PubKeyPem = await getDg15PubKeyPem(ethers.decodeBase64(eDoc.dg15))
 
       const registerCallData = await buildRegisterCallData(
         Buffer.from(JSON.stringify(regProof)),
@@ -384,7 +375,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const revokeEDocEDocSignature = ethers.decodeBase64(revokeEDoc.signature)
 
-      const dg15PubKeyPem = await getDG15PubKeyPem(ethers.decodeBase64(revokeEDoc.dg15))
+      const dg15PubKeyPem = await getDg15PubKeyPem(ethers.decodeBase64(revokeEDoc.dg15))
 
       const activeIdentityBytes = ethers.getBytes(passportInfo?.passportInfo_.activeIdentity)
 
@@ -466,28 +457,6 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const circuitType = getCircuitType(pubKeySize)
 
-      const encapsulatedContent = sodInstance.encapsulatedContent
-
-      const signedAttributes = await getSodSignedAttributes(sodBytes)
-
-      console.log({
-        signedAttributes,
-        signedAttributesBase64: ethers.encodeBase64(signedAttributes),
-        newSignedAttributes: sodInstance.signedAttributes,
-        newSignedAttributesBase64: ethers.encodeBase64(sodInstance.signedAttributes),
-      })
-      const sodSignature = await getSodSignature(sodBytes)
-
-      try {
-        console.log({ sodSignature, base64: ethers.encodeBase64(sodSignature) })
-        console.log({
-          newSodSignature: sodInstance.signature,
-          base64: ethers.encodeBase64(sodInstance.signature),
-        })
-      } catch (error) {
-        console.error('Error while getting SOD signature:', error)
-      }
-
       throw new TypeError('Purpose error')
 
       if (!circuitType) throw new TypeError('Unsupported public key size')
@@ -508,7 +477,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       }
 
       const regProof = await getIdentityRegProof(
-        eDocument,
+        sodInstance,
         circuitType,
         publicKeyPem,
         slaveCertSmtProof,

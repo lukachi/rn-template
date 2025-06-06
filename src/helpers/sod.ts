@@ -3,7 +3,7 @@ import { SOD } from '@li0ard/tsemrtd'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
 import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
-import { Certificate } from '@peculiar/asn1-x509'
+import { Certificate, SubjectPublicKeyInfo } from '@peculiar/asn1-x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
 import { getBytes } from 'ethers'
@@ -338,4 +338,19 @@ export class Sod {
     /* 5 ▸ SHA-256(modulus) → index ------------------------------------ */
     return hashPacked(unpadded)
   }
+}
+
+export function getDg15PubKeyPem(dg15Bytes: Uint8Array) {
+  const { result } = fromBER(dg15Bytes)
+
+  if (!result) {
+    throw new Error('BER-decode failed - DG15 file corrupted?')
+  }
+
+  const subjectPublicKeyInfo = AsnConvert.parse(
+    result.valueBlock.toBER(false),
+    SubjectPublicKeyInfo,
+  )
+
+  return Buffer.from(toPem(AsnConvert.serialize(subjectPublicKeyInfo), 'PUBLIC KEY'), 'utf8')
 }
