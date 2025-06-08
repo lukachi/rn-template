@@ -1,6 +1,7 @@
 import { babyJub, ffUtils, Hex, poseidon, PublicKey } from '@iden3/js-crypto'
 import { Buffer } from 'buffer'
 import { randomBytes } from 'ethers'
+import { useMemo } from 'react'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -57,6 +58,16 @@ const usePublicKeyKey = () => {
   return new PublicKey(point)
 }
 
+const usePublicKeyHash = () => {
+  const publicKey = usePublicKeyKey()
+
+  return useMemo(() => {
+    const hash = poseidon.hash(publicKey.p)
+
+    return ffUtils.beInt2Buff(hash, 32)
+  }, [publicKey.p])
+}
+
 const usePointsNullifier = () => {
   return async (pkHex: string) => {
     // 1️⃣  secretKey := p.secretKey.BigInt()
@@ -74,6 +85,14 @@ const usePointsNullifier = () => {
   }
 }
 
+const useRegistrationChallenge = () => {
+  const publicKeyHash = usePublicKeyHash()
+
+  return useMemo(() => {
+    return publicKeyHash.slice(-8)
+  }, [publicKeyHash])
+}
+
 const useDeletePrivateKey = () => {
   const setPrivateKey = useWalletStore(state => state.setPrivateKey)
 
@@ -89,4 +108,6 @@ export const walletStore = {
   usePointsNullifier: usePointsNullifier,
   useDeletePrivateKey,
   usePublicKeyKey,
+  usePublicKeyHash,
+  useRegistrationChallenge,
 }

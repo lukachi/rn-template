@@ -4,7 +4,6 @@ import {
   EDocumentModuleRemoveAllListeners,
   scanDocument,
 } from '@modules/e-document'
-import { registrationChallenge } from '@modules/rarime-sdk'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 
@@ -17,24 +16,26 @@ export default function ScanNfcStep() {
   const { mrz, setEDoc } = useDocumentScanContext()
 
   const pk = walletStore.useWalletStore(state => state.privateKey)
+  const registrationChallenge = walletStore.useRegistrationChallenge()
 
   const isScanning = useRef(false)
 
   const [title, setTitle] = useState('Scan NFC')
 
   const startScanListener = useCallback(async () => {
-    if (
-      !pk ||
-      !mrz?.birthDate ||
-      !mrz?.documentNumber ||
-      !mrz?.expirationDate ||
-      !mrz?.documentCode
-    )
-      return
+    if (!mrz) throw new TypeError('MRZ data is not available')
+
+    if (!mrz.documentCode) throw new TypeError('Document code is not available in MRZ data')
+
+    if (!mrz.birthDate) throw new TypeError('Birth date is not available in MRZ data')
+
+    if (!mrz.expirationDate) throw new TypeError('Expiration date is not available in MRZ data')
+
+    if (!mrz.documentNumber) throw new TypeError('Document number is not available in MRZ data')
+
+    if (!pk) return
 
     try {
-      const challenge = await registrationChallenge(pk)
-
       const eDocumentResponse = await scanDocument(
         mrz.documentCode,
         {
@@ -42,14 +43,14 @@ export default function ScanNfcStep() {
           dateOfExpiry: mrz.expirationDate,
           documentNumber: mrz.documentNumber,
         },
-        challenge,
+        registrationChallenge,
       )
 
       setEDoc(eDocumentResponse)
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
-  }, [mrz?.birthDate, mrz?.documentCode, mrz?.documentNumber, mrz?.expirationDate, pk, setEDoc])
+  }, [mrz, pk, registrationChallenge, setEDoc])
 
   useEffect(() => {
     if (isScanning.current) return

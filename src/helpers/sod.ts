@@ -146,7 +146,7 @@ export class Sod {
   // FIXME: hasPacked from rsa pub key is valid, but master roots is not being verifyed
   async getSlaveCertificateIndex(
     slaveCertPemBytes: Uint8Array | Buffer,
-    icaoBytes: Uint8Array | Buffer,
+    _: Uint8Array | Buffer,
   ): Promise<Uint8Array> {
     const slavePec = AsnConvert.parse(decodeDerFromPemBytes(slaveCertPemBytes), Certificate)
     // const slavePki = pecToPki(slavePec)

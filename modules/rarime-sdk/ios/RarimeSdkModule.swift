@@ -47,35 +47,6 @@ public class RarimeSdkModule: Module {
     // The module will be accessible from `requireNativeModule('RarimeSdk')` in JavaScript.
     Name("RarimeSdk")
 
-    AsyncFunction("registrationChallenge") { (userPK: String) in
-        guard let userPKData = userPK.hexadecimal else {
-            throw "Invalid userPK"
-        }
-
-        let profile = try IdentityProfile().newProfile(userPKData)
-
-        return try profile.getRegistrationChallenge()
-    }
-
-    AsyncFunction("calculateEventNullifierInt") { (eventId: String, userPK: String) in
-        var error: NSError?
-
-        guard let userPKData = userPK.hexadecimal else {
-            throw "Invalid userPK"
-        }
-
-        let profile = try IdentityProfile().newProfile(userPKData)
-
-        let result = profile.calculateEventNullifierInt(eventId, error: &error)
-
-        if let error = error {
-            throw error
-        }
-
-        return result
-    }
-
-
       AsyncFunction("buildRegisterCertificateCallData") {(cosmosAddr: String, slavePem: Data, masterCertificatesBucketName: String, masterCertificatesFilename: String) in
           let calldataBuilder = IdentityCallDataBuilder()
 
@@ -108,16 +79,6 @@ public class RarimeSdkModule: Module {
           )
 
           return inputs
-      }
-
-      AsyncFunction("getPublicKeyHash") { (userPK: String) in
-          guard let userPKData = userPK.hexadecimal else {
-              throw "Invalid userPK"
-          }
-
-          let profile = try IdentityProfile().newProfile(userPKData)
-
-          return try profile.getPublicKeyHash()
       }
 
       AsyncFunction("buildRegisterCallData") { (proofJson: Data, signature: Data, pubKeyPem: Data, certificatesRootRaw: Data, certificatePubKeySize: Int, isRevoced: Bool) in

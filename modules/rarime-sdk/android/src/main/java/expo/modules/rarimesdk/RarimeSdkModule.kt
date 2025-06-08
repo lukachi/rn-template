@@ -25,18 +25,6 @@ class RarimeSdkModule : Module() {
     // The module will be accessible from `requireNativeModule('RarimeSdk')` in JavaScript.
     Name("RarimeSdk")
 
-    AsyncFunction("calculateEventNullifierInt") { eventId: String, userPK: String ->
-      val profile = Profile().newProfile(userPK.decodeHexString())
-
-      return@AsyncFunction profile.calculateEventNullifierInt(eventId)
-    }
-
-    AsyncFunction("registrationChallenge") { userPK: String ->
-      val profile = Profile().newProfile(userPK.decodeHexString())
-
-      return@AsyncFunction profile.registrationChallenge
-    }
-
     AsyncFunction("buildRegisterCertificateCallData") { cosmosAddr: String, slavePem: ByteArray, masterCertificatesBucketName: String, masterCertificatesFilename: String ->
       val callDataBuilder = CallDataBuilder()
 
@@ -64,12 +52,6 @@ class RarimeSdkModule : Module() {
       )
 
       return@AsyncFunction inputs
-    }
-
-    AsyncFunction("getPublicKeyHash") { userPK: String ->
-      val profile = Profile().newProfile(userPK.decodeHexString())
-
-      return@AsyncFunction profile.publicKeyHash
     }
 
     AsyncFunction("buildRegisterCallData") { proofJson: ByteArray, signature: ByteArray, pubKeyPem: ByteArray, certificatesRootRaw: ByteArray, certificatePubKeySize: Long, isRevoked: Boolean ->

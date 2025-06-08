@@ -3,10 +3,6 @@
 
 import RarimeSdkModule from './src/RarimeSdkModule'
 
-export async function registrationChallenge(secretKey: string): Promise<Uint8Array> {
-  return await RarimeSdkModule.registrationChallenge(secretKey)
-}
-
 export async function buildRegisterCertificateCallData(
   cosmosAddr: string,
   slavePem: Uint8Array,

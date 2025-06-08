@@ -1,4 +1,3 @@
-import { ffUtils, poseidon } from '@iden3/js-crypto'
 import type { CircuitType, DocType, EDocument } from '@modules/e-document'
 import { getCircuitDetailsByType, getCircuitType } from '@modules/e-document'
 import type { ZKProof } from '@modules/rapidsnark-wrp'
@@ -102,7 +101,7 @@ export let rejectRevocationEDoc: (value: Error) => void
 
 export function ScanContextProvider({ docType, children }: Props) {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
-  const publicKey = walletStore.usePublicKeyKey()
+  const publicKeyHash = walletStore.usePublicKeyHash()
 
   const addIdentity = identityStore.useIdentityStore(state => state.addIdentity)
 
@@ -139,12 +138,6 @@ export function ScanContextProvider({ docType, children }: Props) {
   const stateKeeperContract = useMemo(() => {
     return createStateKeeperContract(Config.STATE_KEEPER_CONTRACT_ADDRESS, rmoEvmJsonRpcProvider)
   }, [rmoEvmJsonRpcProvider])
-
-  const publicKeyHash = useMemo(() => {
-    const hash = poseidon.hash(publicKey.p)
-
-    return ffUtils.beInt2Buff(hash, 32)
-  }, [publicKey.p])
 
   // ----------------------------------------------------------------------------------------
 
@@ -204,6 +197,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
   const getIdentityRegProof = useCallback(
     async (
+      eDoc: EDocument,
       sodInstance: Sod,
       circuitType: CircuitType,
       publicKeyPem: Uint8Array,
@@ -462,8 +456,6 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       const circuitType = getCircuitType(pubKeySize)
 
-      throw new TypeError('Purpose error')
-
       if (!circuitType) throw new TypeError('Unsupported public key size')
 
       const slaveCertSmtProof = await certPoseidonSMTContract.contractInstance.getProof(
@@ -482,6 +474,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       }
 
       const regProof = await getIdentityRegProof(
+        eDocument,
         sodInstance,
         circuitType,
         publicKeyPem,
@@ -527,8 +520,6 @@ export function ScanContextProvider({ docType, children }: Props) {
     eDocument,
     getIdentityRegProof,
     getPassportInfo,
-    pointsNullifierHex,
-    privateKey,
     registerCertificate,
     registerIdentity,
     revokeIdentity,
