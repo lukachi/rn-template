@@ -1,5 +1,4 @@
-import { babyJub, ffUtils, Hex, PublicKey } from '@iden3/js-crypto'
-import { calculateEventNullifierInt } from '@modules/rarime-sdk'
+import { babyJub, ffUtils, Hex, poseidon, PublicKey } from '@iden3/js-crypto'
 import { Buffer } from 'buffer'
 import { randomBytes } from 'ethers'
 import { create } from 'zustand'
@@ -58,13 +57,20 @@ const usePublicKeyKey = () => {
   return new PublicKey(point)
 }
 
-const usePointsNullifierHex = () => {
+const usePointsNullifier = () => {
   return async (pkHex: string) => {
-    const eventNullifierIntStr = await calculateEventNullifierInt(Config.POINTS_SVC_ID, pkHex)
+    // 1️⃣  secretKey := p.secretKey.BigInt()
+    const skBuff = Hex.decodeString(pkHex) // raw 32 bytes
+    const secretKey = ffUtils.beBuff2int(skBuff) // big-endian → BigInt
 
-    const eventNullifierBN = BigInt(eventNullifierIntStr)
+    // 2️⃣  secretKeyHash := Poseidon(secretKey)
+    const secretKeyHash = poseidon.hash([secretKey])
 
-    return `0x${eventNullifierBN.toString(16).padStart(64, '0')}`
+    // 3️⃣  eventIDInt := new(big.Int).SetString(eventID, 0)
+    const eventIDInt = BigInt(Config.POINTS_SVC_ID) // auto 0x / dec
+
+    // 4️⃣  eventNullifier := Poseidon(secretKey, secretKeyHash, eventIDInt)
+    return poseidon.hash([secretKey, secretKeyHash, eventIDInt])
   }
 }
 
@@ -80,7 +86,7 @@ export const walletStore = {
   useWalletStore,
 
   useGeneratePrivateKey: useGeneratePrivateKey,
-  usePointsNullifierHex: usePointsNullifierHex,
+  usePointsNullifier: usePointsNullifier,
   useDeletePrivateKey,
   usePublicKeyKey,
 }

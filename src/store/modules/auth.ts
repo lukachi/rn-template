@@ -82,7 +82,7 @@ const useAuthProof = (opts?: { byFilePath?: boolean }) => {
     require('@assets/circuits/auth/circuit_final.zkey'),
     require('@assets/circuits/auth/auth.dat'),
   ])
-  const getPointsNullifierHex = walletStore.usePointsNullifierHex()
+  const getPointsNullifier = walletStore.usePointsNullifier()
 
   return async (privateKey: string): Promise<ZKProof> => {
     const pkHex = `0x${privateKey}`
@@ -96,9 +96,9 @@ const useAuthProof = (opts?: { byFilePath?: boolean }) => {
       encoding: FileSystem.EncodingType.Base64,
     })
 
-    const pointsNullifierHex = await getPointsNullifierHex(privateKey)
+    const pointsNullifier = await getPointsNullifier(privateKey)
 
-    const { data } = await getChallenge(pointsNullifierHex)
+    const { data } = await getChallenge('0x' + pointsNullifier.toString(16))
 
     const challengeHex = ethers.hexlify(ethers.decodeBase64(data.challenge))
 
@@ -144,7 +144,7 @@ const useAuthProof = (opts?: { byFilePath?: boolean }) => {
 
 const useLogin = () => {
   const setTokens = useAuthStore(state => state.setTokens)
-  const getPointsNullifierHex = walletStore.usePointsNullifierHex()
+  const getPointsNullifier = walletStore.usePointsNullifier()
 
   const genAuthProof = useAuthProof({
     byFilePath: true,
@@ -153,9 +153,9 @@ const useLogin = () => {
   // TODO: change to state?
   return async (privateKey: string) => {
     const zkProof = await genAuthProof(privateKey)
-    const pointsNullifierHex = await getPointsNullifierHex(privateKey)
+    const pointsNullifier = await getPointsNullifier(privateKey)
 
-    const { data: authTokens } = await authorize(pointsNullifierHex, zkProof)
+    const { data: authTokens } = await authorize('0x' + pointsNullifier.toString(16), zkProof)
 
     setTokens(authTokens.access_token.token, authTokens.refresh_token.token)
   }

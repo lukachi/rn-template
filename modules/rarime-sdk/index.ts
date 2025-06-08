@@ -3,13 +3,6 @@
 
 import RarimeSdkModule from './src/RarimeSdkModule'
 
-export async function calculateEventNullifierInt(
-  event: string,
-  privateKeyHex: string,
-): Promise<string> {
-  return await RarimeSdkModule.calculateEventNullifierInt(event, privateKeyHex)
-}
-
 export async function registrationChallenge(secretKey: string): Promise<Uint8Array> {
   return await RarimeSdkModule.registrationChallenge(secretKey)
 }
@@ -57,10 +50,6 @@ export async function buildRegisterIdentityInputs({
     new Uint8Array(pubKeyPem),
     new Uint8Array(smtProofJson),
   )
-}
-
-export async function getPublicKeyHash(privateKeyHex: string): Promise<Uint8Array> {
-  return await RarimeSdkModule.getPublicKeyHash(privateKeyHex)
 }
 
 export async function buildRegisterCallData(
