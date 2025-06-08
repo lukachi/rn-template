@@ -1,8 +1,7 @@
-import { ffUtils, poseidon, PrivateKey } from '@iden3/js-crypto'
+import { babyJub, ffUtils, Hex, PublicKey } from '@iden3/js-crypto'
 import { calculateEventNullifierInt } from '@modules/rarime-sdk'
 import { Buffer } from 'buffer'
-import { getBytes, randomBytes } from 'ethers'
-import { useMemo } from 'react'
+import { randomBytes } from 'ethers'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -48,20 +47,15 @@ const useGeneratePrivateKey = () => {
   }
 }
 
-const usePrivateKey = () => {
+const usePublicKeyKey = () => {
   const privateKeyHex = useWalletStore(state => state.privateKey)
 
-  return new PrivateKey(getBytes('0x' + privateKeyHex))
-}
+  const skBuff = Hex.decodeString(privateKeyHex)
+  const skBig = ffUtils.beBuff2int(skBuff)
 
-const usePublicKeyHash = () => {
-  const privateKey = usePrivateKey()
+  const point = babyJub.mulPointEScalar(babyJub.Base8, skBig)
 
-  return useMemo(() => {
-    const hash = poseidon.hash(privateKey.public().p)
-
-    return ffUtils.beInt2Buff(hash, 32)
-  }, [privateKey])
+  return new PublicKey(point)
 }
 
 const usePointsNullifierHex = () => {
@@ -88,5 +82,5 @@ export const walletStore = {
   useGeneratePrivateKey: useGeneratePrivateKey,
   usePointsNullifierHex: usePointsNullifierHex,
   useDeletePrivateKey,
-  usePublicKeyHash,
+  usePublicKeyKey,
 }

@@ -1,3 +1,4 @@
+import { ffUtils, poseidon } from '@iden3/js-crypto'
 import type { CircuitType, DocType, EDocument } from '@modules/e-document'
 import { getCircuitDetailsByType, getCircuitType } from '@modules/e-document'
 import type { ZKProof } from '@modules/rapidsnark-wrp'
@@ -7,11 +8,10 @@ import {
   buildRegisterCertificateCallData,
   buildRegisterIdentityInputs,
   buildRevoceCalldata,
-  getPublicKeyHash,
 } from '@modules/rarime-sdk'
 import type { AxiosError } from 'axios'
 import { Buffer } from 'buffer'
-import { encodeBase64, ethers, hexlify, JsonRpcProvider } from 'ethers'
+import { encodeBase64, ethers, JsonRpcProvider } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import type { FieldRecords } from 'mrz'
@@ -102,6 +102,7 @@ export let rejectRevocationEDoc: (value: Error) => void
 
 export function ScanContextProvider({ docType, children }: Props) {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
+  const publicKey = walletStore.usePublicKeyKey()
 
   const addIdentity = identityStore.useIdentityStore(state => state.addIdentity)
 
@@ -138,6 +139,12 @@ export function ScanContextProvider({ docType, children }: Props) {
   const stateKeeperContract = useMemo(() => {
     return createStateKeeperContract(Config.STATE_KEEPER_CONTRACT_ADDRESS, rmoEvmJsonRpcProvider)
   }, [rmoEvmJsonRpcProvider])
+
+  const publicKeyHash = useMemo(() => {
+    const hash = poseidon.hash(publicKey.p)
+
+    return ffUtils.beInt2Buff(hash, 32)
+  }, [publicKey.p])
 
   // ----------------------------------------------------------------------------------------
 
@@ -298,7 +305,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       circuitType: CircuitType,
       passportInfo: PassportInfo | null,
     ): Promise<void> => {
-      const currentIdentityKey = await getPublicKeyHash(privateKey)
+      const currentIdentityKey = publicKeyHash
       const currentIdentityKeyHex = ethers.hexlify(currentIdentityKey)
 
       const isPassportNotRegistered =
@@ -325,7 +332,7 @@ export function ScanContextProvider({ docType, children }: Props) {
 
       throw new PassportRegisteredWithAnotherPKError()
     },
-    [privateKey, requestRelayerRegisterMethod],
+    [publicKeyHash, requestRelayerRegisterMethod],
   )
 
   const getRevocationChallenge = useCallback(async (): Promise<Uint8Array> => {
@@ -428,8 +435,6 @@ export function ScanContextProvider({ docType, children }: Props) {
     [requestRelayerRegisterMethod, rmoEvmJsonRpcProvider],
   )
 
-  const publicKeyHash = walletStore.usePublicKeyHash()
-
   const createIdentity = useCallback(async (): Promise<void> => {
     if (!eDocument) return
 
@@ -456,15 +461,6 @@ export function ScanContextProvider({ docType, children }: Props) {
       const slaveCertIdx = await sodInstance.getSlaveCertificateIndex(slaveCertPem, icaoBytes)
 
       const circuitType = getCircuitType(pubKeySize)
-
-      console.log({ privateKey })
-
-      const currentIdentityKey = await getPublicKeyHash(privateKey)
-
-      console.log({
-        currentIdentityKey: hexlify(currentIdentityKey),
-        newIdentityKey: hexlify(publicKeyHash),
-      })
 
       throw new TypeError('Purpose error')
 
