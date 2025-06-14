@@ -1,21 +1,4 @@
-import { poseidon } from '@iden3/js-crypto'
-import { getBytes } from 'ethers'
-
-/**
- * Implements Poseidon hash for bigint arrays using @iden3/js-crypto
- */
-export function poseidonHash(inputs: bigint[]): Uint8Array {
-  // Apply Poseidon hash from @iden3/js-crypto
-  const hash = poseidon.hash(inputs)
-
-  // Convert the resulting bigint to hex, ensure even length with padding
-  let hashHex = hash.toString(16)
-  if (hashHex.length % 2 !== 0) {
-    hashHex = '0' + hashHex
-  }
-
-  return getBytes('0x' + hashHex)
-}
+import { Hex, poseidon } from '@iden3/js-crypto'
 
 /**
  * HashPacked computes the Poseidon hash of 5 elements.
@@ -38,7 +21,6 @@ export function hashPacked(x509Key: Uint8Array): Uint8Array {
     const chunkBytes = x509Key.slice(position - 24, position)
     position -= 24
 
-    // Convert to BigInt using ethers v6
     const element = BigInt('0x' + Buffer.from(chunkBytes).toString('hex'))
 
     // Reverse byte order in 64-bit chunks
@@ -54,8 +36,8 @@ export function hashPacked(x509Key: Uint8Array): Uint8Array {
   }
 
   try {
-    // Compute Poseidon hash and return as bytes
-    return poseidonHash(decomposed)
+    const hash = poseidon.hash(decomposed)
+    return Hex.decodeString(hash.toString(16))
   } catch (error) {
     throw new TypeError(`Failed to compute Poseidon hash: ${error}`)
   }

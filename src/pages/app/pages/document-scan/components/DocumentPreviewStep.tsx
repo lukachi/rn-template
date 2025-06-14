@@ -47,28 +47,28 @@ export default function DocumentPreviewStep() {
           <View className='flex flex-row items-center justify-between gap-2'>
             <Text className='capitalize text-textPrimary typography-body3'>dg1</Text>
             <Text className='text-textPrimary typography-subtitle4'>
-              {eDoc?.dg1?.length ?? 0} length
+              {eDoc.dg1Bytes.length} length
             </Text>
           </View>
 
           <View className='flex flex-row items-center justify-between gap-2'>
             <Text className='capitalize text-textPrimary typography-body3'>dg11</Text>
             <Text className='text-textPrimary typography-subtitle4'>
-              {eDoc?.dg11?.length ?? 0} length
+              {eDoc.dg11Bytes.length} length
             </Text>
           </View>
 
           <View className='flex flex-row items-center justify-between gap-2'>
             <Text className='capitalize text-textPrimary typography-body3'>dg15</Text>
             <Text className='text-textPrimary typography-subtitle4'>
-              {eDoc?.dg15?.length ?? 0} length
+              {eDoc.dg15Bytes?.length ?? 0} length
             </Text>
           </View>
 
           <View className='flex flex-row items-center justify-between gap-2'>
             <Text className='capitalize text-textPrimary typography-body3'>signature</Text>
             <Text className='text-textPrimary typography-subtitle4'>
-              {eDoc?.signature?.length ?? 0} length
+              {eDoc?.aaSignature?.length ?? 0} length
             </Text>
           </View>
         </View>

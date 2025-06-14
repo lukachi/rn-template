@@ -51,10 +51,10 @@ export default function RevocationStep() {
         challenge,
       )
 
-      resolveRevocationEDoc({
-        ...(eDoc || eDocumentResponse),
-        signature: eDocumentResponse.signature,
-      })
+      const newEDoc = eDoc || eDocumentResponse
+      newEDoc.aaSignature = eDocumentResponse.aaSignature
+
+      resolveRevocationEDoc(newEDoc)
     } catch (error) {
       ErrorHandler.process(error)
       rejectRevocationEDoc(error)

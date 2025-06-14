@@ -1,4 +1,4 @@
-import type { EDocument } from '@modules/e-document'
+import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
 import type { ZKProof } from '@modules/rapidsnark-wrp'
 import { FieldRecords } from 'mrz'
 import { create } from 'zustand'
@@ -7,7 +7,7 @@ import { combine, createJSONStorage, persist } from 'zustand/middleware'
 import { zustandStorage } from '@/store/helpers'
 
 export type IdentityItem = {
-  document: EDocument
+  document: NewEDocument
   registrationProof: ZKProof
 }
 
@@ -20,12 +20,12 @@ const useIdentityStore = create(
         _hasHydrated: false,
 
         // TODO: remove me
-        testEDoc: undefined as EDocument | undefined,
+        testEDoc: undefined as NewEDocument | undefined,
         testMRZ: undefined as FieldRecords | undefined,
       },
       set => ({
         // TODO: remove me
-        setTestEDoc: (value: EDocument) => {
+        setTestEDoc: (value: NewEDocument) => {
           set({
             testEDoc: value,
           })
@@ -59,8 +59,41 @@ const useIdentityStore = create(
     ),
     {
       name: 'documents',
-      version: 2,
-      storage: createJSONStorage(() => zustandStorage),
+      version: 6,
+      storage: createJSONStorage(() => zustandStorage, {
+        reviver: (key, value) => {
+          if (!value) return value
+
+          if (key === 'identities') {
+            return (value as { document: string; registrationProof: ZKProof }[]).map(item => ({
+              document: NewEDocument.deserialize(item.document as string),
+              registrationProof: item.registrationProof,
+            }))
+          }
+
+          if (key === 'testEDoc') {
+            return NewEDocument.deserialize(value as string)
+          }
+
+          return value
+        },
+        replacer: (key, value) => {
+          if (!value) return value
+
+          if (key === 'identities') {
+            return (value as IdentityItem[]).map(item => ({
+              document: item.document.serialize(),
+              registrationProof: item.registrationProof,
+            }))
+          }
+
+          if (key === 'testEDoc') {
+            return value instanceof NewEDocument ? value.serialize() : value
+          }
+
+          return value
+        },
+      }),
 
       onRehydrateStorage: () => state => {
         state?.setHasHydrated(true)

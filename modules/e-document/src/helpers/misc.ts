@@ -4,8 +4,9 @@ import {
 } from '@modules/witnesscalculator'
 import get from 'lodash/get'
 
-import { CircuitType } from './enums'
-import { DocType, type EDocument } from './types'
+import { CircuitType } from '../enums'
+import { DocType } from '../types'
+import { NewEDocument } from './e-document'
 
 export function getDocType(documentCode: string): DocType | null {
   if (documentCode.includes('I')) {
@@ -20,8 +21,8 @@ export function getDocType(documentCode: string): DocType | null {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseDocumentIOS(object: any, docType: DocType): EDocument {
-  const eDocument: EDocument = {
+export function parseDocumentIOS(object: any, docType: DocType): NewEDocument {
+  return new NewEDocument({
     docType: docType,
     personDetails: {
       firstName: get(object, 'personDetails.firstName', null),
@@ -34,19 +35,17 @@ export function parseDocumentIOS(object: any, docType: DocType): EDocument {
       issuingAuthority: get(object, 'personDetails.issuingAuthority', null),
       passportImageRaw: get(object, 'personDetails.passportImageRaw', null),
     },
-    sod: get(object, 'sod', null),
-    dg1: get(object, 'dg1', null),
-    dg15: get(object, 'dg15', null),
-    dg11: get(object, 'dg11', null),
-    signature: get(object, 'signature', null),
-  }
-
-  return eDocument
+    sodBytes: Buffer.from(get(object, 'sod', ''), 'base64'),
+    dg1Bytes: Buffer.from(get(object, 'dg1', ''), 'base64'),
+    dg15Bytes: Buffer.from(get(object, 'dg15', ''), 'base64'),
+    dg11Bytes: Buffer.from(get(object, 'dg11', ''), 'base64'),
+    aaSignature: Buffer.from(get(object, 'signature', ''), 'base64'),
+  })
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseDocumentAndroid(object: any, docType: DocType): EDocument {
-  const eDocument: EDocument = {
+export function parseDocumentAndroid(object: any, docType: DocType): NewEDocument {
+  return new NewEDocument({
     docType: docType,
     personDetails: {
       firstName: get(object, 'personDetails.primaryIdentifier', null),
@@ -59,14 +58,12 @@ export function parseDocumentAndroid(object: any, docType: DocType): EDocument {
       issuingAuthority: get(object, 'personDetails.issuingState', null),
       passportImageRaw: get(object, 'personDetails.passportImageRaw', null),
     },
-    sod: get(object, 'sod', null),
-    dg1: get(object, 'dg1', null),
-    dg15: get(object, 'dg15', null),
-    dg11: get(object, 'dg11', null),
-    signature: get(object, 'signature', null),
-  }
-
-  return eDocument
+    sodBytes: Buffer.from(get(object, 'sod', ''), 'base64'),
+    dg1Bytes: Buffer.from(get(object, 'dg1', ''), 'base64'),
+    dg15Bytes: Buffer.from(get(object, 'dg15', ''), 'base64'),
+    dg11Bytes: Buffer.from(get(object, 'dg11', ''), 'base64'),
+    aaSignature: Buffer.from(get(object, 'signature', ''), 'base64'),
+  })
 }
 
 export function getCircuitType(pubKeySize: number) {
@@ -99,4 +96,20 @@ export function getCircuitDetailsByType(circuitType: CircuitType) {
     wtnsCalcMethod,
     circuitTypeCertificatePubKeySize,
   }
+}
+
+export const decodeDerFromPemBytes = (bytes: Uint8Array): ArrayBuffer =>
+  Buffer.from(
+    Buffer.from(bytes)
+      .toString('utf8')
+      .replace(/-----(BEGIN|END) CERTIFICATE-----/g, '')
+      .replace(/\s+/g, ''),
+    'base64',
+  ).buffer
+
+export function toPem(buf: ArrayBuffer, header: string): string {
+  const body = Buffer.from(buf)
+    .toString('base64')
+    .replace(/(.{64})/g, '$1\n')
+  return `-----BEGIN ${header}-----\n${body}\n-----END ${header}-----\n`
 }

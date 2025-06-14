@@ -7,8 +7,8 @@ import { Platform } from 'react-native'
 
 import EDocumentModule from './src/EDocumentModule'
 import type { EDocumentModuleEvents } from './src/enums'
-import { getDocType, parseDocumentAndroid, parseDocumentIOS } from './src/helpers'
-import type { EDocument } from './src/types'
+import { getDocType, parseDocumentAndroid, parseDocumentIOS } from './src/helpers/misc'
+import { NewEDocument } from './src/helpers/e-document'
 
 export async function scanDocument(
   documentCode: string,
@@ -18,7 +18,7 @@ export async function scanDocument(
     documentNumber: string
   },
   challenge: Uint8Array,
-): Promise<EDocument> {
+): Promise<NewEDocument> {
   const docType = getDocType(documentCode)
 
   if (!docType) {
@@ -61,5 +61,5 @@ export function EDocumentModuleRemoveAllListeners(eventName: EDocumentModuleEven
 }
 
 export * from './src/enums'
-export * from './src/helpers'
+export * from './src/helpers/misc'
 export * from './src/types'
