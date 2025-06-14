@@ -4,9 +4,10 @@ import superjson from 'superjson'
 import { fromBER } from 'asn1js'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { SubjectPublicKeyInfo } from '@peculiar/asn1-x509'
-import { decodeBase64, getBytes, keccak256 } from 'ethers'
+import { decodeBase64, getBytes, keccak256, zeroPadValue } from 'ethers'
 import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
-import { id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
+import { ECParameters, id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
+import { ec as EC } from 'elliptic'
 
 import forge from 'node-forge'
 
@@ -156,7 +157,14 @@ export class NewEDocument {
     }
 
     if (this.dg15PubKey?.algorithm.algorithm === id_ecdsaWithSHA1) {
-      throw new TypeError('Not implemented: ECDSA signature extraction from DG15') // TODO: Implement ECDSA signature extraction
+      const ecParameters = AsnConvert.parse(this.dg15PubKey.subjectPublicKey, ECParameters)
+
+      // TODO: not tested yet
+      if (!ecParameters.namedCurve) {
+        throw new TypeError('ECDSA public key does not have a named curve')
+      }
+
+      return normalizeSignatureWithCurve(this.aaSignature, ecParameters.namedCurve)
     }
 
     throw new TypeError('Unsupported DG15 public key algorithm for AA signature extraction')
@@ -179,8 +187,26 @@ export class NewEDocument {
       return new Uint8Array(rsaPubKey.modulus)
     }
 
+    // TODO: not tested yet
     if (this.dg15PubKey?.algorithm.algorithm === id_ecdsaWithSHA1) {
-      throw new TypeError('Not implemented: ECDSA public key extraction from DG15') // TODO: Implement ECDSA public key extraction
+      const ecParameters = AsnConvert.parse(this.dg15PubKey.subjectPublicKey, ECParameters)
+      if (!ecParameters.namedCurve) {
+        throw new TypeError('ECDSA public key does not have a named curve')
+      }
+
+      const hexKey = Buffer.from(this.dg15PubKey.subjectPublicKey).toString('hex')
+      const ec = new EC(ecParameters.namedCurve) // TODO: derive curve name from ECParameters
+      const key = ec.keyFromPublic(hexKey, 'hex')
+
+      const point = key.getPublic()
+
+      // Fixed-length padded X and Y coordinates
+      const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
+
+      const x = getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength))
+      const y = getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength))
+
+      return new Uint8Array([...x, ...y])
     }
 
     throw new TypeError('Unsupported DG15 public key algorithm for AA public key extraction')
@@ -240,4 +266,36 @@ export function figureOutRSAAAHashAlgorithm(
     default:
       return 'SHA256' // fallback/default
   }
+}
+
+// TODO: not tested yet
+/**
+ * Normalize ECDSA signature (r||s) into low-S form with fixed-length output.
+ */
+export function normalizeSignatureWithCurve(signature: Uint8Array, curveName: string): Uint8Array {
+  const ec = new EC(curveName)
+
+  if (!ec.n) {
+    throw new Error(`Curve ${curveName} is not supported or does not have a defined order (n).`)
+  }
+
+  const byteLength = signature.length / 2
+
+  const rBytes = signature.slice(0, byteLength)
+  const sBytes = signature.slice(byteLength)
+
+  const r = new forge.jsbn.BigInteger(Buffer.from(rBytes).toString('hex'), 16)
+  let s = new forge.jsbn.BigInteger(Buffer.from(sBytes).toString('hex'), 16)
+
+  const n = new forge.jsbn.BigInteger(ec.n.toString(16), 16)
+  const lowSMax = n.divide(new forge.jsbn.BigInteger('2'))
+
+  if (s.compareTo(lowSMax) > 0) {
+    s = n.subtract(s)
+  }
+
+  const paddedR = zeroPadValue('0x' + r.toString(16), byteLength)
+  const paddedS = zeroPadValue('0x' + s.toString(16), byteLength)
+
+  return new Uint8Array([...getBytes(paddedR), ...getBytes(paddedS)])
 }
