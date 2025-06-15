@@ -1,15 +1,11 @@
 import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
-import type { ZKProof } from '@modules/rapidsnark-wrp'
 import { FieldRecords } from 'mrz'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
 import { zustandStorage } from '@/store/helpers'
 
-export type IdentityItem = {
-  document: NewEDocument
-  registrationProof: ZKProof
-}
+import { IdentityItem } from './Identity'
 
 const useIdentityStore = create(
   persist(
@@ -23,7 +19,7 @@ const useIdentityStore = create(
         testEDoc: undefined as NewEDocument | undefined,
         testMRZ: undefined as FieldRecords | undefined,
       },
-      set => ({
+      (set, get) => ({
         // TODO: remove me
         setTestEDoc: (value: NewEDocument) => {
           set({
@@ -44,15 +40,12 @@ const useIdentityStore = create(
         },
 
         addIdentity: (item: IdentityItem) => {
-          set(state => ({
-            identities: [
-              ...state.identities,
-              {
-                document: item.document,
-                registrationProof: item.registrationProof,
-              },
-            ],
-          }))
+          const newIdentities = get().identities
+          newIdentities.push(item)
+
+          set({
+            identities: newIdentities,
+          })
         },
         clearIdentities: () => set({ identities: [] }),
       }),
@@ -65,10 +58,10 @@ const useIdentityStore = create(
           if (!value) return value
 
           if (key === 'identities') {
-            return (value as { document: string; registrationProof: ZKProof }[]).map(item => ({
-              document: NewEDocument.deserialize(item.document as string),
-              registrationProof: item.registrationProof,
-            }))
+            // TODO: check if parsed value is string[]
+            return (JSON.parse(value as string) as string[]).map(el =>
+              IdentityItem.deserialize(el as string),
+            )
           }
 
           if (key === 'testEDoc') {
@@ -81,10 +74,7 @@ const useIdentityStore = create(
           if (!value) return value
 
           if (key === 'identities') {
-            return (value as IdentityItem[]).map(item => ({
-              document: item.document.serialize(),
-              registrationProof: item.registrationProof,
-            }))
+            return (value as IdentityItem[]).map(el => el.serialize())
           }
 
           if (key === 'testEDoc') {

@@ -15,8 +15,9 @@ import type { ViewStyle } from 'react-native/Libraries/StyleSheet/StyleSheetType
 import { ScrollView } from 'react-native-gesture-handler'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import type { DocumentCardUi, IdentityItem } from '@/store'
+import type { DocumentCardUi } from '@/store'
 import { uiPreferencesStore } from '@/store'
+import { IdentityItem } from '@/store/modules/identity/Identity'
 import { cn, useAppTheme } from '@/theme'
 import { UiSwitcher } from '@/ui'
 import { UiBottomSheet, useUiBottomSheet } from '@/ui'

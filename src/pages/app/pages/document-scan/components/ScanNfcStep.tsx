@@ -13,7 +13,7 @@ import { walletStore } from '@/store'
 import { UiButton, UiIcon } from '@/ui'
 
 export default function ScanNfcStep() {
-  const { mrz, setEDoc } = useDocumentScanContext()
+  const { tempMRZ, setTempEDoc } = useDocumentScanContext()
 
   const pk = walletStore.useWalletStore(state => state.privateKey)
   const registrationChallenge = walletStore.useRegistrationChallenge()
@@ -23,34 +23,34 @@ export default function ScanNfcStep() {
   const [title, setTitle] = useState('Scan NFC')
 
   const startScanListener = useCallback(async () => {
-    if (!mrz) throw new TypeError('MRZ data is not available')
+    if (!tempMRZ) throw new TypeError('MRZ data is not available')
 
-    if (!mrz.documentCode) throw new TypeError('Document code is not available in MRZ data')
+    if (!tempMRZ.documentCode) throw new TypeError('Document code is not available in MRZ data')
 
-    if (!mrz.birthDate) throw new TypeError('Birth date is not available in MRZ data')
+    if (!tempMRZ.birthDate) throw new TypeError('Birth date is not available in MRZ data')
 
-    if (!mrz.expirationDate) throw new TypeError('Expiration date is not available in MRZ data')
+    if (!tempMRZ.expirationDate) throw new TypeError('Expiration date is not available in MRZ data')
 
-    if (!mrz.documentNumber) throw new TypeError('Document number is not available in MRZ data')
+    if (!tempMRZ.documentNumber) throw new TypeError('Document number is not available in MRZ data')
 
     if (!pk) return
 
     try {
       const eDocumentResponse = await scanDocument(
-        mrz.documentCode,
+        tempMRZ.documentCode,
         {
-          dateOfBirth: mrz.birthDate,
-          dateOfExpiry: mrz.expirationDate,
-          documentNumber: mrz.documentNumber,
+          dateOfBirth: tempMRZ.birthDate,
+          dateOfExpiry: tempMRZ.expirationDate,
+          documentNumber: tempMRZ.documentNumber,
         },
         registrationChallenge,
       )
 
-      setEDoc(eDocumentResponse)
+      setTempEDoc(eDocumentResponse)
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
-  }, [mrz, pk, registrationChallenge, setEDoc])
+  }, [pk, registrationChallenge, setTempEDoc, tempMRZ])
 
   useEffect(() => {
     if (isScanning.current) return

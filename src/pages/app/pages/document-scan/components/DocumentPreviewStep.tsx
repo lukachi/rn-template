@@ -6,11 +6,11 @@ import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProv
 import { UiButton, UiCard, UiHorizontalDivider } from '@/ui'
 
 export default function DocumentPreviewStep() {
-  const { eDoc, createIdentity } = useDocumentScanContext()
+  const { tempEDoc, createIdentity } = useDocumentScanContext()
 
-  if (!eDoc?.personDetails) return null
+  if (!tempEDoc?.personDetails) return null
 
-  const { firstName, lastName, gender, passportImageRaw, ...restDetails } = eDoc.personDetails
+  const { firstName, lastName, gender, passportImageRaw, ...restDetails } = tempEDoc.personDetails
 
   return (
     <AppContainer className='pb-20'>
@@ -38,7 +38,7 @@ export default function DocumentPreviewStep() {
                 <View key={key} className='flex flex-row items-center justify-between gap-2'>
                   <Text className='capitalize text-textPrimary typography-body3'>{key}</Text>
                   <Text className='text-textPrimary typography-subtitle4'>
-                    {restDetails?.[key as keyof typeof eDoc.personDetails]}
+                    {restDetails?.[key as keyof typeof tempEDoc.personDetails]}
                   </Text>
                 </View>
               )
@@ -47,28 +47,28 @@ export default function DocumentPreviewStep() {
           <View className='flex flex-row items-center justify-between gap-2'>
             <Text className='capitalize text-textPrimary typography-body3'>dg1</Text>
             <Text className='text-textPrimary typography-subtitle4'>
-              {eDoc.dg1Bytes.length} length
+              {tempEDoc.dg1Bytes.length} length
             </Text>
           </View>
 
           <View className='flex flex-row items-center justify-between gap-2'>
             <Text className='capitalize text-textPrimary typography-body3'>dg11</Text>
             <Text className='text-textPrimary typography-subtitle4'>
-              {eDoc.dg11Bytes?.length} length
+              {tempEDoc.dg11Bytes?.length} length
             </Text>
           </View>
 
           <View className='flex flex-row items-center justify-between gap-2'>
             <Text className='capitalize text-textPrimary typography-body3'>dg15</Text>
             <Text className='text-textPrimary typography-subtitle4'>
-              {eDoc.dg15Bytes?.length ?? 0} length
+              {tempEDoc.dg15Bytes?.length ?? 0} length
             </Text>
           </View>
 
           <View className='flex flex-row items-center justify-between gap-2'>
             <Text className='capitalize text-textPrimary typography-body3'>signature</Text>
             <Text className='text-textPrimary typography-subtitle4'>
-              {eDoc?.aaSignature?.length ?? 0} length
+              {tempEDoc?.aaSignature?.length ?? 0} length
             </Text>
           </View>
         </View>

@@ -224,8 +224,8 @@ export class Sod {
   // }
 
   // FIXME: hashPacked from rsa pub key is valid, but master roots is not being verifyed
-  async getSlaveCertificateIndex(slaveCertPemBytes: Uint8Array | Buffer): Promise<Uint8Array> {
-    const slavePec = AsnConvert.parse(decodeDerFromPemBytes(slaveCertPemBytes), Certificate)
+  get slaveCertificateIndex(): Uint8Array {
+    const slavePec = AsnConvert.parse(decodeDerFromPemBytes(this.slaveCertPemBytes), Certificate)
 
     /* 4 ▸ extract RSA modulus from the slave public key ---------------- */
     if (slavePec.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm !== id_rsaEncryption) {

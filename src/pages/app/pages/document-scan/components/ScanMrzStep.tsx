@@ -3,7 +3,6 @@ import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
 import { parse } from 'mrz'
 import { useCallback, useEffect, useMemo } from 'react'
-import type { ViewProps } from 'react-native'
 import { ScrollView, Text, View } from 'react-native'
 import {
   Camera,
@@ -68,11 +67,8 @@ const useMrzParser = (docType: DocType) => {
   }[docType]
 }
 
-type Props = {} & ViewProps
-
-// eslint-disable-next-line no-empty-pattern
-export default function ScanMrzStep({}: Props) {
-  const { docType, setMrz } = useDocumentScanContext()
+export default function ScanMrzStep() {
+  const { docType, setTempMrz } = useDocumentScanContext()
 
   const isFocused = useIsFocused()
   const currentAppState = useAppState()
@@ -94,7 +90,7 @@ export default function ScanMrzStep({}: Props) {
         bus.emit(DefaultBusEvents.success, {
           message: 'MRZ Detected',
         })
-        setMrz(result.fields)
+        setTempMrz(result.fields)
       }
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
