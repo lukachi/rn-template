@@ -2,7 +2,7 @@ import { Image } from 'expo-image'
 import { Text, View } from 'react-native'
 
 import AppContainer from '@/pages/app/components/AppContainer'
-import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
+import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { UiButton, UiCard, UiHorizontalDivider } from '@/ui'
 
 export default function DocumentPreviewStep() {
@@ -54,7 +54,7 @@ export default function DocumentPreviewStep() {
           <View className='flex flex-row items-center justify-between gap-2'>
             <Text className='capitalize text-textPrimary typography-body3'>dg11</Text>
             <Text className='text-textPrimary typography-subtitle4'>
-              {eDoc.dg11Bytes.length} length
+              {eDoc.dg11Bytes?.length} length
             </Text>
           </View>
 

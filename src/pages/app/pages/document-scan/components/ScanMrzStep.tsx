@@ -16,7 +16,7 @@ import { useTextRecognition } from 'react-native-vision-camera-text-recognition'
 import { Worklets } from 'react-native-worklets-core'
 
 import { bus, DefaultBusEvents, ErrorHandler } from '@/core'
-import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
+import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { UiButton } from '@/ui'
 
 const useMrzParser = (docType: DocType) => {

@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import { Text, View } from 'react-native'
 
-import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
+import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { UiButton, UiCard } from '@/ui'
 
 export default function DocumentPreviewStep() {

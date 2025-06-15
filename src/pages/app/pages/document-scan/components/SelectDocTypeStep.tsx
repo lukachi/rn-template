@@ -2,7 +2,7 @@ import { DocType } from '@modules/e-document'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
+import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { UiCard, UiIcon } from '@/ui'
 
 export default function SelectDocTypeStep() {

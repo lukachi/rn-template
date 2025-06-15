@@ -12,7 +12,7 @@ import {
   rejectRevocationEDoc,
   resolveRevocationEDoc,
   useDocumentScanContext,
-} from '@/pages/app/pages/document-scan/context'
+} from '@/pages/app/pages/document-scan/ScanProvider'
 import { walletStore } from '@/store'
 import { UiButton, UiIcon } from '@/ui'
 

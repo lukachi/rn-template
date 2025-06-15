@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 
 import { ErrorHandler } from '@/core'
-import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
+import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { walletStore } from '@/store'
 import { UiButton, UiIcon } from '@/ui'
 

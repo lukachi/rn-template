@@ -11,20 +11,19 @@ import {
 import type { AxiosError } from 'axios'
 import { Buffer } from 'buffer'
 import { encodeBase64, ethers, JsonRpcProvider, keccak256 } from 'ethers'
-import { useAssets } from 'expo-asset'
 import type { FieldRecords } from 'mrz'
 import type { PropsWithChildren } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import { useCallback } from 'react'
 import { useState } from 'react'
 import { createContext, useContext } from 'react'
-import { Text, View } from 'react-native'
 
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
 import { relayerRegister } from '@/api/modules/registration'
 import { Config } from '@/config'
-import { bus, DefaultBusEvents } from '@/core'
+import { ErrorHandler } from '@/core'
 import { createPoseidonSMTContract, createStateKeeperContract } from '@/helpers'
+import { tryCatch } from '@/helpers/try-catch'
 import { identityStore, walletStore } from '@/store'
 import {
   CertificateAlreadyRegisteredError,
@@ -69,42 +68,53 @@ type DocumentScanContext = {
   regProof?: ZKProof
 
   createIdentity: () => Promise<void>
-  identityCreationProcess: JSX.Element
 
   getRevocationChallenge: () => Promise<Uint8Array>
+
+  circuitData?: Omit<ReturnType<typeof useCircuit>, 'loadCircuit'>
 }
 
 const documentScanContext = createContext<DocumentScanContext>({
   currentStep: Steps.SelectDocTypeStep,
 
-  setMrz: () => {},
-  setDocType: () => {},
-  setEDoc: () => {},
+  setMrz: () => {
+    throw new Error('setMrz not implemented')
+  },
+  setDocType: () => {
+    throw new Error('setDocType not implemented')
+  },
+  setEDoc: () => {
+    throw new Error('setEDoc not implemented')
+  },
 
-  createIdentity: async () => {},
-  identityCreationProcess: <></>,
+  createIdentity: async () => {
+    throw new Error('createIdentity not implemented')
+  },
 
-  getRevocationChallenge: async () => new Uint8Array(),
+  getRevocationChallenge: async () => {
+    throw new Error('getRevocationChallenge not implemented')
+  },
 })
 
 export function useDocumentScanContext() {
   return useContext(documentScanContext)
 }
 
-type Props = {
-  docType?: DocType
-} & PropsWithChildren
-
 export let resolveRevocationEDoc: (value: NewEDocument | PromiseLike<NewEDocument>) => void
 export let rejectRevocationEDoc: (value: Error) => void
 
-export function ScanContextProvider({ docType, children }: Props) {
+export function ScanContextProvider({
+  docType,
+  children,
+}: {
+  docType?: DocType
+} & PropsWithChildren) {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
   const publicKeyHash = walletStore.usePublicKeyHash()
 
   const addIdentity = identityStore.useIdentityStore(state => state.addIdentity)
 
-  const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
+  // const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
 
   const [currentStep, setCurrentStep] = useState<Steps>(
     docType ? Steps.ScanMrzStep : Steps.SelectDocTypeStep,
@@ -113,11 +123,6 @@ export function ScanContextProvider({ docType, children }: Props) {
   const [mrz, setMrz] = useState<FieldRecords>()
   const [eDocument, setEDocument] = useState<NewEDocument>()
   const [registrationProof, setRegistrationProof] = useState<ZKProof>()
-
-  /* TEMP. sharable files */
-  // const [slaveCertSmtProof, setSlaveCertSmtProof] = useState<SparseMerkleTree.ProofStructOutput>()
-  // const [passportInfo, setPassportInfo] = useState<PassportInfo | null>(null)
-  // const [circuitType, setCircuitType] = useState<CircuitType>()
 
   const { loadCircuit, ...restCircuit } = useCircuit()
 
@@ -128,12 +133,14 @@ export function ScanContextProvider({ docType, children }: Props) {
 
     return new JsonRpcProvider(evmRpcUrl)
   }, [])
+
   const certPoseidonSMTContract = useMemo(() => {
     return createPoseidonSMTContract(
       Config.CERT_POSEIDON_SMT_CONTRACT_ADDRESS,
       rmoEvmJsonRpcProvider,
     )
   }, [rmoEvmJsonRpcProvider])
+
   const stateKeeperContract = useMemo(() => {
     return createStateKeeperContract(Config.STATE_KEEPER_CONTRACT_ADDRESS, rmoEvmJsonRpcProvider)
   }, [rmoEvmJsonRpcProvider])
@@ -323,7 +330,7 @@ export function ScanContextProvider({ docType, children }: Props) {
       circuitTypeCertificatePubKeySize: number,
       isRevoked: boolean,
     ) => {
-      const registerCallData = await newBuildRegisterCallData(
+      const registerCallData = newBuildRegisterCallData(
         regProof,
         eDoc,
         masterCertSmtProofRoot,
@@ -332,10 +339,7 @@ export function ScanContextProvider({ docType, children }: Props) {
         0, // TODO circuitName has to be built
       )
 
-      const { data } = await relayerRegister(
-        ethers.hexlify(registerCallData),
-        Config.REGISTRATION_CONTRACT_ADDRESS,
-      )
+      const { data } = await relayerRegister(registerCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
 
       const tx = await rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
 
@@ -475,85 +479,99 @@ export function ScanContextProvider({ docType, children }: Props) {
   const createIdentity = useCallback(async (): Promise<void> => {
     if (!eDocument) return
 
-    try {
-      setCurrentStep(Steps.GenerateProofStep)
+    setCurrentStep(Steps.GenerateProofStep)
 
-      const icaoAsset = assets?.[0]
+    // const icaoAsset = assets?.[0]
 
-      if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
+    // TODO: check slave cert pem against icao bytes
+    // if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
+    // const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
+    //   encoding: FileSystem.EncodingType.Base64,
+    // })
+    // const icaoBytes = ethers.decodeBase64(icaoBase64)
 
-      // TODO: check slave cert pem against icao bytes
-      // const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
-      //   encoding: FileSystem.EncodingType.Base64,
-      // })
-      // const icaoBytes = ethers.decodeBase64(icaoBase64)
+    const [slaveCertIdx, getSlaveCertIdxError] = await tryCatch(
+      eDocument.sod.getSlaveCertificateIndex(eDocument.sod.slaveCertPemBytes),
+    )
+    if (getSlaveCertIdxError) {
+      ErrorHandler.processWithoutFeedback(getSlaveCertIdxError)
+      setCurrentStep(Steps.DocumentPreviewStep)
+      return
+    }
 
-      const publicKeyPem = eDocument.sod.publicKeyPemBytes
-      const pubKeySize = eDocument.sod.X509RSASize
-      const slaveCertPem = eDocument.sod.slaveCertPemBytes
-      const slaveCertIdx = await eDocument.sod.getSlaveCertificateIndex(slaveCertPem)
+    const circuitType = getCircuitType(eDocument.sod.X509RSASize)
 
-      const circuitType = getCircuitType(pubKeySize)
+    if (!circuitType) throw new TypeError('Unsupported public key size')
 
-      if (!circuitType) throw new TypeError('Unsupported public key size')
+    const [slaveCertSmtProof, getSlaveCertSmtProof] = await tryCatch(
+      certPoseidonSMTContract.contractInstance.getProof(ethers.zeroPadValue(slaveCertIdx, 32)),
+    )
+    if (getSlaveCertSmtProof) {
+      ErrorHandler.processWithoutFeedback(getSlaveCertSmtProof)
+      setCurrentStep(Steps.DocumentPreviewStep)
+      return
+    }
 
-      const slaveCertSmtProof = await certPoseidonSMTContract.contractInstance.getProof(
-        ethers.zeroPadValue(slaveCertIdx, 32),
+    if (!slaveCertSmtProof.existence) {
+      const [, registerCertificateError] = await tryCatch(
+        registerCertificate(eDocument.sod.slaveCertPemBytes),
       )
+      if (registerCertificateError) {
+        ErrorHandler.processWithoutFeedback(registerCertificateError)
 
-      if (!slaveCertSmtProof.existence) {
-        try {
-          await registerCertificate(slaveCertPem)
-        } catch (error) {
-          console.error(error)
-          if (!(error instanceof CertificateAlreadyRegisteredError)) {
-            throw error
-          }
+        if (!(registerCertificateError instanceof CertificateAlreadyRegisteredError)) {
+          setCurrentStep(Steps.DocumentPreviewStep)
+          return
         }
       }
+    }
 
-      const regProof = await getIdentityRegProof(
+    const [regProof, getRegProofError] = await tryCatch(
+      getIdentityRegProof(
         eDocument,
         circuitType,
-        publicKeyPem,
+        eDocument.sod.publicKeyPemBytes,
         slaveCertSmtProof,
-      )
-      setRegistrationProof(regProof)
-
-      const passportInfo = await getPassportInfo(eDocument, regProof)
-
-      try {
-        await registerIdentity(regProof, eDocument, slaveCertSmtProof, circuitType, passportInfo)
-      } catch (error) {
-        if (error instanceof PassportRegisteredWithAnotherPKError) {
-          await revokeIdentity(eDocument, passportInfo, slaveCertSmtProof, circuitType, regProof)
-        } else {
-          throw error
-        }
-      }
-
-      addIdentity({
-        document: eDocument,
-        registrationProof: regProof,
-      })
-      setCurrentStep(Steps.FinishStep)
-    } catch (error) {
-      const axiosError = error as AxiosError
-
-      if (axiosError.response?.data) {
-        console.warn(JSON.stringify(axiosError.response?.data))
-      }
-
-      console.error(error)
-
-      bus.emit(DefaultBusEvents.error, {
-        message: 'Failed to register identity',
-      })
+      ),
+    )
+    if (getRegProofError) {
+      ErrorHandler.processWithoutFeedback(getRegProofError)
       setCurrentStep(Steps.DocumentPreviewStep)
+      return
     }
+    setRegistrationProof(regProof)
+
+    const [passportInfo, getPassportInfoError] = await tryCatch(
+      getPassportInfo(eDocument, regProof),
+    )
+    if (getPassportInfoError) {
+      ErrorHandler.processWithoutFeedback(getPassportInfoError)
+      setCurrentStep(Steps.DocumentPreviewStep)
+      return
+    }
+
+    const [, registerIdentityError] = await tryCatch(
+      registerIdentity(regProof, eDocument, slaveCertSmtProof, circuitType, passportInfo),
+    )
+    if (registerIdentityError) {
+      const [, revokeIdentityError] = await tryCatch(
+        revokeIdentity(eDocument, passportInfo, slaveCertSmtProof, circuitType, regProof),
+      )
+      if (revokeIdentityError) {
+        ErrorHandler.processWithoutFeedback(revokeIdentityError)
+        setCurrentStep(Steps.DocumentPreviewStep)
+        return
+      }
+    }
+
+    addIdentity({
+      document: eDocument,
+      registrationProof: regProof,
+    })
+
+    setCurrentStep(Steps.FinishStep)
   }, [
     addIdentity,
-    assets,
     certPoseidonSMTContract.contractInstance,
     eDocument,
     getIdentityRegProof,
@@ -564,23 +582,6 @@ export function ScanContextProvider({ docType, children }: Props) {
   ])
 
   // ---------------------------------------------------------------------------------------------
-
-  const identityCreationProcess = useMemo(() => {
-    return (
-      <View>
-        <Text className='text-textPrimary typography-subtitle4'>Downloading Progress:</Text>
-        <Text className='text-textPrimary typography-body3'>{restCircuit.downloadingProgress}</Text>
-
-        <Text className='text-textPrimary typography-subtitle4'>isLoaded:</Text>
-        <Text className='text-textPrimary typography-body3'>{String(restCircuit.isLoaded)}</Text>
-
-        <Text className='text-textPrimary typography-subtitle4'>isCircuitsLoadFailed:</Text>
-        <Text className='text-textPrimary typography-body3'>
-          {String(restCircuit.isLoadFailed)}
-        </Text>
-      </View>
-    )
-  }, [restCircuit.downloadingProgress, restCircuit.isLoadFailed, restCircuit.isLoaded])
 
   const handleSetSelectedDocType = useCallback((value: DocType) => {
     setSelectedDocType(value)
@@ -642,9 +643,10 @@ export function ScanContextProvider({ docType, children }: Props) {
         regProof: registrationProof,
 
         createIdentity,
-        identityCreationProcess,
 
         getRevocationChallenge,
+
+        circuitData: restCircuit,
       }}
       children={children}
     />

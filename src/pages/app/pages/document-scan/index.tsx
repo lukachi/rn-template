@@ -2,7 +2,7 @@ import {
   ScanContextProvider,
   Steps,
   useDocumentScanContext,
-} from '@/pages/app/pages/document-scan/context'
+} from '@/pages/app/pages/document-scan/ScanProvider'
 import type { AppTabScreenProps } from '@/route-types'
 
 import {
