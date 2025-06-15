@@ -6,11 +6,7 @@ import {
 } from '@modules/e-document'
 import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
 import { groth16ProveWithZKeyFilePath, ZKProof } from '@modules/rapidsnark-wrp'
-import {
-  buildRegisterCertificateCallData,
-  buildRegisterIdentityInputs,
-  buildRevoceCalldata,
-} from '@modules/rarime-sdk'
+import { buildRegisterCertificateCallData, buildRegisterIdentityInputs } from '@modules/rarime-sdk'
 import { AxiosError } from 'axios'
 import { encodeBase64, ethers, getBytes, JsonRpcProvider, keccak256, zeroPadValue } from 'ethers'
 import { FieldRecords } from 'mrz'
@@ -71,6 +67,8 @@ export const useRegistration = () => {
       rmoEvmJsonRpcProvider,
     )
   }, [rmoEvmJsonRpcProvider])
+
+  const registrationContractInterface = Registration__factory.createInterface()
 
   // ----------------------------------------------------------------------------------------
 
@@ -209,8 +207,6 @@ export const useRegistration = () => {
         ],
       }
 
-      const registrationContractInterface = Registration__factory.createInterface()
-
       if (isRevoked) {
         return registrationContractInterface.encodeFunctionData('reissueIdentity', [
           masterCertSmtProofRoot,
@@ -229,7 +225,7 @@ export const useRegistration = () => {
         proofPoints,
       ])
     },
-    [],
+    [registrationContractInterface],
   )
 
   const requestRelayerRegisterMethod = useCallback(
@@ -352,6 +348,13 @@ export const useRegistration = () => {
       const revokedEDocument = currentIdentityItem.document || eDocumentResponse
       revokedEDocument.aaSignature = eDocumentResponse.aaSignature
 
+      const circuitType =
+        _circuitType ?? getCircuitType(currentIdentityItem.document.sod.X509RSASize)
+
+      if (!circuitType) throw new TypeError('Unsupported public key size')
+
+      const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
+
       const [passportInfo, getPassportInfoError] = await (async () => {
         if (_passportInfo) return [_passportInfo, null]
 
@@ -364,22 +367,24 @@ export const useRegistration = () => {
       if (!passportInfo?.passportInfo_.activeIdentity)
         throw new TypeError('Active identity not found')
 
-      const activeIdentityBytes = ethers.getBytes(passportInfo?.passportInfo_.activeIdentity)
-
       const isPassportRegistered = passportInfo?.passportInfo_.activeIdentity !== ZERO_BYTES32_HEX
 
       if (isPassportRegistered) {
-        const calldata = await buildRevoceCalldata(
-          activeIdentityBytes,
-          revokedEDocument.aaSignature,
-          revokedEDocument.dg15PubKeyPem || new Uint8Array(),
-        )
+        const passport: Registration2.PassportStruct = {
+          dataType: revokedEDocument.getAADataType(circuitTypeCertificatePubKeySize),
+          zkType: ZERO_BYTES32_HEX,
+          signature: revokedEDocument.AASignature,
+          publicKey: revokedEDocument.AAPublicKey || ZERO_BYTES32_HEX,
+          passportHash: ZERO_BYTES32_HEX,
+        }
+
+        const txCallData = registrationContractInterface.encodeFunctionData('revoke', [
+          passportInfo?.passportInfo_.activeIdentity,
+          passport,
+        ])
 
         try {
-          const { data } = await relayerRegister(
-            ethers.hexlify(calldata),
-            Config.REGISTRATION_CONTRACT_ADDRESS,
-          )
+          const { data } = await relayerRegister(txCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
 
           const tx = await rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
 
@@ -404,13 +409,6 @@ export const useRegistration = () => {
         }
       }
 
-      const circuitType =
-        _circuitType ?? getCircuitType(currentIdentityItem.document.sod.X509RSASize)
-
-      if (!circuitType) throw new TypeError('Unsupported public key size')
-
-      const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
-
       const [slaveCertSmtProof, getSlaveCertSmtProofError] = await (async () => {
         if (_slaveCertSmtProof) return [_slaveCertSmtProof, null]
 
@@ -430,6 +428,7 @@ export const useRegistration = () => {
     [
       getRevocationChallenge,
       getSlaveCertSmtProof,
+      registrationContractInterface,
       requestRelayerRegisterMethod,
       rmoEvmJsonRpcProvider,
     ],
