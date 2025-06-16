@@ -8,7 +8,8 @@ import { Buffer } from 'buffer'
 import * as x509 from '@peculiar/x509'
 
 import { hashPacked } from './crypto'
-import { decodeDerFromPemBytes, toPem } from './misc'
+import { decodeDerFromPemBytes, toDer, toPem } from './misc'
+import { X509ChainBuilder } from '@peculiar/x509'
 
 export class Sod {
   private sodBytes: Uint8Array
@@ -136,39 +137,33 @@ export class Sod {
 
     const x509Slave = new x509.X509Certificate(this.slaveCertPemBytes)
 
-    const candidates = trustedRoots.filter(cert => {
+    const candidates = trustedRoots.reduce((acc, curr) => {
       try {
-        const x509Cert = new x509.X509Certificate(AsnConvert.serialize(cert))
-
-        return x509Cert.subject === x509Slave.issuer
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        return false
-      }
-    })
-
-    for (const csca of candidates) {
-      const x509Csca = new x509.X509Certificate(AsnConvert.serialize(csca))
-
-      if (await x509Slave.verify({ publicKey: x509Csca.publicKey })) {
-        return csca
-      }
-    }
-
-    for (const csca of trustedRoots) {
-      try {
-        const x509Csca = new x509.X509Certificate(AsnConvert.serialize(csca))
-
-        if (await x509Slave.verify({ publicKey: x509Csca.publicKey })) {
-          return csca
+        const x509Cert = new x509.X509Certificate(AsnConvert.serialize(curr))
+        if (x509Cert.subject === x509Slave.issuer) {
+          acc.push(x509Cert)
         }
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        continue
+        /* empty */
       }
+      return acc
+    }, [] as x509.X509Certificate[])
+
+    const builder = new X509ChainBuilder({
+      certificates: candidates,
+    })
+
+    const chain = await builder.build(x509Slave)
+
+    if (!chain.length) {
+      throw new Error('No valid chain from slave to a CSCA in the Master-List')
     }
 
-    throw new Error('Matching CSCA not found in ICAO Master-List')
+    /* 4️⃣ The final element of the chain is the root CSCA */
+    const master = chain[chain.length - 1]
+
+    return AsnConvert.parse(master.rawData, Certificate)
   }
 
   get slaveCertificateIndex(): Uint8Array {
@@ -188,19 +183,6 @@ export class Sod {
 
     return hashPacked(unpadded)
   }
-}
-
-const toDer = (blob: Uint8Array | string): Uint8Array => {
-  const str = typeof blob === 'string' ? blob : new TextDecoder().decode(blob)
-  if (str.includes('-----BEGIN')) {
-    // PEM detected
-    const b64 = str
-      .replace(/-----BEGIN [^-]+-----/, '')
-      .replace(/-----END [^-]+-----/, '')
-      .replace(/\s+/g, '')
-    return Uint8Array.from(Buffer.from(b64, 'base64'))
-  }
-  return typeof blob === 'string' ? Uint8Array.from(Buffer.from(str, 'binary')) : blob
 }
 
 const pemChainToArray = (txt: string): Uint8Array[] =>

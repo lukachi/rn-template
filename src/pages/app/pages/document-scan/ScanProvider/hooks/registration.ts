@@ -5,6 +5,7 @@ import {
   getCircuitDetailsByType,
   getCircuitType,
   scanDocument,
+  toPem,
 } from '@modules/e-document'
 import {
   NewEDocument,
@@ -130,15 +131,29 @@ export const useRegistration = () => {
       const x509SlaveCert = new X509.X509Certificate(tempEDoc.sod.slaveCertPemBytes)
       const x509MasterCert = new X509.X509Certificate(AsnConvert.serialize(slaveMaster))
 
+      console.log({
+        x509SlaveCert,
+        x509MasterCert,
+      })
+
       const masterCertificatesPem = parseIcaoCms(icaoBytes)
 
+      console.log({ masterCertificatesPem })
+
       const icaoTree = await makeIcaoTree(
-        masterCertificatesPem.map(el => new Uint8Array(AsnConvert.serialize(el))),
+        masterCertificatesPem.map(
+          el =>
+            new Uint8Array(Buffer.from(toPem(AsnConvert.serialize(el), 'CERTIFICATE'), 'utf-8')),
+        ),
       )
+
+      console.log({ icaoTree })
 
       const { proof: inclusionProof } = await icaoTree.generateProof(
         BigInt(Buffer.from(AsnConvert.serialize(slaveMaster)).toString('hex')),
       )
+
+      console.log({ inclusionProof })
 
       if (inclusionProof.allSiblings().length <= 0) {
         throw new TypeError('failed to generate inclusion proof')
@@ -832,6 +847,18 @@ export const useRegistration = () => {
       if (getSlaveCertSmtProofError) {
         throw new TypeError('Slave certificate SMT proof not found', getSlaveCertSmtProofError)
       }
+
+      console.log({ slaveCertSmtProof })
+
+      const registerCertCallData = await newBuildRegisterCertCallData(
+        icaoBytes,
+        tempEDoc,
+        slaveMaster,
+      )
+
+      console.log({ registerCertCallData })
+
+      throw new TypeError('purpose')
 
       if (!slaveCertSmtProof.existence) {
         const [, registerCertificateError] = await tryCatch(
