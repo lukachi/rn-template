@@ -2,9 +2,10 @@ import { SOD } from '@li0ard/tsemrtd'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
 import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
-import { Certificate, SubjectPublicKeyInfo } from '@peculiar/asn1-x509'
+import { Certificate } from '@peculiar/asn1-x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
+import * as x509 from '@peculiar/x509'
 
 import { hashPacked } from './crypto'
 import { decodeDerFromPemBytes, toPem } from './misc'
@@ -55,6 +56,12 @@ export class Sod {
     // For a 2048-bit key → 256 bytes (no pad) → 2048.
     // For a 4096-bit key → 513 bytes (pad) → (513 − 1) × 8 = 4096.
     return (modulus[0] === 0x00 ? modulus.length - 1 : modulus.length) * 8
+  }
+
+  get slaveCert(): Certificate {
+    if (!this.certSet[0].certificate) throw new TypeError('No certificate found in SOD')
+
+    return this.certSet[0].certificate
   }
 
   get slaveCertPemBytes(): Uint8Array {
@@ -124,106 +131,46 @@ export class Sod {
     return new Uint8Array(signerInfo.signature.buffer)
   }
 
-  // async xMasterRoot(icaoBytes: Uint8Array) {
-  // const slavePki = pecToPki(slavePec)
-  // // Initialize arrays for chain certificates and trusted roots
-  // // 'certsForEngine' will contain all certificates that pkijs can use to build the chain
-  // const certsForEngine: PkiCert[] = [slavePki]
-  // // 'trustedRoots' will contain only the self-signed certificates that are explicitly trusted
-  // const trustedRoots: PkiCert[] = []
-  // // console.log('--- Parsing ICAO Certificates ---')
-  // const ascii = Buffer.from(icaoBytes).toString('utf8')
-  // if (ascii.includes('BEGIN CERTIFICATE')) {
-  //   // Handle PEM formatted ICAO bytes
-  //   for (const match of ascii.matchAll(
-  //     /-----BEGIN CERTIFICATE-----[^-]+-----END CERTIFICATE-----/g,
-  //   )) {
-  //     const pec = AsnConvert.parse(decodeDerFromPemBytes(Buffer.from(match[0])), PecCert)
-  //     const pkiCert = pecToPki(pec)
-  //     // Add ALL parsed certificates to certsForEngine, as pkijs needs them to build the chain
-  //     certsForEngine.push(pkiCert)
-  //     // Check if the certificate is self-signed (issuer === subject) to identify trusted roots
-  //     if (pkiCert.issuer.toString() === pkiCert.subject.toString()) {
-  //       trustedRoots.push(pkiCert)
-  //     }
-  //   }
-  // } else {
-  //   // Handle PKD formatted ICAO bytes
-  //   const masterList = PKD.load(Buffer.from(icaoBytes))
-  //   for (const choice of masterList.certificates) {
-  //     if (choice.certificate) {
-  //       const pkiCert = pecToPki(choice.certificate)
-  //       // Add ALL parsed certificates to certsForEngine
-  //       certsForEngine.push(pkiCert)
-  //       // Check if self-signed to identify trusted roots
-  //       if (pkiCert.issuer.toString() === pkiCert.subject.toString()) {
-  //         trustedRoots.push(pkiCert)
-  //       }
-  //     }
-  //   }
-  // }
-  // if (!trustedRoots.length) {
-  //   throw new TypeError(
-  //     'No self-signed CSCA certificates identified as trust anchors from ICAO bytes.',
-  //   )
-  // }
-  // // Initialize the CertificateChainValidationEngine
-  // const engine = new CertificateChainValidationEngine({
-  //   certs: certsForEngine, // Contains the slave cert and ALL other ICAO certificates (intermediates and roots)
-  //   trustedCerts: trustedRoots, // Contains only self-signed roots that are explicitly trusted
-  //   crls: [],
-  //   ocsps: [],
-  //   checkDate: new Date(), // Use current date for validity checks
-  //   // Custom findIssuer for detailed logging during chain building
-  //   findIssuer: async (certificate, validationEngine, crypto) => {
-  //     // Use the default findIssuer logic provided by pkijs
-  //     const issuers = await validationEngine.defaultFindIssuer(
-  //       certificate,
-  //       validationEngine,
-  //       crypto,
-  //     )
-  //     if (issuers.length === 0) {
-  //       console.error(
-  //         `  No issuer found for "${certificate.subject.toString()}" within the provided 'certs' pool. Chain building halted.`,
-  //       )
-  //     }
-  //     return issuers
-  //   },
-  // })
-  // console.log('--- Attempting Certificate Chain Validation ---')
-  // let validationResult
-  // try {
-  //   validationResult = await engine.verify()
-  //   // console.log('Validation Result:', {
-  //   //   result: validationResult.result,
-  //   //   resultCode: validationResult.resultCode,
-  //   //   resultMessage: validationResult.resultMessage,
-  //   //   certificatePath: validationResult.certificatePath?.map(c => c.subject.toString()),
-  //   // })
-  //   if (validationResult.result) {
-  //     // console.log('Certificate chain validation successful!')
-  //   } else {
-  //     // console.error(
-  //     //   `Certificate chain validation failed: ${validationResult.resultMessage} (Code: ${validationResult.resultCode})`,
-  //     // )
-  //     // // If validation fails, provide more context from the engine's internal state
-  //     // console.log('Certificates provided to engine (certs array):')
-  //     // engine.certs.forEach(c => logCertDetails(c, 'Engine Certs Array'))
-  //     // console.log('Trusted certificates provided to engine (trustedCerts array):')
-  //     // engine.trustedCerts.forEach(c => logCertDetails(c, 'Engine Trusted Certs Array'))
-  //   }
-  // } catch (error) {
-  //   console.error('An error occurred during chain validation:', error)
-  //   // throw new TypeError(
-  //   //   `Chain validation error: ${error instanceof Error ? error.message : String(error)}`,
-  //   // )
-  // }
-  // if (!validationResult || !validationResult.result) {
-  //   throw new TypeError('Slave cert does not validate against ICAO roots.')
-  // }
-  // }
+  async getSlaveMaster(icaoBytes: Uint8Array) {
+    const trustedRoots = parseIcaoCms(icaoBytes)
 
-  // FIXME: hashPacked from rsa pub key is valid, but master roots is not being verifyed
+    const x509Slave = new x509.X509Certificate(this.slaveCertPemBytes)
+
+    const candidates = trustedRoots.filter(cert => {
+      try {
+        const x509Cert = new x509.X509Certificate(AsnConvert.serialize(cert))
+
+        return x509Cert.subject === x509Slave.issuer
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        return false
+      }
+    })
+
+    for (const csca of candidates) {
+      const x509Csca = new x509.X509Certificate(AsnConvert.serialize(csca))
+
+      if (await x509Slave.verify({ publicKey: x509Csca.publicKey })) {
+        return csca
+      }
+    }
+
+    for (const csca of trustedRoots) {
+      try {
+        const x509Csca = new x509.X509Certificate(AsnConvert.serialize(csca))
+
+        if (await x509Slave.verify({ publicKey: x509Csca.publicKey })) {
+          return csca
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        continue
+      }
+    }
+
+    throw new Error('Matching CSCA not found in ICAO Master-List')
+  }
+
   get slaveCertificateIndex(): Uint8Array {
     const slavePec = AsnConvert.parse(decodeDerFromPemBytes(this.slaveCertPemBytes), Certificate)
 
@@ -239,22 +186,41 @@ export class Sod {
     const modulusBytes = new Uint8Array(rsa.modulus)
     const unpadded = modulusBytes[0] === 0x00 ? modulusBytes.subarray(1) : modulusBytes
 
-    /* 5 ▸ SHA-256(modulus) → index ------------------------------------ */
     return hashPacked(unpadded)
   }
 }
 
-export function getDg15PubKeyPem(dg15Bytes: Uint8Array) {
-  const { result } = fromBER(dg15Bytes)
-
-  if (!result) {
-    throw new Error('BER-decode failed - DG15 file corrupted?')
+const toDer = (blob: Uint8Array | string): Uint8Array => {
+  const str = typeof blob === 'string' ? blob : new TextDecoder().decode(blob)
+  if (str.includes('-----BEGIN')) {
+    // PEM detected
+    const b64 = str
+      .replace(/-----BEGIN [^-]+-----/, '')
+      .replace(/-----END [^-]+-----/, '')
+      .replace(/\s+/g, '')
+    return Uint8Array.from(Buffer.from(b64, 'base64'))
   }
+  return typeof blob === 'string' ? Uint8Array.from(Buffer.from(str, 'binary')) : blob
+}
 
-  const subjectPublicKeyInfo = AsnConvert.parse(
-    result.valueBlock.toBER(false),
-    SubjectPublicKeyInfo,
-  )
+const pemChainToArray = (txt: string): Uint8Array[] =>
+  txt
+    .split('-----BEGIN CERTIFICATE-----')
+    .filter(Boolean)
+    .map(chunk => toDer('-----BEGIN CERTIFICATE-----' + chunk))
 
-  return Buffer.from(toPem(AsnConvert.serialize(subjectPublicKeyInfo), 'PUBLIC KEY'), 'utf8')
+/**
+ * Decode a CMS Master-List / SOD buffer and return all embedded certificates.
+ */
+export const parseIcaoCms = (bytes: Uint8Array): Certificate[] => {
+  /* Case B – simple concatenated PEM chain ------------------------------- */
+  const txt = Buffer.from(bytes).toString('utf-8')
+
+  const pems = pemChainToArray(txt)
+
+  return pems.map(derCert => {
+    const { result } = fromBER(derCert)
+
+    return AsnConvert.parse(result.toBER(false), Certificate)
+  })
 }

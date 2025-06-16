@@ -52,16 +52,14 @@ const useIdentityStore = create(
     ),
     {
       name: 'documents',
-      version: 6,
+      version: 7,
       storage: createJSONStorage(() => zustandStorage, {
         reviver: (key, value) => {
           if (!value) return value
 
           if (key === 'identities') {
             // TODO: check if parsed value is string[]
-            return (JSON.parse(value as string) as string[]).map(el =>
-              IdentityItem.deserialize(el as string),
-            )
+            return (value as string[]).map(el => IdentityItem.deserialize(el as string))
           }
 
           if (key === 'testEDoc') {
@@ -78,7 +76,8 @@ const useIdentityStore = create(
           }
 
           if (key === 'testEDoc') {
-            return value instanceof NewEDocument ? value.serialize() : value
+            const res = value instanceof NewEDocument ? value.serialize() : value
+            return res
           }
 
           return value

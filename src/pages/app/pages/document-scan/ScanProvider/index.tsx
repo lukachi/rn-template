@@ -2,7 +2,7 @@ import type { DocType } from '@modules/e-document'
 import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
 import type { FieldRecords } from 'mrz'
 import type { PropsWithChildren } from 'react'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { createContext, useContext } from 'react'
 
@@ -132,7 +132,7 @@ export function ScanContextProvider({
         return
       }
 
-      setCurrentStep(Steps.SelectDocTypeStep)
+      setCurrentStep(Steps.DocumentPreviewStep)
       return
     }
 
@@ -148,41 +148,44 @@ export function ScanContextProvider({
     setCurrentStep(Steps.ScanMrzStep)
   }, [])
 
+  const setTestEDoc = identityStore.useIdentityStore(state => state.setTestEDoc)
+  const setTestMRZ = identityStore.useIdentityStore(state => state.setTestMRZ)
+
   const handleSetMrz = useCallback(
     (value: FieldRecords) => {
       setTempMRZ(value)
+      setTestMRZ(value)
       setCurrentStep(Steps.ScanNfcStep)
     },
-    [setCurrentStep],
+    [setTestMRZ],
   )
 
   const handleSetEDoc = useCallback(
     (value: NewEDocument) => {
       setTempEDoc(value)
+      setTestEDoc(value)
       setCurrentStep(Steps.DocumentPreviewStep)
     },
-    [setCurrentStep],
+    [setTestEDoc],
   )
 
   // TODO: remove me
-  // const testEDoc = identityStore.useIdentityStore(state => state.testEDoc)
-  // const setTestEDoc = identityStore.useIdentityStore(state => state.setTestEDoc)
-  // const testMRZ = identityStore.useIdentityStore(state => state.testMRZ)
-  // const setTestMRZ = identityStore.useIdentityStore(state => state.setTestMRZ)
+  const testEDoc = identityStore.useIdentityStore(state => state.testEDoc)
+  const testMRZ = identityStore.useIdentityStore(state => state.testMRZ)
 
   // // TODO: remove me
-  // const initted = useRef(false)
-  // useEffect(() => {
-  //   if (initted.current || currentStep === Steps.DocumentPreviewStep) return
+  const initted = useRef(false)
+  useEffect(() => {
+    if (initted.current || currentStep === Steps.DocumentPreviewStep) return
 
-  //   initted.current = true
+    initted.current = true
 
-  //   if (testEDoc && testMRZ) {
-  //     setEDocument(testEDoc)
-  //     setMrz(testMRZ)
-  //     setCurrentStep(Steps.DocumentPreviewStep)
-  //   }
-  // }, [currentStep, testEDoc, testMRZ])
+    if (testEDoc && testMRZ) {
+      setTempEDoc(testEDoc)
+      setTempMRZ(testMRZ)
+      setCurrentStep(Steps.DocumentPreviewStep)
+    }
+  }, [currentStep, testEDoc, testMRZ])
 
   return (
     <documentScanContext.Provider
