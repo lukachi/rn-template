@@ -354,17 +354,31 @@ export const useRegistration = () => {
 
         /* ----------  ECDSA family  ---------------------------------------------- */
         function dispatcherForECDSA(slave: Certificate): string {
+          const ecParameters = AsnConvert.parse(
+            slave.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+            ECParameters,
+          )
+
+          // TODO: implement for brainpool
+          // if (!ecParameters.specifiedCurve?.fieldID.parameters) {
+          //   throw new TypeError('ECDSA public key does not have a fieldID parameters')
+          // }
+
+          // const fieldParameterHex = Buffer.from(
+          //   ecParameters.specifiedCurve?.fieldID.parameters,
+          // ).toString('hex')
+
           const bitLen = (x509SlaveCert.publicKey.rawData.byteLength * 8).toString()
 
           switch (slave.signatureAlgorithm.algorithm) {
             case id_ecdsaWithSHA1: // ECDSAwithSHA1
-              return `C_ECDSA_${curveName}_SHA1_${bitLen}`
+              return `C_ECDSA_${ecParameters.namedCurve}_SHA1_${bitLen}`
             case id_ecdsaWithSHA256: // ECDSAwithSHA256
-              return `C_ECDSA_${curveName}_SHA2_${bitLen}`
+              return `C_ECDSA_${ecParameters.namedCurve}_SHA2_${bitLen}`
             case id_ecdsaWithSHA384: // ECDSAwithSHA384
-              return `C_ECDSA_${curveName}_SHA384_${bitLen}`
+              return `C_ECDSA_${ecParameters.namedCurve}_SHA384_${bitLen}`
             case id_ecdsaWithSHA512: // ECDSAwithSHA512
-              return `C_ECDSA_${curveName}_SHA512_${bitLen}`
+              return `C_ECDSA_${ecParameters.namedCurve}_SHA512_${bitLen}`
             default:
               throw new Error(
                 `unsupported certificate signature algorithm: ${slave.signatureAlgorithm}`,
