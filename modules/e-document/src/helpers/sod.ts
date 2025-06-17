@@ -132,8 +132,8 @@ export class Sod {
     return new Uint8Array(signerInfo.signature.buffer)
   }
 
-  async getSlaveMaster(icaoBytes: Uint8Array) {
-    const trustedRoots = parseIcaoCms(icaoBytes)
+  async getSlaveMaster(CSCAs: Certificate[]) {
+    const trustedRoots = CSCAs
 
     const x509Slave = new x509.X509Certificate(this.slaveCertPemBytes)
 

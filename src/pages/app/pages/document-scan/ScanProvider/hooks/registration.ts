@@ -1,11 +1,10 @@
 import { time } from '@distributedlab/tools'
-import { InMemoryDB, Merkletree, str2Bytes } from '@iden3/js-merkletree'
+import { InMemoryDB, Merkletree } from '@iden3/js-merkletree'
 import {
   CircuitType,
   getCircuitDetailsByType,
   getCircuitType,
   scanDocument,
-  toPem,
 } from '@modules/e-document'
 import {
   NewEDocument,
@@ -114,83 +113,107 @@ export const useRegistration = () => {
 
   // ----------------------------------------------------------------------------------------
 
-  const makeIcaoTree = async (pems: Uint8Array[]): Promise<Merkletree> => {
-    const db = new InMemoryDB(str2Bytes('ICAO-TREE'))
-    const mt = new Merkletree(db, true, 10) // depth=10 is enough for <2^10 certs
-    await Promise.all(
-      pems.map(async (pem, i) => {
-        const h = BigInt(keccak256(pem))
-        await mt.add(BigInt(i), h)
-      }),
-    )
-    return mt
-  }
-
   const newBuildRegisterCertCallData = useCallback(
-    async (icaoBytes: Uint8Array, tempEDoc: NewEDocument, slaveMaster: Certificate) => {
-      const x509SlaveCert = new X509.X509Certificate(tempEDoc.sod.slaveCertPemBytes)
+    async (CSCAs: Certificate[], tempEDoc: NewEDocument, slaveMaster: Certificate) => {
+      // priority = keccak256.Hash(key) % (2^64-1)
+      function toField(bytes: Uint8Array): bigint {
+        const bi = BigInt('0x' + Buffer.from(bytes).toString('hex'))
+        return bi % (2n ** 64n - 1n)
+      }
+
       const x509MasterCert = new X509.X509Certificate(AsnConvert.serialize(slaveMaster))
 
-      console.log({
-        x509SlaveCert,
-        x509MasterCert,
-      })
+      const [icaoTree, getIcaoTreeError] = await tryCatch(
+        (async () => {
+          const db = new InMemoryDB(new Uint8Array([0])) // arbitrary prefix
+          const tree = new Merkletree(db, true, 256)
 
-      const masterCertificatesPem = parseIcaoCms(icaoBytes)
+          for (const cert of CSCAs) {
+            const digest = keccak256(
+              new Uint8Array(cert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+            ) // TODO: check for prefixes
+            const key = toField(getBytes(digest)) // inside the field
 
-      console.log({ masterCertificatesPem })
+            await tryCatch(tree.add(key, 0n)) // TODO: check this
+          }
 
-      const icaoTree = await makeIcaoTree(
-        masterCertificatesPem.map(
-          el =>
-            new Uint8Array(Buffer.from(toPem(AsnConvert.serialize(el), 'CERTIFICATE'), 'utf-8')),
-        ),
+          return tree
+        })(),
       )
+      if (getIcaoTreeError) {
+        throw new TypeError(`Failed to create ICAO Merkle tree: ${getIcaoTreeError}`)
+      }
 
-      console.log({ icaoTree })
-
-      const { proof: inclusionProof } = await icaoTree.generateProof(
-        BigInt(Buffer.from(AsnConvert.serialize(slaveMaster)).toString('hex')),
+      const [inclusionProof, getInclusionProofError] = await tryCatch(
+        (async () => {
+          const leafDigest = keccak256(
+            new Uint8Array(slaveMaster.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+          )
+          const { proof } = await icaoTree.generateProof(toField(getBytes(leafDigest)))
+          return { root: await icaoTree.root(), proof }
+        })(),
       )
+      if (getInclusionProofError) {
+        throw new TypeError(`Failed to generate inclusion proof: ${getInclusionProofError.message}`)
+      }
 
-      console.log({ inclusionProof })
-
-      if (inclusionProof.allSiblings().length <= 0) {
+      if (inclusionProof.proof.allSiblings().length <= 0) {
         throw new TypeError('failed to generate inclusion proof')
       }
 
       const icaoMemberSignature = (() => {
-        if (x509SlaveCert.publicKey.algorithm.name === id_rsaEncryption) {
-          return new Uint8Array(x509SlaveCert.signature)
+        if (
+          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
+          id_rsaEncryption
+        ) {
+          return new Uint8Array(tempEDoc.sod.slaveCert.signatureValue)
         }
 
-        if (x509SlaveCert.publicKey.algorithm.name === id_ecdsaWithSHA1) {
+        if (
+          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
+          id_ecdsaWithSHA1
+        ) {
           return normalizeSignatureWithCurve(
-            new Uint8Array(x509SlaveCert.publicKey.rawData),
-            x509SlaveCert.publicKey.algorithm.name,
+            new Uint8Array(tempEDoc.sod.slaveCert.signatureValue),
+            'x509SlaveCert.publicKey.algorithm.name', // FIXME: need ec name
           )
         }
 
         throw new TypeError(
-          `Unsupported public key algorithm: ${x509SlaveCert.publicKey.algorithm.name}`,
+          `Unsupported public key algorithm: ${tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
         )
       })()
 
       const icaoMemberKey = (() => {
-        if (x509SlaveCert.publicKey.algorithm.name === id_rsaEncryption) {
-          const pub = AsnConvert.parse(x509SlaveCert.publicKey.rawData, RSAPublicKey)
+        if (
+          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
+          id_rsaEncryption
+        ) {
+          const pub = AsnConvert.parse(
+            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+            RSAPublicKey,
+          )
 
           return new Uint8Array(pub.modulus)
         }
 
-        if (x509SlaveCert.publicKey.algorithm.name === id_ecdsaWithSHA1) {
-          const ecParameters = AsnConvert.parse(x509SlaveCert.publicKey.rawData, ECParameters)
+        if (
+          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
+          id_ecdsaWithSHA1
+        ) {
+          const ecParameters = AsnConvert.parse(
+            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+            ECParameters,
+          )
 
           if (!ecParameters.namedCurve) {
             throw new TypeError('ECDSA public key does not have a named curve')
           }
 
-          const hexKey = Buffer.from(x509SlaveCert.publicKey.rawData).toString('hex')
+          const hexKey = Buffer.from(
+            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+          ).toString('hex')
+
           const ec = new EC(ecParameters.namedCurve)
           const key = ec.keyFromPublic(hexKey, 'hex')
           const point = key.getPublic()
@@ -204,27 +227,41 @@ export const useRegistration = () => {
         }
 
         throw new TypeError(
-          `Unsupported public key algorithm: ${x509SlaveCert.publicKey.algorithm.name}`,
+          `Unsupported public key algorithm: ${tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
         )
       })()
 
       const x509KeyOffset = (() => {
         let pub: Uint8Array = new Uint8Array()
 
-        if (x509SlaveCert.publicKey.algorithm.name === id_rsaEncryption) {
-          const rsaPub = AsnConvert.parse(x509SlaveCert.publicKey.rawData, RSAPublicKey)
+        if (
+          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
+          id_rsaEncryption
+        ) {
+          const rsaPub = AsnConvert.parse(
+            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+            RSAPublicKey,
+          )
 
           pub = new Uint8Array(rsaPub.modulus)
         }
 
-        if (x509SlaveCert.publicKey.algorithm.name === id_ecdsaWithSHA1) {
-          const ecParameters = AsnConvert.parse(x509SlaveCert.publicKey.rawData, ECParameters)
+        if (
+          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
+          id_ecdsaWithSHA1
+        ) {
+          const ecParameters = AsnConvert.parse(
+            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+            ECParameters,
+          )
 
           if (!ecParameters.namedCurve) {
             throw new TypeError('ECDSA public key does not have a named curve')
           }
 
-          const hexKey = Buffer.from(x509SlaveCert.publicKey.rawData).toString('hex')
+          const hexKey = Buffer.from(
+            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+          ).toString('hex')
           const ec = new EC(ecParameters.namedCurve)
           const key = ec.keyFromPublic(hexKey, 'hex')
           const point = key.getPublic()
@@ -239,33 +276,48 @@ export const useRegistration = () => {
 
         if (!pub.length) {
           throw new TypeError(
-            `Unsupported public key algorithm: ${x509SlaveCert.publicKey.algorithm.name}`,
+            `Unsupported public key algorithm: ${tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
           )
         }
 
-        const index = Buffer.from(tempEDoc.sod.signedAttributes)
+        const index = Buffer.from(AsnConvert.serialize(tempEDoc.sod.slaveCert.tbsCertificate))
           .toString('hex')
           .indexOf(Buffer.from(pub).toString('hex'))
 
-        return BigInt(index / 2) // index in bytes, not hex
-      })()
-      const expOffset = (() => {
-        const expiration = x509SlaveCert.notAfter
-
-        const expirationUTCTime = time(expiration).utc().format('YYMMDDHHmmssZ')
-
-        const expirationUTCTimeBytes = Buffer.from(expirationUTCTime, 'utf-8')
-
-        const index = Buffer.from(tempEDoc.sod.signedAttributes)
-          .toString('hex')
-          .indexOf(expirationUTCTimeBytes.toString('hex'))
-
-        if (index < 0) {
-          throw new TypeError('Expiration time not found in signed attributes')
+        if (index === -1) {
+          throw new TypeError('Public key not found in TBS Certificate')
         }
 
         return BigInt(index / 2) // index in bytes, not hex
       })()
+
+      const x509SlaveCert = new X509.X509Certificate(tempEDoc.sod.slaveCertPemBytes)
+
+      const expOffset = (() => {
+        const tbsCertificateHex = Buffer.from(
+          AsnConvert.serialize(tempEDoc.sod.slaveCert.tbsCertificate),
+        ).toString('hex')
+
+        if (!tempEDoc.sod.slaveCert.tbsCertificate.validity.notAfter.utcTime)
+          throw new TypeError('Expiration time not found in TBS Certificate')
+
+        const expirationHex = Buffer.from(
+          time(tempEDoc.sod.slaveCert.tbsCertificate.validity.notAfter.utcTime?.toISOString())
+            .utc()
+            .format('YYMMDDHHmmss[Z]'),
+          'utf-8',
+        ).toString('hex')
+
+        const index = tbsCertificateHex.indexOf(expirationHex)
+
+        if (index < 0) {
+          throw new TypeError('Expiration time not found in TBS Certificate')
+        }
+
+        return BigInt(index / 2) // index in bytes, not hex
+      })()
+
+      console.log({ expOffset })
 
       const { dispatcherHash } = (() => {
         interface DispatcherResult {
@@ -431,18 +483,22 @@ export const useRegistration = () => {
         }
       })()
 
+      console.log({ dispatcherHash })
+
       const certificate: Registration2.CertificateStruct = {
         dataType: dispatcherHash,
         signedAttributes: tempEDoc.sod.signedAttributes,
         keyOffset: x509KeyOffset,
         expirationOffset: expOffset,
       }
+      console.log({ certificate })
       const icaoMember: Registration2.ICAOMemberStruct = {
         signature: Buffer.from(icaoMemberSignature).toString('hex'),
         publicKey: Buffer.from(icaoMemberKey).toString('hex'),
       }
+      console.log({ icaoMember })
 
-      const icaoMerkleProofSiblings = inclusionProof
+      const icaoMerkleProofSiblings = inclusionProof.proof
         .allSiblings()
         .map(el => {
           return el.bytes
@@ -459,9 +515,9 @@ export const useRegistration = () => {
   )
 
   const registerCertificate = useCallback(
-    async (icaoBytes: Uint8Array, tempEDoc: NewEDocument, slaveMaster: Certificate) => {
+    async (CSCAs: Certificate[], tempEDoc: NewEDocument, slaveMaster: Certificate) => {
       try {
-        const newCallData = await newBuildRegisterCertCallData(icaoBytes, tempEDoc, slaveMaster)
+        const newCallData = await newBuildRegisterCertCallData(CSCAs, tempEDoc, slaveMaster)
 
         const { data } = await relayerRegister(newCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
 
@@ -821,17 +877,27 @@ export const useRegistration = () => {
         onRevocation: (identityItem: IdentityItem) => void
       },
     ): Promise<IdentityItem> => {
-      const icaoAsset = assets?.[0]
+      const [icaoBytes, getIcaoBytesError] = await tryCatch(
+        (async () => {
+          const icaoAsset = assets?.[0]
 
-      // TODO: check slave cert pem against icao bytes
-      if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
-      const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      })
-      const icaoBytes = decodeBase64(icaoBase64)
+          // TODO: check slave cert pem against icao bytes
+          if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
+          const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
+            encoding: FileSystem.EncodingType.Base64,
+          })
+
+          return decodeBase64(icaoBase64)
+        })(),
+      )
+      if (getIcaoBytesError) {
+        throw new TypeError('Failed to get ICAO bytes', getIcaoBytesError)
+      }
+
+      const CSCAs = parseIcaoCms(icaoBytes)
 
       const [slaveMaster, getSlaveMasterError] = await tryCatch(
-        (async () => tempEDoc.sod.getSlaveMaster(icaoBytes))(),
+        (async () => tempEDoc.sod.getSlaveMaster(CSCAs))(),
       )
       if (getSlaveMasterError) {
         throw new TypeError('Failed to get master certificate', getSlaveMasterError)
@@ -848,13 +914,7 @@ export const useRegistration = () => {
         throw new TypeError('Slave certificate SMT proof not found', getSlaveCertSmtProofError)
       }
 
-      console.log({ slaveCertSmtProof })
-
-      const registerCertCallData = await newBuildRegisterCertCallData(
-        icaoBytes,
-        tempEDoc,
-        slaveMaster,
-      )
+      const registerCertCallData = await newBuildRegisterCertCallData(CSCAs, tempEDoc, slaveMaster)
 
       console.log({ registerCertCallData })
 
@@ -862,7 +922,7 @@ export const useRegistration = () => {
 
       if (!slaveCertSmtProof.existence) {
         const [, registerCertificateError] = await tryCatch(
-          registerCertificate(icaoBytes, tempEDoc, slaveMaster),
+          registerCertificate(CSCAs, tempEDoc, slaveMaster),
         )
         if (registerCertificateError) {
           ErrorHandler.processWithoutFeedback(registerCertificateError)

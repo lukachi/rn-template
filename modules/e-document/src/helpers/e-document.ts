@@ -190,23 +190,13 @@ export class NewEDocument {
     // TODO: not tested yet
     if (this.dg15PubKey?.algorithm.algorithm === id_ecdsaWithSHA1) {
       const ecParameters = AsnConvert.parse(this.dg15PubKey.subjectPublicKey, ECParameters)
-      if (!ecParameters.namedCurve) {
-        throw new TypeError('ECDSA public key does not have a named curve')
+      if (!ecParameters?.specifiedCurve?.base?.buffer) {
+        throw new TypeError(
+          'ECDSA public key does not have a ecParameters?.specifiedCurve?.base?.buffer',
+        )
       }
 
-      const hexKey = Buffer.from(this.dg15PubKey.subjectPublicKey).toString('hex')
-      const ec = new EC(ecParameters.namedCurve) // TODO: derive curve name from ECParameters
-      const key = ec.keyFromPublic(hexKey, 'hex')
-
-      const point = key.getPublic()
-
-      // Fixed-length padded X and Y coordinates
-      const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
-
-      const x = getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength))
-      const y = getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength))
-
-      return new Uint8Array([...x, ...y])
+      return new Uint8Array(ecParameters?.specifiedCurve?.base?.buffer)
     }
 
     throw new TypeError('Unsupported DG15 public key algorithm for AA public key extraction')
