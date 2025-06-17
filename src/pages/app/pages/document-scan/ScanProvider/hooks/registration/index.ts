@@ -47,7 +47,6 @@ import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import { FieldRecords } from 'mrz'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import SuperJSON from 'superjson'
 
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
 import { relayerRegister } from '@/api/modules/registration'
@@ -831,21 +830,6 @@ export const useRegistration = () => {
         throw new TypeError('Slave certificate SMT proof not found', getSlaveCertSmtProofError)
       }
 
-      const [registerCertCallData, getRegisterCertCallDataError] = await tryCatch(
-        newBuildRegisterCertCallData(CSCAs, tempEDoc, slaveMaster),
-      )
-      if (getRegisterCertCallDataError) {
-        console.log(SuperJSON.stringify(getRegisterCertCallDataError))
-        throw new TypeError(
-          'Failed to build register certificate call data',
-          getRegisterCertCallDataError,
-        )
-      }
-
-      console.log({ registerCertCallData })
-
-      throw new TypeError('purpose')
-
       if (!slaveCertSmtProof.existence) {
         const [, registerCertificateError] = await tryCatch(
           registerCertificate(CSCAs, tempEDoc, slaveMaster),
@@ -885,7 +869,15 @@ export const useRegistration = () => {
 
       return identityItem
     },
-    [assets, getIdentityRegProof, getSlaveCertSmtProof, registerCertificate, registerIdentity],
+    [
+      assets,
+      getIdentityRegProof,
+      getSlaveCertSmtProof,
+      registerCertificate,
+      registerIdentity,
+      tempCSCAs,
+      tempMaster,
+    ],
   )
 
   return {
