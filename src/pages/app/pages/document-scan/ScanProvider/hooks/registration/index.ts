@@ -19,11 +19,6 @@ import {
   id_ecdsaWithSHA256,
   id_ecdsaWithSHA384,
   id_ecdsaWithSHA512,
-  id_secp192r1,
-  id_secp224r1,
-  id_secp256r1,
-  id_secp384r1,
-  id_secp521r1,
 } from '@peculiar/asn1-ecc'
 import {
   id_rsaEncryption,
@@ -51,7 +46,8 @@ import {
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import { FieldRecords } from 'mrz'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import SuperJSON from 'superjson'
 
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
 import { relayerRegister } from '@/api/modules/registration'
@@ -69,7 +65,7 @@ import { Registration__factory, StateKeeper } from '@/types'
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registration'
 
-import { useCircuit } from './circuit'
+import { useCircuit } from '../circuit'
 
 const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
 
@@ -291,8 +287,6 @@ export const useRegistration = () => {
         return BigInt(index / 2) // index in bytes, not hex
       })()
 
-      const x509SlaveCert = new X509.X509Certificate(tempEDoc.sod.slaveCertPemBytes)
-
       const expOffset = (() => {
         const tbsCertificateHex = Buffer.from(
           AsnConvert.serialize(tempEDoc.sod.slaveCert.tbsCertificate),
@@ -317,191 +311,87 @@ export const useRegistration = () => {
         return BigInt(index / 2) // index in bytes, not hex
       })()
 
-      console.log({ expOffset })
+      const x509SlaveCert = new X509.X509Certificate(tempEDoc.sod.slaveCertPemBytes)
 
-      const { dispatcherHash } = (() => {
-        interface DispatcherResult {
-          dispatcherName: string // e.g. "C_RSA_SHA512_4096"
-          dispatcherHash: Uint8Array // 32-byte Keccak-256
-        }
-
+      const dispatcherName = (() => {
         const masterKeyAlg = x509MasterCert.publicKey.algorithm.name.toUpperCase()
 
-        switch (masterKeyAlg) {
-          case 'RSA':
-            return dispatcherForRSA(x509MasterCert, x509SlaveCert)
-          case 'EC': // @peculiar/x509 uses "EC" for NIST/BP curves
-            return dispatcherForECDSA(x509MasterCert, x509SlaveCert)
+        switch (tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm) {
+          case id_rsaEncryption:
+            return dispatcherForRSA(tempEDoc.sod.slaveCert)
+          case id_ecdsaWithSHA1:
+            return dispatcherForECDSA(tempEDoc.sod.slaveCert)
           default:
             throw new Error(`unsupported public key type: ${masterKeyAlg}`)
         }
 
         /* ----------  RSA family  ------------------------------------------------- */
-        function dispatcherForRSA(
-          _master: X509.X509Certificate,
-          slave: X509.X509Certificate,
-        ): DispatcherResult {
-          if (slave.publicKey.algorithm.name.toUpperCase() !== 'RSA') {
-            throw new Error('slave certificate is not RSA')
-          }
+        function dispatcherForRSA(slave: Certificate): string {
+          const slaveRSAPubKey = AsnConvert.parse(
+            slave.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+            RSAPublicKey,
+          )
 
-          const slaveRSAPubKey = AsnConvert.parse(slave.publicKey.rawData, RSAPublicKey)
+          const bits = (slaveRSAPubKey.modulus.byteLength * 8).toString()
 
-          const bits = (slaveRSAPubKey.modulus.byteLength * 8).toString() // size
-          const sigOid = slave.signatureAlgorithm // OID
-
-          let dispatcherName: string
-
-          const hash = slave.signatureAlgorithm.hash.name ?? 'SHA256' // FIXME: what is this?
-          switch (sigOid.hash.name) {
-            case id_sha1WithRSAEncryption: // SHA1withRSA
-              dispatcherName = `C_RSA_SHA1_${bits}`
-              break
-            case id_sha256WithRSAEncryption: // SHA256withRSA
-              dispatcherName = `C_RSA_${bits}`
-              break
-            case id_sha384WithRSAEncryption: // SHA384withRSA
-              dispatcherName = `C_RSA_SHA384_${bits}`
-              break
-            case id_sha512WithRSAEncryption: // SHA512withRSA
-              dispatcherName = `C_RSA_SHA512_${bits}`
-              break
-            case id_RSASSA_PSS: // RSASSA-PSS
-              // Peculiar parses PSS params; if absent we treat as SHA-256
-              if (hash === 'SHA384') dispatcherName = `C_RSAPSS_SHA384_${bits}`
-              else if (hash === 'SHA512') dispatcherName = `C_RSAPSS_SHA512_${bits}`
-              else dispatcherName = `C_RSAPSS_SHA2_${bits}`
-              break
+          switch (slave.signatureAlgorithm.algorithm) {
+            case id_sha1WithRSAEncryption:
+              return `C_RSA_SHA1_${bits}`
+            case id_sha256WithRSAEncryption:
+              return `C_RSA_${bits}`
+            case id_sha384WithRSAEncryption:
+              return `C_RSA_SHA384_${bits}`
+            case id_sha512WithRSAEncryption:
+              return `C_RSA_SHA512_${bits}`
+            case id_RSASSA_PSS:
+              return `C_RSAPSS_SHA2_${bits}`
             default:
-              throw new Error(`unsupported certificate signature algorithm: ${sigOid}`)
-          }
-
-          return {
-            dispatcherName,
-            dispatcherHash: getBytes(keccak256(Buffer.from(dispatcherName, 'utf-8'))),
+              throw new Error(
+                `unsupported certificate signature algorithm: ${slave.signatureAlgorithm.algorithm}`,
+              )
           }
         }
 
         /* ----------  ECDSA family  ---------------------------------------------- */
-        function dispatcherForECDSA(
-          master: X509.X509Certificate,
-          slave: X509.X509Certificate,
-        ): DispatcherResult {
-          if (slave.publicKey.algorithm.name.toUpperCase() !== 'EC') {
-            throw new Error('slave certificate is not EC')
-          }
+        function dispatcherForECDSA(slave: Certificate): string {
+          const bitLen = (x509SlaveCert.publicKey.rawData.byteLength * 8).toString()
 
-          const curveOid = master.publicKey.algorithm.name // Peculiar stores the OID
-          const curveName = mapCurveOidToName(curveOid)
-
-          const bitLen = (slave.publicKey.rawData.byteLength * 8).toString()
-          const sigOid = slave.signatureAlgorithm
-
-          let dispatcherName: string
-
-          switch (sigOid.hash.name) {
+          switch (slave.signatureAlgorithm.algorithm) {
             case id_ecdsaWithSHA1: // ECDSAwithSHA1
-              dispatcherName = `C_ECDSA_${curveName}_SHA1_${bitLen}`
-              break
+              return `C_ECDSA_${curveName}_SHA1_${bitLen}`
             case id_ecdsaWithSHA256: // ECDSAwithSHA256
-              dispatcherName = `C_ECDSA_${curveName}_SHA2_${bitLen}`
-              break
+              return `C_ECDSA_${curveName}_SHA2_${bitLen}`
             case id_ecdsaWithSHA384: // ECDSAwithSHA384
-              dispatcherName = `C_ECDSA_${curveName}_SHA384_${bitLen}`
-              break
+              return `C_ECDSA_${curveName}_SHA384_${bitLen}`
             case id_ecdsaWithSHA512: // ECDSAwithSHA512
-              dispatcherName = `C_ECDSA_${curveName}_SHA512_${bitLen}`
-              break
+              return `C_ECDSA_${curveName}_SHA512_${bitLen}`
             default:
-              throw new Error(`unsupported certificate signature algorithm: ${sigOid}`)
-          }
-
-          return {
-            dispatcherName,
-            dispatcherHash: getBytes(keccak256(Buffer.from(dispatcherName, 'utf-8'))),
-          }
-        }
-
-        /* ----------  Curve OID → dispatcher suffix  ----------------------------- */
-        /*
-          | OID                     | Curve name                                         | Arc explanation                                                                                                           |
-          | ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-          | **1.2.840.10045.3.1.6** | SECP160R1 (P-160)                                  | `1.2.840` = US ANSI; `10045` = X9.62; `3.1` = prime curves; `6` = 160-bit curve ([alvestrand.no][1], [neuromancer.sk][2]) |
-          | **1.2.840.10045.3.1.1** | SECP192R1 (P-192) ([oid-base.com][3])              |                                                                                                                           |
-          | **1.2.840.10045.3.1.7** | SECP256R1 (P-256 / prime256v1) ([oid-base.com][4]) |                                                                                                                           |
-
-          [1]: https://www.alvestrand.no/objectid/1.2.840.10045.3.1.7.html?utm_source=chatgpt.com "1.2.840.10045.3.1.7 - \"SEC 2\" recommended elliptic curve domain"
-          [2]: https://neuromancer.sk/std/brainpool/brainpoolP160r1/?utm_source=chatgpt.com "brainpoolP160r1 | Standard curve database - neuromancer.sk"
-          [3]: https://oid-base.com/get/1.2.840.10045.3.1.1?utm_source=chatgpt.com "1.2.840.10045.3.1.1 = {iso(1) member-body(2) us ... - OID repository"
-          [4]: https://oid-base.com/get/1.2.840.10045.3.1.7?utm_source=chatgpt.com "1.2.840.10045.3.1.7 = {iso(1) member-body(2) us ... - OID repository"
-         */
-        /*
-          | OID       | Curve name      | RFC                                               |
-          | --------- | --------------- | ------------------------------------------------- |
-          | **… .1**  | brainpoolP160R1 | 5639 ([oidref.com][1], [neuromancer.sk][2])       |
-          | **… .3**  | brainpoolP192R1 | 5639 ([oidref.com][1], [datatracker.ietf.org][3]) |
-          | **… .5**  | brainpoolP224R1 | 5639 ([oidref.com][1])                            |
-          | **… .7**  | brainpoolP256R1 | 5639 ([oidref.com][1])                            |
-          | **… .11** | brainpoolP384R1 | 5639 ([oid-base.com][4])                          |
-          | **… .13** | brainpoolP512R1 | 5639 ([oid-base.com][5])                          |
-
-          [1]: https://oidref.com/1.3.36.3.3.2.8.1.1.7?utm_source=chatgpt.com "OID 1.3.36.3.3.2.8.1.1.7 brainpoolP256r1 reference info"
-          [2]: https://neuromancer.sk/std/brainpool/brainpoolP160r1/?utm_source=chatgpt.com "brainpoolP160r1 | Standard curve database - neuromancer.sk"
-          [3]: https://datatracker.ietf.org/doc/html/rfc5639?utm_source=chatgpt.com "RFC 5639 - Elliptic Curve Cryptography (ECC) Brainpool Standard ..."
-          [4]: https://oid-base.com/get/1.3.36.3.3.2.8.1.1.11?utm_source=chatgpt.com "brainpoolP384r1(11) - OID repository"
-          [5]: https://oid-base.com/get/1.3.36.3.3.2.8.1.1.13?utm_source=chatgpt.com "brainpoolP512r1(13) - OID repository"
-        */
-        function mapCurveOidToName(oid: string): string {
-          switch (oid) {
-            case '1.2.840.10045.3.1.6':
-              return 'SECP160R1' // P-160
-            case id_secp192r1:
-              return 'SECP192R1' // P-192
-            case id_secp224r1:
-              return 'SECP224R1' // P-224
-            case id_secp256r1:
-              return 'SECP256R1' // P-256
-            case id_secp384r1:
-              return 'SECP384R1' // P-384
-            case id_secp521r1:
-              return 'SECP521R1' // P-521
-            case '1.3.36.3.3.2.8.1.1.1':
-              return 'BRAINPOOLP160R1'
-            case '1.3.36.3.3.2.8.1.1.3':
-              return 'BRAINPOOLP192R1'
-            case '1.3.36.3.3.2.8.1.1.5':
-              return 'BRAINPOOLP224R1'
-            case '1.3.36.3.3.2.8.1.1.7':
-              return 'BRAINPOOLP256R1'
-            case '1.3.36.3.3.2.8.1.1.11':
-              return 'BRAINPOOLP384R1'
-            case '1.3.36.3.3.2.8.1.1.13':
-              return 'BRAINPOOLP512R1'
-            default:
-              throw new Error(`unsupported curve OID: ${oid}`)
+              throw new Error(
+                `unsupported certificate signature algorithm: ${slave.signatureAlgorithm}`,
+              )
           }
         }
       })()
 
-      console.log({ dispatcherHash })
+      const dispatcherHash = keccak256(Buffer.from(dispatcherName, 'utf-8'))
 
       const certificate: Registration2.CertificateStruct = {
         dataType: dispatcherHash,
-        signedAttributes: tempEDoc.sod.signedAttributes,
+        signedAttributes:
+          '0x' +
+          Buffer.from(AsnConvert.serialize(tempEDoc.sod.slaveCert.tbsCertificate)).toString('hex'),
         keyOffset: x509KeyOffset,
         expirationOffset: expOffset,
       }
-      console.log({ certificate })
       const icaoMember: Registration2.ICAOMemberStruct = {
-        signature: Buffer.from(icaoMemberSignature).toString('hex'),
-        publicKey: Buffer.from(icaoMemberKey).toString('hex'),
+        signature: '0x' + Buffer.from(icaoMemberSignature).toString('hex'),
+        publicKey: '0x' + Buffer.from(icaoMemberKey).toString('hex'),
       }
-      console.log({ icaoMember })
 
       const icaoMerkleProofSiblings = inclusionProof.proof
         .allSiblings()
         .map(el => {
-          return el.bytes
+          return '0x' + el.hex()
         })
         .flat()
 
@@ -870,6 +760,9 @@ export const useRegistration = () => {
 
   // ---------------------------------------------------------------------------------------------
 
+  const [tempCSCAs, setTempCSCAs] = useState<Certificate[]>()
+  const [tempMaster, setTempMaster] = useState<Certificate>()
+
   const createIdentity = useCallback(
     async (
       tempEDoc: NewEDocument,
@@ -894,13 +787,23 @@ export const useRegistration = () => {
         throw new TypeError('Failed to get ICAO bytes', getIcaoBytesError)
       }
 
-      const CSCAs = parseIcaoCms(icaoBytes)
+      const CSCAs = tempCSCAs ?? parseIcaoCms(icaoBytes)
+      if (!tempCSCAs) {
+        setTempCSCAs(CSCAs)
+      }
 
       const [slaveMaster, getSlaveMasterError] = await tryCatch(
-        (async () => tempEDoc.sod.getSlaveMaster(CSCAs))(),
+        (async () => {
+          if (tempMaster) return tempMaster
+
+          return tempEDoc.sod.getSlaveMaster(CSCAs)
+        })(),
       )
       if (getSlaveMasterError) {
         throw new TypeError('Failed to get master certificate', getSlaveMasterError)
+      }
+      if (!tempMaster) {
+        setTempMaster(slaveMaster)
       }
 
       const circuitType = getCircuitType(tempEDoc.sod.X509RSASize)
@@ -914,7 +817,16 @@ export const useRegistration = () => {
         throw new TypeError('Slave certificate SMT proof not found', getSlaveCertSmtProofError)
       }
 
-      const registerCertCallData = await newBuildRegisterCertCallData(CSCAs, tempEDoc, slaveMaster)
+      const [registerCertCallData, getRegisterCertCallDataError] = await tryCatch(
+        newBuildRegisterCertCallData(CSCAs, tempEDoc, slaveMaster),
+      )
+      if (getRegisterCertCallDataError) {
+        console.log(SuperJSON.stringify(getRegisterCertCallDataError))
+        throw new TypeError(
+          'Failed to build register certificate call data',
+          getRegisterCertCallDataError,
+        )
+      }
 
       console.log({ registerCertCallData })
 
