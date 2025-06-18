@@ -329,7 +329,7 @@ export const useRegistration = () => {
   const newBuildRegisterCallData = useCallback(
     (
       identityItem: IdentityItem,
-      masterCertSmtProofRoot: Uint8Array,
+      slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
       circuitTypeCertificatePubKeySize: number,
       isRevoked: boolean,
       circuitName: string,
@@ -380,7 +380,7 @@ export const useRegistration = () => {
 
       if (isRevoked) {
         return registrationContractInterface.encodeFunctionData('reissueIdentity', [
-          masterCertSmtProofRoot,
+          slaveCertSmtProof.root,
           identityItem.pkIdentityHash,
           identityItem.dg1Commitment,
           passport,
@@ -389,7 +389,7 @@ export const useRegistration = () => {
       }
 
       return registrationContractInterface.encodeFunctionData('register', [
-        masterCertSmtProofRoot,
+        slaveCertSmtProof.root,
         identityItem.pkIdentityHash,
         identityItem.dg1Commitment,
         passport,
@@ -402,13 +402,13 @@ export const useRegistration = () => {
   const requestRelayerRegisterMethod = useCallback(
     async (
       identityItem: IdentityItem,
-      masterCertSmtProofRoot: Uint8Array,
+      slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
       circuitTypeCertificatePubKeySize: number,
       isRevoked: boolean,
     ) => {
       const registerCallData = newBuildRegisterCallData(
         identityItem,
-        masterCertSmtProofRoot,
+        slaveCertSmtProof,
         circuitTypeCertificatePubKeySize,
         isRevoked,
         '0', // TODO circuitName has to be built
@@ -428,7 +428,7 @@ export const useRegistration = () => {
   const registerIdentity = useCallback(
     async (
       identityItem: IdentityItem,
-      smtProof: SparseMerkleTree.ProofStructOutput,
+      slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
       circuitType: CircuitType,
       passportInfo: PassportInfo | null,
     ): Promise<void> => {
@@ -443,7 +443,7 @@ export const useRegistration = () => {
       if (isPassportNotRegistered) {
         await requestRelayerRegisterMethod(
           identityItem,
-          Buffer.from(smtProof.root),
+          slaveCertSmtProof,
           circuitTypeCertificatePubKeySize,
           false,
         )
@@ -591,7 +591,7 @@ export const useRegistration = () => {
 
       await requestRelayerRegisterMethod(
         currentIdentityItem,
-        getBytes(slaveCertSmtProof.root),
+        slaveCertSmtProof,
         circuitTypeCertificatePubKeySize,
         true,
       )
