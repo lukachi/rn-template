@@ -1,15 +1,8 @@
-import { time } from '@distributedlab/tools'
 import { InMemoryDB, Merkletree } from '@iden3/js-merkletree'
-import {
-  CircuitType,
-  getCircuitDetailsByType,
-  getCircuitType,
-  scanDocument,
-} from '@modules/e-document'
-import {
-  NewEDocument,
-  normalizeSignatureWithCurve,
-} from '@modules/e-document/src/helpers/e-document'
+import { scanDocument } from '@modules/e-document'
+import { CircuitType } from '@modules/e-document/src/enums'
+import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
+import { getCircuitDetailsByType, getCircuitType } from '@modules/e-document/src/helpers/misc'
 import { parseIcaoCms } from '@modules/e-document/src/helpers/sod'
 import { groth16ProveWithZKeyFilePath, ZKProof } from '@modules/rapidsnark-wrp'
 import { buildRegisterIdentityInputs } from '@modules/rarime-sdk'
@@ -33,7 +26,6 @@ import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
 import * as X509 from '@peculiar/x509'
 import { AxiosError } from 'axios'
-import { ec as EC } from 'elliptic'
 import {
   decodeBase64,
   encodeBase64,
@@ -73,14 +65,6 @@ type PassportInfo = {
   identityInfo_: StateKeeper.IdentityInfoStructOutput
 }
 
-export class NeedRevocationError extends Error {
-  constructor(message: string, cause?: Error) {
-    super(message)
-    this.name = 'NeedRevocationError'
-    this.cause = cause
-  }
-}
-
 export const useRegistration = () => {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
   const publicKeyHash = walletStore.usePublicKeyHash()
@@ -116,8 +100,7 @@ export const useRegistration = () => {
         return bi % (2n ** 64n - 1n)
       }
 
-      const x509MasterCert = new X509.X509Certificate(AsnConvert.serialize(slaveMaster))
-
+      // TODO: replace with merkletree lib
       const [icaoTree, getIcaoTreeError] = await tryCatch(
         (async () => {
           const db = new InMemoryDB(new Uint8Array([0])) // arbitrary prefix
@@ -126,10 +109,10 @@ export const useRegistration = () => {
           for (const cert of CSCAs) {
             const digest = keccak256(
               new Uint8Array(cert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
-            ) // TODO: check for prefixes
-            const key = toField(getBytes(digest)) // inside the field
+            )
+            const value = toField(getBytes(digest))
 
-            await tryCatch(tree.add(key, 0n)) // TODO: check this
+            await tryCatch(tree.add(BigInt(digest), value))
           }
 
           return tree
@@ -156,172 +139,23 @@ export const useRegistration = () => {
         throw new TypeError('failed to generate inclusion proof')
       }
 
-      const icaoMemberSignature = (() => {
-        if (
-          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
-          id_rsaEncryption
-        ) {
-          return new Uint8Array(tempEDoc.sod.slaveCert.signatureValue)
-        }
-
-        if (
-          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
-          id_ecdsaWithSHA1
-        ) {
-          return normalizeSignatureWithCurve(
-            new Uint8Array(tempEDoc.sod.slaveCert.signatureValue),
-            'x509SlaveCert.publicKey.algorithm.name', // FIXME: need ec name
-          )
-        }
-
-        throw new TypeError(
-          `Unsupported public key algorithm: ${tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
-        )
-      })()
-
-      const icaoMemberKey = (() => {
-        if (
-          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
-          id_rsaEncryption
-        ) {
-          const pub = AsnConvert.parse(
-            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-            RSAPublicKey,
-          )
-
-          return new Uint8Array(pub.modulus)
-        }
-
-        if (
-          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
-          id_ecdsaWithSHA1
-        ) {
-          const ecParameters = AsnConvert.parse(
-            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-            ECParameters,
-          )
-
-          if (!ecParameters.namedCurve) {
-            throw new TypeError('ECDSA public key does not have a named curve')
-          }
-
-          const hexKey = Buffer.from(
-            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-          ).toString('hex')
-
-          const ec = new EC(ecParameters.namedCurve)
-          const key = ec.keyFromPublic(hexKey, 'hex')
-          const point = key.getPublic()
-
-          const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
-
-          const x = getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength))
-          const y = getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength))
-
-          return new Uint8Array([...x, ...y])
-        }
-
-        throw new TypeError(
-          `Unsupported public key algorithm: ${tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
-        )
-      })()
-
-      const x509KeyOffset = (() => {
-        let pub: Uint8Array = new Uint8Array()
-
-        if (
-          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
-          id_rsaEncryption
-        ) {
-          const rsaPub = AsnConvert.parse(
-            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-            RSAPublicKey,
-          )
-
-          pub = new Uint8Array(rsaPub.modulus)
-        }
-
-        if (
-          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm ===
-          id_ecdsaWithSHA1
-        ) {
-          const ecParameters = AsnConvert.parse(
-            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-            ECParameters,
-          )
-
-          if (!ecParameters.namedCurve) {
-            throw new TypeError('ECDSA public key does not have a named curve')
-          }
-
-          const hexKey = Buffer.from(
-            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-          ).toString('hex')
-          const ec = new EC(ecParameters.namedCurve)
-          const key = ec.keyFromPublic(hexKey, 'hex')
-          const point = key.getPublic()
-
-          const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
-
-          pub = new Uint8Array([
-            ...getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength)),
-            ...getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength)),
-          ])
-        }
-
-        if (!pub.length) {
-          throw new TypeError(
-            `Unsupported public key algorithm: ${tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
-          )
-        }
-
-        const index = Buffer.from(AsnConvert.serialize(tempEDoc.sod.slaveCert.tbsCertificate))
-          .toString('hex')
-          .indexOf(Buffer.from(pub).toString('hex'))
-
-        if (index === -1) {
-          throw new TypeError('Public key not found in TBS Certificate')
-        }
-
-        return BigInt(index / 2) // index in bytes, not hex
-      })()
-
-      const expOffset = (() => {
-        const tbsCertificateHex = Buffer.from(
-          AsnConvert.serialize(tempEDoc.sod.slaveCert.tbsCertificate),
-        ).toString('hex')
-
-        if (!tempEDoc.sod.slaveCert.tbsCertificate.validity.notAfter.utcTime)
-          throw new TypeError('Expiration time not found in TBS Certificate')
-
-        const expirationHex = Buffer.from(
-          time(tempEDoc.sod.slaveCert.tbsCertificate.validity.notAfter.utcTime?.toISOString())
-            .utc()
-            .format('YYMMDDHHmmss[Z]'),
-          'utf-8',
-        ).toString('hex')
-
-        const index = tbsCertificateHex.indexOf(expirationHex)
-
-        if (index < 0) {
-          throw new TypeError('Expiration time not found in TBS Certificate')
-        }
-
-        return BigInt(index / 2) // index in bytes, not hex
-      })()
+      const icaoMemberSignature = tempEDoc.sod.slaveCertIcaoMemberSignature
+      const icaoMemberKey = tempEDoc.sod.slaveCertIcaoMemberKey
+      const x509KeyOffset = tempEDoc.sod.slaveCertX509KeyOffset
+      const expOffset = tempEDoc.sod.slaveCertExpOffset
 
       const x509SlaveCert = new X509.X509Certificate(tempEDoc.sod.slaveCertPemBytes)
 
       const dispatcherName = (() => {
-        const masterKeyAlg = x509MasterCert.publicKey.algorithm.name.toUpperCase()
-
         switch (tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm) {
           case id_rsaEncryption:
             return dispatcherForRSA(tempEDoc.sod.slaveCert)
           case id_ecdsaWithSHA1:
             return dispatcherForECDSA(tempEDoc.sod.slaveCert)
           default:
-            throw new Error(`unsupported public key type: ${masterKeyAlg}`)
+            throw new Error(
+              `unsupported public key type: ${tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+            )
         }
 
         /* ----------  RSA family  ------------------------------------------------- */
@@ -860,11 +694,11 @@ export const useRegistration = () => {
         registerIdentity(identityItem, slaveCertSmtProof, circuitType, passportInfo),
       )
       if (registerIdentityError) {
-        opts?.onRevocation?.(identityItem)
-        throw new NeedRevocationError(
-          'Failed to register identity, revocation required',
-          registerIdentityError,
-        )
+        if (registerIdentityError instanceof PassportRegisteredWithAnotherPKError) {
+          opts?.onRevocation?.(identityItem)
+        }
+
+        throw registerIdentityError
       }
 
       return identityItem

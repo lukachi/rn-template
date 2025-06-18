@@ -9,10 +9,11 @@ import { createContext, useContext } from 'react'
 import { ErrorHandler } from '@/core'
 import { tryCatch } from '@/helpers/try-catch'
 import { identityStore } from '@/store/modules/identity'
+import { PassportRegisteredWithAnotherPKError } from '@/store/modules/identity/errors'
 import { IdentityItem } from '@/store/modules/identity/Identity'
 
 import { useCircuit } from './hooks/circuit'
-import { NeedRevocationError, useRegistration } from './hooks/registration'
+import { useRegistration } from './hooks/registration'
 
 export enum Steps {
   SelectDocTypeStep,
@@ -127,8 +128,7 @@ export function ScanContextProvider({
     if (createIdentityError) {
       ErrorHandler.processWithoutFeedback(createIdentityError)
 
-      if (createIdentityError instanceof NeedRevocationError) {
-        ErrorHandler.processWithoutFeedback(createIdentityError)
+      if (createIdentityError instanceof PassportRegisteredWithAnotherPKError) {
         return
       }
 

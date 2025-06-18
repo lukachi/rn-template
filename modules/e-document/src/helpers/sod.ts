@@ -1,4 +1,5 @@
 import { SOD } from '@li0ard/tsemrtd'
+import { ec as EC } from 'elliptic'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
 import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
@@ -10,6 +11,10 @@ import * as x509 from '@peculiar/x509'
 import { hashPacked } from './crypto'
 import { decodeDerFromPemBytes, toDer, toPem } from './misc'
 import { X509ChainBuilder } from '@peculiar/x509'
+import { time } from '@distributedlab/tools'
+import { id_ecdsaWithSHA1, ECParameters } from '@peculiar/asn1-ecc'
+import { getBytes, zeroPadValue } from 'ethers'
+import { normalizeSignatureWithCurve } from './misc'
 
 export class Sod {
   private sodBytes: Uint8Array
@@ -68,6 +73,163 @@ export class Sod {
   get slaveCertPemBytes(): Uint8Array {
     const der = AsnConvert.serialize(this.certSet[0].certificate)
     return new Uint8Array(Buffer.from(toPem(der, 'CERTIFICATE')))
+  }
+
+  get slaveCertX509KeyOffset(): bigint {
+    let pub: Uint8Array = new Uint8Array()
+
+    if (
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_rsaEncryption
+    ) {
+      const rsaPub = AsnConvert.parse(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        RSAPublicKey,
+      )
+
+      pub = new Uint8Array(rsaPub.modulus)
+    }
+
+    if (
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_ecdsaWithSHA1
+    ) {
+      const ecParameters = AsnConvert.parse(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        ECParameters,
+      )
+
+      if (!ecParameters.namedCurve) {
+        throw new TypeError('ECDSA public key does not have a named curve')
+      }
+
+      const hexKey = Buffer.from(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+      ).toString('hex')
+      const ec = new EC(ecParameters.namedCurve)
+      const key = ec.keyFromPublic(hexKey, 'hex')
+      const point = key.getPublic()
+
+      const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
+
+      pub = new Uint8Array([
+        ...getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength)),
+        ...getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength)),
+      ])
+    }
+
+    if (!pub.length) {
+      throw new TypeError(
+        `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+      )
+    }
+
+    const index = Buffer.from(AsnConvert.serialize(this.slaveCert.tbsCertificate))
+      .toString('hex')
+      .indexOf(Buffer.from(pub).toString('hex'))
+
+    if (index === -1) {
+      throw new TypeError('Public key not found in TBS Certificate')
+    }
+
+    return BigInt(index / 2) // index in bytes, not hex
+  }
+
+  get slaveCertExpOffset(): bigint {
+    const tbsCertificateHex = Buffer.from(
+      AsnConvert.serialize(this.slaveCert.tbsCertificate),
+    ).toString('hex')
+
+    if (!this.slaveCert.tbsCertificate.validity.notAfter.utcTime)
+      throw new TypeError('Expiration time not found in TBS Certificate')
+
+    const expirationHex = Buffer.from(
+      time(this.slaveCert.tbsCertificate.validity.notAfter.utcTime?.toISOString())
+        .utc()
+        .format('YYMMDDHHmmss[Z]'),
+      'utf-8',
+    ).toString('hex')
+
+    const index = tbsCertificateHex.indexOf(expirationHex)
+
+    if (index < 0) {
+      throw new TypeError('Expiration time not found in TBS Certificate')
+    }
+
+    return BigInt(index / 2) // index in bytes, not hex
+  }
+
+  get slaveCertIcaoMemberSignature(): Uint8Array {
+    if (
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_rsaEncryption
+    ) {
+      return new Uint8Array(this.slaveCert.signatureValue)
+    }
+
+    if (
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_ecdsaWithSHA1
+    ) {
+      const ecParameters = AsnConvert.parse(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        ECParameters,
+      )
+
+      if (!ecParameters.namedCurve) {
+        throw new TypeError('ECDSA public key does not have a named curve')
+      }
+
+      return normalizeSignatureWithCurve(
+        new Uint8Array(this.slaveCert.signatureValue),
+        ecParameters.namedCurve,
+      )
+    }
+
+    throw new TypeError(
+      `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+    )
+  }
+
+  get slaveCertIcaoMemberKey(): Uint8Array {
+    if (
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_rsaEncryption
+    ) {
+      const pub = AsnConvert.parse(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        RSAPublicKey,
+      )
+
+      return new Uint8Array(pub.modulus)
+    }
+
+    if (
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_ecdsaWithSHA1
+    ) {
+      const ecParameters = AsnConvert.parse(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        ECParameters,
+      )
+
+      if (!ecParameters.namedCurve) {
+        throw new TypeError('ECDSA public key does not have a named curve')
+      }
+
+      const hexKey = Buffer.from(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+      ).toString('hex')
+
+      const ec = new EC(ecParameters.namedCurve)
+      const key = ec.keyFromPublic(hexKey, 'hex')
+      const point = key.getPublic()
+
+      const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
+
+      const x = getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength))
+      const y = getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength))
+
+      return new Uint8Array([...x, ...y])
+    }
+
+    throw new TypeError(
+      `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+    )
   }
 
   get encapsulatedContent(): Uint8Array {
