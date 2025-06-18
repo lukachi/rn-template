@@ -1,62 +1,7 @@
-import {
-  calcWtnsRegisterIdentityUniversalRSA2048,
-  calcWtnsRegisterIdentityUniversalRSA4096,
-} from '@modules/witnesscalculator'
-import { ec as EC } from 'elliptic'
-import forge from 'node-forge'
-
-import { DocType } from '../types'
 import { RSAPublicKey } from '@peculiar/asn1-rsa'
+import { ec as EC } from 'elliptic'
 import { getBytes, zeroPadValue } from 'ethers'
-
-export function getDocType(documentCode: string): DocType | null {
-  if (documentCode.includes('I')) {
-    return DocType.ID
-  }
-
-  if (documentCode.includes('P')) {
-    return DocType.PASSPORT
-  }
-
-  return null
-}
-
-export enum CircuitType {
-  RegisterIdentityUniversalRSA2048 = 'registerIdentityUniversalRSA2048',
-  RegisterIdentityUniversalRSA4096 = 'registerIdentityUniversalRSA4096',
-}
-
-export function getCircuitType(pubKeySize: number) {
-  return {
-    2048: CircuitType.RegisterIdentityUniversalRSA2048,
-    4096: CircuitType.RegisterIdentityUniversalRSA4096,
-  }[pubKeySize]
-}
-
-export function getCircuitDetailsByType(circuitType: CircuitType) {
-  const circuitDownloadUrl = {
-    [CircuitType.RegisterIdentityUniversalRSA2048]:
-      'https://storage.googleapis.com/rarimo-store/passport-zk-circuits/v0.1.0-alpha/registerIdentityUniversalRSA2048-download.zip',
-    [CircuitType.RegisterIdentityUniversalRSA4096]:
-      'https://storage.googleapis.com/rarimo-store/passport-zk-circuits/v0.1.0-alpha/registerIdentityUniversalRSA4096-download.zip',
-  }[circuitType]
-
-  const wtnsCalcMethod = {
-    [CircuitType.RegisterIdentityUniversalRSA2048]: calcWtnsRegisterIdentityUniversalRSA2048,
-    [CircuitType.RegisterIdentityUniversalRSA4096]: calcWtnsRegisterIdentityUniversalRSA4096,
-  }[circuitType]
-
-  const circuitTypeCertificatePubKeySize = {
-    [CircuitType.RegisterIdentityUniversalRSA2048]: 2048,
-    [CircuitType.RegisterIdentityUniversalRSA4096]: 4096,
-  }[circuitType]
-
-  return {
-    circuitDownloadUrl,
-    wtnsCalcMethod,
-    circuitTypeCertificatePubKeySize,
-  }
-}
+import forge from 'node-forge'
 
 export const decodeDerFromPemBytes = (bytes: Uint8Array): ArrayBuffer =>
   Buffer.from(

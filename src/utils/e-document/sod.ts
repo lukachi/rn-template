@@ -1,20 +1,20 @@
+import { time } from '@distributedlab/tools'
 import { SOD } from '@li0ard/tsemrtd'
-import { ec as EC } from 'elliptic'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
+import { ECParameters, id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
 import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
+import * as x509 from '@peculiar/x509'
+import { X509ChainBuilder } from '@peculiar/x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
-import * as x509 from '@peculiar/x509'
-
-import { hashPacked } from './crypto'
-import { decodeDerFromPemBytes, toDer, toPem } from './misc'
-import { X509ChainBuilder } from '@peculiar/x509'
-import { time } from '@distributedlab/tools'
-import { id_ecdsaWithSHA1, ECParameters } from '@peculiar/asn1-ecc'
+import { ec as EC } from 'elliptic'
 import { getBytes, zeroPadValue } from 'ethers'
-import { normalizeSignatureWithCurve } from './misc'
+
+import { hashPacked } from './helpers/crypto'
+import { decodeDerFromPemBytes, toDer, toPem } from './helpers/misc'
+import { normalizeSignatureWithCurve } from './helpers/misc'
 
 export class Sod {
   private sodBytes: Uint8Array
@@ -309,7 +309,6 @@ export class Sod {
         if (x509Cert.subject === x509Slave.issuer) {
           acc.push(x509Cert)
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         /* empty */
       }

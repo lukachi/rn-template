@@ -1,9 +1,9 @@
-import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
 import { FieldRecords } from 'mrz'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
 import { zustandStorage } from '@/store/helpers'
+import { EDocument } from '@/utils/e-document/e-document'
 
 import { IdentityItem } from './Identity'
 
@@ -16,12 +16,12 @@ const useIdentityStore = create(
         _hasHydrated: false,
 
         // TODO: remove me
-        testEDoc: undefined as NewEDocument | undefined,
+        testEDoc: undefined as EDocument | undefined,
         testMRZ: undefined as FieldRecords | undefined,
       },
       (set, get) => ({
         // TODO: remove me
-        setTestEDoc: (value: NewEDocument) => {
+        setTestEDoc: (value: EDocument) => {
           set({
             testEDoc: value,
           })
@@ -63,7 +63,7 @@ const useIdentityStore = create(
           }
 
           if (key === 'testEDoc') {
-            return NewEDocument.deserialize(value as string)
+            return EDocument.deserialize(value as string)
           }
 
           return value
@@ -76,7 +76,7 @@ const useIdentityStore = create(
           }
 
           if (key === 'testEDoc') {
-            const res = value instanceof NewEDocument ? value.serialize() : value
+            const res = value instanceof EDocument ? value.serialize() : value
             return res
           }
 

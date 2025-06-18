@@ -1,4 +1,3 @@
-import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
 import { ZKProof } from '@modules/rapidsnark-wrp'
 import { getBigInt, JsonRpcProvider, zeroPadValue } from 'ethers'
 import SuperJSON from 'superjson'
@@ -6,11 +5,12 @@ import SuperJSON from 'superjson'
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
 import { Config } from '@/config'
 import { createStateKeeperContract } from '@/helpers/contracts'
+import { EDocument } from '@/utils/e-document/e-document'
 
 // TODO: add checking if the passport need to be revoked
 export class IdentityItem {
   constructor(
-    public document: NewEDocument,
+    public document: EDocument,
     public registrationProof: ZKProof,
   ) {}
 
@@ -28,7 +28,7 @@ export class IdentityItem {
     }>(serialized)
 
     return new IdentityItem(
-      NewEDocument.deserialize(deserialized.document),
+      EDocument.deserialize(deserialized.document),
       deserialized.registrationProof,
     )
   }

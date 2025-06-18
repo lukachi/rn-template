@@ -1,5 +1,3 @@
-import type { DocType } from '@modules/e-document'
-import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
 import type { FieldRecords } from 'mrz'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useEffect, useRef } from 'react'
@@ -11,6 +9,7 @@ import { tryCatch } from '@/helpers/try-catch'
 import { identityStore } from '@/store/modules/identity'
 import { PassportRegisteredWithAnotherPKError } from '@/store/modules/identity/errors'
 import { IdentityItem } from '@/store/modules/identity/Identity'
+import { DocType, EDocument } from '@/utils/e-document/e-document'
 
 import { useCircuit } from './hooks/circuit-loader'
 import { useRegistration } from './hooks/registration'
@@ -37,8 +36,8 @@ type DocumentScanContext = {
 
   tempMRZ?: FieldRecords
   setTempMrz: (value: FieldRecords) => void
-  tempEDoc?: NewEDocument
-  setTempEDoc: (value: NewEDocument) => void
+  tempEDoc?: EDocument
+  setTempEDoc: (value: EDocument) => void
 
   createIdentity: () => Promise<void>
   revokeIdentity: () => Promise<void>
@@ -93,7 +92,7 @@ export function ScanContextProvider({
   const [selectedDocType, setSelectedDocType] = useState(docType)
 
   const [tempMRZ, setTempMRZ] = useState<FieldRecords>()
-  const [tempEDoc, setTempEDoc] = useState<NewEDocument>()
+  const [tempEDoc, setTempEDoc] = useState<EDocument>()
 
   const [identity, setIdentity] = useState<IdentityItem>()
 
@@ -161,7 +160,7 @@ export function ScanContextProvider({
   )
 
   const handleSetEDoc = useCallback(
-    (value: NewEDocument) => {
+    (value: EDocument) => {
       setTempEDoc(value)
       setTestEDoc(value)
       setCurrentStep(Steps.DocumentPreviewStep)

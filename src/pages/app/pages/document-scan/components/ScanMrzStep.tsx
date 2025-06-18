@@ -1,4 +1,3 @@
-import { DocType } from '@modules/e-document'
 import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
 import { parse } from 'mrz'
@@ -17,6 +16,7 @@ import { Worklets } from 'react-native-worklets-core'
 import { bus, DefaultBusEvents, ErrorHandler } from '@/core'
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { UiButton } from '@/ui'
+import { DocType } from '@/utils/e-document'
 
 const useMrzParser = (docType: DocType) => {
   const idCardParser = useCallback((lines: string[]) => {

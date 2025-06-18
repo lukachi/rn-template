@@ -1,8 +1,9 @@
-import { Circuit } from '@modules/witnesscalculator/src/circuits'
 import { Buffer } from 'buffer'
 import * as FileSystem from 'expo-file-system'
 import { useCallback, useState } from 'react'
 import { unzip } from 'react-native-zip-archive'
+
+import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
 
 export const useCircuit = () => {
   const [isLoaded, setIsLoaded] = useState(false)
@@ -18,7 +19,7 @@ export const useCircuit = () => {
 
   const loadCircuit = useCallback(
     async (
-      circuit: Circuit,
+      circuit: RegistrationCircuit,
     ): Promise<{
       zKeyUri: string
       dat: Uint8Array
@@ -30,12 +31,12 @@ export const useCircuit = () => {
       try {
         // const { circuitDownloadUrl } = getCircuitDetailsByType(circuitType)
 
-        const fileUri = `${FileSystem.documentDirectory}${circuitType}.zip`
-        const targetPath = `${FileSystem.documentDirectory}${circuitType}`
+        const fileUri = `${FileSystem.documentDirectory}${circuit.circuitParams.name}.zip`
+        const targetPath = `${FileSystem.documentDirectory}${circuit.circuitParams.name}`
 
-        const circuitDirSubpath = `${circuitType}-download`
+        const circuitDirSubpath = `${circuit.circuitParams.name}-download`
         const zkeyPath = `${targetPath}/${circuitDirSubpath}/circuit_final.zkey`
-        const datPath = `${targetPath}/${circuitDirSubpath}/${circuitType}.dat`
+        const datPath = `${targetPath}/${circuitDirSubpath}/${circuit.circuitParams.name}.dat`
 
         const isCircuitsLoaded = await checkCircuitsLoaded(zkeyPath, datPath)
 
@@ -53,7 +54,7 @@ export const useCircuit = () => {
         }
 
         const downloadResumable = FileSystem.createDownloadResumable(
-          circuit.downloadUrl,
+          circuit.circuitParams.downloadUrl,
           fileUri,
           {},
           downloadProgress => {

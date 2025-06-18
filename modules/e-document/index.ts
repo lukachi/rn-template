@@ -7,9 +7,8 @@ import { Platform } from 'react-native'
 
 import EDocumentModule from './src/EDocumentModule'
 import type { EDocumentModuleEvents } from './src/enums'
-import { getDocType } from './src/helpers/misc'
-import { NewEDocument } from './src/helpers/e-document'
 import get from 'lodash/get'
+import { EDocument } from '@/utils/e-document'
 
 export async function scanDocument(
   documentCode: string,
@@ -19,13 +18,7 @@ export async function scanDocument(
     documentNumber: string
   },
   challenge: Uint8Array,
-): Promise<NewEDocument> {
-  const docType = getDocType(documentCode)
-
-  if (!docType) {
-    throw new TypeError('Unsupported document type')
-  }
-
+): Promise<EDocument> {
   const eDocumentString = await EDocumentModule.scanDocument(
     JSON.stringify(bacKeyParameters),
     new Uint8Array(challenge),
@@ -34,8 +27,8 @@ export async function scanDocument(
   const eDocumentJson = JSON.parse(eDocumentString)
 
   if (Platform.OS === 'ios') {
-    return new NewEDocument({
-      docType: docType,
+    return new EDocument({
+      docCode: documentCode,
       personDetails: {
         firstName: get(eDocumentJson, 'personDetails.firstName', null),
         lastName: get(eDocumentJson, 'personDetails.lastName', null),
@@ -54,8 +47,8 @@ export async function scanDocument(
       aaSignature: Buffer.from(get(eDocumentJson, 'signature', ''), 'base64'),
     })
   } else if (Platform.OS === 'android') {
-    return new NewEDocument({
-      docType: docType,
+    return new EDocument({
+      docCode: documentCode,
       personDetails: {
         firstName: get(eDocumentJson, 'personDetails.primaryIdentifier', null),
         lastName: get(eDocumentJson, 'personDetails.secondaryIdentifier', null),
@@ -98,5 +91,3 @@ export function EDocumentModuleRemoveAllListeners(eventName: EDocumentModuleEven
 }
 
 export * from './src/enums'
-export * from './src/helpers/misc'
-export * from './src/types'

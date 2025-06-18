@@ -1,10 +1,7 @@
 import { InMemoryDB, Merkletree } from '@iden3/js-merkletree'
 import { scanDocument } from '@modules/e-document'
-import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
-import { parseIcaoCms } from '@modules/e-document/src/helpers/sod'
 import { groth16ProveWithZKeyFilePath, ZKProof } from '@modules/rapidsnark-wrp'
 import { buildRegisterIdentityInputs } from '@modules/rarime-sdk'
-import { Circuit } from '@modules/witnesscalculator/src/circuits'
 import {
   ECParameters,
   id_ecdsaWithSHA1,
@@ -54,6 +51,9 @@ import { walletStore } from '@/store/modules/wallet'
 import { Registration__factory, StateKeeper } from '@/types'
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registration'
+import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
+import { EDocument } from '@/utils/e-document/e-document'
+import { parseIcaoCms } from '@/utils/e-document/sod'
 
 import { useCircuit } from '../circuit-loader'
 
@@ -92,7 +92,7 @@ export const useRegistration = () => {
   // ----------------------------------------------------------------------------------------
 
   const newBuildRegisterCertCallData = useCallback(
-    async (CSCAs: Certificate[], tempEDoc: NewEDocument, slaveMaster: Certificate) => {
+    async (CSCAs: Certificate[], tempEDoc: EDocument, slaveMaster: Certificate) => {
       // priority = keccak256.Hash(key) % (2^64-1)
       function toField(bytes: Uint8Array): bigint {
         const bi = BigInt('0x' + Buffer.from(bytes).toString('hex'))
@@ -251,7 +251,7 @@ export const useRegistration = () => {
   )
 
   const registerCertificate = useCallback(
-    async (CSCAs: Certificate[], tempEDoc: NewEDocument, slaveMaster: Certificate) => {
+    async (CSCAs: Certificate[], tempEDoc: EDocument, slaveMaster: Certificate) => {
       try {
         const newCallData = await newBuildRegisterCertCallData(CSCAs, tempEDoc, slaveMaster)
 
@@ -276,7 +276,11 @@ export const useRegistration = () => {
   )
 
   const getIdentityRegProof = useCallback(
-    async (eDoc: NewEDocument, smtProof: SparseMerkleTree.ProofStructOutput, circuit: Circuit) => {
+    async (
+      eDoc: EDocument,
+      smtProof: SparseMerkleTree.ProofStructOutput,
+      circuit: RegistrationCircuit,
+    ) => {
       const circuitsLoadingResult = await loadCircuit(circuit)
 
       if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
@@ -304,7 +308,7 @@ export const useRegistration = () => {
 
       const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
 
-      const wtns = await circuit.wtnsCalcMethod(
+      const wtns = await circuit.circuitParams.wtnsCalcMethod(
         circuitsLoadingResult.dat,
         Buffer.from(registerIdentityInputsJson),
       )
@@ -323,7 +327,7 @@ export const useRegistration = () => {
     (
       identityItem: IdentityItem,
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
-      circuit: Circuit,
+      circuit: RegistrationCircuit,
       isRevoked: boolean,
       circuitName: string,
     ) => {
@@ -396,7 +400,7 @@ export const useRegistration = () => {
     async (
       identityItem: IdentityItem,
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
-      circuit: Circuit,
+      circuit: RegistrationCircuit,
       isRevoked: boolean,
     ) => {
       const registerCallData = newBuildRegisterCallData(
@@ -404,7 +408,7 @@ export const useRegistration = () => {
         slaveCertSmtProof,
         circuit,
         isRevoked,
-        circuit.getName(identityItem.document),
+        circuit.circuitParams.name,
       )
 
       const { data } = await relayerRegister(registerCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
@@ -423,7 +427,7 @@ export const useRegistration = () => {
       identityItem: IdentityItem,
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
       passportInfo: PassportInfo | null,
-      circuit: Circuit,
+      circuit: RegistrationCircuit,
     ): Promise<void> => {
       const currentIdentityKey = publicKeyHash
       const currentIdentityKeyHex = ethers.hexlify(currentIdentityKey)
@@ -460,7 +464,7 @@ export const useRegistration = () => {
   )
 
   const getSlaveCertSmtProof = useCallback(
-    async (tempEDoc: NewEDocument) => {
+    async (tempEDoc: EDocument) => {
       return certPoseidonSMTContract.contractInstance.getProof(
         zeroPadValue(tempEDoc.sod.slaveCertificateIndex, 32),
       )
@@ -468,8 +472,7 @@ export const useRegistration = () => {
     [certPoseidonSMTContract.contractInstance],
   )
 
-  const resolveRevokedEDocument =
-    useRef<(value: NewEDocument | PromiseLike<NewEDocument>) => void>()
+  const resolveRevokedEDocument = useRef<(value: EDocument | PromiseLike<EDocument>) => void>()
   const rejectRevokedEDocument = useRef<(reason?: unknown) => void>()
 
   const revokeIdentity = useCallback(
@@ -502,7 +505,7 @@ export const useRegistration = () => {
       const revokedEDocument = currentIdentityItem.document || eDocumentResponse
       revokedEDocument.aaSignature = eDocumentResponse.aaSignature
 
-      const circuit = Circuit.fromEDoc(revokedEDocument)
+      const circuit = RegistrationCircuit.fromEDoc(revokedEDocument)
 
       const [passportInfo, getPassportInfoError] = await (async () => {
         if (_passportInfo) return [_passportInfo, null]
@@ -585,7 +588,7 @@ export const useRegistration = () => {
 
   const createIdentity = useCallback(
     async (
-      tempEDoc: NewEDocument,
+      tempEDoc: EDocument,
       opts: {
         onRevocation: (identityItem: IdentityItem) => void
       },
@@ -646,7 +649,7 @@ export const useRegistration = () => {
         }
       }
 
-      const circuit = Circuit.fromEDoc(tempEDoc)
+      const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
 
       const [regProof, getRegProofError] = await tryCatch(
         getIdentityRegProof(tempEDoc, slaveCertSmtProof, circuit),

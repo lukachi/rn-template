@@ -1,22 +1,34 @@
-import {
-  figureOutRSAAAHashAlgorithm,
-  normalizeSignatureWithCurve,
-  toPem,
-} from '@modules/e-document/src/helpers/misc'
-import { Sod } from './sod'
-import superjson from 'superjson'
-import { fromBER } from 'asn1js'
+import { ECParameters, id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
+import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { SubjectPublicKeyInfo } from '@peculiar/asn1-x509'
+import { fromBER } from 'asn1js'
 import { decodeBase64, getBytes, keccak256 } from 'ethers'
-import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
-import { ECParameters, id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
-
 import forge from 'node-forge'
-import { PersonDetails } from '../types'
+import superjson from 'superjson'
+
+import { figureOutRSAAAHashAlgorithm, normalizeSignatureWithCurve, toPem } from './helpers/misc'
+import { Sod } from './sod'
+
+export enum DocType {
+  ID = 'ID',
+  PASSPORT = 'PASSPORT',
+}
+
+export type PersonDetails = {
+  firstName: string | null
+  lastName: string | null
+  gender: string | null
+  birthDate: string | null
+  expiryDate: string | null
+  documentNumber: string | null
+  nationality: string | null
+  issuingAuthority: string | null
+  passportImageRaw: string | null
+}
 
 type NewEDocumentSerialized = {
-  docType: 'ID' | 'PASSPORT'
+  docCode: string
   personDetails: PersonDetails
   sodBytes: string
   dg1Bytes: string
@@ -25,10 +37,10 @@ type NewEDocumentSerialized = {
   aaSignature: string
 }
 
-export class NewEDocument {
+export class EDocument {
   static ECMaxSizeInBits = 2688 // Represents the maximum size in bits for an encapsulated content
 
-  docType: 'ID' | 'PASSPORT'
+  docCode: string
   personDetails: PersonDetails
   sodBytes: Uint8Array
   dg1Bytes: Uint8Array
@@ -37,7 +49,7 @@ export class NewEDocument {
   aaSignature: Uint8Array // TODO: make optional and remove from persistence
 
   constructor(params: {
-    docType: 'ID' | 'PASSPORT'
+    docCode: string
     personDetails: PersonDetails
     sodBytes: Uint8Array
     dg1Bytes: Uint8Array
@@ -45,7 +57,7 @@ export class NewEDocument {
     dg11Bytes?: Uint8Array
     aaSignature: Uint8Array
   }) {
-    this.docType = params.docType
+    this.docCode = params.docCode
     this.personDetails = params.personDetails
     this.sodBytes = params.sodBytes
     this.dg1Bytes = params.dg1Bytes
@@ -56,6 +68,18 @@ export class NewEDocument {
 
   get sod(): Sod {
     return new Sod(this.sodBytes)
+  }
+
+  get docType(): 'ID' | 'PASSPORT' {
+    if (this.docCode.includes('I')) {
+      return DocType.ID
+    }
+
+    if (this.docCode.includes('P')) {
+      return DocType.PASSPORT
+    }
+
+    throw new TypeError('Unsupported document type')
   }
 
   serialize(): string {
@@ -72,12 +96,12 @@ export class NewEDocument {
     return serialized
   }
 
-  static deserialize(serialized: string): NewEDocument {
+  static deserialize(serialized: string): EDocument {
     try {
       const parsed = superjson.parse<NewEDocumentSerialized>(serialized)
 
-      const res = new NewEDocument({
-        docType: parsed.docType,
+      const res = new EDocument({
+        docCode: parsed.docCode,
         personDetails: parsed.personDetails,
         sodBytes: decodeBase64(parsed.sodBytes),
         dg1Bytes: decodeBase64(parsed.dg1Bytes),
@@ -134,7 +158,7 @@ export class NewEDocument {
 
       const e = new forge.jsbn.BigInteger(exponentHex, 16)
 
-      const dispatcherName = `P_RSA_${hashAlg}_${NewEDocument.ECMaxSizeInBits > ecSizeInBits ? NewEDocument.ECMaxSizeInBits : ecSizeInBits}`
+      const dispatcherName = `P_RSA_${hashAlg}_${EDocument.ECMaxSizeInBits > ecSizeInBits ? EDocument.ECMaxSizeInBits : ecSizeInBits}`
       if (e.intValue() === 3) {
         dispatcherName.concat('_3')
       }
