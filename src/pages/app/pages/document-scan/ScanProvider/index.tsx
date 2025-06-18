@@ -12,7 +12,7 @@ import { identityStore } from '@/store/modules/identity'
 import { PassportRegisteredWithAnotherPKError } from '@/store/modules/identity/errors'
 import { IdentityItem } from '@/store/modules/identity/Identity'
 
-import { useCircuit } from './hooks/circuit'
+import { useCircuit } from './hooks/circuit-loader'
 import { useRegistration } from './hooks/registration'
 
 export enum Steps {

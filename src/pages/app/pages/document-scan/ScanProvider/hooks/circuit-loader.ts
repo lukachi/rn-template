@@ -1,5 +1,4 @@
-import type { CircuitType } from '@modules/e-document'
-import { getCircuitDetailsByType } from '@modules/e-document'
+import { Circuit } from '@modules/witnesscalculator/src/circuits'
 import { Buffer } from 'buffer'
 import * as FileSystem from 'expo-file-system'
 import { useCallback, useState } from 'react'
@@ -19,7 +18,7 @@ export const useCircuit = () => {
 
   const loadCircuit = useCallback(
     async (
-      circuitType: CircuitType,
+      circuit: Circuit,
     ): Promise<{
       zKeyUri: string
       dat: Uint8Array
@@ -29,7 +28,7 @@ export const useCircuit = () => {
       setIsLoadFailed(false)
 
       try {
-        const { circuitDownloadUrl } = getCircuitDetailsByType(circuitType)
+        // const { circuitDownloadUrl } = getCircuitDetailsByType(circuitType)
 
         const fileUri = `${FileSystem.documentDirectory}${circuitType}.zip`
         const targetPath = `${FileSystem.documentDirectory}${circuitType}`
@@ -54,7 +53,7 @@ export const useCircuit = () => {
         }
 
         const downloadResumable = FileSystem.createDownloadResumable(
-          circuitDownloadUrl,
+          circuit.downloadUrl,
           fileUri,
           {},
           downloadProgress => {

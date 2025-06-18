@@ -2,13 +2,10 @@ import {
   calcWtnsRegisterIdentityUniversalRSA2048,
   calcWtnsRegisterIdentityUniversalRSA4096,
 } from '@modules/witnesscalculator'
-import get from 'lodash/get'
 import { ec as EC } from 'elliptic'
 import forge from 'node-forge'
 
-import { CircuitType } from '../enums'
 import { DocType } from '../types'
-import { NewEDocument } from './e-document'
 import { RSAPublicKey } from '@peculiar/asn1-rsa'
 import { getBytes, zeroPadValue } from 'ethers'
 
@@ -24,50 +21,9 @@ export function getDocType(documentCode: string): DocType | null {
   return null
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseDocumentIOS(object: any, docType: DocType): NewEDocument {
-  return new NewEDocument({
-    docType: docType,
-    personDetails: {
-      firstName: get(object, 'personDetails.firstName', null),
-      lastName: get(object, 'personDetails.lastName', null),
-      gender: get(object, 'personDetails.gender', null),
-      birthDate: get(object, 'personDetails.dateOfBirth', null),
-      expiryDate: get(object, 'personDetails.documentExpiryDate', null),
-      documentNumber: get(object, 'personDetails.documentNumber', null),
-      nationality: get(object, 'personDetails.nationality', null),
-      issuingAuthority: get(object, 'personDetails.issuingAuthority', null),
-      passportImageRaw: get(object, 'personDetails.passportImageRaw', null),
-    },
-    sodBytes: Buffer.from(get(object, 'sod', ''), 'base64'),
-    dg1Bytes: Buffer.from(get(object, 'dg1', ''), 'base64'),
-    dg15Bytes: Buffer.from(get(object, 'dg15', ''), 'base64'),
-    dg11Bytes: Buffer.from(get(object, 'dg11', ''), 'base64'),
-    aaSignature: Buffer.from(get(object, 'signature', ''), 'base64'),
-  })
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseDocumentAndroid(object: any, docType: DocType): NewEDocument {
-  return new NewEDocument({
-    docType: docType,
-    personDetails: {
-      firstName: get(object, 'personDetails.primaryIdentifier', null),
-      lastName: get(object, 'personDetails.secondaryIdentifier', null),
-      gender: get(object, 'personDetails.gender', null),
-      birthDate: get(object, 'personDetails.dateOfBirth', null),
-      expiryDate: get(object, 'personDetails.dateOfExpiry', null),
-      documentNumber: get(object, 'personDetails.documentNumber', null),
-      nationality: get(object, 'personDetails.nationality', null),
-      issuingAuthority: get(object, 'personDetails.issuingState', null),
-      passportImageRaw: get(object, 'personDetails.passportImageRaw', null),
-    },
-    sodBytes: Buffer.from(get(object, 'sod', ''), 'base64'),
-    dg1Bytes: Buffer.from(get(object, 'dg1', ''), 'base64'),
-    dg15Bytes: Buffer.from(get(object, 'dg15', ''), 'base64'),
-    dg11Bytes: Buffer.from(get(object, 'dg11', ''), 'base64'),
-    aaSignature: Buffer.from(get(object, 'signature', ''), 'base64'),
-  })
+export enum CircuitType {
+  RegisterIdentityUniversalRSA2048 = 'registerIdentityUniversalRSA2048',
+  RegisterIdentityUniversalRSA4096 = 'registerIdentityUniversalRSA4096',
 }
 
 export function getCircuitType(pubKeySize: number) {

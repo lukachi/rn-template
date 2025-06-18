@@ -1,11 +1,10 @@
 import { InMemoryDB, Merkletree } from '@iden3/js-merkletree'
 import { scanDocument } from '@modules/e-document'
-import { CircuitType } from '@modules/e-document/src/enums'
 import { NewEDocument } from '@modules/e-document/src/helpers/e-document'
-import { getCircuitDetailsByType, getCircuitType } from '@modules/e-document/src/helpers/misc'
 import { parseIcaoCms } from '@modules/e-document/src/helpers/sod'
 import { groth16ProveWithZKeyFilePath, ZKProof } from '@modules/rapidsnark-wrp'
 import { buildRegisterIdentityInputs } from '@modules/rarime-sdk'
+import { Circuit } from '@modules/witnesscalculator/src/circuits'
 import {
   ECParameters,
   id_ecdsaWithSHA1,
@@ -56,7 +55,7 @@ import { Registration__factory, StateKeeper } from '@/types'
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registration'
 
-import { useCircuit } from '../circuit'
+import { useCircuit } from '../circuit-loader'
 
 const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
 
@@ -277,12 +276,8 @@ export const useRegistration = () => {
   )
 
   const getIdentityRegProof = useCallback(
-    async (
-      eDoc: NewEDocument,
-      circuitType: CircuitType,
-      smtProof: SparseMerkleTree.ProofStructOutput,
-    ) => {
-      const circuitsLoadingResult = await loadCircuit(circuitType)
+    async (eDoc: NewEDocument, smtProof: SparseMerkleTree.ProofStructOutput, circuit: Circuit) => {
+      const circuitsLoadingResult = await loadCircuit(circuit)
 
       if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
 
@@ -309,9 +304,7 @@ export const useRegistration = () => {
 
       const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
 
-      const { wtnsCalcMethod: registerIdentityWtnsCalc } = getCircuitDetailsByType(circuitType)
-
-      const wtns = await registerIdentityWtnsCalc(
+      const wtns = await circuit.wtnsCalcMethod(
         circuitsLoadingResult.dat,
         Buffer.from(registerIdentityInputsJson),
       )
@@ -330,7 +323,7 @@ export const useRegistration = () => {
     (
       identityItem: IdentityItem,
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
-      circuitTypeCertificatePubKeySize: number,
+      circuit: Circuit,
       isRevoked: boolean,
       circuitName: string,
     ) => {
@@ -347,7 +340,7 @@ export const useRegistration = () => {
       const zkTypeName = `${ZKTypePrefix}_${zkTypeSuffix}`
 
       const passport: Registration2.PassportStruct = {
-        dataType: identityItem.document.getAADataType(circuitTypeCertificatePubKeySize),
+        dataType: identityItem.document.getAADataType(circuit.keySize),
         zkType: keccak256(zkTypeName),
         signature: identityItem.document.AASignature,
         publicKey:
@@ -403,15 +396,15 @@ export const useRegistration = () => {
     async (
       identityItem: IdentityItem,
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
-      circuitTypeCertificatePubKeySize: number,
+      circuit: Circuit,
       isRevoked: boolean,
     ) => {
       const registerCallData = newBuildRegisterCallData(
         identityItem,
         slaveCertSmtProof,
-        circuitTypeCertificatePubKeySize,
+        circuit,
         isRevoked,
-        '0', // TODO circuitName has to be built
+        circuit.getName(identityItem.document),
       )
 
       const { data } = await relayerRegister(registerCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
@@ -429,8 +422,8 @@ export const useRegistration = () => {
     async (
       identityItem: IdentityItem,
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
-      circuitType: CircuitType,
       passportInfo: PassportInfo | null,
+      circuit: Circuit,
     ): Promise<void> => {
       const currentIdentityKey = publicKeyHash
       const currentIdentityKeyHex = ethers.hexlify(currentIdentityKey)
@@ -438,25 +431,16 @@ export const useRegistration = () => {
       const isPassportNotRegistered =
         !passportInfo || passportInfo.passportInfo_.activeIdentity === ZERO_BYTES32_HEX
 
-      const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
-
-      if (isPassportNotRegistered) {
-        await requestRelayerRegisterMethod(
-          identityItem,
-          slaveCertSmtProof,
-          circuitTypeCertificatePubKeySize,
-          false,
-        )
-      }
-
       const isPassportRegisteredWithCurrentPK =
         passportInfo?.passportInfo_.activeIdentity === currentIdentityKeyHex
 
-      if (isPassportRegisteredWithCurrentPK) {
-        // TODO: save eDoc, regProof, and proceed complete
+      if (isPassportNotRegistered) {
+        await requestRelayerRegisterMethod(identityItem, slaveCertSmtProof, circuit, false)
       }
 
-      throw new PassportRegisteredWithAnotherPKError()
+      if (!isPassportRegisteredWithCurrentPK) {
+        throw new PassportRegisteredWithAnotherPKError()
+      }
     },
     [publicKeyHash, requestRelayerRegisterMethod],
   )
@@ -494,7 +478,6 @@ export const useRegistration = () => {
       currentIdentityItem: IdentityItem,
       _passportInfo?: PassportInfo | null,
       _slaveCertSmtProof?: SparseMerkleTree.ProofStructOutput,
-      _circuitType?: CircuitType,
     ) => {
       if (
         !tempMRZ.birthDate ||
@@ -519,12 +502,7 @@ export const useRegistration = () => {
       const revokedEDocument = currentIdentityItem.document || eDocumentResponse
       revokedEDocument.aaSignature = eDocumentResponse.aaSignature
 
-      const circuitType =
-        _circuitType ?? getCircuitType(currentIdentityItem.document.sod.X509RSASize)
-
-      if (!circuitType) throw new TypeError('Unsupported public key size')
-
-      const { circuitTypeCertificatePubKeySize } = getCircuitDetailsByType(circuitType)
+      const circuit = Circuit.fromEDoc(revokedEDocument)
 
       const [passportInfo, getPassportInfoError] = await (async () => {
         if (_passportInfo) return [_passportInfo, null]
@@ -542,7 +520,7 @@ export const useRegistration = () => {
 
       if (isPassportRegistered) {
         const passport: Registration2.PassportStruct = {
-          dataType: revokedEDocument.getAADataType(circuitTypeCertificatePubKeySize),
+          dataType: revokedEDocument.getAADataType(circuit.keySize),
           zkType: ZERO_BYTES32_HEX,
           signature: revokedEDocument.AASignature,
           publicKey: revokedEDocument.AAPublicKey || ZERO_BYTES32_HEX,
@@ -589,12 +567,7 @@ export const useRegistration = () => {
         throw new TypeError('Slave certificate SMT proof not found', getSlaveCertSmtProofError)
       }
 
-      await requestRelayerRegisterMethod(
-        currentIdentityItem,
-        slaveCertSmtProof,
-        circuitTypeCertificatePubKeySize,
-        true,
-      )
+      await requestRelayerRegisterMethod(currentIdentityItem, slaveCertSmtProof, circuit, true)
     },
     [
       getRevocationChallenge,
@@ -653,10 +626,6 @@ export const useRegistration = () => {
         setTempMaster(slaveMaster)
       }
 
-      const circuitType = getCircuitType(tempEDoc.sod.X509RSASize)
-
-      if (!circuitType) throw new TypeError('Unsupported public key size')
-
       const [slaveCertSmtProof, getSlaveCertSmtProofError] = await tryCatch(
         getSlaveCertSmtProof(tempEDoc),
       )
@@ -677,8 +646,10 @@ export const useRegistration = () => {
         }
       }
 
+      const circuit = Circuit.fromEDoc(tempEDoc)
+
       const [regProof, getRegProofError] = await tryCatch(
-        getIdentityRegProof(tempEDoc, circuitType, slaveCertSmtProof),
+        getIdentityRegProof(tempEDoc, slaveCertSmtProof, circuit),
       )
       if (getRegProofError) {
         throw new TypeError('Failed to get identity registration proof', getRegProofError)
@@ -691,7 +662,7 @@ export const useRegistration = () => {
       }
 
       const [, registerIdentityError] = await tryCatch(
-        registerIdentity(identityItem, slaveCertSmtProof, circuitType, passportInfo),
+        registerIdentity(identityItem, slaveCertSmtProof, passportInfo, circuit),
       )
       if (registerIdentityError) {
         if (registerIdentityError instanceof PassportRegisteredWithAnotherPKError) {
