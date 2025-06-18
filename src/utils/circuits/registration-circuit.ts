@@ -31,6 +31,7 @@ export class RegistrationCircuit {
   ) {}
 
   static fromEDoc(eDoc: EDocument): RegistrationCircuit {
+    console.log('fromEDoc')
     // 1_256_3_5_576_248_NA
     // 1 - static_id
     // 256 - hash algorithm
@@ -64,6 +65,7 @@ export class RegistrationCircuit {
           throw new TypeError(`Unsupported hash algorithm: ${hashName}`)
       }
     })()
+    console.log({ hashAlgorithm })
     const docType: CircuitDocumentType = (() => {
       switch (eDoc.docType) {
         case 'ID':
@@ -74,7 +76,9 @@ export class RegistrationCircuit {
           return CircuitDocumentType.TD3
       }
     })()
+    console.log({ docType })
     const ecChunkNumber = this.#getChunkNumber(eDoc.sod.encapsulatedContent, hashAlgorithm)
+    console.log({ ecChunkNumber })
     const ecDigestPositionShift = (() => {
       const ecHash = Buffer.from(
         eDoc.sod.x509SlaveCert.signatureAlgorithm.hash.name,
@@ -86,11 +90,13 @@ export class RegistrationCircuit {
 
       return bytesLength * 8
     })()
+    console.log({ ecDigestPositionShift })
 
     const dg1DigestPositionShift = (() => {
       const dg1Hex = Buffer.from(eDoc.dg1Bytes).toString('hex')
       return Buffer.from(eDoc.sod.encapsulatedContent).toString('hex').indexOf(dg1Hex) / 2
     })()
+    console.log({ dg1DigestPositionShift })
 
     if (!eDoc.dg15Bytes || !eDoc.dg15PubKey) {
       const staticId = supportedCircuits
@@ -143,21 +149,26 @@ export class RegistrationCircuit {
     }
 
     const dg15Hex = Buffer.from(eDoc.dg15Bytes).toString('hex')
+    console.log({ dg15Hex })
 
     const dg15DigestPositionShift = (() => {
       const bytesLength =
         Buffer.from(eDoc.sod.encapsulatedContent).toString('hex').indexOf(dg15Hex) / 2
       return bytesLength * 8
     })()
+    console.log({ dg15DigestPositionShift })
 
     const dg15ChunkNumber = this.#getChunkNumber(eDoc.dg15Bytes, hashAlgorithm)
+    console.log({ dg15ChunkNumber })
 
     const aaKeyPositionShift =
       dg15Hex.indexOf(Buffer.from(eDoc.dg15PubKey.subjectPublicKey).toString('hex')) / 2
 
+    console.log({ aaKeyPositionShift })
+
     // TODO: check for ecdsa or use regex
     const algorithm = (() => {
-      switch (eDoc.sod.slaveCert.signatureAlgorithm.algorithm) {
+      switch (eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm) {
         case id_rsaEncryption:
           return CircuitAlgorithm.RSA
         case id_RSASSA_PSS:
@@ -170,6 +181,8 @@ export class RegistrationCircuit {
           )
       }
     })()
+
+    console.log({ algorithm })
 
     const aaTypeId = (() => {
       if (algorithm === CircuitAlgorithm.RSA && hashAlgorithm === CircuitHashAlgorithm.SHA160) {
@@ -184,6 +197,8 @@ export class RegistrationCircuit {
         `Unsupported circuit algorithm/hash combination: ${algorithm}/${hashAlgorithm}`,
       )
     })()
+
+    console.log({ aaTypeId })
 
     const staticId = supportedCircuits
       .map(el => el.name)
@@ -202,6 +217,8 @@ export class RegistrationCircuit {
         )
       })
       ?.split('_')[1]
+
+    console.log({ staticId })
 
     if (!staticId) {
       throw new Error(
@@ -233,13 +250,17 @@ export class RegistrationCircuit {
       dg15ChunkNumber,
       aaKeyPositionShift,
     ].join('_')
+    console.log({ name })
 
     const circuitParams = CircuitParams.fromName(name)
+    console.log({ circuitParams })
 
     // TODO: check me
     const keySize = (() => {
       return eDoc.sod.x509SlaveCert.publicKey.rawData.byteLength * 8
     })()
+
+    console.log({ keySize })
 
     return new RegistrationCircuit(
       prefixName,

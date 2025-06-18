@@ -593,6 +593,12 @@ export const useRegistration = () => {
         onRevocation: (identityItem: IdentityItem) => void
       },
     ): Promise<IdentityItem> => {
+      const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
+
+      console.log({ circuit })
+
+      throw new TypeError('Purpose error')
+
       const [icaoBytes, getIcaoBytesError] = await tryCatch(
         (async () => {
           const icaoAsset = assets?.[0]
@@ -648,8 +654,6 @@ export const useRegistration = () => {
           }
         }
       }
-
-      const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
 
       const [regProof, getRegProofError] = await tryCatch(
         getIdentityRegProof(tempEDoc, slaveCertSmtProof, circuit),

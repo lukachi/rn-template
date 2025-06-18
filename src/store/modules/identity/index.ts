@@ -52,7 +52,7 @@ const useIdentityStore = create(
     ),
     {
       name: 'documents',
-      version: 7,
+      version: 9,
       storage: createJSONStorage(() => zustandStorage, {
         reviver: (key, value) => {
           if (!value) return value

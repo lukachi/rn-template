@@ -32,8 +32,8 @@ type NewEDocumentSerialized = {
   personDetails: PersonDetails
   sodBytes: string
   dg1Bytes: string
-  dg15Bytes: string
-  dg11Bytes: string
+  dg15Bytes?: string
+  dg11Bytes?: string
   aaSignature: string
 }
 
@@ -83,15 +83,16 @@ export class EDocument {
   }
 
   serialize(): string {
-    const serialized = superjson.stringify({
-      docType: this.docType,
+    const target: NewEDocumentSerialized = {
+      docCode: this.docCode,
       personDetails: this.personDetails,
       sodBytes: Buffer.from(this.sodBytes).toString('base64'),
       dg1Bytes: Buffer.from(this.dg1Bytes).toString('base64'),
       dg15Bytes: this.dg15Bytes ? Buffer.from(this.dg15Bytes).toString('base64') : undefined,
       dg11Bytes: this.dg11Bytes ? Buffer.from(this.dg11Bytes).toString('base64') : undefined,
       aaSignature: Buffer.from(this.aaSignature).toString('base64'),
-    })
+    }
+    const serialized = superjson.stringify(target)
 
     return serialized
   }
@@ -105,8 +106,8 @@ export class EDocument {
         personDetails: parsed.personDetails,
         sodBytes: decodeBase64(parsed.sodBytes),
         dg1Bytes: decodeBase64(parsed.dg1Bytes),
-        dg15Bytes: decodeBase64(parsed.dg15Bytes),
-        dg11Bytes: decodeBase64(parsed.dg11Bytes),
+        dg15Bytes: parsed.dg15Bytes ? decodeBase64(parsed.dg15Bytes) : undefined,
+        dg11Bytes: parsed.dg11Bytes ? decodeBase64(parsed.dg11Bytes) : undefined,
         aaSignature: decodeBase64(parsed.aaSignature),
       })
 
