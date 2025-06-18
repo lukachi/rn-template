@@ -80,25 +80,93 @@ export class Circuit {
       }
     })()
 
+    const ecChunkNumber = this.#getChunkNumber(eDoc.sod.encapsulatedContent)
+    const ecDigestPosition = (() => {
+      const ecHash = Buffer.from(
+        eDoc.sod.x509SlaveCert.signatureAlgorithm.hash.name,
+        'utf-8',
+      ).toString('hex')
+      const encapsulatedContentHex = Buffer.from(eDoc.sod.encapsulatedContent).toString('hex')
+
+      return encapsulatedContentHex.indexOf(ecHash) / 2
+    })()
+
+    const dg1Hex = Buffer.from(eDoc.dg1Bytes).toString('hex')
+    const dg1DigestPositionShift = (() => {
+      return Buffer.from(eDoc.sod.encapsulatedContent).toString('hex').indexOf(dg1Hex) / 2
+    })()
+
     const name = [
       this.prefixName,
       this.staticId,
       this.hashAlgorithm,
       docType,
       ecChunkNumber,
-      ecDigestPosition,
+      ecDigestPosition * 8,
       dg1DigestPositionShift,
-    ].join('_') // TODO: not finished
+    ].join('_')
 
-    if (!aaType) {
+    if (!eDoc.dg15Bytes || !eDoc.dg15PubKey) {
       name.concat(`_NA`)
 
       return name
     }
 
-    name.concat([aaTypeId, dg15DigestPositionShift, dg15ChunkNumber, aaKeyPositionShift].join('_'))
+    const dg15Hex = Buffer.from(eDoc.dg15Bytes).toString('hex')
+
+    const dg15DigestPositionShift = (() => {
+      return Buffer.from(eDoc.sod.encapsulatedContent).toString('hex').indexOf(dg15Hex) / 2
+    })()
+
+    const dg15ChunkNumber = this.#getChunkNumber(eDoc.dg15Bytes)
+
+    const aaKeyPositionShift =
+      dg15Hex.indexOf(Buffer.from(eDoc.dg15PubKey.subjectPublicKey).toString('hex')) / 2
+
+    const aaTypeId = (() => {
+      if (
+        this.algorithm === CircuitAlgorithm.RSA &&
+        this.hashAlgorithm === CircuitHashAlgorithm.SHA160
+      ) {
+        return 1
+      }
+
+      if (
+        this.algorithm === CircuitAlgorithm.ECDSA &&
+        this.hashAlgorithm === CircuitHashAlgorithm.SHA160
+      ) {
+        return 21
+      }
+
+      throw new TypeError(
+        `Unsupported circuit algorithm/hash combination: ${this.algorithm}/${this.hashAlgorithm}`,
+      )
+    })()
+
+    name.concat(
+      [aaTypeId, dg15DigestPositionShift * 8, dg15ChunkNumber, aaKeyPositionShift].join('_'),
+    )
 
     return name
+  }
+
+  #getChunkNumber(data: Uint8Array): number {
+    const length = data.length * 8 + 1 + 64
+    const chunkSize = (() => {
+      switch (this.hashAlgorithm) {
+        case CircuitHashAlgorithm.SHA160:
+        case CircuitHashAlgorithm.SHA256:
+          return 512
+        case CircuitHashAlgorithm.SHA384:
+        case CircuitHashAlgorithm.SHA224:
+        case CircuitHashAlgorithm.SHA512:
+          return 1024
+        default:
+          throw new TypeError('Unsupported hash algorithm')
+      }
+    })()
+
+    return length / chunkSize + (length % chunkSize == 0 ? 0 : 1)
   }
 }
 

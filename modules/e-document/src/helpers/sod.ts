@@ -70,6 +70,10 @@ export class Sod {
     return this.certSet[0].certificate
   }
 
+  get x509SlaveCert(): x509.X509Certificate {
+    return new x509.X509Certificate(this.slaveCertPemBytes)
+  }
+
   get slaveCertPemBytes(): Uint8Array {
     const der = AsnConvert.serialize(this.certSet[0].certificate)
     return new Uint8Array(Buffer.from(toPem(der, 'CERTIFICATE')))

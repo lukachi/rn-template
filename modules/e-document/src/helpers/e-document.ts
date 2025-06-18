@@ -200,7 +200,7 @@ export class NewEDocument {
         )
       }
 
-      return new Uint8Array(ecParameters?.specifiedCurve?.base?.buffer)
+      return new Uint8Array(this.dg15PubKey.subjectPublicKey)
     }
 
     throw new TypeError('Unsupported DG15 public key algorithm for AA public key extraction')

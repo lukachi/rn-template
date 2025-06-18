@@ -1,5 +1,3 @@
-
-
 export enum EDocumentModuleEvents {
   ScanStarted = 'SCAN_STARTED',
   RequestPresentPassport = 'REQUEST_PRESENT_PASSPORT',
