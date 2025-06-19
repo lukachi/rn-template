@@ -7,7 +7,7 @@ import { decodeBase64, getBytes, keccak256 } from 'ethers'
 import forge from 'node-forge'
 import superjson from 'superjson'
 
-import { figureOutRSAAAHashAlgorithm, normalizeSignatureWithCurve, toPem } from './helpers/misc'
+import { figureOutRSAAAHashAlgorithm, normalizeSignatureWithCurve } from './helpers/misc'
 import { Sod } from './sod'
 
 export enum DocType {
@@ -135,12 +135,6 @@ export class EDocument {
     return subjectPublicKeyInfo
   }
 
-  get dg15PubKeyPem() {
-    if (!this.dg15PubKey) return undefined
-
-    return Buffer.from(toPem(AsnConvert.serialize(this.dg15PubKey), 'PUBLIC KEY'), 'utf8')
-  }
-
   getAADataType(ecSizeInBits: number) {
     if (!this.dg15PubKey) {
       return getBytes(keccak256(Buffer.from('P_NO_DATA', 'utf-8')))
@@ -177,7 +171,7 @@ export class EDocument {
   }
 
   get AASignature() {
-    if (!this.dg15PubKeyPem) {
+    if (!this.dg15PubKey) {
       return new Uint8Array()
     }
 
@@ -200,7 +194,7 @@ export class EDocument {
   }
 
   get AAPublicKey() {
-    if (!this.dg15PubKeyPem) {
+    if (!this.dg15PubKey) {
       return new Uint8Array()
     }
 

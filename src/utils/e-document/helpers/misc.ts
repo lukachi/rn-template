@@ -3,15 +3,6 @@ import { ec as EC } from 'elliptic'
 import { getBytes, zeroPadValue } from 'ethers'
 import forge from 'node-forge'
 
-export const decodeDerFromPemBytes = (bytes: Uint8Array): ArrayBuffer =>
-  Buffer.from(
-    Buffer.from(bytes)
-      .toString('utf8')
-      .replace(/-----(BEGIN|END) CERTIFICATE-----/g, '')
-      .replace(/\s+/g, ''),
-    'base64',
-  ).buffer
-
 export function toPem(buf: ArrayBuffer, header: string): string {
   const body = Buffer.from(buf)
     .toString('base64')

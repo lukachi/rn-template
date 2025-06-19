@@ -20,7 +20,6 @@ import {
 } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
-import * as X509 from '@peculiar/x509'
 import { AxiosError } from 'axios'
 import {
   decodeBase64,
@@ -143,8 +142,6 @@ export const useRegistration = () => {
       const x509KeyOffset = tempEDoc.sod.slaveCertX509KeyOffset
       const expOffset = tempEDoc.sod.slaveCertExpOffset
 
-      const x509SlaveCert = new X509.X509Certificate(tempEDoc.sod.slaveCertPemBytes)
-
       const dispatcherName = (() => {
         switch (tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm) {
           case id_rsaEncryption:
@@ -200,7 +197,7 @@ export const useRegistration = () => {
           //   ecParameters.specifiedCurve?.fieldID.parameters,
           // ).toString('hex')
 
-          const bitLen = (x509SlaveCert.publicKey.rawData.byteLength * 8).toString()
+          const bitLen = (tempEDoc.sod.x509SlaveCert.publicKey.rawData.byteLength * 8).toString()
 
           switch (slave.signatureAlgorithm.algorithm) {
             case id_ecdsaWithSHA1: // ECDSAwithSHA1
@@ -296,7 +293,9 @@ export const useRegistration = () => {
         sodSignature,
         dg1: eDoc.dg1Bytes,
         dg15: eDoc.dg15Bytes || new Uint8Array(),
-        pubKeyPem: eDoc.sod.publicKeyPemBytes,
+        pubKeyPem: new Uint8Array(
+          eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        ),
         smtProofJson: Buffer.from(
           JSON.stringify({
             root: encodeBase64(smtProof.root),
@@ -593,11 +592,7 @@ export const useRegistration = () => {
         onRevocation: (identityItem: IdentityItem) => void
       },
     ): Promise<IdentityItem> => {
-      // const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
-
-      // console.log({ circuit })
-
-      // throw new TypeError('Purpose error')
+      const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
 
       const [icaoBytes, getIcaoBytesError] = await tryCatch(
         (async () => {
@@ -634,8 +629,6 @@ export const useRegistration = () => {
       if (!tempCSCAs) {
         setTempCSCAs(CSCAs)
       }
-
-      throw new TypeError('Purpose error')
 
       const [slaveMaster, getSlaveMasterError] = await tryCatch(
         (async () => {

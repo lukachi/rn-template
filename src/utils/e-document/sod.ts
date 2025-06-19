@@ -13,7 +13,6 @@ import { ec as EC } from 'elliptic'
 import { getBytes, zeroPadValue } from 'ethers'
 
 import { hashPacked } from './helpers/crypto'
-import { decodeDerFromPemBytes, toPem } from './helpers/misc'
 import { normalizeSignatureWithCurve } from './helpers/misc'
 
 export class Sod {
@@ -38,15 +37,7 @@ export class Sod {
     return new Uint8Array(result.valueBlock.toBER())
   }
 
-  /** Doc-signing public key in PEM (-----BEGIN PUBLIC KEY-----). */
-  get publicKeyPemBytes(): Uint8Array {
-    const spkiDer = AsnConvert.serialize(
-      this.certSet[0].certificate?.tbsCertificate.subjectPublicKeyInfo,
-    )
-
-    return new Uint8Array(Buffer.from(toPem(spkiDer, 'PUBLIC KEY')))
-  }
-
+  // TODO: remove
   get X509RSASize(): number {
     const spki = this.certSet[0].certificate?.tbsCertificate.subjectPublicKeyInfo
 
@@ -71,12 +62,8 @@ export class Sod {
   }
 
   get x509SlaveCert(): x509.X509Certificate {
-    return new x509.X509Certificate(this.slaveCertPemBytes)
-  }
-
-  get slaveCertPemBytes(): Uint8Array {
-    const der = AsnConvert.serialize(this.certSet[0].certificate)
-    return new Uint8Array(Buffer.from(toPem(der, 'CERTIFICATE')))
+    const der = AsnConvert.serialize(this.slaveCert)
+    return new x509.X509Certificate(der)
   }
 
   get slaveCertX509KeyOffset(): bigint {
@@ -301,12 +288,10 @@ export class Sod {
   async getSlaveMaster(CSCAs: Certificate[]) {
     const trustedRoots = CSCAs
 
-    const x509Slave = new x509.X509Certificate(this.slaveCertPemBytes)
-
     const candidates = trustedRoots.reduce((acc, curr) => {
       try {
         const x509Cert = new x509.X509Certificate(AsnConvert.serialize(curr))
-        if (x509Cert.subject === x509Slave.issuer) {
+        if (x509Cert.subject === this.x509SlaveCert.issuer) {
           acc.push(x509Cert)
         }
       } catch (error) {
@@ -319,7 +304,7 @@ export class Sod {
       certificates: candidates,
     })
 
-    const chain = await builder.build(x509Slave)
+    const chain = await builder.build(this.x509SlaveCert)
 
     if (!chain.length) {
       throw new Error('No valid chain from slave to a CSCA in the Master-List')
@@ -332,15 +317,14 @@ export class Sod {
   }
 
   get slaveCertificateIndex(): Uint8Array {
-    const slavePec = AsnConvert.parse(decodeDerFromPemBytes(this.slaveCertPemBytes), Certificate)
-
-    /* 4 ▸ extract RSA modulus from the slave public key ---------------- */
-    if (slavePec.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm !== id_rsaEncryption) {
+    if (
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm !== id_rsaEncryption
+    ) {
       throw new TypeError('Slave public key is not RSA')
     }
 
     const rsa = AsnConvert.parse(
-      slavePec.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
       RSAPublicKey,
     )
     const modulusBytes = new Uint8Array(rsa.modulus)
