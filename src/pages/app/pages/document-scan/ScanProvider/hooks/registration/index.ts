@@ -1,7 +1,6 @@
 import { InMemoryDB, Merkletree } from '@iden3/js-merkletree'
 import { scanDocument } from '@modules/e-document'
 import { groth16ProveWithZKeyFilePath, ZKProof } from '@modules/rapidsnark-wrp'
-import { buildRegisterIdentityInputs } from '@modules/rarime-sdk'
 import {
   ECParameters,
   id_ecdsaWithSHA1,
@@ -22,15 +21,7 @@ import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
 import { X509Certificate } from '@peculiar/x509'
 import { AxiosError } from 'axios'
-import {
-  decodeBase64,
-  encodeBase64,
-  ethers,
-  getBytes,
-  JsonRpcProvider,
-  keccak256,
-  zeroPadValue,
-} from 'ethers'
+import { decodeBase64, ethers, getBytes, JsonRpcProvider, keccak256, zeroPadValue } from 'ethers'
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import { FieldRecords } from 'mrz'
@@ -312,30 +303,9 @@ export const useRegistration = () => {
         slaveMerkleInclusionBranches: smtProof.siblings,
       }
 
-      const registerIdentityInputs = await buildRegisterIdentityInputs({
-        privateKeyHex: privateKey,
-        encapsulatedContent,
-        signedAttributes,
-        sodSignature,
-        dg1: eDoc.dg1Bytes,
-        dg15: eDoc.dg15Bytes || new Uint8Array(),
-        pubKeyPem: new Uint8Array(
-          eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-        ),
-        smtProofJson: Buffer.from(
-          JSON.stringify({
-            root: encodeBase64(smtProof.root),
-            siblings: smtProof.siblings.map(el => encodeBase64(el)),
-            existence: smtProof.existence,
-          }),
-        ),
-      })
-
-      const registerIdentityInputsJson = Buffer.from(registerIdentityInputs).toString()
-
       const wtns = await circuit.circuitParams.wtnsCalcMethod(
         circuitsLoadingResult.dat,
-        Buffer.from(registerIdentityInputsJson),
+        Buffer.from(JSON.stringify(inputs)),
       )
 
       const registerIdentityZkProofBytes = await groth16ProveWithZKeyFilePath(
