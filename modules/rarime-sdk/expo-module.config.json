@@ -1,9 +1,0 @@
-{
-  "platforms": ["ios", "tvos", "android", "web"],
-  "ios": {
-    "modules": ["RarimeSdkModule"]
-  },
-  "android": {
-    "modules": ["expo.modules.rarimesdk.RarimeSdkModule"]
-  }
-}

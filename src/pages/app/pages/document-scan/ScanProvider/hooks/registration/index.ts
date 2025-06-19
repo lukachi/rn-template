@@ -273,10 +273,6 @@ export const useRegistration = () => {
 
       if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
 
-      const encapsulatedContent = eDoc.sod.encapsulatedContent
-      const signedAttributes = eDoc.sod.signedAttributes
-      const sodSignature = eDoc.sod.signature
-
       const inputs = {
         skIdentity: privateKey,
         encapsulatedContent: padBitsToFixedBlocks(
