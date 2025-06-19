@@ -52,6 +52,7 @@ import { walletStore } from '@/store/modules/wallet'
 import { Registration__factory, StateKeeper } from '@/types'
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registration'
+import { padBitsToFixedBlocks } from '@/utils/circuits/helpers'
 import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
 import { EDocument } from '@/utils/e-document/e-document'
 
@@ -284,6 +285,32 @@ export const useRegistration = () => {
       const encapsulatedContent = eDoc.sod.encapsulatedContent
       const signedAttributes = eDoc.sod.signedAttributes
       const sodSignature = eDoc.sod.signature
+
+      const inputs = {
+        skIdentity: privateKey,
+        encapsulatedContent: padBitsToFixedBlocks(
+          eDoc.sod.encapsulatedContent,
+          circuit.ecChunkNumber,
+          circuit.hashAlgorithm,
+        ),
+        signedAttributes: padBitsToFixedBlocks(eDoc.sod.signedAttributes, 2, circuit.hashAlgorithm),
+        pubKey: (() => {})(),
+        signature: (() => {})(),
+        dg1: padBitsToFixedBlocks(eDoc.dg1Bytes, 2, circuit.hashAlgorithm),
+        dg15: (() => {
+          if (!eDoc.dg15Bytes || !circuit.dg15EcChunkNumber) {
+            return new Uint8Array()
+          }
+
+          return padBitsToFixedBlocks(
+            eDoc.dg15Bytes,
+            circuit.dg15EcChunkNumber,
+            circuit.hashAlgorithm,
+          )
+        })(),
+        slaveMerkleRoot: smtProof.root,
+        slaveMerkleInclusionBranches: smtProof.siblings,
+      }
 
       const registerIdentityInputs = await buildRegisterIdentityInputs({
         privateKeyHex: privateKey,
@@ -591,6 +618,7 @@ export const useRegistration = () => {
         onRevocation: (identityItem: IdentityItem) => void
       },
     ): Promise<IdentityItem> => {
+      const registrationCircuit = RegistrationCircuit.fromEDoc(tempEDoc)
       const [icaoBytes, getIcaoBytesError] = await tryCatch(
         (async () => {
           const icaoAsset = assets?.[0]
@@ -670,6 +698,10 @@ export const useRegistration = () => {
         throw new TypeError('Failed to get identity registration proof', getRegProofError)
       }
       const identityItem = new IdentityItem(tempEDoc, regProof)
+
+      console.log({ regProof })
+
+      throw new TypeError('Purpose')
 
       const [passportInfo, getPassportInfoError] = await tryCatch(identityItem.getPassportInfo())
       if (getPassportInfoError) {

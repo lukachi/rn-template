@@ -1,17 +1,16 @@
 import { id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
 import { id_rsaEncryption, id_RSASSA_PSS } from '@peculiar/asn1-rsa'
 
-import { SupportedCurves } from '@/utils/curves/curves'
 import { EDocument } from '@/utils/e-document/e-document'
 
 import { CircuitParams, supportedCircuits } from './config'
 import {
   CircuitAlgorithm,
+  CircuitDg15EcChunkNumber,
   CircuitDocumentType,
-  CircuitExponent,
+  CircuitEcChunkNumber,
   CircuitHashAlgorithm,
   CircuitKeySize,
-  CircuitSalt,
 } from './enums'
 
 export class RegistrationCircuit {
@@ -20,14 +19,12 @@ export class RegistrationCircuit {
     public staticId: number,
     public hashAlgorithm: CircuitHashAlgorithm,
     public docType: CircuitDocumentType,
-    // public algorithm: CircuitAlgorithm,
+    public ecChunkNumber: CircuitEcChunkNumber,
     public keySize: CircuitKeySize,
 
     public circuitParams: CircuitParams,
 
-    public exponent?: CircuitExponent,
-    public salt?: CircuitSalt,
-    public curve?: SupportedCurves,
+    public dg15EcChunkNumber?: CircuitDg15EcChunkNumber,
   ) {}
 
   static fromEDoc(eDoc: EDocument): RegistrationCircuit {
@@ -142,6 +139,7 @@ export class RegistrationCircuit {
         Number(staticId),
         hashAlgorithm,
         docType,
+        ecChunkNumber,
         keySize,
 
         circuitParams,
@@ -158,8 +156,8 @@ export class RegistrationCircuit {
     })()
     console.log({ dg15DigestPositionShift })
 
-    const dg15ChunkNumber = this.#getChunkNumber(eDoc.dg15Bytes, hashAlgorithm)
-    console.log({ dg15ChunkNumber })
+    const dg15EcChunkNumber = this.#getChunkNumber(eDoc.dg15Bytes, hashAlgorithm)
+    console.log({ dg15EcChunkNumber })
 
     const aaKeyPositionShift =
       dg15Hex.indexOf(Buffer.from(eDoc.dg15PubKey.subjectPublicKey).toString('hex')) / 2
@@ -212,7 +210,7 @@ export class RegistrationCircuit {
           el.includes(String(dg1DigestPositionShift)) &&
           el.includes(String(aaTypeId)) &&
           el.includes(String(dg15DigestPositionShift)) &&
-          el.includes(String(dg15ChunkNumber)) &&
+          el.includes(String(dg15EcChunkNumber)) &&
           el.includes(String(aaKeyPositionShift))
         )
       })
@@ -231,7 +229,7 @@ export class RegistrationCircuit {
           dg1DigestPositionShift,
           aaTypeId,
           dg15DigestPositionShift,
-          dg15ChunkNumber,
+          dg15EcChunkNumber,
           aaKeyPositionShift,
         ].join('_')}`,
       )
@@ -247,7 +245,7 @@ export class RegistrationCircuit {
       dg1DigestPositionShift,
       aaTypeId,
       dg15DigestPositionShift,
-      dg15ChunkNumber,
+      dg15EcChunkNumber,
       aaKeyPositionShift,
     ].join('_')
     console.log({ name })
@@ -267,9 +265,12 @@ export class RegistrationCircuit {
       Number(staticId),
       hashAlgorithm,
       docType,
+      ecChunkNumber,
       keySize,
 
       circuitParams,
+
+      dg15EcChunkNumber,
     )
   }
 
