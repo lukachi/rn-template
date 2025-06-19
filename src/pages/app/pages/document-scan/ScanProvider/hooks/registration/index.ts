@@ -34,6 +34,7 @@ import {
 import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import { FieldRecords } from 'mrz'
+import forge from 'node-forge'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
@@ -53,7 +54,6 @@ import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registration'
 import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
 import { EDocument } from '@/utils/e-document/e-document'
-import { parseIcaoCms } from '@/utils/e-document/sod'
 
 import { useCircuit } from '../circuit-loader'
 
@@ -593,11 +593,11 @@ export const useRegistration = () => {
         onRevocation: (identityItem: IdentityItem) => void
       },
     ): Promise<IdentityItem> => {
-      const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
+      // const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
 
-      console.log({ circuit })
+      // console.log({ circuit })
 
-      throw new TypeError('Purpose error')
+      // throw new TypeError('Purpose error')
 
       const [icaoBytes, getIcaoBytesError] = await tryCatch(
         (async () => {
@@ -616,10 +616,26 @@ export const useRegistration = () => {
         throw new TypeError('Failed to get ICAO bytes', getIcaoBytesError)
       }
 
-      const CSCAs = tempCSCAs ?? parseIcaoCms(icaoBytes)
+      const [CSCAs, error] = await tryCatch(
+        (async () => {
+          const pemObjects = forge.pem.decode(Buffer.from(icaoBytes.buffer).toString('utf-8'))
+
+          const pems = pemObjects.map(el => forge.pem.encode(el))
+
+          return pems.map(el => {
+            const der = forge.pki.pemToDer(el)
+            return AsnConvert.parse(Buffer.from(der.toHex(), 'hex'), Certificate)
+          })
+        })(),
+      )
+      if (error) {
+        throw new TypeError('Failed to parse ICAO CMS', error)
+      }
       if (!tempCSCAs) {
         setTempCSCAs(CSCAs)
       }
+
+      throw new TypeError('Purpose error')
 
       const [slaveMaster, getSlaveMasterError] = await tryCatch(
         (async () => {

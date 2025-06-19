@@ -13,7 +13,7 @@ import { ec as EC } from 'elliptic'
 import { getBytes, zeroPadValue } from 'ethers'
 
 import { hashPacked } from './helpers/crypto'
-import { decodeDerFromPemBytes, toDer, toPem } from './helpers/misc'
+import { decodeDerFromPemBytes, toPem } from './helpers/misc'
 import { normalizeSignatureWithCurve } from './helpers/misc'
 
 export class Sod {
@@ -348,26 +348,4 @@ export class Sod {
 
     return hashPacked(unpadded)
   }
-}
-
-const pemChainToArray = (txt: string): Uint8Array[] =>
-  txt
-    .split('-----BEGIN CERTIFICATE-----')
-    .filter(Boolean)
-    .map(chunk => toDer('-----BEGIN CERTIFICATE-----' + chunk))
-
-/**
- * Decode a CMS Master-List / SOD buffer and return all embedded certificates.
- */
-export const parseIcaoCms = (bytes: Uint8Array): Certificate[] => {
-  /* Case B – simple concatenated PEM chain ------------------------------- */
-  const txt = Buffer.from(bytes).toString('utf-8')
-
-  const pems = pemChainToArray(txt)
-
-  return pems.map(derCert => {
-    const { result } = fromBER(derCert)
-
-    return AsnConvert.parse(result.toBER(false), Certificate)
-  })
 }

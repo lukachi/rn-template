@@ -19,19 +19,6 @@ export function toPem(buf: ArrayBuffer, header: string): string {
   return `-----BEGIN ${header}-----\n${body}\n-----END ${header}-----\n`
 }
 
-export const toDer = (blob: Uint8Array | string): Uint8Array => {
-  const str = typeof blob === 'string' ? blob : new TextDecoder().decode(blob)
-  if (str.includes('-----BEGIN')) {
-    // PEM detected
-    const b64 = str
-      .replace(/-----BEGIN [^-]+-----/, '')
-      .replace(/-----END [^-]+-----/, '')
-      .replace(/\s+/g, '')
-    return Uint8Array.from(Buffer.from(b64, 'base64'))
-  }
-  return typeof blob === 'string' ? Uint8Array.from(Buffer.from(str, 'binary')) : blob
-}
-
 /**
  * Decrypts the AA signature using RSA public key and returns the inferred hash algorithm.
  * @param aaPubKey - RSAPublicKey object with modulus and publicExponent.
