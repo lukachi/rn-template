@@ -20,6 +20,7 @@ import {
 } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
+import { X509Certificate } from '@peculiar/x509'
 import { AxiosError } from 'axios'
 import {
   decodeBase64,
@@ -91,7 +92,7 @@ export const useRegistration = () => {
   // ----------------------------------------------------------------------------------------
 
   const newBuildRegisterCertCallData = useCallback(
-    async (CSCAs: Certificate[], tempEDoc: EDocument, slaveMaster: Certificate) => {
+    async (CSCAs: Certificate[], tempEDoc: EDocument, slaveMaster: X509Certificate) => {
       // priority = keccak256.Hash(key) % (2^64-1)
       function toField(bytes: Uint8Array): bigint {
         const bi = BigInt('0x' + Buffer.from(bytes).toString('hex'))
@@ -122,9 +123,7 @@ export const useRegistration = () => {
 
       const [inclusionProof, getInclusionProofError] = await tryCatch(
         (async () => {
-          const leafDigest = keccak256(
-            new Uint8Array(slaveMaster.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
-          )
+          const leafDigest = keccak256(new Uint8Array(slaveMaster.publicKey.rawData))
           const { proof } = await icaoTree.generateProof(toField(getBytes(leafDigest)))
           return { root: await icaoTree.root(), proof }
         })(),
@@ -248,7 +247,7 @@ export const useRegistration = () => {
   )
 
   const registerCertificate = useCallback(
-    async (CSCAs: Certificate[], tempEDoc: EDocument, slaveMaster: Certificate) => {
+    async (CSCAs: Certificate[], tempEDoc: EDocument, slaveMaster: X509Certificate) => {
       try {
         const newCallData = await newBuildRegisterCertCallData(CSCAs, tempEDoc, slaveMaster)
 
@@ -583,7 +582,7 @@ export const useRegistration = () => {
   // ---------------------------------------------------------------------------------------------
 
   const [tempCSCAs, setTempCSCAs] = useState<Certificate[]>()
-  const [tempMaster, setTempMaster] = useState<Certificate>()
+  const [tempMaster, setTempMaster] = useState<X509Certificate>()
 
   const createIdentity = useCallback(
     async (
@@ -592,8 +591,6 @@ export const useRegistration = () => {
         onRevocation: (identityItem: IdentityItem) => void
       },
     ): Promise<IdentityItem> => {
-      const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
-
       const [icaoBytes, getIcaoBytesError] = await tryCatch(
         (async () => {
           const icaoAsset = assets?.[0]
@@ -663,6 +660,8 @@ export const useRegistration = () => {
           }
         }
       }
+
+      const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
 
       const [regProof, getRegProofError] = await tryCatch(
         getIdentityRegProof(tempEDoc, slaveCertSmtProof, circuit),

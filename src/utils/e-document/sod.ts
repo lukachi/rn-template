@@ -4,9 +4,14 @@ import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculia
 import { ECParameters, id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
 import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
-import { Certificate } from '@peculiar/asn1-x509'
+import {
+  AuthorityKeyIdentifier,
+  Certificate,
+  id_ce_authorityKeyIdentifier,
+  id_ce_subjectKeyIdentifier,
+  SubjectKeyIdentifier,
+} from '@peculiar/asn1-x509'
 import * as x509 from '@peculiar/x509'
-import { X509ChainBuilder } from '@peculiar/x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
 import { ec as EC } from 'elliptic'
@@ -286,34 +291,72 @@ export class Sod {
   }
 
   async getSlaveMaster(CSCAs: Certificate[]) {
-    const trustedRoots = CSCAs
+    const slaveAuthorityKeyIdentifierExtension = this.x509SlaveCert.extensions?.find(
+      el => el.type === id_ce_authorityKeyIdentifier,
+    )
 
-    const candidates = trustedRoots.reduce((acc, curr) => {
+    if (!slaveAuthorityKeyIdentifierExtension) {
+      throw new TypeError('Slave certificate does not have AuthorityKeyIdentifier extension')
+    }
+
+    const parsedSlaveAuthorityKeyIdentifierExtension = AsnConvert.parse(
+      slaveAuthorityKeyIdentifierExtension.value,
+      AuthorityKeyIdentifier,
+    )
+
+    const parsedSlaveAuthorityKeyIdentifierExtensionHex = Buffer.from(
+      parsedSlaveAuthorityKeyIdentifierExtension.keyIdentifier!.buffer,
+    ).toString('hex')
+
+    const candidates = CSCAs.reduce((acc, curr) => {
       try {
         const x509Cert = new x509.X509Certificate(AsnConvert.serialize(curr))
-        if (x509Cert.subject === this.x509SlaveCert.issuer) {
+
+        if (
+          this.x509SlaveCert.issuer === x509Cert.subject
+          // && parsedSlaveAuthorityKeyIdentifierExtensionHex === subjectKeyIdentifierExtension
+        ) {
           acc.push(x509Cert)
         }
       } catch (error) {
         /* empty */
       }
       return acc
-    }, [] as x509.X509Certificate[])
+    }, [] as x509.X509Certificate[]).filter(cert => {
+      const subjectKeyIdentifierExtension = cert.extensions?.find(
+        el => el.type === id_ce_subjectKeyIdentifier,
+      )
 
-    const builder = new X509ChainBuilder({
-      certificates: candidates,
+      if (!subjectKeyIdentifierExtension) {
+        throw new TypeError('CSCA does not have SubjectKeyIdentifier extension')
+      }
+
+      const parsedSubjectKeyIdentifierExtension = AsnConvert.parse(
+        subjectKeyIdentifierExtension.value,
+        SubjectKeyIdentifier,
+      )
+
+      return (
+        Buffer.from(parsedSubjectKeyIdentifierExtension.buffer).toString('hex') ===
+        parsedSlaveAuthorityKeyIdentifierExtensionHex
+      )
     })
 
-    const chain = await builder.build(this.x509SlaveCert)
+    return candidates[0]
 
-    if (!chain.length) {
-      throw new Error('No valid chain from slave to a CSCA in the Master-List')
-    }
+    // console.log({ candidates, x509SlaveCert: this.x509SlaveCert })
 
-    /* 4️⃣ The final element of the chain is the root CSCA */
-    const master = chain[chain.length - 1]
+    // for (const cert of candidates) {
+    //   if (await this.x509SlaveCert.verify({ publicKey: cert.publicKey })) {
+    //     return cert
+    //   }
+    // }
 
-    return AsnConvert.parse(master.rawData, Certificate)
+    // console.log('not found')
+
+    // throw new TypeError(
+    //   'No valid CSCA found in the provided list that can verify the slave certificate',
+    // )
   }
 
   get slaveCertificateIndex(): Uint8Array {
