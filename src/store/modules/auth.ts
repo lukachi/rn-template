@@ -3,12 +3,10 @@ import { groth16Prove } from '@modules/rapidsnark-wrp'
 import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
 import { Buffer } from 'buffer'
 import { ethers } from 'ethers'
-import { useAssets } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
-import { calcWtnsAuth } from '@/../modules/witnesscalculator'
 import { authorize, getChallenge, refresh } from '@/api/modules/auth'
 import { Config } from '@/config'
 import { sleep } from '@/helpers'
@@ -17,6 +15,7 @@ import { identityStore } from '@/store/modules/identity'
 import { localAuthStore } from '@/store/modules/local-auth'
 import { uiPreferencesStore } from '@/store/modules/ui-preferences'
 import { walletStore } from '@/store/modules/wallet'
+import { authCircuit } from '@/utils/circuits/auth-circuit'
 
 const useAuthStore = create(
   persist(
@@ -78,23 +77,10 @@ const useIsAuthorized = () => {
 }
 
 const useAuthProof = (opts?: { byFilePath?: boolean }) => {
-  const [assets] = useAssets([
-    require('@assets/circuits/auth/circuit_final.zkey'),
-    require('@assets/circuits/auth/auth.dat'),
-  ])
   const getPointsNullifier = walletStore.usePointsNullifier()
 
   return async (privateKey: string): Promise<ZKProof> => {
     const pkHex = `0x${privateKey}`
-
-    const zkeyAsset = assets?.[0]
-    const datAsset = assets?.[1]
-
-    if (!datAsset?.localUri) throw new TypeError('Dat asset not found')
-
-    const datBase64 = await FileSystem.readAsStringAsync(datAsset.localUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    })
 
     const pointsNullifier = await getPointsNullifier(privateKey)
 
@@ -102,34 +88,25 @@ const useAuthProof = (opts?: { byFilePath?: boolean }) => {
 
     const challengeHex = ethers.hexlify(ethers.decodeBase64(data.challenge))
 
-    const inputs = {
-      eventData: challengeHex,
-      eventID: Config.POINTS_SVC_ID,
-      revealPkIdentityHash: 0,
-      skIdentity: pkHex,
-    }
+    const { zkeyLocalUri, datBytes } = await authCircuit.circuitParams.retrieveZkeyNDat()
 
-    const authWtns = await calcWtnsAuth(
-      ethers.decodeBase64(datBase64),
-      Buffer.from(JSON.stringify(inputs)),
+    const authWtns = await authCircuit.calcWtns(
+      {
+        eventData: BigInt(challengeHex),
+        eventID: Config.POINTS_SVC_ID,
+        revealPkIdentityHash: 0,
+        skIdentity: BigInt(pkHex),
+      },
+      datBytes,
     )
 
     if (!authWtns?.length) throw new TypeError('Auth witness not generated')
 
-    if (!zkeyAsset?.localUri) throw new TypeError('Zkey asset not found')
-
-    const zkeyFileInfo = await FileSystem.getInfoAsync(zkeyAsset.localUri)
-
-    if (!zkeyFileInfo?.exists) throw new TypeError('Zkey file not found')
-
     let zkProofBytes: Uint8Array
     if (opts?.byFilePath) {
-      zkProofBytes = await groth16ProveWithZKeyFilePath(
-        authWtns,
-        zkeyFileInfo.uri.replace('file://', ''),
-      )
+      zkProofBytes = await groth16ProveWithZKeyFilePath(authWtns, zkeyLocalUri)
     } else {
-      const zkeyBase64 = await FileSystem.readAsStringAsync(zkeyAsset.localUri, {
+      const zkeyBase64 = await FileSystem.readAsStringAsync(zkeyLocalUri, {
         encoding: FileSystem.EncodingType.Base64,
       })
 
