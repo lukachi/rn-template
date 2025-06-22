@@ -11,7 +11,6 @@ import { PassportRegisteredWithAnotherPKError } from '@/store/modules/identity/e
 import { IdentityItem } from '@/store/modules/identity/Identity'
 import { DocType, EDocument } from '@/utils/e-document/e-document'
 
-import { useCircuit } from './hooks/circuit-loader'
 import { useRegistration } from './hooks/registration'
 
 export enum Steps {
@@ -42,7 +41,11 @@ type DocumentScanContext = {
   createIdentity: () => Promise<void>
   revokeIdentity: () => Promise<void>
 
-  circuitLoadingDetails?: Omit<ReturnType<typeof useCircuit>, 'loadCircuit'>
+  circuitLoadingDetails?: {
+    isLoaded: boolean
+    isLoadFailed: boolean
+    downloadingProgress: string
+  }
 }
 
 const documentScanContext = createContext<DocumentScanContext>({

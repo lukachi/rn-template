@@ -47,8 +47,6 @@ import { padBitsToFixedBlocks } from '@/utils/circuits/helpers'
 import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
 import { EDocument } from '@/utils/e-document/e-document'
 
-import { useCircuit } from '../circuit-loader'
-
 const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
 
 type PassportInfo = {
@@ -60,9 +58,13 @@ export const useRegistration = () => {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
   const publicKeyHash = walletStore.usePublicKeyHash()
 
-  const { loadCircuit, ...circuitLoadingDetails } = useCircuit()
-
   const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
+
+  // ----------------------------------------------------------------------------------------
+
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isLoadFailed, setIsLoadFailed] = useState(false)
+  const [downloadingProgress, setDownloadingProgress] = useState('')
 
   // ----------------------------------------------------------------------------------------
 
@@ -269,49 +271,63 @@ export const useRegistration = () => {
       smtProof: SparseMerkleTree.ProofStructOutput,
       circuit: RegistrationCircuit,
     ) => {
-      const circuitsLoadingResult = await loadCircuit(circuit)
-
-      if (!circuitsLoadingResult) throw new TypeError('Circuit loading failed')
-
-      const inputs = {
-        skIdentity: privateKey,
-        encapsulatedContent: padBitsToFixedBlocks(
-          eDoc.sod.encapsulatedContent,
-          circuit.ecChunkNumber,
-          circuit.hashAlgorithm,
-        ),
-        signedAttributes: padBitsToFixedBlocks(eDoc.sod.signedAttributes, 2, circuit.hashAlgorithm),
-        pubKey: (() => {})(),
-        signature: (() => {})(),
-        dg1: padBitsToFixedBlocks(eDoc.dg1Bytes, 2, circuit.hashAlgorithm),
-        dg15: (() => {
-          if (!eDoc.dg15Bytes || !circuit.dg15EcChunkNumber) {
-            return new Uint8Array()
-          }
-
-          return padBitsToFixedBlocks(
-            eDoc.dg15Bytes,
-            circuit.dg15EcChunkNumber,
-            circuit.hashAlgorithm,
+      const { datBytes, zkeyLocalUri } = await circuit.circuitParams.retrieveZkeyNDat({
+        onDownloadStart() {},
+        onDownloadingProgress(downloadProgressData) {
+          setDownloadingProgress(
+            `${downloadProgressData.totalBytesWritten} / ${downloadProgressData.totalBytesExpectedToWrite}`,
           )
-        })(),
-        slaveMerkleRoot: smtProof.root,
-        slaveMerkleInclusionBranches: smtProof.siblings,
-      }
+        },
+        onFailed(_) {
+          setIsLoadFailed(true)
+        },
+        onLoaded() {
+          setIsLoaded(true)
+        },
+      })
 
-      const wtns = await circuit.circuitParams.wtnsCalcMethod(
-        circuitsLoadingResult.dat,
-        Buffer.from(JSON.stringify(inputs)),
+      const wtns = await circuit.calcWtns(
+        {
+          skIdentity: BigInt(`0x${privateKey}`),
+          encapsulatedContent: padBitsToFixedBlocks(
+            eDoc.sod.encapsulatedContent,
+            circuit.ecChunkNumber,
+            circuit.hashAlgorithm,
+          ),
+          signedAttributes: padBitsToFixedBlocks(
+            eDoc.sod.signedAttributes,
+            2,
+            circuit.hashAlgorithm,
+          ),
+          pubkey: (() => {
+            return [0]
+          })(),
+          signature: (() => {
+            return [0]
+          })(),
+          dg1: padBitsToFixedBlocks(eDoc.dg1Bytes, 2, circuit.hashAlgorithm),
+          dg15: (() => {
+            if (!eDoc.dg15Bytes || !circuit.dg15EcChunkNumber) {
+              return []
+            }
+
+            return padBitsToFixedBlocks(
+              eDoc.dg15Bytes,
+              circuit.dg15EcChunkNumber,
+              circuit.hashAlgorithm,
+            )
+          })(),
+          slaveMerkleRoot: BigInt(smtProof.root),
+          slaveMerkleInclusionBranches: smtProof.siblings.map(el => BigInt(el)),
+        },
+        datBytes,
       )
 
-      const registerIdentityZkProofBytes = await groth16ProveWithZKeyFilePath(
-        wtns,
-        circuitsLoadingResult.zKeyUri.replace('file://', ''),
-      )
+      const registerIdentityZkProofBytes = await groth16ProveWithZKeyFilePath(wtns, zkeyLocalUri)
 
       return JSON.parse(Buffer.from(registerIdentityZkProofBytes).toString()) as ZKProof
     },
-    [loadCircuit, privateKey],
+    [privateKey],
   )
 
   const newBuildRegisterCallData = useCallback(
@@ -584,7 +600,6 @@ export const useRegistration = () => {
         onRevocation: (identityItem: IdentityItem) => void
       },
     ): Promise<IdentityItem> => {
-      const registrationCircuit = RegistrationCircuit.fromEDoc(tempEDoc)
       const [icaoBytes, getIcaoBytesError] = await tryCatch(
         (async () => {
           const icaoAsset = assets?.[0]
@@ -655,19 +670,15 @@ export const useRegistration = () => {
         }
       }
 
-      const circuit = RegistrationCircuit.fromEDoc(tempEDoc)
+      const registrationCircuit = RegistrationCircuit.fromEDoc(tempEDoc)
 
       const [regProof, getRegProofError] = await tryCatch(
-        getIdentityRegProof(tempEDoc, slaveCertSmtProof, circuit),
+        getIdentityRegProof(tempEDoc, slaveCertSmtProof, registrationCircuit),
       )
       if (getRegProofError) {
         throw new TypeError('Failed to get identity registration proof', getRegProofError)
       }
       const identityItem = new IdentityItem(tempEDoc, regProof)
-
-      console.log({ regProof })
-
-      throw new TypeError('Purpose')
 
       const [passportInfo, getPassportInfoError] = await tryCatch(identityItem.getPassportInfo())
       if (getPassportInfoError) {
@@ -675,7 +686,7 @@ export const useRegistration = () => {
       }
 
       const [, registerIdentityError] = await tryCatch(
-        registerIdentity(identityItem, slaveCertSmtProof, passportInfo, circuit),
+        registerIdentity(identityItem, slaveCertSmtProof, passportInfo, registrationCircuit),
       )
       if (registerIdentityError) {
         if (registerIdentityError instanceof PassportRegisteredWithAnotherPKError) {
@@ -699,7 +710,11 @@ export const useRegistration = () => {
   )
 
   return {
-    circuitLoadingDetails,
+    circuitLoadingDetails: {
+      isLoaded,
+      isLoadFailed,
+      downloadingProgress,
+    },
     resolveRevokedEDocument,
     rejectRevokedEDocument,
 

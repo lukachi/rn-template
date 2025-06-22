@@ -24,6 +24,10 @@ function u64ToBits(value: bigint): number[] {
 }
 
 /**
+ * ##### Padded data hashing
+    Padded data hashing enables the data padding to be handled outside the circuit. This approach offers several benefits:
+    - ***Reduced Complexity***: By performing the padding outside the circuit, we reduce the number of constraints the circuit must manage.
+    - ***Increased Flexibility***: This method allows for accommodating variations in passport structure without disrupting the strict verification process.
  * SHA-style padding (1-bit + zeros + 64-bit length) followed by
  * optional right-padding with zero blocks until the bit-stream
  * length is exactly `blockNumber × blockSize`.

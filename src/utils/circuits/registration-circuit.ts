@@ -1,9 +1,9 @@
+import { ExternalCircuitParams, supportedCircuits } from '@modules/witnesscalculator'
 import { id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
 import { id_rsaEncryption, id_RSASSA_PSS } from '@peculiar/asn1-rsa'
 
 import { EDocument } from '@/utils/e-document/e-document'
 
-import { CircuitParams, supportedCircuits } from './config'
 import {
   CircuitAlgorithm,
   CircuitDg15EcChunkNumber,
@@ -12,6 +12,7 @@ import {
   CircuitHashAlgorithm,
   CircuitKeySize,
 } from './enums'
+import { PrivateRegisterIdentityBuilderGroth16 } from './types/RegisterIdentityBuilder'
 
 export class RegistrationCircuit {
   private constructor(
@@ -22,7 +23,7 @@ export class RegistrationCircuit {
     public ecChunkNumber: CircuitEcChunkNumber,
     public keySize: CircuitKeySize,
 
-    public circuitParams: CircuitParams,
+    public circuitParams: ExternalCircuitParams,
 
     public dg15EcChunkNumber?: CircuitDg15EcChunkNumber,
   ) {}
@@ -127,7 +128,7 @@ export class RegistrationCircuit {
         '_NA',
       ].join('_')
 
-      const circuitParams = CircuitParams.fromName(name)
+      const circuitParams = ExternalCircuitParams.fromName(name)
 
       // TODO: check me
       const keySize = (() => {
@@ -250,7 +251,7 @@ export class RegistrationCircuit {
     ].join('_')
     console.log({ name })
 
-    const circuitParams = CircuitParams.fromName(name)
+    const circuitParams = ExternalCircuitParams.fromName(name)
     console.log({ circuitParams })
 
     // TODO: check me
@@ -291,5 +292,12 @@ export class RegistrationCircuit {
     })()
 
     return length / chunkSize + (length % chunkSize == 0 ? 0 : 1)
+  }
+
+  calcWtns(
+    inputs: PrivateRegisterIdentityBuilderGroth16,
+    datBytes: Uint8Array,
+  ): Promise<Uint8Array> {
+    return this.circuitParams.wtnsCalcMethod(datBytes, Buffer.from(JSON.stringify(inputs)))
   }
 }
