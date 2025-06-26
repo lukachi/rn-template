@@ -1,7 +1,7 @@
 import { time } from '@distributedlab/tools'
 import { SOD } from '@li0ard/tsemrtd'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
-import { ECParameters, id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
+import { ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
 import {
@@ -68,7 +68,9 @@ export class Sod {
     }
 
     if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_ecdsaWithSHA1
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+        '1.2.840.10045',
+      )
     ) {
       const ecParameters = AsnConvert.parse(
         this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
@@ -143,7 +145,9 @@ export class Sod {
     }
 
     if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_ecdsaWithSHA1
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+        '1.2.840.10045',
+      )
     ) {
       const ecParameters = AsnConvert.parse(
         this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
@@ -178,7 +182,9 @@ export class Sod {
     }
 
     if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_ecdsaWithSHA1
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+        '1.2.840.10045',
+      )
     ) {
       const ecParameters = AsnConvert.parse(
         this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
