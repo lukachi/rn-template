@@ -20,6 +20,9 @@ import { getBytes, zeroPadValue } from 'ethers'
 import { hashPacked } from './helpers/crypto'
 import { normalizeSignatureWithCurve } from './helpers/misc'
 
+// TODO: maybe move remove
+export const ECDSA_ALGO_PREFIX = '1.2.840.10045'
+
 export class Sod {
   private sodBytes: Uint8Array
   private certSet: CertificateSet
@@ -69,7 +72,7 @@ export class Sod {
 
     if (
       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
-        '1.2.840.10045',
+        ECDSA_ALGO_PREFIX,
       )
     ) {
       const ecParameters = AsnConvert.parse(
@@ -146,7 +149,7 @@ export class Sod {
 
     if (
       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
-        '1.2.840.10045',
+        ECDSA_ALGO_PREFIX,
       )
     ) {
       const ecParameters = AsnConvert.parse(
@@ -183,7 +186,7 @@ export class Sod {
 
     if (
       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
-        '1.2.840.10045',
+        ECDSA_ALGO_PREFIX,
       )
     ) {
       const ecParameters = AsnConvert.parse(
@@ -349,7 +352,7 @@ export class Sod {
 
     if (
       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
-        '1.2.840.10045',
+        ECDSA_ALGO_PREFIX,
       )
     ) {
       const ecParameters = AsnConvert.parse(

@@ -46,6 +46,7 @@ import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registra
 import { padBitsToFixedBlocks } from '@/utils/circuits/helpers'
 import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
 import { EDocument } from '@/utils/e-document/e-document'
+import { ECDSA_ALGO_PREFIX } from '@/utils/e-document/sod'
 
 const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
 
@@ -143,7 +144,7 @@ export const useRegistration = () => {
           return dispatcherForRSA(tempEDoc.sod.slaveCert)
         }
 
-        if (subjPubKeyAlg.includes('1.2.840.10045')) {
+        if (subjPubKeyAlg.includes(ECDSA_ALGO_PREFIX)) {
           return dispatcherForECDSA(tempEDoc.sod.slaveCert)
         }
 
