@@ -2,7 +2,7 @@ import { time } from '@distributedlab/tools'
 import { SOD } from '@li0ard/tsemrtd'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
 import { ECParameters, id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
-import { id_rsaEncryption, RSAPublicKey } from '@peculiar/asn1-rsa'
+import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
 import {
   AuthorityKeyIdentifier,
@@ -42,24 +42,6 @@ export class Sod {
     return new Uint8Array(result.valueBlock.toBER())
   }
 
-  // TODO: remove
-  get X509RSASize(): number {
-    const spki = this.certSet[0].certificate?.tbsCertificate.subjectPublicKeyInfo
-
-    if (!spki) throw new TypeError('No SubjectPublicKeyInfo in certificate')
-    if (spki.algorithm.algorithm !== id_rsaEncryption)
-      // RSA OID
-      throw new TypeError('Public key is not RSA')
-
-    /* 2. decode the RSAPublicKey SEQUENCE { n, e } --------------------- */
-    const rsa = AsnConvert.parse(spki.subjectPublicKey, RSAPublicKey)
-    const modulus = new Uint8Array(rsa.modulus)
-
-    // For a 2048-bit key → 256 bytes (no pad) → 2048.
-    // For a 4096-bit key → 513 bytes (pad) → (513 − 1) × 8 = 4096.
-    return (modulus[0] === 0x00 ? modulus.length - 1 : modulus.length) * 8
-  }
-
   get slaveCert(): Certificate {
     if (!this.certSet[0].certificate) throw new TypeError('No certificate found in SOD')
 
@@ -75,7 +57,7 @@ export class Sod {
     let pub: Uint8Array = new Uint8Array()
 
     if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_rsaEncryption
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
     ) {
       const rsaPub = AsnConvert.parse(
         this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
@@ -155,7 +137,7 @@ export class Sod {
 
   get slaveCertIcaoMemberSignature(): Uint8Array {
     if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_rsaEncryption
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
     ) {
       return new Uint8Array(this.slaveCert.signatureValue)
     }
@@ -185,7 +167,7 @@ export class Sod {
 
   get slaveCertIcaoMemberKey(): Uint8Array {
     if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm === id_rsaEncryption
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
     ) {
       const pub = AsnConvert.parse(
         this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
@@ -343,36 +325,54 @@ export class Sod {
     })
 
     return candidates[0]
-
-    // console.log({ candidates, x509SlaveCert: this.x509SlaveCert })
-
-    // for (const cert of candidates) {
-    //   if (await this.x509SlaveCert.verify({ publicKey: cert.publicKey })) {
-    //     return cert
-    //   }
-    // }
-
-    // console.log('not found')
-
-    // throw new TypeError(
-    //   'No valid CSCA found in the provided list that can verify the slave certificate',
-    // )
   }
 
   get slaveCertificateIndex(): Uint8Array {
     if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm !== id_rsaEncryption
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
     ) {
-      throw new TypeError('Slave public key is not RSA')
+      const rsa = AsnConvert.parse(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        RSAPublicKey,
+      )
+      const modulusBytes = new Uint8Array(rsa.modulus)
+      const unpadded = modulusBytes[0] === 0x00 ? modulusBytes.subarray(1) : modulusBytes
+
+      return hashPacked(unpadded)
     }
 
-    const rsa = AsnConvert.parse(
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-      RSAPublicKey,
-    )
-    const modulusBytes = new Uint8Array(rsa.modulus)
-    const unpadded = modulusBytes[0] === 0x00 ? modulusBytes.subarray(1) : modulusBytes
+    if (
+      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+        '1.2.840.10045',
+      )
+    ) {
+      const ecParameters = AsnConvert.parse(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        ECParameters,
+      )
 
-    return hashPacked(unpadded)
+      if (!ecParameters.namedCurve) {
+        throw new TypeError('ECDSA public key does not have a named curve')
+      }
+
+      const hexKey = Buffer.from(
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+      ).toString('hex')
+
+      const ec = new EC(ecParameters.namedCurve)
+      const key = ec.keyFromPublic(hexKey, 'hex')
+      const point = key.getPublic()
+
+      const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
+
+      const x = getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength))
+      const y = getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength))
+
+      return new Uint8Array([...x, ...y])
+    }
+
+    throw new TypeError(
+      `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+    )
   }
 }

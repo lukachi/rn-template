@@ -9,7 +9,7 @@ import {
   id_ecdsaWithSHA512,
 } from '@peculiar/asn1-ecc'
 import {
-  id_rsaEncryption,
+  id_pkcs_1,
   id_RSASSA_PSS,
   id_sha1WithRSAEncryption,
   id_sha256WithRSAEncryption,
@@ -136,16 +136,18 @@ export const useRegistration = () => {
       const expOffset = tempEDoc.sod.slaveCertExpOffset
 
       const dispatcherName = (() => {
-        switch (tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm) {
-          case id_rsaEncryption:
-            return dispatcherForRSA(tempEDoc.sod.slaveCert)
-          case id_ecdsaWithSHA1:
-            return dispatcherForECDSA(tempEDoc.sod.slaveCert)
-          default:
-            throw new Error(
-              `unsupported public key type: ${tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
-            )
+        const subjPubKeyAlg =
+          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm
+
+        if (subjPubKeyAlg.includes(id_pkcs_1)) {
+          return dispatcherForRSA(tempEDoc.sod.slaveCert)
         }
+
+        if (subjPubKeyAlg.includes('1.2.840.10045')) {
+          return dispatcherForECDSA(tempEDoc.sod.slaveCert)
+        }
+
+        throw new Error(`unsupported public key type: ${subjPubKeyAlg}`)
 
         /* ----------  RSA family  ------------------------------------------------- */
         function dispatcherForRSA(slave: Certificate): string {
@@ -338,6 +340,10 @@ export const useRegistration = () => {
       isRevoked: boolean,
       circuitName: string,
     ) => {
+      const aaSignature = identityItem.document.getAASignature()
+
+      if (!aaSignature) throw new TypeError('AA signature is not defined')
+
       const parts = circuitName.split('_')
 
       if (parts.length < 2) {
@@ -353,11 +359,14 @@ export const useRegistration = () => {
       const passport: Registration2.PassportStruct = {
         dataType: identityItem.document.getAADataType(circuit.keySize),
         zkType: keccak256(zkTypeName),
-        signature: identityItem.document.AASignature,
-        publicKey:
-          identityItem.document.AAPublicKey === null
-            ? identityItem.passportKey
-            : identityItem.document.AAPublicKey,
+        signature: aaSignature,
+        publicKey: (() => {
+          const aaPublicKey = identityItem.document.getAAPublicKey()
+
+          if (!aaPublicKey) return identityItem.passportKey
+
+          return aaPublicKey
+        })(),
         passportHash: identityItem.passportHash,
       }
 
@@ -526,14 +535,18 @@ export const useRegistration = () => {
       if (!passportInfo?.passportInfo_.activeIdentity)
         throw new TypeError('Active identity not found')
 
+      const aaSignature = revokedEDocument.getAASignature()
+
+      if (!aaSignature) throw new TypeError('AA signature is not defined')
+
       const isPassportRegistered = passportInfo?.passportInfo_.activeIdentity !== ZERO_BYTES32_HEX
 
       if (isPassportRegistered) {
         const passport: Registration2.PassportStruct = {
           dataType: revokedEDocument.getAADataType(circuit.keySize),
           zkType: ZERO_BYTES32_HEX,
-          signature: revokedEDocument.AASignature,
-          publicKey: revokedEDocument.AAPublicKey || ZERO_BYTES32_HEX,
+          signature: aaSignature,
+          publicKey: revokedEDocument.getAAPublicKey() || ZERO_BYTES32_HEX,
           passportHash: ZERO_BYTES32_HEX,
         }
 
