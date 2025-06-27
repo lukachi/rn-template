@@ -14,10 +14,8 @@ import {
 import * as x509 from '@peculiar/x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
-import { ec as EC } from 'elliptic'
-import { getBytes, zeroPadValue } from 'ethers'
 
-import { hashPacked } from './helpers/crypto'
+import { hashPacked, PublicKeyFromEcParameters } from './helpers/crypto'
 import { normalizeSignatureWithCurve } from './helpers/misc'
 
 // TODO: maybe move remove
@@ -45,12 +43,14 @@ export class Sod {
     return new Uint8Array(result.valueBlock.toBER())
   }
 
+  /** Works */
   get slaveCert(): Certificate {
     if (!this.certSet[0].certificate) throw new TypeError('No certificate found in SOD')
 
     return this.certSet[0].certificate
   }
 
+  /** Works */
   get x509SlaveCert(): x509.X509Certificate {
     const der = AsnConvert.serialize(this.slaveCert)
     return new x509.X509Certificate(der)
@@ -75,27 +75,24 @@ export class Sod {
         ECDSA_ALGO_PREFIX,
       )
     ) {
+      if (!this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+        throw new TypeError('ECDSA public key does not have parameters')
+
       const ecParameters = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
         ECParameters,
       )
 
-      if (!ecParameters.namedCurve) {
-        throw new TypeError('ECDSA public key does not have a named curve')
-      }
+      const publicKey = PublicKeyFromEcParameters(
+        ecParameters,
+        new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+      )
 
-      const hexKey = Buffer.from(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-      ).toString('hex')
-      const ec = new EC(ecParameters.namedCurve)
-      const key = ec.keyFromPublic(hexKey, 'hex')
-      const point = key.getPublic()
-
-      const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
+      if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
       pub = new Uint8Array([
-        ...getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength)),
-        ...getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength)),
+        ...Buffer.from(publicKey.px.toString(16), 'hex'),
+        ...Buffer.from(publicKey.py.toString(16), 'hex'),
       ])
     }
 
@@ -189,29 +186,25 @@ export class Sod {
         ECDSA_ALGO_PREFIX,
       )
     ) {
+      if (!this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+        throw new TypeError('ECDSA public key does not have parameters')
+
       const ecParameters = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
         ECParameters,
       )
 
-      if (!ecParameters.namedCurve) {
-        throw new TypeError('ECDSA public key does not have a named curve')
-      }
+      const publicKey = PublicKeyFromEcParameters(
+        ecParameters,
+        new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+      )
 
-      const hexKey = Buffer.from(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-      ).toString('hex')
+      if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      const ec = new EC(ecParameters.namedCurve)
-      const key = ec.keyFromPublic(hexKey, 'hex')
-      const point = key.getPublic()
-
-      const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
-
-      const x = getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength))
-      const y = getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength))
-
-      return new Uint8Array([...x, ...y])
+      return new Uint8Array([
+        ...Buffer.from(publicKey.px.toString(16), 'hex'),
+        ...Buffer.from(publicKey.py.toString(16), 'hex'),
+      ])
     }
 
     throw new TypeError(
@@ -219,6 +212,7 @@ export class Sod {
     )
   }
 
+  /** Works */
   get encapsulatedContent(): Uint8Array {
     const contentInfo = AsnConvert.parse(this.valueBlockBytes, ContentInfo)
 
@@ -233,6 +227,7 @@ export class Sod {
     return new Uint8Array(signedData.encapContentInfo.eContent?.single?.buffer || [])
   }
 
+  /** Works */
   get signedAttributes(): Uint8Array {
     const contentInfo = AsnConvert.parse(this.valueBlockBytes, ContentInfo)
 
@@ -336,6 +331,8 @@ export class Sod {
     return candidates[0]
   }
 
+  /** Works
+   * TODO: check ecdsa */
   get slaveCertificateIndex(): Uint8Array {
     if (
       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
@@ -355,29 +352,25 @@ export class Sod {
         ECDSA_ALGO_PREFIX,
       )
     ) {
+      if (!this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+        throw new TypeError('ECDSA public key does not have parameters')
+
       const ecParameters = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
         ECParameters,
       )
 
-      if (!ecParameters.namedCurve) {
-        throw new TypeError('ECDSA public key does not have a named curve')
-      }
+      const publicKey = PublicKeyFromEcParameters(
+        ecParameters,
+        new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+      )
 
-      const hexKey = Buffer.from(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-      ).toString('hex')
+      if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      const ec = new EC(ecParameters.namedCurve)
-      const key = ec.keyFromPublic(hexKey, 'hex')
-      const point = key.getPublic()
-
-      const byteLength = Math.ceil(ec.curve.n.bitLength() / 8)
-
-      const x = getBytes(zeroPadValue('0x' + point.getX().toString('hex'), byteLength))
-      const y = getBytes(zeroPadValue('0x' + point.getY().toString('hex'), byteLength))
-
-      return new Uint8Array([...x, ...y])
+      return new Uint8Array([
+        ...Buffer.from(publicKey.px.toString(16), 'hex'),
+        ...Buffer.from(publicKey.py.toString(16), 'hex'),
+      ])
     }
 
     throw new TypeError(

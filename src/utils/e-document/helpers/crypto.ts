@@ -1,4 +1,7 @@
 import { Hex, poseidon } from '@iden3/js-crypto'
+import { ECParameters } from '@peculiar/asn1-ecc'
+
+import { namedCurveFromOID, namedCurveFromParams } from '@/utils/curves'
 
 /**
  * HashPacked computes the Poseidon hash of 5 elements.
@@ -41,4 +44,26 @@ export function hashPacked(x509Key: Uint8Array): Uint8Array {
   } catch (error) {
     throw new TypeError(`Failed to compute Poseidon hash: ${error}`)
   }
+}
+
+export function PublicKeyFromEcParameters(parameters: ECParameters, subjectPublicKey: Uint8Array) {
+  const namedCurve = (() => {
+    if (!parameters.specifiedCurve?.fieldID.fieldType) {
+      throw new TypeError('ECDSA public key does not have a specified curve')
+    }
+
+    const res = namedCurveFromOID(parameters.specifiedCurve?.fieldID.fieldType)
+
+    if (!res) {
+      return namedCurveFromParams(subjectPublicKey, parameters)
+    }
+
+    return res
+  })()
+
+  const publicKey = namedCurve?.Point.fromBytes(subjectPublicKey)
+
+  if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
+
+  return publicKey
 }
