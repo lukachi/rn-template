@@ -1,4 +1,4 @@
-import { ECParameters, id_ecdsaWithSHA1 } from '@peculiar/asn1-ecc'
+import { ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { SubjectPublicKeyInfo } from '@peculiar/asn1-x509'
@@ -7,8 +7,9 @@ import { decodeBase64, getBytes, keccak256 } from 'ethers'
 import forge from 'node-forge'
 import superjson from 'superjson'
 
+import { namedCurveFromParameters } from './helpers/crypto'
 import { figureOutRSAAAHashAlgorithm, normalizeSignatureWithCurve } from './helpers/misc'
-import { Sod } from './sod'
+import { ECDSA_ALGO_PREFIX, Sod } from './sod'
 
 export enum DocType {
   ID = 'ID',
@@ -160,7 +161,7 @@ export class EDocument {
       return getBytes(keccak256(Buffer.from(dispatcherName, 'utf-8')))
     }
 
-    if (this.dg15PubKey?.algorithm.algorithm === id_ecdsaWithSHA1) {
+    if (this.dg15PubKey?.algorithm.algorithm.includes(ECDSA_ALGO_PREFIX)) {
       const dispatcherName = `P_ECDSA_SHA1_${ecSizeInBits}`
 
       return getBytes(keccak256(Buffer.from(dispatcherName, 'utf-8')))
@@ -176,17 +177,19 @@ export class EDocument {
       return this.aaSignature
     }
 
-    if (this.dg15PubKey?.algorithm.algorithm === id_ecdsaWithSHA1) {
+    if (this.dg15PubKey?.algorithm.algorithm.includes(ECDSA_ALGO_PREFIX)) {
       const ecParameters = AsnConvert.parse(this.dg15PubKey.subjectPublicKey, ECParameters)
 
-      // TODO: not tested yet
-      if (!ecParameters.namedCurve) {
-        throw new TypeError('ECDSA public key does not have a named curve')
-      }
+      const namedCurve = namedCurveFromParameters(
+        ecParameters,
+        new Uint8Array(this.dg15PubKey.subjectPublicKey),
+      )
+
+      if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
 
       if (!this.aaSignature) throw new TypeError('AA signature is not defined')
 
-      return normalizeSignatureWithCurve(this.aaSignature, ecParameters.namedCurve)
+      return normalizeSignatureWithCurve(this.aaSignature, namedCurve)
     }
 
     throw new TypeError('Unsupported DG15 public key algorithm for AA signature extraction')
@@ -210,7 +213,7 @@ export class EDocument {
     }
 
     // TODO: not tested yet
-    if (this.dg15PubKey?.algorithm.algorithm === id_ecdsaWithSHA1) {
+    if (this.dg15PubKey?.algorithm.algorithm.includes(ECDSA_ALGO_PREFIX)) {
       const ecParameters = AsnConvert.parse(this.dg15PubKey.subjectPublicKey, ECParameters)
       if (!ecParameters?.specifiedCurve?.base?.buffer) {
         throw new TypeError(

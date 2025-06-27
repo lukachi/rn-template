@@ -1,5 +1,5 @@
+import { CurveFnWithCreate } from '@noble/curves/_shortw_utils'
 import { RSAPublicKey } from '@peculiar/asn1-rsa'
-import { ec as EC } from 'elliptic'
 import { getBytes, zeroPadValue } from 'ethers'
 import forge from 'node-forge'
 
@@ -69,30 +69,25 @@ export function figureOutRSAAAHashAlgorithm(
 /**
  * Normalize ECDSA signature (r||s) into low-S form with fixed-length output.
  */
-export function normalizeSignatureWithCurve(signature: Uint8Array, curveName: string): Uint8Array {
-  const ec = new EC(curveName)
+export function normalizeSignatureWithCurve(
+  signature: Uint8Array,
+  curve: CurveFnWithCreate,
+): Uint8Array {
+  const pointSize = signature.length / 2
 
-  if (!ec.n) {
-    throw new Error(`Curve ${curveName} is not supported or does not have a defined order (n).`)
+  const r = BigInt(Buffer.from(signature.slice(0, pointSize)).toString('hex'))
+  let s = BigInt(Buffer.from(signature.slice(pointSize)).toString('hex'))
+
+  const n = curve.CURVE.n
+
+  const lowSMax = n >> 1n
+
+  if (s > lowSMax) {
+    s = n - s
   }
 
-  const byteLength = signature.length / 2
-
-  const rBytes = signature.slice(0, byteLength)
-  const sBytes = signature.slice(byteLength)
-
-  const r = new forge.jsbn.BigInteger(Buffer.from(rBytes).toString('hex'), 16)
-  let s = new forge.jsbn.BigInteger(Buffer.from(sBytes).toString('hex'), 16)
-
-  const n = new forge.jsbn.BigInteger(ec.n.toString(16), 16)
-  const lowSMax = n.divide(new forge.jsbn.BigInteger('2'))
-
-  if (s.compareTo(lowSMax) > 0) {
-    s = n.subtract(s)
-  }
-
-  const paddedR = zeroPadValue('0x' + r.toString(16), byteLength)
-  const paddedS = zeroPadValue('0x' + s.toString(16), byteLength)
-
-  return new Uint8Array([...getBytes(paddedR), ...getBytes(paddedS)])
+  return new Uint8Array([
+    ...getBytes(zeroPadValue('0x' + r.toString(16), pointSize)),
+    ...getBytes(zeroPadValue('0x' + s.toString(16), pointSize)),
+  ])
 }

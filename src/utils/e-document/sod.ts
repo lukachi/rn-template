@@ -15,7 +15,7 @@ import * as x509 from '@peculiar/x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
 
-import { hashPacked, PublicKeyFromEcParameters } from './helpers/crypto'
+import { hashPacked, namedCurveFromParameters, PublicKeyFromEcParameters } from './helpers/crypto'
 import { normalizeSignatureWithCurve } from './helpers/misc'
 
 // TODO: maybe move remove
@@ -154,14 +154,14 @@ export class Sod {
         ECParameters,
       )
 
-      if (!ecParameters.namedCurve) {
-        throw new TypeError('ECDSA public key does not have a named curve')
-      }
-
-      return normalizeSignatureWithCurve(
-        new Uint8Array(this.slaveCert.signatureValue),
-        ecParameters.namedCurve,
+      const namedCurve = namedCurveFromParameters(
+        ecParameters,
+        new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
+
+      if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
+
+      return normalizeSignatureWithCurve(new Uint8Array(this.slaveCert.signatureValue), namedCurve)
     }
 
     throw new TypeError(

@@ -46,20 +46,22 @@ export function hashPacked(x509Key: Uint8Array): Uint8Array {
   }
 }
 
+export function namedCurveFromParameters(parameters: ECParameters, subjectPublicKey: Uint8Array) {
+  if (!parameters.specifiedCurve?.fieldID.fieldType) {
+    throw new TypeError('ECDSA public key does not have a specified curve')
+  }
+
+  const res = namedCurveFromOID(parameters.specifiedCurve?.fieldID.fieldType)
+
+  if (!res) {
+    return namedCurveFromParams(subjectPublicKey, parameters)
+  }
+
+  return res
+}
+
 export function PublicKeyFromEcParameters(parameters: ECParameters, subjectPublicKey: Uint8Array) {
-  const namedCurve = (() => {
-    if (!parameters.specifiedCurve?.fieldID.fieldType) {
-      throw new TypeError('ECDSA public key does not have a specified curve')
-    }
-
-    const res = namedCurveFromOID(parameters.specifiedCurve?.fieldID.fieldType)
-
-    if (!res) {
-      return namedCurveFromParams(subjectPublicKey, parameters)
-    }
-
-    return res
-  })()
+  const namedCurve = namedCurveFromParameters(parameters, subjectPublicKey)
 
   const publicKey = namedCurve?.Point.fromBytes(subjectPublicKey)
 
