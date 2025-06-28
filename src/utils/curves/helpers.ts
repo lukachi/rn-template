@@ -28,6 +28,7 @@ export const namedCurveFromOID = (oid: string) => {
       return p256
     }
     case id_secp384r1: {
+      console.log('p384 curve OID detected')
       return p384
     }
     case id_secp521r1: {
@@ -64,6 +65,7 @@ export const namedCurveFromOID = (oid: string) => {
 
 export const namedCurveFromParams = (pubKeyBytes: Uint8Array, parameters: ECParameters) => {
   const pubKeyBitLength = pubKeyBytes.length * 8
+  console.log({ pubKeyBitLength, parameters })
 
   if (!parameters.specifiedCurve)
     throw new TypeError('ECDSA public key does not have a specified curve')
@@ -110,12 +112,16 @@ export const namedCurveFromParams = (pubKeyBytes: Uint8Array, parameters: ECPara
         .toString(16)
         .concat(brainpoolP384r1.CURVE.b.toString(16))
 
-      if (curve_a_b_hex_concat === brainpoolP384t1_a_b_hex_concat) {
+      if (curve_a_b_hex_concat.toLowerCase() === brainpoolP384t1_a_b_hex_concat.toLowerCase()) {
+        console.log('brainpoolP384t1 curve detected')
         return brainpoolP384t1
       }
-      if (curve_a_b_hex_concat === brainpoolP384r1_a_b_hex_concat) {
+      if (curve_a_b_hex_concat.toLowerCase() === brainpoolP384r1_a_b_hex_concat.toLowerCase()) {
+        console.log('brainpoolP384r1 curve detected')
         return brainpoolP384r1
       }
+
+      console.log('p384 curve detected')
 
       return p384
     }

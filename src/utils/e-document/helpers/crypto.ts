@@ -125,11 +125,34 @@ export function PublicKeyFromEcParameters(
 
   if (!namedCurve) throw new TypeError('Named curve not found in ECParameters')
 
-  const publicKey = namedCurve.Point.fromBytes(subjectPublicKey)
+  console.log({ subjectPublicKey })
+
+  const publicKey = namedCurve.Point.fromBytes(
+    rightAlign(subjectPublicKey, subjectPublicKey.length * 8),
+  )
 
   console.log({ publicKey })
 
   if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
   return [publicKey, namedCurve]
+}
+
+/**
+ * RightAlign returns a slice where the padding bits are at the beginning.
+ */
+function rightAlign(bytes: Uint8Array, bitLength: number): Uint8Array {
+  const shift = 8 - (bitLength % 8)
+  if (shift === 8 || bytes.length === 0) {
+    return bytes
+  }
+
+  const a = new Uint8Array(bytes.length)
+  a[0] = bytes[0] >> shift
+  for (let i = 1; i < bytes.length; i++) {
+    a[i] = (bytes[i - 1] << (8 - shift)) & 0xff
+    a[i] |= bytes[i] >> shift
+  }
+
+  return a
 }

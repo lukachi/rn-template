@@ -199,14 +199,10 @@ export class Sod {
         ECParameters,
       )
 
-      console.log({ ecParameters })
-
       const [publicKey] = PublicKeyFromEcParameters(
         ecParameters,
         new Uint8Array(masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
-
-      console.log({ publicKey })
 
       if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
@@ -388,6 +384,10 @@ export class Sod {
         const paddedRaw = zeroPadBytes(rawPoint, 64)
 
         const paddedRawBytes = getBytes(paddedRaw)
+        console.log({
+          paddedRawBytes,
+          subjPubKey: this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        })
 
         if (nBitLength === 512) {
           return hash512P512(paddedRawBytes).toString(16)
