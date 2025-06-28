@@ -1,4 +1,6 @@
 import { Hex, poseidon } from '@iden3/js-crypto'
+import { CurveFnWithCreate } from '@noble/curves/_shortw_utils'
+import { ProjPointType } from '@noble/curves/abstract/weierstrass'
 import { ECParameters } from '@peculiar/asn1-ecc'
 
 import { namedCurveFromOID, namedCurveFromParams } from '@/utils/curves'
@@ -46,6 +48,59 @@ export function hashPacked(x509Key: Uint8Array): Uint8Array {
   }
 }
 
+export function hash512P512(key: Uint8Array): bigint {
+  if (key.length !== 128) {
+    throw new Error(`key is not 128 bytes long, got ${key.length}`)
+  }
+
+  const modulus = 2n ** 248n
+
+  // Convert byte arrays to bigint (big-endian)
+  const X = arrayToBigInt(key.slice(0, 64))
+  const Y = arrayToBigInt(key.slice(64, 128))
+
+  const lowerX = X % modulus
+  const upperX = (X >> 256n) % modulus
+
+  const lowerY = Y % modulus
+  const upperY = (Y >> 256n) % modulus
+
+  const decomposed = [lowerX, upperX, lowerY, upperY]
+
+  // Note: You'll need to implement or import a Poseidon hash function
+  const keyHash = poseidon.hash(decomposed)
+
+  return keyHash
+}
+
+export function hash512(key: Uint8Array): bigint {
+  if (key.length !== 64) {
+    throw new Error('key is not 64 bytes long')
+  }
+
+  const modulus = 2n ** 248n
+  const decomposed: bigint[] = []
+
+  for (let i = 0; i < 2; i++) {
+    const element = arrayToBigInt(key.slice(i * 32, (i + 1) * 32))
+    decomposed[i] = element % modulus
+  }
+
+  // Note: You'll need to implement or import a Poseidon hash function
+  const keyHash = poseidon.hash(decomposed)
+
+  return keyHash
+}
+
+// Helper function to convert byte array to bigint (big-endian)
+function arrayToBigInt(bytes: Uint8Array): bigint {
+  let result = 0n
+  for (let i = 0; i < bytes.length; i++) {
+    result = (result << 8n) | BigInt(bytes[i])
+  }
+  return result
+}
+
 export function namedCurveFromParameters(parameters: ECParameters, subjectPublicKey: Uint8Array) {
   if (!parameters.specifiedCurve?.fieldID.fieldType) {
     throw new TypeError('ECDSA public key does not have a specified curve')
@@ -60,12 +115,17 @@ export function namedCurveFromParameters(parameters: ECParameters, subjectPublic
   return res
 }
 
-export function PublicKeyFromEcParameters(parameters: ECParameters, subjectPublicKey: Uint8Array) {
+export function PublicKeyFromEcParameters(
+  parameters: ECParameters,
+  subjectPublicKey: Uint8Array,
+): [ProjPointType<bigint>, CurveFnWithCreate] {
   const namedCurve = namedCurveFromParameters(parameters, subjectPublicKey)
 
-  const publicKey = namedCurve?.Point.fromBytes(subjectPublicKey)
+  if (!namedCurve) throw new TypeError('Named curve not found in ECParameters')
+
+  const publicKey = namedCurve.Point.fromBytes(subjectPublicKey)
 
   if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-  return publicKey
+  return [publicKey, namedCurve]
 }

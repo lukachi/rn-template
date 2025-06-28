@@ -1,4 +1,5 @@
 import { time } from '@distributedlab/tools'
+import { Hex } from '@iden3/js-crypto'
 import { SOD } from '@li0ard/tsemrtd'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
 import { ECParameters } from '@peculiar/asn1-ecc'
@@ -14,8 +15,15 @@ import {
 import * as x509 from '@peculiar/x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
+import { getBytes, zeroPadValue } from 'ethers'
 
-import { hashPacked, namedCurveFromParameters, PublicKeyFromEcParameters } from './helpers/crypto'
+import {
+  hash512,
+  hash512P512,
+  hashPacked,
+  namedCurveFromParameters,
+  PublicKeyFromEcParameters,
+} from './helpers/crypto'
 import { normalizeSignatureWithCurve } from './helpers/misc'
 
 // TODO: maybe move remove
@@ -83,7 +91,7 @@ export class Sod {
         ECParameters,
       )
 
-      const publicKey = PublicKeyFromEcParameters(
+      const [publicKey] = PublicKeyFromEcParameters(
         ecParameters,
         new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
@@ -194,7 +202,7 @@ export class Sod {
         ECParameters,
       )
 
-      const publicKey = PublicKeyFromEcParameters(
+      const [publicKey] = PublicKeyFromEcParameters(
         ecParameters,
         new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
@@ -360,17 +368,34 @@ export class Sod {
         ECParameters,
       )
 
-      const publicKey = PublicKeyFromEcParameters(
+      const [publicKey, namedCurve] = PublicKeyFromEcParameters(
         ecParameters,
         new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
 
       if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      return new Uint8Array([
+      const raw = new Uint8Array([
         ...Buffer.from(publicKey.px.toString(16), 'hex'),
         ...Buffer.from(publicKey.py.toString(16), 'hex'),
       ])
+
+      const nBitLength = Hex.decodeString(namedCurve.CURVE.n.toString(16)).length * 8
+
+      const hashedHex = (() => {
+        const paddedRaw = zeroPadValue(raw, 64)
+
+        const paddedRawBytes = getBytes(paddedRaw)
+
+        console.log({ raw, paddedRaw, paddedRawBytes })
+
+        if (nBitLength === 512) {
+          return hash512P512(paddedRawBytes).toString(16)
+        }
+
+        return hash512(paddedRawBytes).toString(16)
+      })()
+      return Hex.decodeString(hashedHex)
     }
 
     throw new TypeError(
