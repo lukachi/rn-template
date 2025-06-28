@@ -15,7 +15,7 @@ import {
 import * as x509 from '@peculiar/x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
-import { getBytes, zeroPadValue } from 'ethers'
+import { getBytes, toBeArray, zeroPadBytes } from 'ethers'
 
 import {
   hash512,
@@ -98,10 +98,7 @@ export class Sod {
 
       if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      pub = new Uint8Array([
-        ...Buffer.from(publicKey.px.toString(16), 'hex'),
-        ...Buffer.from(publicKey.py.toString(16), 'hex'),
-      ])
+      pub = new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)])
     }
 
     if (!pub.length) {
@@ -209,10 +206,7 @@ export class Sod {
 
       if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      return new Uint8Array([
-        ...Buffer.from(publicKey.px.toString(16), 'hex'),
-        ...Buffer.from(publicKey.py.toString(16), 'hex'),
-      ])
+      return new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)])
     }
 
     throw new TypeError(
@@ -375,19 +369,14 @@ export class Sod {
 
       if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      const raw = new Uint8Array([
-        ...Buffer.from(publicKey.px.toString(16), 'hex'),
-        ...Buffer.from(publicKey.py.toString(16), 'hex'),
-      ])
+      const rawPoint = new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)])
 
       const nBitLength = Hex.decodeString(namedCurve.CURVE.n.toString(16)).length * 8
 
       const hashedHex = (() => {
-        const paddedRaw = zeroPadValue(raw, 64)
+        const paddedRaw = zeroPadBytes(rawPoint, 64)
 
         const paddedRawBytes = getBytes(paddedRaw)
-
-        console.log({ raw, paddedRaw, paddedRawBytes })
 
         if (nBitLength === 512) {
           return hash512P512(paddedRawBytes).toString(16)
@@ -395,6 +384,7 @@ export class Sod {
 
         return hash512(paddedRawBytes).toString(16)
       })()
+
       return Hex.decodeString(hashedHex)
     }
 
