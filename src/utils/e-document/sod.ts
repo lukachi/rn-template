@@ -174,39 +174,50 @@ export class Sod {
     )
   }
 
-  get slaveCertIcaoMemberKey(): Uint8Array {
-    if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
-    ) {
+  getSlaveCertIcaoMemberKey(masterCert: Certificate): Uint8Array {
+    if (masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)) {
       const pub = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
         RSAPublicKey,
       )
 
-      return new Uint8Array(pub.modulus)
+      const slaveCertIcaoMemberKey = new Uint8Array(pub.modulus)
+
+      return slaveCertIcaoMemberKey[0] === 0x00
+        ? slaveCertIcaoMemberKey.slice(1)
+        : slaveCertIcaoMemberKey
     }
 
     if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
-        ECDSA_ALGO_PREFIX,
-      )
+      masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(ECDSA_ALGO_PREFIX)
     ) {
-      if (!this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+      if (!masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
         throw new TypeError('ECDSA public key does not have parameters')
 
       const ecParameters = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+        masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
         ECParameters,
       )
 
+      console.log({ ecParameters })
+
       const [publicKey] = PublicKeyFromEcParameters(
         ecParameters,
-        new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+        new Uint8Array(masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
+
+      console.log({ publicKey })
 
       if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      return new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)])
+      const slaveCertIcaoMemberKey = new Uint8Array([
+        ...toBeArray(publicKey.px),
+        ...toBeArray(publicKey.py),
+      ])
+
+      return slaveCertIcaoMemberKey[0] === 0x00
+        ? slaveCertIcaoMemberKey.slice(1)
+        : slaveCertIcaoMemberKey
     }
 
     throw new TypeError(
@@ -260,6 +271,7 @@ export class Sod {
     return new Uint8Array(attrsSet.toBER(false)) // DER-encoded
   }
 
+  /** TODO: mb remove */
   get signature(): Uint8Array {
     const contentInfo = AsnConvert.parse(this.valueBlockBytes, ContentInfo)
     if (contentInfo.contentType !== id_signedData) {
@@ -333,8 +345,7 @@ export class Sod {
     return candidates[0]
   }
 
-  /** Works
-   * TODO: check ecdsa */
+  /** Works */
   get slaveCertificateIndex(): Uint8Array {
     if (
       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)

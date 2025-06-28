@@ -132,7 +132,7 @@ export const useRegistration = () => {
       }
 
       const icaoMemberSignature = tempEDoc.sod.slaveCertIcaoMemberSignature
-      const icaoMemberKey = tempEDoc.sod.slaveCertIcaoMemberKey
+      const icaoMemberKey = tempEDoc.sod.getSlaveCertIcaoMemberKey(slaveMaster)
       const x509KeyOffset = tempEDoc.sod.slaveCertX509KeyOffset
       const expOffset = tempEDoc.sod.slaveCertExpOffset
 
@@ -618,7 +618,6 @@ export const useRegistration = () => {
         (async () => {
           const icaoAsset = assets?.[0]
 
-          // TODO: check slave cert pem against icao bytes
           if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
           const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
             encoding: FileSystem.EncodingType.Base64,
@@ -663,6 +662,10 @@ export const useRegistration = () => {
       if (!tempMaster) {
         setTempMaster(slaveMaster)
       }
+
+      console.log({ slaveMaster })
+
+      throw new TypeError('purpose')
 
       const [slaveCertSmtProof, getSlaveCertSmtProofError] = await tryCatch(
         getSlaveCertSmtProof(tempEDoc),
