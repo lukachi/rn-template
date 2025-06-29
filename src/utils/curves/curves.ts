@@ -2,17 +2,23 @@ import { createCurve } from '@noble/curves/_shortw_utils'
 import { Field } from '@noble/curves/abstract/modular'
 import { sha224, sha256 } from '@noble/hashes/sha2'
 
-// export enum SupportedCurves {
-//   SECP256R1 = 'secp256r1',
-//   BRAINPOOLP256 = 'brainpoolp256r1',
-//   BRAINPOOL320R1 = 'brainpoolp320r1',
-//   SECP192R1 = 'secp192r1',
-//   BRAINPOOLP384R1 = 'brainpoolp384r1',
-//   SECP224R1 = 'secp224r1',
-//   PRIME256V1 = 'prime256v1',
-//   PRIME256V2 = 'prime256v2',
-//   BRAINPOOLP512R1 = 'brainpoolp512r1',
-// }
+export enum SupportedCurves {
+  SECP160R1 = 'SECP160R1',
+  SECP192R1 = 'SECP192R1',
+  SECP224R1 = 'SECP224R1',
+  SECP256R1 = 'SECP256R1',
+  SECP384R1 = 'SECP384R1',
+  SECP521R1 = 'SECP521R1',
+  BRAINPOOLP160R1 = 'BRAINPOOLP160R1',
+  BRAINPOOLP192R1 = 'BRAINPOOLP192R1',
+  BRAINPOOLP224R1 = 'BRAINPOOLP224R1',
+  BRAINPOOLP256T1 = 'BRAINPOOLP256T1',
+  BRAINPOOLP256R1 = 'BRAINPOOLP256R1',
+  BRAINPOOLP384T1 = 'BRAINPOOLP384T1',
+  BRAINPOOLP384R1 = 'BRAINPOOLP384R1',
+  BRAINPOOLP512T1 = 'BRAINPOOLP512T1',
+  BRAINPOOLP512R1 = 'BRAINPOOLP512R1',
+}
 
 // NIST secp192r1 aka p192
 // https://www.secg.org/sec2-v2.pdf

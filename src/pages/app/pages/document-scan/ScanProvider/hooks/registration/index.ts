@@ -136,7 +136,7 @@ export const useRegistration = () => {
       const icaoMemberSignature = tempEDoc.sod.getSlaveCertIcaoMemberSignature(masterCert)
       const icaoMemberKey = tempEDoc.sod.getSlaveCertIcaoMemberKey(masterCert)
 
-      const x509KeyOffset = tempEDoc.sod.slaveCertX509KeyOffset
+      const slaveCertPubKeyOffset = tempEDoc.sod.slaveCertPubKeyOffset
       const expOffset = tempEDoc.sod.slaveCertExpOffset
 
       const dispatcherName = (() => {
@@ -222,7 +222,7 @@ export const useRegistration = () => {
         signedAttributes:
           '0x' +
           Buffer.from(AsnConvert.serialize(tempEDoc.sod.slaveCert.tbsCertificate)).toString('hex'),
-        keyOffset: x509KeyOffset,
+        keyOffset: slaveCertPubKeyOffset,
         expirationOffset: expOffset,
       }
       const icaoMember: Registration2.ICAOMemberStruct = {
@@ -298,30 +298,22 @@ export const useRegistration = () => {
           encapsulatedContent: padBitsToFixedBlocks(
             eDoc.sod.encapsulatedContent,
             circuit.ecChunkNumber,
-            circuit.hashAlgorithm,
+            circuit.hashType,
           ),
-          signedAttributes: padBitsToFixedBlocks(
-            eDoc.sod.signedAttributes,
-            2,
-            circuit.hashAlgorithm,
-          ),
+          signedAttributes: padBitsToFixedBlocks(eDoc.sod.signedAttributes, 2, circuit.hashType),
           pubkey: (() => {
             return [0]
           })(),
           signature: (() => {
             return [0]
           })(),
-          dg1: padBitsToFixedBlocks(eDoc.dg1Bytes, 2, circuit.hashAlgorithm),
+          dg1: padBitsToFixedBlocks(eDoc.dg1Bytes, 2, circuit.hashType),
           dg15: (() => {
             if (!eDoc.dg15Bytes || !circuit.dg15EcChunkNumber) {
               return []
             }
 
-            return padBitsToFixedBlocks(
-              eDoc.dg15Bytes,
-              circuit.dg15EcChunkNumber,
-              circuit.hashAlgorithm,
-            )
+            return padBitsToFixedBlocks(eDoc.dg15Bytes, circuit.dg15EcChunkNumber, circuit.hashType)
           })(),
           slaveMerkleRoot: BigInt(smtProof.root),
           slaveMerkleInclusionBranches: smtProof.siblings.map(el => BigInt(el)),

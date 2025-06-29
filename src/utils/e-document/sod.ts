@@ -18,11 +18,11 @@ import { Buffer } from 'buffer'
 import { getBytes, toBeArray, toBigInt, zeroPadBytes } from 'ethers'
 
 import {
+  getPublicKeyFromEcParameters,
   hash512,
   hash512P512,
   hashPacked,
   namedCurveFromParameters,
-  PublicKeyFromEcParameters,
 } from './helpers/crypto'
 
 // TODO: maybe move remove
@@ -63,7 +63,8 @@ export class Sod {
     return new x509.X509Certificate(der)
   }
 
-  get slaveCertX509KeyOffset() {
+  /** Works */
+  get slaveCertPubKeyOffset() {
     const rawTbsCertHex = Buffer.from(AsnConvert.serialize(this.slaveCert.tbsCertificate)).toString(
       'hex',
     )
@@ -92,7 +93,7 @@ export class Sod {
         ECParameters,
       )
 
-      const [publicKey] = PublicKeyFromEcParameters(
+      const [publicKey] = getPublicKeyFromEcParameters(
         ecParameters,
         new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
@@ -113,6 +114,7 @@ export class Sod {
     )
   }
 
+  /** Works */
   get slaveCertExpOffset(): bigint {
     const tbsCertificateHex = Buffer.from(
       AsnConvert.serialize(this.slaveCert.tbsCertificate),
@@ -152,7 +154,7 @@ export class Sod {
         ECParameters,
       )
 
-      const namedCurve = namedCurveFromParameters(
+      const [, namedCurve] = namedCurveFromParameters(
         ecParameters,
         new Uint8Array(masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
@@ -200,7 +202,7 @@ export class Sod {
         ECParameters,
       )
 
-      const [publicKey] = PublicKeyFromEcParameters(
+      const [publicKey] = getPublicKeyFromEcParameters(
         ecParameters,
         new Uint8Array(masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
@@ -371,7 +373,7 @@ export class Sod {
         ECParameters,
       )
 
-      const [publicKey, namedCurve] = PublicKeyFromEcParameters(
+      const [publicKey, namedCurve] = getPublicKeyFromEcParameters(
         ecParameters,
         new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )

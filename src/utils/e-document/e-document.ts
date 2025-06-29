@@ -180,7 +180,7 @@ export class EDocument {
     if (this.dg15PubKey?.algorithm.algorithm.includes(ECDSA_ALGO_PREFIX)) {
       const ecParameters = AsnConvert.parse(this.dg15PubKey.subjectPublicKey, ECParameters)
 
-      const namedCurve = namedCurveFromParameters(
+      const [, namedCurve] = namedCurveFromParameters(
         ecParameters,
         new Uint8Array(this.dg15PubKey.subjectPublicKey),
       )

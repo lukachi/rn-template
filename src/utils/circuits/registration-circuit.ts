@@ -9,7 +9,7 @@ import {
   CircuitDg15EcChunkNumber,
   CircuitDocumentType,
   CircuitEcChunkNumber,
-  CircuitHashAlgorithm,
+  CircuitHashType,
   CircuitKeySize,
 } from './enums'
 import { PrivateRegisterIdentityBuilderGroth16 } from './types/RegisterIdentityBuilder'
@@ -18,7 +18,7 @@ export class RegistrationCircuit {
   private constructor(
     public prefixName: string,
     public staticId: number,
-    public hashAlgorithm: CircuitHashAlgorithm,
+    public hashType: CircuitHashType,
     public docType: CircuitDocumentType,
     public ecChunkNumber: CircuitEcChunkNumber,
     public keySize: CircuitKeySize,
@@ -46,19 +46,19 @@ export class RegistrationCircuit {
 
     const prefixName = 'registerIdentity'
 
-    const hashAlgorithm: CircuitHashAlgorithm = (() => {
+    const hashAlgorithm: CircuitHashType = (() => {
       const hashName = eDoc.sod.x509SlaveCert.signatureAlgorithm.hash.name.toUpperCase()
       switch (hashName) {
         case 'SHA-1':
-          return CircuitHashAlgorithm.SHA160
+          return CircuitHashType.SHA160
         case 'SHA-256':
-          return CircuitHashAlgorithm.SHA256
+          return CircuitHashType.SHA256
         case 'SHA-384':
-          return CircuitHashAlgorithm.SHA384
+          return CircuitHashType.SHA384
         case 'SHA-224':
-          return CircuitHashAlgorithm.SHA224
+          return CircuitHashType.SHA224
         case 'SHA-512':
-          return CircuitHashAlgorithm.SHA512
+          return CircuitHashType.SHA512
         default:
           throw new TypeError(`Unsupported hash algorithm: ${hashName}`)
       }
@@ -184,11 +184,11 @@ export class RegistrationCircuit {
     console.log({ algorithm })
 
     const aaTypeId = (() => {
-      if (algorithm === CircuitAlgorithm.RSA && hashAlgorithm === CircuitHashAlgorithm.SHA160) {
+      if (algorithm === CircuitAlgorithm.RSA && hashAlgorithm === CircuitHashType.SHA160) {
         return 1
       }
 
-      if (algorithm === CircuitAlgorithm.ECDSA && hashAlgorithm === CircuitHashAlgorithm.SHA160) {
+      if (algorithm === CircuitAlgorithm.ECDSA && hashAlgorithm === CircuitHashType.SHA160) {
         return 21
       }
 
@@ -275,16 +275,16 @@ export class RegistrationCircuit {
     )
   }
 
-  static #getChunkNumber(data: Uint8Array, hashAlgorithm: CircuitHashAlgorithm): number {
+  static #getChunkNumber(data: Uint8Array, hashAlgorithm: CircuitHashType): number {
     const length = data.length * 8 + 1 + 64
     const chunkSize = (() => {
       switch (hashAlgorithm) {
-        case CircuitHashAlgorithm.SHA160:
-        case CircuitHashAlgorithm.SHA256:
+        case CircuitHashType.SHA160:
+        case CircuitHashType.SHA256:
           return 512
-        case CircuitHashAlgorithm.SHA384:
-        case CircuitHashAlgorithm.SHA224:
-        case CircuitHashAlgorithm.SHA512:
+        case CircuitHashType.SHA384:
+        case CircuitHashType.SHA224:
+        case CircuitHashType.SHA512:
           return 1024
         default:
           throw new TypeError('Unsupported hash algorithm')

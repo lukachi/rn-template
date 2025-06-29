@@ -10,11 +10,18 @@ export enum CircuitAlgorithm {
 }
 
 export enum CircuitHashAlgorithm {
-  SHA160 = 160,
-  SHA256 = 256,
-  SHA384 = 384,
-  SHA224 = 224,
-  SHA512 = 512,
+  SHA1 = 'SHA1',
+  SHA384 = 'SHA384',
+  SHA512 = 'SHA512',
+  SHA2 = 'SHA2',
+}
+
+export enum CircuitHashType {
+  SHA160 = 160, // - 160: SHA1 (160 bits)
+  SHA256 = 256, // - 224: SHA2-224 (224 bits)
+  SHA384 = 384, // - 256: SHA2-256 (256 bits)
+  SHA224 = 224, // - 384: SHA2-384 (384 bits)
+  SHA512 = 512, // - 512: SHA2-512 (512 bits)
 }
 
 export enum CircuitKeySize {
@@ -29,17 +36,6 @@ export enum CircuitKeySize {
   B224 = 224,
   B512 = 512,
   B521 = 521,
-}
-
-export enum CircuitExponent {
-  E3 = 3,
-  E65537 = 65537,
-}
-
-export enum CircuitSalt {
-  S32 = 32,
-  S64 = 64,
-  S48 = 48,
 }
 
 export enum CircuitEcChunkNumber {
@@ -64,18 +60,31 @@ export enum CircuitDg15EcChunkNumber {
   N1296 = 1296,
 }
 
+// =============================================================================================
+
 export enum CircuitSignatureType {
-  ST1 = 1, //   - 1: RSA 2048 bits + SHA2-256 + e = 65537
-  ST2 = 2, //   - 2: RSA 4096 bits + SHA2-256 + e = 65537
-  ST3 = 3, //   - 3: RSA 2048 bits + SHA1 + e = 65537
-  ST10 = 10, //   - 10: RSASSA-PSS 2048 bits MGF1 (SHA2-256) + SHA2-256 + e = 3 + salt = 32
-  ST11 = 11, //   - 11: RSASSA-PSS 2048 bits MGF1 (SHA2-256) + SHA2-256 + e = 65537 + salt = 32
-  ST12 = 12, //   - 12: RSASSA-PSS 2048 bits MGF1 (SHA2-256) + SHA2-256 + e = 65537 + salt = 64
-  ST13 = 13, //   - 13: RSASSA-PSS 2048 bits MGF1 (SHA2-384) + SHA2-384 + e = 65537 + salt = 48
-  ST14 = 14, //   - 14: RSASSA-PSS 3072 bits MGF1 (SHA2-256) + SHA2-256 + e = 65537 + salt = 32
-  ST15 = 15, //   - 15: RSASSA-PSS 3072 bits MGF1 (SHA2-512) + SHA2-512 + e = 65537 + salt = 64
-  ST20 = 20, //   - 20: ECDSA brainpoolP256r1 + SHA256
-  ST21 = 21, //   - 21: ECDSA secp256r1 + SHA256
-  ST22 = 22, //   - 22: ECDSA brainpoolP320r1 + SHA256
-  ST23 = 23, //   - 23: ECDSA secp192r1 + SHA1
+  RSA_2048_SHA2_256_E = 1, //                               1: RSA 2048 bits + SHA2-256 + e = 65537
+  RSA_4096_SHA2_256_E = 2, //                               2: RSA 4096 bits + SHA2-256 + e = 65537
+  RSA_2048_SHA1_E = 3, //                                   3: RSA 2048 bits + SHA1 + e = 65537
+  RSASSA_PSS_2048_MGF1_SHA2_256_E__3_SALT_32 = 10, //       10: RSASSA-PSS 2048 bits MGF1 (SHA2-256) + SHA2-256 + e = 3 + salt = 32
+  RSASSA_PSS_2048_MGF1_SHA2_256_E__65537_SALT_32 = 11, //   11: RSASSA-PSS 2048 bits MGF1 (SHA2-256) + SHA2-256 + e = 65537 + salt = 32
+  RSASSA_PSS_2048_MGF1_SHA2_256_E__65537_SALT_64 = 12, //   12: RSASSA-PSS 2048 bits MGF1 (SHA2-256) + SHA2-256 + e = 65537 + salt = 64
+  RSASSA_PSS_2048_MGF1_SHA2_384_E = 13, //                  13: RSASSA-PSS 2048 bits MGF1 (SHA2-384) + SHA2-384 + e = 65537 + salt = 48
+  RSASSA_PSS_3072_MGF1_SHA2_256_E = 14, //                  14: RSASSA-PSS 3072 bits MGF1 (SHA2-256) + SHA2-256 + e = 65537 + salt = 32
+  RSASSA_PSS_3072_MGF1_SHA2_512_E = 15, //                  15: RSASSA-PSS 3072 bits MGF1 (SHA2-512) + SHA2-512 + e = 65537 + salt = 64
+  ECDSA_brainpoolP256r1_SHA256 = 20, //                     20: ECDSA brainpoolP256r1 + SHA256
+  ECDSA_secp256r1_SHA256 = 21, //                           21: ECDSA secp256r1 + SHA256
+  ECDSA_brainpoolP320r1_SHA256 = 22, //                     22: ECDSA brainpoolP320r1 + SHA256
+  ECDSA_secp192r1_SHA1 = 23, //                             23: ECDSA secp192r1 + SHA1
 }
+
+// =============================================================================================
+
+// AA_SIGNATURE_TYPE:
+//   - 0: NO AA
+//   - 1: RSA 1024 bits + SHA2-256 + e = 65537
+
+//   - 20: ECDSA brainpoolP256r1 + SHA256
+//   - 21: ECDSA secp256r1 + SHA256
+//   - 22: ECDSA brainpoolP320r1 + SHA256
+//   - 23: ECDSA secp192r1 + SHA1
