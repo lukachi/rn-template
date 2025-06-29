@@ -121,17 +121,11 @@ export function PublicKeyFromEcParameters(
 ): [ProjPointType<bigint>, CurveFnWithCreate] {
   const namedCurve = namedCurveFromParameters(parameters, subjectPublicKey)
 
-  console.log({ namedCurve })
-
   if (!namedCurve) throw new TypeError('Named curve not found in ECParameters')
-
-  console.log({ subjectPublicKey })
 
   const publicKey = namedCurve.Point.fromBytes(
     rightAlign(subjectPublicKey, subjectPublicKey.length * 8),
   )
-
-  console.log({ publicKey })
 
   if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 

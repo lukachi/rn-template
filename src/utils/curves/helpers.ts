@@ -1,3 +1,4 @@
+import { Hex } from '@iden3/js-crypto'
 import { p256, p384, p521 } from '@noble/curves/nist'
 import {
   ECParameters,
@@ -7,6 +8,7 @@ import {
   id_secp384r1,
   id_secp521r1,
 } from '@peculiar/asn1-ecc'
+import { toBeArray } from 'ethers'
 
 import {
   brainpoolP256r1,
@@ -28,7 +30,6 @@ export const namedCurveFromOID = (oid: string) => {
       return p256
     }
     case id_secp384r1: {
-      console.log('p384 curve OID detected')
       return p384
     }
     case id_secp521r1: {
@@ -65,14 +66,11 @@ export const namedCurveFromOID = (oid: string) => {
 
 export const namedCurveFromParams = (pubKeyBytes: Uint8Array, parameters: ECParameters) => {
   const pubKeyBitLength = pubKeyBytes.length * 8
-  console.log({ pubKeyBitLength, parameters })
 
   if (!parameters.specifiedCurve)
     throw new TypeError('ECDSA public key does not have a specified curve')
 
-  const curve_a_b_hex_concat = Buffer.from(parameters.specifiedCurve.curve.a)
-    .toString('hex')
-    .concat(Buffer.from(parameters.specifiedCurve.curve.b).toString('hex'))
+  const curveBaseGenerator = Hex.encodeString(new Uint8Array(parameters.specifiedCurve.base.buffer))
 
   switch (pubKeyBitLength) {
     case 392: {
@@ -86,58 +84,54 @@ export const namedCurveFromParams = (pubKeyBytes: Uint8Array, parameters: ECPara
       return p521
     }
     case 520: {
-      const brainpoolP256t1_a_b_hex_concat = brainpoolP256t1.CURVE.a
-        .toString(16)
-        .concat(brainpoolP256t1.CURVE.b.toString(16))
+      const brainpoolP256t1BaseGenerator = Buffer.from(toBeArray(brainpoolP256t1.CURVE.Gx))
+        .toString('hex')
+        .concat(Buffer.from(toBeArray(brainpoolP256t1.CURVE.Gy)).toString('hex'))
 
-      const brainpoolP256r1_a_b_hex_concat = brainpoolP256r1.CURVE.a
-        .toString(16)
-        .concat(brainpoolP256r1.CURVE.b.toString(16))
+      const brainpoolP256r1BaseGenerator = Buffer.from(toBeArray(brainpoolP256r1.CURVE.Gx))
+        .toString('hex')
+        .concat(Buffer.from(toBeArray(brainpoolP256r1.CURVE.Gy)).toString('hex'))
 
-      if (curve_a_b_hex_concat === brainpoolP256t1_a_b_hex_concat) {
+      if (curveBaseGenerator.includes(brainpoolP256t1BaseGenerator)) {
         return brainpoolP256t1
       }
-      if (curve_a_b_hex_concat === brainpoolP256r1_a_b_hex_concat) {
+      if (curveBaseGenerator.includes(brainpoolP256r1BaseGenerator)) {
         return brainpoolP256r1
       }
 
       return p256
     }
     case 776: {
-      const brainpoolP384t1_a_b_hex_concat = brainpoolP384t1.CURVE.a
-        .toString(16)
-        .concat(brainpoolP384t1.CURVE.b.toString(16))
+      const brainpoolP384t1BaseGenerator = Buffer.from(toBeArray(brainpoolP384t1.CURVE.Gx))
+        .toString('hex')
+        .concat(Buffer.from(toBeArray(brainpoolP384t1.CURVE.Gy)).toString('hex'))
 
-      const brainpoolP384r1_a_b_hex_concat = brainpoolP384r1.CURVE.a
-        .toString(16)
-        .concat(brainpoolP384r1.CURVE.b.toString(16))
+      const brainpoolP384r1BaseGenerator = Buffer.from(toBeArray(brainpoolP384r1.CURVE.Gx))
+        .toString('hex')
+        .concat(Buffer.from(toBeArray(brainpoolP384r1.CURVE.Gy)).toString('hex'))
 
-      if (curve_a_b_hex_concat.toLowerCase() === brainpoolP384t1_a_b_hex_concat.toLowerCase()) {
-        console.log('brainpoolP384t1 curve detected')
+      if (curveBaseGenerator.includes(brainpoolP384t1BaseGenerator)) {
         return brainpoolP384t1
       }
-      if (curve_a_b_hex_concat.toLowerCase() === brainpoolP384r1_a_b_hex_concat.toLowerCase()) {
-        console.log('brainpoolP384r1 curve detected')
+      if (curveBaseGenerator.includes(brainpoolP384r1BaseGenerator)) {
         return brainpoolP384r1
       }
-
-      console.log('p384 curve detected')
 
       return p384
     }
     case 1032: {
-      const brainpoolP512t1_a_b_hex_concat = brainpoolP512t1.CURVE.a
-        .toString(16)
-        .concat(brainpoolP512t1.CURVE.b.toString(16))
+      const brainpoolP512t1BaseGenerator = Buffer.from(toBeArray(brainpoolP512t1.CURVE.Gx))
+        .toString('hex')
+        .concat(Buffer.from(toBeArray(brainpoolP512t1.CURVE.Gy)).toString('hex'))
 
-      const brainpoolP512r1_a_b_hex_concat = brainpoolP512r1.CURVE.a
-        .toString(16)
-        .concat(brainpoolP512r1.CURVE.b.toString(16))
+      const brainpoolP512r1BaseGenerator = Buffer.from(toBeArray(brainpoolP512r1.CURVE.Gx))
+        .toString('hex')
+        .concat(Buffer.from(toBeArray(brainpoolP512r1.CURVE.Gy)).toString('hex'))
 
-      if (curve_a_b_hex_concat === brainpoolP512t1_a_b_hex_concat) {
+      if (curveBaseGenerator.includes(brainpoolP512t1BaseGenerator)) {
         return brainpoolP512t1
       }
-      if (curve_a_b_hex_concat === brainpoolP512r1_a_b_hex_concat) {
+      if (curveBaseGenerator.includes(brainpoolP512r1BaseGenerator)) {
         return brainpoolP512r1
       }
 

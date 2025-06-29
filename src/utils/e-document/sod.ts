@@ -384,10 +384,6 @@ export class Sod {
         const paddedRaw = zeroPadBytes(rawPoint, 64)
 
         const paddedRawBytes = getBytes(paddedRaw)
-        console.log({
-          paddedRawBytes,
-          subjPubKey: this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-        })
 
         if (nBitLength === 512) {
           return hash512P512(paddedRawBytes).toString(16)

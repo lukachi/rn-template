@@ -132,7 +132,10 @@ export const useRegistration = () => {
       }
 
       const icaoMemberSignature = tempEDoc.sod.slaveCertIcaoMemberSignature
-      const icaoMemberKey = tempEDoc.sod.getSlaveCertIcaoMemberKey(slaveMaster)
+
+      const masterCert = AsnConvert.parse(slaveMaster.rawData, Certificate)
+      const icaoMemberKey = tempEDoc.sod.getSlaveCertIcaoMemberKey(masterCert)
+
       const x509KeyOffset = tempEDoc.sod.slaveCertX509KeyOffset
       const expOffset = tempEDoc.sod.slaveCertExpOffset
 
@@ -662,10 +665,6 @@ export const useRegistration = () => {
       if (!tempMaster) {
         setTempMaster(slaveMaster)
       }
-
-      console.log({ slaveMaster })
-
-      throw new TypeError('purpose')
 
       const [slaveCertSmtProof, getSlaveCertSmtProofError] = await tryCatch(
         getSlaveCertSmtProof(tempEDoc),
