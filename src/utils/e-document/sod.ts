@@ -63,8 +63,10 @@ export class Sod {
     return new x509.X509Certificate(der)
   }
 
-  get slaveCertX509KeyOffset(): bigint {
-    let pub: Uint8Array = new Uint8Array()
+  get slaveCertX509KeyOffset() {
+    const rawTbsCertHex = Buffer.from(AsnConvert.serialize(this.slaveCert.tbsCertificate)).toString(
+      'hex',
+    )
 
     if (
       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
@@ -74,7 +76,7 @@ export class Sod {
         RSAPublicKey,
       )
 
-      pub = new Uint8Array(rsaPub.modulus)
+      return rawTbsCertHex.indexOf(Buffer.from(rsaPub.modulus).toString('hex')) / 2 + 1
     }
 
     if (
@@ -97,24 +99,18 @@ export class Sod {
 
       if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      pub = new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)])
-    }
-
-    if (!pub.length) {
-      throw new TypeError(
-        `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+      return (
+        rawTbsCertHex.indexOf(
+          Buffer.from(
+            new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)]),
+          ).toString('hex'),
+        ) / 2
       )
     }
 
-    const index = Buffer.from(AsnConvert.serialize(this.slaveCert.tbsCertificate))
-      .toString('hex')
-      .indexOf(Buffer.from(pub).toString('hex'))
-
-    if (index === -1) {
-      throw new TypeError('Public key not found in TBS Certificate')
-    }
-
-    return BigInt(index / 2) // index in bytes, not hex
+    throw new TypeError(
+      `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+    )
   }
 
   get slaveCertExpOffset(): bigint {
