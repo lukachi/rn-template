@@ -2,6 +2,7 @@ import { Hex, poseidon } from '@iden3/js-crypto'
 import { CurveFnWithCreate } from '@noble/curves/_shortw_utils'
 import { ProjPointType } from '@noble/curves/abstract/weierstrass'
 import { ECParameters } from '@peculiar/asn1-ecc'
+import { toBigInt } from 'ethers'
 
 import { namedCurveFromOID, namedCurveFromParams } from '@/utils/curves'
 
@@ -56,8 +57,8 @@ export function hash512P512(key: Uint8Array): bigint {
   const modulus = 2n ** 248n
 
   // Convert byte arrays to bigint (big-endian)
-  const X = arrayToBigInt(key.slice(0, 64))
-  const Y = arrayToBigInt(key.slice(64, 128))
+  const X = toBigInt(key.slice(0, 64))
+  const Y = toBigInt(key.slice(64, 128))
 
   const lowerX = X % modulus
   const upperX = (X >> 256n) % modulus
@@ -82,7 +83,7 @@ export function hash512(key: Uint8Array): bigint {
   const decomposed: bigint[] = []
 
   for (let i = 0; i < 2; i++) {
-    const element = arrayToBigInt(key.slice(i * 32, (i + 1) * 32))
+    const element = toBigInt(key.slice(i * 32, (i + 1) * 32))
     decomposed[i] = element % modulus
   }
 
@@ -90,15 +91,6 @@ export function hash512(key: Uint8Array): bigint {
   const keyHash = poseidon.hash(decomposed)
 
   return keyHash
-}
-
-// Helper function to convert byte array to bigint (big-endian)
-function arrayToBigInt(bytes: Uint8Array): bigint {
-  let result = 0n
-  for (let i = 0; i < bytes.length; i++) {
-    result = (result << 8n) | BigInt(bytes[i])
-  }
-  return result
 }
 
 export function namedCurveFromParameters(parameters: ECParameters, subjectPublicKey: Uint8Array) {

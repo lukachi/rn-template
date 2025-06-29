@@ -2,7 +2,7 @@ import { time } from '@distributedlab/tools'
 import { Hex } from '@iden3/js-crypto'
 import { SOD } from '@li0ard/tsemrtd'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
-import { ECParameters } from '@peculiar/asn1-ecc'
+import { ECDSASigValue, ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
 import {
@@ -15,7 +15,7 @@ import {
 import * as x509 from '@peculiar/x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
-import { getBytes, toBeArray, zeroPadBytes } from 'ethers'
+import { getBytes, toBeArray, toBigInt, zeroPadBytes } from 'ethers'
 
 import {
   hash512,
@@ -24,7 +24,6 @@ import {
   namedCurveFromParameters,
   PublicKeyFromEcParameters,
 } from './helpers/crypto'
-import { normalizeSignatureWithCurve } from './helpers/misc'
 
 // TODO: maybe move remove
 export const ECDSA_ALGO_PREFIX = '1.2.840.10045'
@@ -142,38 +141,44 @@ export class Sod {
     return BigInt(index / 2) // index in bytes, not hex
   }
 
-  get slaveCertIcaoMemberSignature(): Uint8Array {
-    if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
-    ) {
+  /** Works */
+  getSlaveCertIcaoMemberSignature(masterCert: Certificate): Uint8Array {
+    if (masterCert.signatureAlgorithm.algorithm.includes(id_pkcs_1)) {
       return new Uint8Array(this.slaveCert.signatureValue)
     }
 
-    if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
-        ECDSA_ALGO_PREFIX,
-      )
-    ) {
+    if (masterCert.signatureAlgorithm.algorithm.includes(ECDSA_ALGO_PREFIX)) {
+      if (!masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+        throw new TypeError('ECDSA public key does not have parameters')
+
       const ecParameters = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
         ECParameters,
       )
 
       const namedCurve = namedCurveFromParameters(
         ecParameters,
-        new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+        new Uint8Array(masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
       )
 
       if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
 
-      return normalizeSignatureWithCurve(new Uint8Array(this.slaveCert.signatureValue), namedCurve)
+      const { r, s } = AsnConvert.parse(this.slaveCert.signatureValue, ECDSASigValue)
+
+      const signature = new namedCurve.Signature(
+        toBigInt(new Uint8Array(r)),
+        toBigInt(new Uint8Array(s)),
+      )
+
+      return signature.normalizeS().toCompactRawBytes()
     }
 
     throw new TypeError(
-      `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+      `Unsupported public key algorithm: ${this.slaveCert.signatureAlgorithm.algorithm}`,
     )
   }
 
+  /** Works */
   getSlaveCertIcaoMemberKey(masterCert: Certificate): Uint8Array {
     if (masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)) {
       const pub = AsnConvert.parse(
@@ -286,6 +291,7 @@ export class Sod {
     return new Uint8Array(signerInfo.signature.buffer)
   }
 
+  /** Works */
   async getSlaveMaster(CSCAs: Certificate[]) {
     const slaveAuthorityKeyIdentifierExtension = this.x509SlaveCert.extensions?.find(
       el => el.type === id_ce_authorityKeyIdentifier,

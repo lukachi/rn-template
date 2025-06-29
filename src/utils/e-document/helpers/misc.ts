@@ -1,6 +1,4 @@
-import { CurveFnWithCreate } from '@noble/curves/_shortw_utils'
 import { RSAPublicKey } from '@peculiar/asn1-rsa'
-import { getBytes, zeroPadValue } from 'ethers'
 import forge from 'node-forge'
 
 export function toPem(buf: ArrayBuffer, header: string): string {
@@ -63,31 +61,4 @@ export function figureOutRSAAAHashAlgorithm(
     default:
       return 'SHA256' // fallback/default
   }
-}
-
-// TODO: not tested yet
-/**
- * Normalize ECDSA signature (r||s) into low-S form with fixed-length output.
- */
-export function normalizeSignatureWithCurve(
-  signature: Uint8Array,
-  curve: CurveFnWithCreate,
-): Uint8Array {
-  const pointSize = signature.length / 2
-
-  const r = BigInt(Buffer.from(signature.slice(0, pointSize)).toString('hex'))
-  let s = BigInt(Buffer.from(signature.slice(pointSize)).toString('hex'))
-
-  const n = curve.CURVE.n
-
-  const lowSMax = n >> 1n
-
-  if (s > lowSMax) {
-    s = n - s
-  }
-
-  return new Uint8Array([
-    ...getBytes(zeroPadValue('0x' + r.toString(16), pointSize)),
-    ...getBytes(zeroPadValue('0x' + s.toString(16), pointSize)),
-  ])
 }

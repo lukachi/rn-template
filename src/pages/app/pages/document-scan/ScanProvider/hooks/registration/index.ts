@@ -131,9 +131,9 @@ export const useRegistration = () => {
         throw new TypeError('failed to generate inclusion proof')
       }
 
-      const icaoMemberSignature = tempEDoc.sod.slaveCertIcaoMemberSignature
-
       const masterCert = AsnConvert.parse(slaveMaster.rawData, Certificate)
+
+      const icaoMemberSignature = tempEDoc.sod.getSlaveCertIcaoMemberSignature(masterCert)
       const icaoMemberKey = tempEDoc.sod.getSlaveCertIcaoMemberKey(masterCert)
 
       const x509KeyOffset = tempEDoc.sod.slaveCertX509KeyOffset

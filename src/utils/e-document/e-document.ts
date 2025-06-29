@@ -1,14 +1,14 @@
-import { ECParameters } from '@peculiar/asn1-ecc'
+import { ECDSASigValue, ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { SubjectPublicKeyInfo } from '@peculiar/asn1-x509'
 import { fromBER } from 'asn1js'
-import { decodeBase64, getBytes, keccak256 } from 'ethers'
+import { decodeBase64, getBytes, keccak256, toBigInt } from 'ethers'
 import forge from 'node-forge'
 import superjson from 'superjson'
 
 import { namedCurveFromParameters } from './helpers/crypto'
-import { figureOutRSAAAHashAlgorithm, normalizeSignatureWithCurve } from './helpers/misc'
+import { figureOutRSAAAHashAlgorithm } from './helpers/misc'
 import { ECDSA_ALGO_PREFIX, Sod } from './sod'
 
 export enum DocType {
@@ -189,7 +189,14 @@ export class EDocument {
 
       if (!this.aaSignature) throw new TypeError('AA signature is not defined')
 
-      return normalizeSignatureWithCurve(this.aaSignature, namedCurve)
+      const { r, s } = AsnConvert.parse(this.aaSignature, ECDSASigValue)
+
+      const signature = new namedCurve.Signature(
+        toBigInt(new Uint8Array(r)),
+        toBigInt(new Uint8Array(s)),
+      )
+
+      return signature.normalizeS().toCompactRawBytes()
     }
 
     throw new TypeError('Unsupported DG15 public key algorithm for AA signature extraction')
