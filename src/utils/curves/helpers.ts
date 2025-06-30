@@ -72,8 +72,9 @@ export const namedCurveFromParams = (
 ): [SupportedCurves, CurveFnWithCreate] => {
   const pubKeyBitLength = pubKeyBytes.length * 8
 
-  if (!parameters.specifiedCurve)
-    throw new TypeError('ECDSA public key does not have a specified curve')
+  if (!parameters.specifiedCurve) {
+    throw new TypeError('namedCurveFromParams: ECDSA public key does not have a specified curve')
+  }
 
   const curveBaseGenerator = Hex.encodeString(new Uint8Array(parameters.specifiedCurve.base.buffer))
 

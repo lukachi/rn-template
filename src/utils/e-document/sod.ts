@@ -24,6 +24,7 @@ import {
   hashPacked,
   namedCurveFromParameters,
 } from './helpers/crypto'
+import { extractRawPubKey } from './helpers/misc'
 
 // TODO: maybe move remove
 export const ECDSA_ALGO_PREFIX = '1.2.840.10045'
@@ -178,50 +179,7 @@ export class Sod {
 
   /** Works */
   getSlaveCertIcaoMemberKey(masterCert: Certificate): Uint8Array {
-    if (masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)) {
-      const pub = AsnConvert.parse(
-        masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-        RSAPublicKey,
-      )
-
-      const slaveCertIcaoMemberKey = new Uint8Array(pub.modulus)
-
-      return slaveCertIcaoMemberKey[0] === 0x00
-        ? slaveCertIcaoMemberKey.slice(1)
-        : slaveCertIcaoMemberKey
-    }
-
-    if (
-      masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(ECDSA_ALGO_PREFIX)
-    ) {
-      if (!masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
-        throw new TypeError('ECDSA public key does not have parameters')
-
-      const ecParameters = AsnConvert.parse(
-        masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
-        ECParameters,
-      )
-
-      const [publicKey] = getPublicKeyFromEcParameters(
-        ecParameters,
-        new Uint8Array(masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
-      )
-
-      if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
-
-      const slaveCertIcaoMemberKey = new Uint8Array([
-        ...toBeArray(publicKey.px),
-        ...toBeArray(publicKey.py),
-      ])
-
-      return slaveCertIcaoMemberKey[0] === 0x00
-        ? slaveCertIcaoMemberKey.slice(1)
-        : slaveCertIcaoMemberKey
-    }
-
-    throw new TypeError(
-      `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
-    )
+    return extractRawPubKey(masterCert)
   }
 
   /** Works */

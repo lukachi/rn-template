@@ -1,5 +1,12 @@
-import { RSAPublicKey } from '@peculiar/asn1-rsa'
+import { ECParameters } from '@peculiar/asn1-ecc'
+import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
+import { AsnConvert } from '@peculiar/asn1-schema'
+import { Certificate } from '@peculiar/asn1-x509'
+import { toBeArray } from 'ethers'
 import forge from 'node-forge'
+
+import { ECDSA_ALGO_PREFIX } from '../sod'
+import { getPublicKeyFromEcParameters } from './crypto'
 
 export function toPem(buf: ArrayBuffer, header: string): string {
   const body = Buffer.from(buf)
@@ -61,4 +68,42 @@ export function figureOutRSAAAHashAlgorithm(
     default:
       return 'SHA256' // fallback/default
   }
+}
+
+export function extractRawPubKey(certificate: Certificate): Uint8Array {
+  const certPubKeyAlgo = certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm
+
+  if (certPubKeyAlgo.includes(id_pkcs_1)) {
+    const pub = AsnConvert.parse(
+      certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+      RSAPublicKey,
+    )
+
+    const certPubKey = new Uint8Array(pub.modulus)
+
+    return certPubKey[0] === 0x00 ? certPubKey.slice(1) : certPubKey
+  }
+
+  if (certPubKeyAlgo.includes(ECDSA_ALGO_PREFIX)) {
+    if (!certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+      throw new TypeError('ECDSA public key does not have parameters')
+
+    const ecParameters = AsnConvert.parse(
+      certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+      ECParameters,
+    )
+
+    const [publicKey] = getPublicKeyFromEcParameters(
+      ecParameters,
+      new Uint8Array(certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+    )
+
+    if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
+
+    const certPubKey = new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)])
+
+    return certPubKey[0] === 0x00 ? certPubKey.slice(1) : certPubKey
+  }
+
+  throw new TypeError(`Unsupported public key algorithm: ${certPubKeyAlgo}`)
 }

@@ -94,11 +94,19 @@ export function hash512(key: Uint8Array): bigint {
 }
 
 export function namedCurveFromParameters(parameters: ECParameters, subjectPublicKey: Uint8Array) {
-  if (!parameters.specifiedCurve?.fieldID.fieldType) {
-    throw new TypeError('ECDSA public key does not have a specified curve')
-  }
+  const res = (() => {
+    if (parameters.namedCurve) {
+      return namedCurveFromOID(parameters.namedCurve)
+    }
 
-  const res = namedCurveFromOID(parameters.specifiedCurve?.fieldID.fieldType)
+    if (!parameters.specifiedCurve?.fieldID.fieldType) {
+      throw new TypeError(
+        'namedCurveFromParameters: ECDSA public key does not have a specified curve fieldID',
+      )
+    }
+
+    return namedCurveFromOID(parameters.namedCurve ?? parameters.specifiedCurve?.fieldID.fieldType)
+  })()
 
   if (!res) {
     return namedCurveFromParams(subjectPublicKey, parameters)
