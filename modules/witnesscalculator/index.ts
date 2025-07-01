@@ -178,7 +178,9 @@ export const supportedCircuits: CircuitParams[] = [
     'auth',
     require('@assets/circuits/auth/circuit_final.zkey'),
     require('@assets/circuits/auth/auth.dat'),
-    WitnesscalculatorModule.calcWtnsAuth,
+    (datBytes, inputs) => {
+      return WitnesscalculatorModule.calcWtnsAuth(new Uint8Array(datBytes), new Uint8Array(inputs))
+    },
   ),
 
   new ExternalCircuitParams(
