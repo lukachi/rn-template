@@ -1,3 +1,4 @@
+import { Asset } from 'expo-asset'
 import WitnesscalculatorModule from './src/WitnesscalculatorModule'
 import * as FileSystem from 'expo-file-system'
 import { unzip } from 'react-native-zip-archive'
@@ -39,8 +40,8 @@ export class LocalCircuitParams extends CircuitParams {
   constructor(
     public name: string,
 
-    public zkeyAssetUrl: string,
-    public datAssetUrl: string,
+    public zkeyAssetModuleId: string,
+    public datAssetModuleId: string,
 
     public wtnsCalcMethod: (
       descriptionFileDataBase64: Uint8Array,
@@ -50,11 +51,23 @@ export class LocalCircuitParams extends CircuitParams {
     super(
       name,
       async () => {
-        const datBase64 = await FileSystem.readAsStringAsync(datAssetUrl, {
+        const [datAssetInfo] = await Asset.loadAsync(datAssetModuleId)
+
+        if (!datAssetInfo.localUri) throw new TypeError('Dat file not found')
+
+        const datFileInfo = await FileSystem.getInfoAsync(datAssetInfo.localUri)
+
+        if (!datFileInfo?.exists) throw new TypeError('Dat file not found')
+
+        const datBase64 = await FileSystem.readAsStringAsync(datFileInfo.uri, {
           encoding: FileSystem.EncodingType.Base64,
         })
 
-        const zkeyFileInfo = await FileSystem.getInfoAsync(zkeyAssetUrl)
+        const [zkeyAssetInfo] = await Asset.loadAsync(zkeyAssetModuleId)
+
+        if (!zkeyAssetInfo.localUri) throw new TypeError('Zkey file not found')
+
+        const zkeyFileInfo = await FileSystem.getInfoAsync(zkeyAssetInfo.localUri)
 
         if (!zkeyFileInfo?.exists) throw new TypeError('Zkey file not found')
 
@@ -163,8 +176,8 @@ export class ExternalCircuitParams extends CircuitParams {
 export const supportedCircuits: CircuitParams[] = [
   new LocalCircuitParams(
     'auth',
-    '@assets/circuits/auth/circuit_final.zkey',
-    '@assets/circuits/auth/auth.dat',
+    require('@assets/circuits/auth/circuit_final.zkey'),
+    require('@assets/circuits/auth/auth.dat'),
     WitnesscalculatorModule.calcWtnsAuth,
   ),
 

@@ -1,4 +1,5 @@
 import { LocalCircuitParams } from '@modules/witnesscalculator'
+import SuperJSON from 'superjson'
 
 import { PrivateAuthGroth16 } from './types/Auth'
 
@@ -10,7 +11,7 @@ export class AuthCircuit {
   }
 
   calcWtns(inputs: PrivateAuthGroth16, datBytes: Uint8Array): Promise<Uint8Array> {
-    return this.circuitParams.wtnsCalcMethod(datBytes, Buffer.from(JSON.stringify(inputs)))
+    return this.circuitParams.wtnsCalcMethod(datBytes, Buffer.from(SuperJSON.stringify(inputs)))
   }
 }
 

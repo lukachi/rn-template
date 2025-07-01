@@ -1,4 +1,4 @@
-import { babyJub, ffUtils, Hex, poseidon, PublicKey } from '@iden3/js-crypto'
+import { babyJub, ffUtils, Hex, Poseidon, poseidon, PublicKey } from '@iden3/js-crypto'
 import { Buffer } from 'buffer'
 import { randomBytes } from 'ethers'
 import { useMemo } from 'react'
@@ -70,17 +70,12 @@ const usePublicKeyHash = () => {
 
 const usePointsNullifier = () => {
   return async (pkHex: string) => {
-    // 1️⃣  secretKey := p.secretKey.BigInt()
-    const skBuff = Hex.decodeString(pkHex) // raw 32 bytes
-    const secretKey = ffUtils.beBuff2int(skBuff) // big-endian → BigInt
+    const secretKey = BigInt(`0x${pkHex}`) % Poseidon.F.p
 
-    // 2️⃣  secretKeyHash := Poseidon(secretKey)
     const secretKeyHash = poseidon.hash([secretKey])
 
-    // 3️⃣  eventIDInt := new(big.Int).SetString(eventID, 0)
-    const eventIDInt = BigInt(Config.POINTS_SVC_ID) // auto 0x / dec
+    const eventIDInt = BigInt(Config.POINTS_SVC_ID)
 
-    // 4️⃣  eventNullifier := Poseidon(secretKey, secretKeyHash, eventIDInt)
     return poseidon.hash([secretKey, secretKeyHash, eventIDInt])
   }
 }
