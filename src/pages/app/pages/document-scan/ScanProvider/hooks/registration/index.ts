@@ -46,6 +46,7 @@ import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registra
 import { padBitsToFixedBlocks } from '@/utils/circuits/helpers'
 import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
 import { EDocument } from '@/utils/e-document/e-document'
+import { extractRawPubKey } from '@/utils/e-document/helpers/misc'
 import { ECDSA_ALGO_PREFIX } from '@/utils/e-document/sod'
 
 const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
@@ -664,6 +665,19 @@ export const useRegistration = () => {
       if (getSlaveCertSmtProofError) {
         throw new TypeError('Slave certificate SMT proof not found', getSlaveCertSmtProofError)
       }
+
+      console.log({
+        slaveCertificateIndex: tempEDoc.sod.slaveCertificateIndex,
+        root: slaveCertSmtProof.root,
+        siblings: slaveCertSmtProof.siblings,
+        pubKey: extractRawPubKey(tempEDoc.sod.slaveCert),
+        signature: tempEDoc.sod.signature,
+        dg1: tempEDoc.dg1Bytes,
+        dg15: tempEDoc.dg15Bytes,
+        signedData: tempEDoc.sod.signedAttributes,
+      })
+
+      throw new Error('purpose')
 
       if (!slaveCertSmtProof.existence) {
         const [, registerCertificateError] = await tryCatch(
