@@ -1,4 +1,5 @@
 import ExpoModulesCore
+import SwoirenbergLib
 
 public class NoirModule: Module {
   // Each module class must implement the definition function. The definition consists of components
@@ -10,13 +11,14 @@ public class NoirModule: Module {
     // The module will be accessible from `requireNativeModule('Noir')` in JavaScript.
     Name("Noir")
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { (value: String) in
-      // Send an event to JavaScript.
-      self.sendEvent("onChange", [
-        "value": value
-      ])
+    AsyncFunction("prove") { (trustedSetupUri: String, inputs: String, byteCodeString: String) in
+      let circuit = try Swoir(backend: SwoirenbergLib).createCircuit(manifest: byteCodeString)
+      
+      try circuit.setupSrs(srs_path: trustedSetupUri)
+
+      let proof = try circuit.prove(inputs, proof_type: "plonk")
+      
+      return proof.proof
     }
   }
 }

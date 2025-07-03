@@ -16,8 +16,8 @@ class NoirModule : Module() {
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("prove") { trustedSetupUri: String, inputs: String, byteCode: String ->
-      val circuit = Circuit.fromJsonManifest(byteCode)
+    AsyncFunction("prove") { trustedSetupUri: String, inputs: String, byteCodeString: String ->
+      val circuit = Circuit.fromJsonManifest(byteCodeString)
 
       circuit.setupSrs(trustedSetupUri, false)
 

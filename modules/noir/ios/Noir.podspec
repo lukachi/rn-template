@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'
-  s.vendored_frameworks = 'Frameworks/Swoirenberg.xcframework'
+  s.vendored_frameworks = 'Frameworks/SwoirenbergLib.xcframework'
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {

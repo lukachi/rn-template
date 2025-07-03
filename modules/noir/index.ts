@@ -96,14 +96,14 @@ export class NoirCircuitParams {
     return byteCode
   }
 
-  async prove(inputs: Uint8Array, byteCode: string): Promise<string> {
+  async prove(inputs: Uint8Array, byteCodeString: string): Promise<string> {
     const trustedSetupUri = await NoirCircuitParams.getTrustedSetupUri()
 
     if (!trustedSetupUri) {
       throw new Error('Trusted setup not found. Please download it first.')
     }
 
-    return NoirModule.provePlonk(trustedSetupUri, inputs, byteCode)
+    return NoirModule.provePlonk(trustedSetupUri, inputs, byteCodeString)
   }
 }
 
