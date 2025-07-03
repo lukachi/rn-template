@@ -137,14 +137,14 @@ export default ({config}: ConfigContext): ExpoConfig => ({
           },
           {
             name: 'SwoirCore',
-            podspec: './modules/noir/ios/specs/SwoirCore.podspec',
+            podspec: 'https://raw.githubusercontent.com/lukachi/rn-template/refs/heads/feature/upd-e-doc/modules/noir/ios/specs/SwoirCore.podspec',
             // git: 'https://github.com/Swoir/SwoirCore.git',
             // tag: '0.7.1',
             // source: 'https://github.com/Swoir/SwoirCore.git'
           },
           {
             name: 'Swoir',
-            podspec: './modules/noir/ios/specs/Swoir.podspec'
+            podspec: 'https://raw.githubusercontent.com/lukachi/rn-template/refs/heads/feature/upd-e-doc/modules/noir/ios/specs/Swoir.podspec'
             // git: 'https://github.com/rarimo/Swoir.git',
             // commit: '59bf91879d5aca5c275d6c646f65d47c97fa14eb',
           },
