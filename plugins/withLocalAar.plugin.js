@@ -10,6 +10,7 @@ const withCustomRootBuildGradle = config => {
         repositories {
             flatDir {
                 dirs project(':rapidsnark-wrp').projectDir.absolutePath + '/libs'
+                dirs project(':noir').projectDir.absolutePath + '/libs'
                 dirs project(':witnesscalculator').projectDir.absolutePath + '/libs'
             }
         }
