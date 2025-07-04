@@ -1,5 +1,6 @@
 import { Hex } from '@iden3/js-crypto'
 import { InMemoryDB, Merkletree } from '@iden3/js-merkletree'
+import { NoirCircuitParams } from '@modules/noir'
 import { CertificateSet, ContentInfo, SignedData } from '@peculiar/asn1-cms'
 import { ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
@@ -374,6 +375,40 @@ export default function PassportTests() {
     },
     [downloadResumable, tempCSCAs, tempMasters],
   )
+
+  const testNoir = useCallback(async () => {
+    const noirInstance = NoirCircuitParams.fromName(
+      'registerIdentity_2_256_3_6_336_264_21_2448_6_2008',
+    )
+
+    await NoirCircuitParams.downloadTrustedSetup()
+
+    const byteCode = await noirInstance.downloadByteCode()
+
+    /**
+     * mapOf(
+          "dg15" to dg15Deferred,
+          "sa" to saDeferred,
+          "pk" to pk,
+          "icao_root" to Numeric.toHexString(proof.root),
+          "inclusion_branches" to proof.siblings.map { Numeric.toHexString(it) },
+          "ec" to ecDeferred,
+          "sk_identity" to skIdentityDeferred,
+          "dg1" to dg1Deferred,
+          "sig" to sig,
+          "reduction_pk" to reductionPk
+      )
+     */
+    const inputs = {
+      skIdentity: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      pkIdentity: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+      pkIdentityHash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+    }
+
+    const proof = await noirInstance.prove(Buffer.from(JSON.stringify(inputs), 'utf-8'), byteCode)
+
+    console.log('Proof:', proof)
+  }, [])
 
   return (
     <AppContainer>
