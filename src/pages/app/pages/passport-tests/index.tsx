@@ -405,7 +405,7 @@ export default function PassportTests() {
       pkIdentityHash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
     }
 
-    const proof = await noirInstance.prove(Buffer.from(JSON.stringify(inputs), 'utf-8'), byteCode)
+    const proof = await noirInstance.prove(JSON.stringify(inputs), byteCode)
 
     console.log('Proof:', proof)
   }, [])

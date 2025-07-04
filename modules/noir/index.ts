@@ -96,7 +96,7 @@ export class NoirCircuitParams {
     return byteCode
   }
 
-  async prove(inputs: Uint8Array, byteCodeString: string): Promise<string> {
+  async prove(inputs: string, byteCodeString: string): Promise<string> {
     const trustedSetupUri = await NoirCircuitParams.getTrustedSetupUri()
 
     if (!trustedSetupUri) {
