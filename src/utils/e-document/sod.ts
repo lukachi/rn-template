@@ -270,10 +270,7 @@ export class Sod {
       try {
         const x509Cert = new x509.X509Certificate(AsnConvert.serialize(curr))
 
-        if (
-          this.x509SlaveCert.issuer === x509Cert.subject
-          // && parsedSlaveAuthorityKeyIdentifierExtensionHex === subjectKeyIdentifierExtension
-        ) {
+        if (this.x509SlaveCert.issuer === x509Cert.subject) {
           acc.push(x509Cert)
         }
       } catch (error) {

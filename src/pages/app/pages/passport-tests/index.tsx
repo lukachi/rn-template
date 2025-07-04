@@ -16,7 +16,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
 import { Text } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { parseLdifString, parsePemString } from 'rn-csca'
+import { findMasterCertificate, parseLdifString, parsePemString } from 'rn-csca'
 
 import { Config } from '@/config'
 import { tryCatch } from '@/helpers/try-catch'
@@ -234,7 +234,11 @@ const downloadUrl =
 const icaopkdFileUri = `${FileSystem.documentDirectory}/icaopkd-list.ldif`
 
 const icaoPkdStringToCerts2 = async (icaoLdif: string) => {
+  const start = performance.now()
   const res = parseLdifString(icaoLdif)
+  const end = performance.now()
+  const elapsed = end - start
+  console.log(`LDIF parsed in ${elapsed} ms`)
 
   return res.map(cert => {
     const parsed = AsnConvert.parse(new Uint8Array(cert), Certificate)
@@ -361,10 +365,28 @@ export default function PassportTests() {
             encoding: FileSystem.EncodingType.UTF8,
           })
 
-          return icaoPkdStringToCerts(fileContent)
+          const start1 = performance.now()
+          const [slaveMasterNew, getSlaveMasterNewError] = await tryCatch(
+            (async () => {
+              const parsedIcaoBytes = parseLdifString(fileContent)
+              return findMasterCertificate(
+                AsnConvert.serialize(eDoc.sod.slaveCert),
+                parsedIcaoBytes,
+              )
+            })(),
+          )
+          if (getSlaveMasterNewError) {
+            throw new TypeError('Failed to find master certificate', getSlaveMasterNewError)
+          }
+          const end1 = performance.now()
+          console.log(`Master certificate found in ${end1 - start1} ms`)
+          console.log(Hex.encodeString(new Uint8Array(slaveMasterNew)))
+
+          return icaoPkdStringToCerts2(fileContent)
         })()
         setTempCSCAs(CSCAs)
 
+        const start = performance.now()
         const [slaveMaster, getSlaveMasterError] = await tryCatch(
           (async () => {
             if (tempMasters[passp]) {
@@ -377,12 +399,16 @@ export default function PassportTests() {
         if (getSlaveMasterError) {
           throw new TypeError('Failed to get master certificate', getSlaveMasterError)
         }
+        const end = performance.now()
+        console.log(`Slave master certificate retrieved in ${end - start} ms`)
 
         setTempMasters(prev => {
           return { ...prev, [passp]: slaveMaster }
         })
 
         const masterCert = AsnConvert.parse(slaveMaster.rawData, Certificate)
+
+        console.log(Hex.encodeString(new Uint8Array(AsnConvert.serialize(masterCert))))
 
         const slaveCertIcaoMemberKey = eDoc.sod.getSlaveCertIcaoMemberKey(masterCert)
 

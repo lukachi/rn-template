@@ -17913,13 +17913,13 @@ __metadata:
 
 "rn-csca@file:/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz::locator=template-v1%40workspace%3A.":
   version: 0.1.0
-  resolution: "rn-csca@file:/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz#/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz::hash=da8dc4&locator=template-v1%40workspace%3A."
+  resolution: "rn-csca@file:/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz#/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz::hash=a606a9&locator=template-v1%40workspace%3A."
   dependencies:
     uniffi-bindgen-react-native: "npm:^0.29.3-0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10/6402c1d673fc9d54d47f511ba11d77255dc94b89054cc8b59fb4bf28bb20879f6ca133bbff7d723781849281f5e8bd4c881e8fff16e2b9759760241e3c2cf452
+  checksum: 10/5f91ce16f0d411967c6792dc34c18eea45a6f74e20e8c3b2c268abcb62488bf6b7ff749890e36a3a320a7e4b7d521aa1dfb66f09eb80c14afc125652f8e65894
   languageName: node
   linkType: hard
 
