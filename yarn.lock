@@ -17911,6 +17911,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rn-csca@file:/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz::locator=template-v1%40workspace%3A.":
+  version: 0.1.0
+  resolution: "rn-csca@file:/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz#/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz::hash=da8dc4&locator=template-v1%40workspace%3A."
+  dependencies:
+    uniffi-bindgen-react-native: "npm:^0.29.3-0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10/6402c1d673fc9d54d47f511ba11d77255dc94b89054cc8b59fb4bf28bb20879f6ca133bbff7d723781849281f5e8bd4c881e8fff16e2b9759760241e3c2cf452
+  languageName: node
+  linkType: hard
+
 "run-applescript@npm:^7.0.0":
   version: 7.0.0
   resolution: "run-applescript@npm:7.0.0"
@@ -19490,6 +19502,7 @@ __metadata:
     react-native-worklets-core: "npm:1.5.0"
     react-native-zip-archive: "npm:^7.0.1"
     readable-stream: "npm:^4.5.2"
+    rn-csca: /Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz
     stream-http: "npm:^3.2.0"
     superjson: "npm:^2.2.2"
     tailwind-merge: "npm:^2.4.0"
@@ -20236,6 +20249,16 @@ __metadata:
   version: 0.3.0
   resolution: "unicorn-magic@npm:0.3.0"
   checksum: 10/bdd7d7c522f9456f32a0b77af23f8854f9a7db846088c3868ec213f9550683ab6a2bdf3803577eacbafddb4e06900974385841ccb75338d17346ccef45f9cb01
+  languageName: node
+  linkType: hard
+
+"uniffi-bindgen-react-native@npm:^0.29.3-0":
+  version: 0.29.3-0
+  resolution: "uniffi-bindgen-react-native@npm:0.29.3-0"
+  bin:
+    ubrn: bin/cli.cjs
+    uniffi-bindgen-react-native: bin/cli.cjs
+  checksum: 10/15f7089c1db93321dcab97017de86018fd935db896f468d1a7c790af431faf1aa4d3b59c7ab5027581d70b01322e2e53155672306aaa860139722ab9e41432de
   languageName: node
   linkType: hard
 

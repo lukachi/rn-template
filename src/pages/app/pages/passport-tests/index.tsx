@@ -9,11 +9,14 @@ import { Certificate } from '@peculiar/asn1-x509'
 import { X509Certificate } from '@peculiar/x509'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { getBytes, keccak256, toBeArray } from 'ethers'
+import { Asset } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import forge from 'node-forge'
 import { useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
+import { Text } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { parseLdifString, parsePemString } from 'rn-csca'
 
 import { Config } from '@/config'
 import { tryCatch } from '@/helpers/try-catch'
@@ -230,6 +233,26 @@ const downloadUrl =
   'https://www.googleapis.com/download/storage/v1/b/rarimo-temp/o/icaopkd-list.ldif?generation=1715355629405816&alt=media'
 const icaopkdFileUri = `${FileSystem.documentDirectory}/icaopkd-list.ldif`
 
+const icaoPkdStringToCerts2 = async (icaoLdif: string) => {
+  const res = parseLdifString(icaoLdif)
+
+  return res.map(cert => {
+    const parsed = AsnConvert.parse(new Uint8Array(cert), Certificate)
+
+    return parsed
+  })
+}
+
+const icaoPemToCerts = async (icaoPEM: string): Promise<Certificate[]> => {
+  const res = parsePemString(icaoPEM)
+
+  return res.map(cert => {
+    const parsed = AsnConvert.parse(new Uint8Array(cert), Certificate)
+
+    return parsed
+  })
+}
+
 const icaoPkdStringToCerts = (icaoLdif: string): Certificate[] => {
   const regex = /pkdMasterListContent:: (.*?)\n\n/gs
   const matches = icaoLdif.matchAll(regex)
@@ -284,8 +307,12 @@ export default function PassportTests() {
 
   const testEDoc = identityStore.useIdentityStore(state => state.testEDoc)
 
+  const [pkdDownloadProgress, setPkdDownloadProgress] = useState(0)
+
   const downloadResumable = useMemo(() => {
-    return FileSystem.createDownloadResumable(downloadUrl, icaopkdFileUri)
+    return FileSystem.createDownloadResumable(downloadUrl, icaopkdFileUri, {}, progress => {
+      setPkdDownloadProgress(progress.totalBytesWritten / progress.totalBytesExpectedToWrite)
+    })
   }, [])
 
   const test = useCallback(
@@ -410,6 +437,70 @@ export default function PassportTests() {
     console.log('Proof:', proof)
   }, [])
 
+  const testCsca = async () => {
+    setIsSubmitting(true)
+    const start = performance.now()
+    const [CSCAs, getCSCAsError] = await tryCatch(
+      (async () => {
+        if (!(await FileSystem.getInfoAsync(icaopkdFileUri)).exists) {
+          await downloadResumable.downloadAsync()
+        }
+
+        const fileContent = await FileSystem.readAsStringAsync(icaopkdFileUri, {
+          encoding: FileSystem.EncodingType.UTF8,
+        })
+
+        return icaoPkdStringToCerts2(fileContent)
+      })(),
+    )
+    if (getCSCAsError) {
+      console.error('Failed to get CSCAs:', getCSCAsError)
+      setIsSubmitting(false)
+      return
+    }
+    const end = performance.now()
+
+    const elapsed = end - start
+    console.log(`CSCAs loaded in ${elapsed} ms`)
+    console.log('CSCAs:', CSCAs)
+    setIsSubmitting(false)
+  }
+
+  const testCscaPem = async () => {
+    setIsSubmitting(true)
+    const start = performance.now()
+    const [CSCAs, getCSCAsError] = await tryCatch(
+      (async () => {
+        const [icaoPemAssetInfo] = await Asset.loadAsync(require('@assets/certificates/ICAO.pem'))
+
+        if (!icaoPemAssetInfo.localUri) throw new TypeError('Dat file not found')
+
+        const icaoPemFileInfo = await FileSystem.getInfoAsync(icaoPemAssetInfo.localUri)
+
+        if (!icaoPemFileInfo.exists) {
+          throw new TypeError('ICAO PEM file does not exist')
+        }
+
+        const fileContent = await FileSystem.readAsStringAsync(icaoPemFileInfo.uri, {
+          encoding: FileSystem.EncodingType.UTF8,
+        })
+
+        return icaoPemToCerts(fileContent)
+      })(),
+    )
+    if (getCSCAsError) {
+      console.error('Failed to get CSCAs:', getCSCAsError)
+      setIsSubmitting(false)
+      return
+    }
+    const end = performance.now()
+
+    const elapsed = end - start
+    console.log(`CSCAs loaded in ${elapsed} ms`)
+    console.log('CSCAs:', CSCAs)
+    setIsSubmitting(false)
+  }
+
   return (
     <AppContainer>
       <UiScreenScrollable
@@ -422,6 +513,9 @@ export default function PassportTests() {
         className='gap-3'
       >
         <View className='flex gap-4'>
+          <Text className='text-textPrimary typography-h2'>{pkdDownloadProgress}</Text>
+          <UiButton disabled={isSubmitting} onPress={() => testCsca()} title='Test CSCA' />
+          <UiButton disabled={isSubmitting} onPress={testCscaPem} title='Test CSCA PEMs' />
           <UiButton
             disabled={isSubmitting}
             onPress={() => test(Config.PASSPORT_1)}
