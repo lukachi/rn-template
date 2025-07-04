@@ -114,14 +114,14 @@ public enum SwoirError: Error {
 }
 
 public class Swoir {
-    public let backend: SwoirBackendProtocol.Type
+    public let backend: SwoirCore.SwoirBackendProtocol.Type
     public var circuits: [String: Circuit] = [:]
 
-    public init(_ backend: SwoirBackendProtocol.Type) {
+    public init(_ backend: SwoirCore.SwoirBackendProtocol.Type) {
         self.backend = backend
     }
 
-    public init(backend: SwoirBackendProtocol.Type) {
+    public init(backend: SwoirCore.SwoirBackendProtocol.Type) {
         self.backend = backend
     }
 

@@ -9,21 +9,21 @@ func parseCircuit(data: Data) throws -> CircuitManifest {
 }
 
 public class Circuit {
-    public let backend: SwoirBackendProtocol.Type
+    public let backend: SwoirCore.SwoirBackendProtocol.Type
     public var manifest: CircuitManifest
     public var manifestData: Data
     public var manifestUrl: URL?
     public var bytecode: Data
     public var num_points: UInt32 = 0
 
-    public convenience init(backend: SwoirBackendProtocol.Type, manifest: Data) throws {
+    public convenience init(backend: SwoirCore.SwoirBackendProtocol.Type, manifest: Data) throws {
         do {
             try self.init(backend: backend, manifestData: manifest)
         } catch {
             throw SwoirError.errorLoadingManifest(error.localizedDescription)
         }
     }
-    public convenience init(backend: SwoirBackendProtocol.Type, manifest: URL) throws {
+    public convenience init(backend: SwoirCore.SwoirBackendProtocol.Type, manifest: URL) throws {
         do {
             let data = try Data(contentsOf: manifest)
             try self.init(backend: backend, manifestData: data)
@@ -32,7 +32,7 @@ public class Circuit {
             throw SwoirError.errorLoadingManifest(error.localizedDescription)
         }
     }
-    public init(backend: SwoirBackendProtocol.Type, manifestData: Data) throws {
+    public init(backend: SwoirCore.SwoirBackendProtocol.Type, manifestData: Data) throws {
         self.backend = backend
         self.manifest = try parseCircuit(data: manifestData)
         self.manifestData = manifestData
@@ -52,7 +52,7 @@ public class Circuit {
         return solvedWitness
     }
 
-    public func prove(_ inputs: [String: Any], proof_type: String = "honk", recursive: Bool = false) throws -> Proof {
+    public func prove(_ inputs: [String: Any], proof_type: String = "honk", recursive: Bool = false) throws -> SwoirCore.Proof {
         if num_points == 0 {
             throw SwoirError.srsNotSetup("SRS not setup. Call setupSrs() before proving.")
         }
@@ -61,7 +61,7 @@ public class Circuit {
         return proof
     }
 
-    public func verify(_ proof: Proof, proof_type: String = "honk") throws -> Bool {
+    public func verify(_ proof: SwoirCore.Proof, proof_type: String = "honk") throws -> Bool {
         if num_points == 0 {
             throw SwoirError.srsNotSetup("SRS not setup. Call setupSrs() before verifying.")
         }
