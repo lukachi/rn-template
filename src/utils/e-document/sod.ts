@@ -1,17 +1,12 @@
 import { time } from '@distributedlab/tools'
 import { Hex } from '@iden3/js-crypto'
 import { SOD } from '@li0ard/tsemrtd'
+import { findMasterCertificate } from '@lukachi/rn-csca'
 import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
 import { ECDSASigValue, ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
-import {
-  AuthorityKeyIdentifier,
-  Certificate,
-  id_ce_authorityKeyIdentifier,
-  id_ce_subjectKeyIdentifier,
-  SubjectKeyIdentifier,
-} from '@peculiar/asn1-x509'
+import { Certificate } from '@peculiar/asn1-x509'
 import * as x509 from '@peculiar/x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
@@ -248,56 +243,12 @@ export class Sod {
   }
 
   /** Works */
-  async getSlaveMaster(CSCAs: Certificate[]) {
-    const slaveAuthorityKeyIdentifierExtension = this.x509SlaveCert.extensions?.find(
-      el => el.type === id_ce_authorityKeyIdentifier,
-    )
+  async getSlaveMaster(CSCAs: ArrayBuffer[]) {
+    const master = findMasterCertificate(AsnConvert.serialize(this.slaveCert), CSCAs)
 
-    if (!slaveAuthorityKeyIdentifierExtension) {
-      throw new TypeError('Slave certificate does not have AuthorityKeyIdentifier extension')
-    }
+    if (!master) throw new TypeError('Master certificate not found for slave certificate')
 
-    const parsedSlaveAuthorityKeyIdentifierExtension = AsnConvert.parse(
-      slaveAuthorityKeyIdentifierExtension.value,
-      AuthorityKeyIdentifier,
-    )
-
-    const parsedSlaveAuthorityKeyIdentifierExtensionHex = Buffer.from(
-      parsedSlaveAuthorityKeyIdentifierExtension.keyIdentifier!.buffer,
-    ).toString('hex')
-
-    const candidates = CSCAs.reduce((acc, curr) => {
-      try {
-        const x509Cert = new x509.X509Certificate(AsnConvert.serialize(curr))
-
-        if (this.x509SlaveCert.issuer === x509Cert.subject) {
-          acc.push(x509Cert)
-        }
-      } catch (error) {
-        /* empty */
-      }
-      return acc
-    }, [] as x509.X509Certificate[]).filter(cert => {
-      const subjectKeyIdentifierExtension = cert.extensions?.find(
-        el => el.type === id_ce_subjectKeyIdentifier,
-      )
-
-      if (!subjectKeyIdentifierExtension) {
-        throw new TypeError('CSCA does not have SubjectKeyIdentifier extension')
-      }
-
-      const parsedSubjectKeyIdentifierExtension = AsnConvert.parse(
-        subjectKeyIdentifierExtension.value,
-        SubjectKeyIdentifier,
-      )
-
-      return (
-        Buffer.from(parsedSubjectKeyIdentifierExtension.buffer).toString('hex') ===
-        parsedSlaveAuthorityKeyIdentifierExtensionHex
-      )
-    })
-
-    return candidates[0]
+    return AsnConvert.parse(new Uint8Array(master), Certificate)
   }
 
   /** Works */

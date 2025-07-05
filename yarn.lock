@@ -3843,6 +3843,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lukachi/rn-csca@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "@lukachi/rn-csca@npm:0.1.3"
+  dependencies:
+    uniffi-bindgen-react-native: "npm:^0.29.3-0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10/08802becf41d3402a691f473b13040e0398aa487585175474bffc58096cdf5a49e742618d7800af284502c0431b181d8b58e7cff20b0e2f23ba6f01613765862
+  languageName: node
+  linkType: hard
+
 "@napi-rs/wasm-runtime@npm:^0.2.11":
   version: 0.2.11
   resolution: "@napi-rs/wasm-runtime@npm:0.2.11"
@@ -17911,18 +17923,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rn-csca@file:/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz::locator=template-v1%40workspace%3A.":
-  version: 0.1.0
-  resolution: "rn-csca@file:/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz#/Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz::hash=a606a9&locator=template-v1%40workspace%3A."
-  dependencies:
-    uniffi-bindgen-react-native: "npm:^0.29.3-0"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 10/5f91ce16f0d411967c6792dc34c18eea45a6f74e20e8c3b2c268abcb62488bf6b7ff749890e36a3a320a7e4b7d521aa1dfb66f09eb80c14afc125652f8e65894
-  languageName: node
-  linkType: hard
-
 "run-applescript@npm:^7.0.0":
   version: 7.0.0
   resolution: "run-applescript@npm:7.0.0"
@@ -19369,6 +19369,7 @@ __metadata:
     "@iden3/js-crypto": "npm:^1.3.1"
     "@iden3/js-merkletree": "npm:^1.5.0"
     "@li0ard/tsemrtd": "npm:^0.2.2"
+    "@lukachi/rn-csca": "npm:^0.1.3"
     "@noble/curves": "npm:^1.9.2"
     "@peculiar/asn1-cert-transparency": "npm:^2.3.15"
     "@peculiar/asn1-cms": "npm:^2.3.15"
@@ -19502,7 +19503,6 @@ __metadata:
     react-native-worklets-core: "npm:1.5.0"
     react-native-zip-archive: "npm:^7.0.1"
     readable-stream: "npm:^4.5.2"
-    rn-csca: /Users/lukachisama/Documents/RARIMO/rn-csca/rn-csca-0.1.0.tgz
     stream-http: "npm:^3.2.0"
     superjson: "npm:^2.2.2"
     tailwind-merge: "npm:^2.4.0"
