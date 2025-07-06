@@ -14,6 +14,8 @@ import { toBeArray } from 'ethers'
 import {
   brainpoolP256r1,
   brainpoolP256t1,
+  brainpoolP320r1,
+  brainpoolP320t1,
   brainpoolP384r1,
   brainpoolP384t1,
   brainpoolP512r1,
@@ -57,6 +59,12 @@ export const namedCurveFromOID = (oid: string): [SupportedCurves, CurveFnWithCre
     }
     case '1.3.36.3.3.2.8.1.1.13': {
       return [SupportedCurves.BRAINPOOLP512R1, brainpoolP512r1]
+    }
+    case '1.3.36.3.3.2.8.1.1.10': {
+      return [SupportedCurves.BRAINPOOLP320T1, brainpoolP320t1]
+    }
+    case '1.3.36.3.3.2.8.1.1.9': {
+      return [SupportedCurves.BRAINPOOLP320R1, brainpoolP320r1]
     }
     // OIDNamedCurveUnknown
     case '1.2.840.10045.1.1':

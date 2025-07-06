@@ -1,7 +1,8 @@
 import { Hex } from '@iden3/js-crypto'
 import { ExternalCircuitParams } from '@modules/witnesscalculator'
-import { ECDSASigValue } from '@peculiar/asn1-ecc'
-import { RSAPublicKey } from '@peculiar/asn1-rsa'
+import { secp256r1, secp521r1 } from '@noble/curves/nist'
+import { ECDSASigValue, ECParameters } from '@peculiar/asn1-ecc'
+import { RSAPublicKey, RsaSaPssParams } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
 import { ShaAlgorithm } from '@peculiar/x509'
@@ -9,6 +10,15 @@ import { toBeArray, toBigInt } from 'ethers'
 
 import { EDocument } from '@/utils/e-document/e-document'
 
+import {
+  brainpoolP256r1,
+  brainpoolP320r1,
+  brainpoolP384r1,
+  brainpoolP512r1,
+  secp192r1,
+  secp224r1,
+} from '../curves'
+import { namedCurveFromParameters } from '../e-document/helpers/crypto'
 import { extractPubKey } from '../e-document/helpers/misc'
 import { CircuitDocumentType, HASH_ALGORITHMS } from './constants'
 import { PrivateRegisterIdentityBuilderGroth16 } from './types/RegisterIdentityBuilder'
@@ -72,81 +82,115 @@ export class RegistrationCircuit {
   }
 
   get sigType() {
-    if (sig.salt) {
-      // RSA PSS
-      if (pk.n.length == 512 && pk.exp == '3' && sig.salt == '32' && hashType == '32') {
-        return 10
+    const pubKey = extractPubKey(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo)
+    const hashAlgLen = HASH_ALGORITHMS[this.hashAlgorithm.algorithm].len
+
+    if (pubKey instanceof RSAPublicKey) {
+      const exponent = toBigInt(new Uint8Array(pubKey.publicExponent)).toString(16)
+      const unpaddedModulus = new Uint8Array(
+        pubKey.modulus[0] === 0x00 ? pubKey.modulus.slice(1) : pubKey.modulus,
+      )
+
+      if (this.eDoc.sod.slaveCert.signatureAlgorithm.parameters) {
+        const rsaSaPssParams = AsnConvert.parse(
+          this.eDoc.sod.slaveCert.signatureAlgorithm.parameters,
+          RsaSaPssParams,
+        )
+
+        if (
+          unpaddedModulus.length === 512 &&
+          exponent === '3' &&
+          rsaSaPssParams.saltLength === 32 &&
+          hashAlgLen === 32
+        ) {
+          return 10
+        }
+
+        if (
+          unpaddedModulus.length === 512 &&
+          exponent === '10001' &&
+          rsaSaPssParams.saltLength === 32 &&
+          hashAlgLen === 32
+        ) {
+          return 11
+        }
+
+        if (
+          unpaddedModulus.length === 512 &&
+          exponent === '10001' &&
+          rsaSaPssParams.saltLength === 64 &&
+          hashAlgLen === 32
+        ) {
+          return 12
+        }
+
+        if (
+          unpaddedModulus.length === 512 &&
+          exponent === '10001' &&
+          rsaSaPssParams.saltLength === 48 &&
+          hashAlgLen === 48
+        ) {
+          return 13
+        }
+
+        if (
+          unpaddedModulus.length === 768 &&
+          exponent === '10001' &&
+          rsaSaPssParams.saltLength === 32 &&
+          hashAlgLen === 32
+        ) {
+          return 14
+        }
       }
-      if (pk.n.length == 512 && pk.exp == '10001' && sig.salt == '32' && hashType == '32') {
-        return 11
-      }
-      if (pk.n.length == 512 && pk.exp == '10001' && sig.salt == '64' && hashType == '32') {
-        return 12
-      }
-      if (pk.n.length == 512 && pk.exp == '10001' && sig.salt == '48' && hashType == '48') {
-        return 13
-      }
-      if (pk.n.length == 768 && pk.exp == '10001' && sig.salt == '32' && hashType == '32') {
-        return 14
-      }
-    }
-    if (sig.salt == 0) {
-      // RSA
-      if (pk.n.length == 512 && pk.exp == '10001' && hashType == '32') {
+
+      if (unpaddedModulus.length === 512 && exponent === '10001' && hashAlgLen === 32) {
         return 1
       }
-      if (pk.n.length == 1024 && pk.exp == '10001' && hashType == '32') {
+
+      if (unpaddedModulus.length === 1024 && exponent === '10001' && hashAlgLen === 32) {
         return 2
       }
-      if (pk.n.length == 512 && pk.exp == '10001' && hashType == '20') {
+
+      if (unpaddedModulus.length === 512 && exponent === '10001' && hashAlgLen === 20) {
         return 3
       }
-    }
-    if (sig.r) {
-      // print(pk.param);
-      switch (pk.param) {
-        case '7D5A0975FC2C3057EEF67530417AFFE7FB8055C126DC5C6CE94A4B44F330B5D9':
-          // BrainpoolP256r1
-          return 21
 
-        case 'FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC':
-          // Secp256r1
-          return 20
-
-        case 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFE':
-          //secp224r1
-          return 24
-
-        case '7BC382C63D8C150C3C72080ACE05AFA0C2BEA28E4FB22787139165EFBA91F90F8AA5814A503AD4EB04A8C7DD22CE2826':
-          // BrainpoolP384r1
-          return 25
-
-        case '7830A3318B603B89E2327145AC234CC594CBDD8D3DF91610A83441CAEA9863BC2DED5D5AA8253AA10A2EF1C98B9AC8B57F1117A72BF2C7B9E7C1AC4D77FC94CA':
-          //BrainpoolP512r1
-          return 26
-
-        case 'secp521r1':
-          return 27
-        default:
-          return 0
-      }
+      return 0
     }
 
-    return 0
+    if (!this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+      throw new TypeError('ECDSA public key does not have parameters')
+
+    const ecParameters = AsnConvert.parse(
+      this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+      ECParameters,
+    )
+
+    const [, namedCurve] = namedCurveFromParameters(
+      ecParameters,
+      new Uint8Array(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+    )
+
+    if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
+
+    switch (namedCurve.CURVE.a) {
+      case brainpoolP256r1.CURVE.a:
+        return 21
+      case secp256r1.CURVE.a:
+        return 20
+      case secp224r1.CURVE.a:
+        return 24
+      case brainpoolP384r1.CURVE.a:
+        return 25
+      case brainpoolP512r1.CURVE.a:
+        return 26
+      case secp521r1.CURVE.a:
+        return 27
+      default:
+        return 0
+    }
   }
 
-  // 1_256_3_5_576_248_NA
-  // 1 - sig_type
-  // 256 - hash algorithm
-  // 3 - document type
-  // 5 - ec_chunk_number
-  // 576 - ec_digest_position_shift
-  // 248 - dg1_digest_position_shift
-  // NA - 1_2432_5_296
-  // 1 - static_id
-  // 2432 - dg15_chunk_number
-  // 5 - dg15_digest_position_shift
-  // 296 - aa_key_position_shift
   get name(): string {
     const dgHashTypeLen = HASH_ALGORITHMS[this.hashAlgorithm.algorithm].len
     const dgHashTypeLenBits = HASH_ALGORITHMS[this.hashAlgorithm.algorithm].len * 8
@@ -173,8 +217,59 @@ export class RegistrationCircuit {
       return [...defaultNameParts, 'NA'].join('_')
     }
 
-    const aaSigType = null
-    const aaShiftBits = null
+    if (!this.eDoc.dg15PubKey) {
+      throw new TypeError('dg15PubKey is not defined in EDocument')
+    }
+
+    const dg15PubKey = extractPubKey(this.eDoc.dg15PubKey)
+
+    const aaSigType = (() => {
+      if (dg15PubKey instanceof RSAPublicKey) {
+        return 1
+      }
+
+      if (!this.eDoc.dg15PubKey.algorithm.parameters) {
+        throw new TypeError('ECDSA public key does not have parameters')
+      }
+
+      const ecParameters = AsnConvert.parse(this.eDoc.dg15PubKey.algorithm.parameters, ECParameters)
+
+      const [, namedCurve] = namedCurveFromParameters(
+        ecParameters,
+        new Uint8Array(
+          this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        ),
+      )
+
+      if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
+
+      switch (namedCurve.CURVE.a) {
+        case brainpoolP256r1.CURVE.a:
+          return 21
+        case secp256r1.CURVE.a:
+          return 20
+        case brainpoolP320r1.CURVE.a:
+          return 22
+        case secp192r1.CURVE.a:
+          return 23
+        default:
+          throw new TypeError('Unsupported named curve in dg15PubKey')
+      }
+    })()
+    const aaShiftBytes = (() => {
+      if (dg15PubKey instanceof RSAPublicKey) {
+        return (
+          Hex.encodeString(this.eDoc.dg15Bytes).split(
+            Hex.encodeString(new Uint8Array(dg15PubKey.modulus)),
+          )[0].length / 2
+        )
+      }
+
+      return (
+        Hex.encodeString(this.eDoc.dg15Bytes).split(Hex.encodeString(toBeArray(dg15PubKey.px)))[0]
+          .length / 2
+      )
+    })()
 
     const dg15ShiftBits = this.dg15Shift * 8
 
@@ -183,11 +278,46 @@ export class RegistrationCircuit {
         ? Math.ceil((this.eDoc.dg15Bytes.length + 8) / 64)
         : Math.ceil((this.eDoc.dg15Bytes.length + 8) / 128)
 
-    return [...defaultNameParts, aaSigType, dg15ShiftBits, dg15EcChunkNumber, aaShiftBits].join('_')
+    return [
+      ...defaultNameParts,
+      aaSigType,
+      dg15ShiftBits,
+      dg15EcChunkNumber,
+      aaShiftBytes * 8,
+    ].join('_')
   }
 
   get circuitParams(): ExternalCircuitParams {
     return ExternalCircuitParams.fromName(this.name)
+  }
+
+  get keySize() {
+    const pubKey = extractPubKey(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo)
+
+    if (pubKey instanceof RSAPublicKey) {
+      return (
+        new Uint8Array(pubKey.modulus[0] === 0x00 ? pubKey.modulus.slice(1) : pubKey.modulus)
+          .length * 8
+      )
+    }
+
+    if (!this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters) {
+      throw new TypeError('ECDSA public key does not have parameters')
+    }
+
+    const ecParameters = AsnConvert.parse(
+      this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+      ECParameters,
+    )
+
+    const [, namedCurve] = namedCurveFromParameters(
+      ecParameters,
+      new Uint8Array(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+    )
+
+    if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
+
+    return toBeArray(namedCurve.CURVE.n).length * 8
   }
 
   constructor(public eDoc: EDocument) {}
@@ -204,7 +334,7 @@ export class RegistrationCircuit {
       dg15: this.eDoc.dg15Bytes,
       signedAttributes: this.eDoc.sod.signedAttributes,
       encapsulatedContent: this.eDoc.sod.encapsulatedContent,
-      pubkey: extractPubKey(this.eDoc.sod.slaveCert),
+      pubkey: extractPubKey(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo),
       signature: this.eDoc.sod.signature,
       skIdentity: params.skIdentity,
       slaveMerkleRoot: params.slaveMerkleRoot,
@@ -216,7 +346,7 @@ export class RegistrationCircuit {
 }
 
 const getChunkedParams = (certificate: Certificate) => {
-  const pubKey = extractPubKey(certificate)
+  const pubKey = extractPubKey(certificate.tbsCertificate.subjectPublicKeyInfo)
 
   if (pubKey instanceof RSAPublicKey) {
     const ecFieldSize = 0

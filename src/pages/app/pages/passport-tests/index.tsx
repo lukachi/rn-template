@@ -215,7 +215,7 @@ export default function PassportTests() {
         })()
 
         const circuit = new RegistrationCircuit(eDoc)
-        console.log(circuit)
+        console.log(circuit.keySize)
 
         // console.log(eDoc.sod.slaveCertExpOffset)
 

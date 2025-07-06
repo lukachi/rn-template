@@ -14,6 +14,8 @@ export enum SupportedCurves {
   BRAINPOOLP224R1 = 'BRAINPOOLP224R1',
   BRAINPOOLP256T1 = 'BRAINPOOLP256T1',
   BRAINPOOLP256R1 = 'BRAINPOOLP256R1',
+  BRAINPOOLP320T1 = 'BRAINPOOLP320T1',
+  BRAINPOOLP320R1 = 'BRAINPOOLP320R1',
   BRAINPOOLP384T1 = 'BRAINPOOLP384T1',
   BRAINPOOLP384R1 = 'BRAINPOOLP384R1',
   BRAINPOOLP512T1 = 'BRAINPOOLP512T1',
@@ -73,6 +75,56 @@ export const brainpoolP256r1 = createCurve(
     b: BigInt('0x26dc5c6ce94a4b44f330b5d9bbd77cbf958416295cf7e1ce6bccdc18ff8c07b6'),
     Gx: BigInt('0x008bd2aeb9cb7e57cb2c4b482ffc81b7afb9de27e1e3bd23c23a4453bd9ace3262'),
     Gy: BigInt('0x547ef835c3dac4fd97f8461a14611dc9c27745132ded8e545c1d54c72f046997'),
+    h: 1n,
+  },
+  sha256,
+)
+
+export const brainpoolP320t1 = createCurve(
+  {
+    Fp: Field(
+      BigInt(
+        '0x00d35e472036bc4fb7e13c785ed201e065f98fcfa6f6f40def4f92b9ec7893ec28fcd412b1f1b32e27',
+      ),
+    ),
+    n: BigInt(
+      '0x00d35e472036bc4fb7e13c785ed201e065f98fcfa5b68f12a32d482ec7ee8658e98691555b44c59311',
+    ),
+    a: BigInt(
+      '0x00d35e472036bc4fb7e13c785ed201e065f98fcfa6f6f40def4f92b9ec7893ec28fcd412b1f1b32e24',
+    ),
+    b: BigInt(
+      '0x00a7f561e038eb1ed560b3d147db782013064c19f27ed27c6780aaf77fb8a547ceb5b4fef422340353',
+    ),
+    Gx: BigInt(
+      '0x00925be9fb01afc6fb4d3e7d4990010f813408ab106c4f09cb7ee07868cc136fff3357f624a21bed52',
+    ),
+    Gy: BigInt(
+      '0x63ba3a7a27483ebf6671dbef7abb30ebee084e58a0b077ad42a5a0989d1ee71b1b9bc0455fb0d2c3',
+    ),
+    h: 1n,
+  },
+  sha256,
+)
+
+export const brainpoolP320r1 = createCurve(
+  {
+    Fp: Field(
+      BigInt(
+        '0x00d35e472036bc4fb7e13c785ed201e065f98fcfa6f6f40def4f92b9ec7893ec28fcd412b1f1b32e27',
+      ),
+    ),
+    n: BigInt(
+      '0x00d35e472036bc4fb7e13c785ed201e065f98fcfa5b68f12a32d482ec7ee8658e98691555b44c59311',
+    ),
+    a: BigInt('0x3ee30b568fbab0f883ccebd46d3f3bb8a2a73513f5eb79da66190eb085ffa9f492f375a97d860eb4'),
+    b: BigInt('0x520883949dfdbc42d3ad198640688a6fe13f41349554b49acc31dccd884539816f5eb4ac8fb1f1a6'),
+    Gx: BigInt(
+      '0x43bd7e9afb53d8b85289bcc48ee5bfe6f20137d10a087eb6e7871e2a10a599c710af8d0d39e20611',
+    ),
+    Gy: BigInt(
+      '0x14fdd05545ec1cc8ab4093247f77275e0743ffed117182eaa9c77877aaac6ac7d35245d1692e8ee1',
+    ),
     h: 1n,
   },
   sha256,

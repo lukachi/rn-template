@@ -9,6 +9,7 @@ import {
   id_ce_authorityKeyIdentifier,
   id_ce_subjectKeyIdentifier,
   SubjectKeyIdentifier,
+  SubjectPublicKeyInfo,
 } from '@peculiar/asn1-x509'
 import { X509Certificate } from '@peculiar/x509'
 import { toBeArray } from 'ethers'
@@ -79,28 +80,21 @@ export function figureOutRSAAAHashAlgorithm(
   }
 }
 
-export function extractPubKey(certificate: Certificate): RSAPublicKey | ProjPointType<bigint> {
-  const certPubKeyAlgo = certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm
+export function extractPubKey(spki: SubjectPublicKeyInfo): RSAPublicKey | ProjPointType<bigint> {
+  const certPubKeyAlgo = spki.algorithm.algorithm
 
   if (certPubKeyAlgo.includes(id_pkcs_1)) {
-    return AsnConvert.parse(
-      certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-      RSAPublicKey,
-    )
+    return AsnConvert.parse(spki.subjectPublicKey, RSAPublicKey)
   }
 
   if (certPubKeyAlgo.includes(ECDSA_ALGO_PREFIX)) {
-    if (!certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
-      throw new TypeError('ECDSA public key does not have parameters')
+    if (!spki.algorithm.parameters) throw new TypeError('ECDSA public key does not have parameters')
 
-    const ecParameters = AsnConvert.parse(
-      certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
-      ECParameters,
-    )
+    const ecParameters = AsnConvert.parse(spki.algorithm.parameters, ECParameters)
 
     const [publicKey] = getPublicKeyFromEcParameters(
       ecParameters,
-      new Uint8Array(certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+      new Uint8Array(spki.subjectPublicKey),
     )
 
     return publicKey
@@ -110,7 +104,7 @@ export function extractPubKey(certificate: Certificate): RSAPublicKey | ProjPoin
 }
 
 export function extractRawPubKey(certificate: Certificate): Uint8Array {
-  const pubKey = extractPubKey(certificate)
+  const pubKey = extractPubKey(certificate.tbsCertificate.subjectPublicKeyInfo)
 
   if (pubKey instanceof RSAPublicKey) {
     const certPubKey = new Uint8Array(pubKey.modulus)
