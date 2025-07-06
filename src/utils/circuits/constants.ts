@@ -1,63 +1,26 @@
+import { CHash } from '@noble/curves/utils'
+import { sha1 } from '@noble/hashes/legacy'
+import { sha224, sha256, sha384, sha512 } from '@noble/hashes/sha2'
+import { id_sha1, id_sha224, id_sha256, id_sha384, id_sha512 } from '@peculiar/asn1-rsa'
+
 export enum CircuitDocumentType {
   TD1 = 1,
   TD3 = 3,
 }
 
-export enum CircuitAlgorithm {
-  RSA = 'RSA',
-  RSAPSS = 'RSA-PSS',
-  ECDSA = 'ECDSA',
+export const HASH_ALGORITHMS: Record<string, { len: number; hasher: CHash }> = {
+  [id_sha1]: { len: 20, hasher: sha1 }, // sha1
+  [id_sha224]: { len: 28, hasher: sha224 }, // sha224
+  [id_sha256]: { len: 32, hasher: sha256 }, // sha256
+  [id_sha384]: { len: 48, hasher: sha384 }, // sha384
+  [id_sha512]: { len: 64, hasher: sha512 }, // sha512
 }
 
-export enum CircuitHashAlgorithm {
+export enum CircuitHashAlgorithmName {
   SHA1 = 'SHA1',
   SHA384 = 'SHA384',
   SHA512 = 'SHA512',
   SHA2 = 'SHA2',
-}
-
-export enum CircuitHashType {
-  SHA160 = 160, // - 160: SHA1 (160 bits)
-  SHA256 = 256, // - 224: SHA2-224 (224 bits)
-  SHA384 = 384, // - 256: SHA2-256 (256 bits)
-  SHA224 = 224, // - 384: SHA2-384 (384 bits)
-  SHA512 = 512, // - 512: SHA2-512 (512 bits)
-}
-
-export enum CircuitKeySize {
-  B1024 = 1024,
-  B2048 = 2048,
-  B4096 = 4096,
-  B256 = 256,
-  B320 = 320,
-  B192 = 192,
-  B384 = 384,
-  B3072 = 3072,
-  B224 = 224,
-  B512 = 512,
-  B521 = 521,
-}
-
-export enum CircuitEcChunkNumber {
-  N3 = 3,
-  N4 = 4,
-  N5 = 5,
-  N6 = 6,
-  N7 = 7,
-}
-
-export enum CircuitDg15EcChunkNumber {
-  N2432 = 2432,
-  N2448 = 2448,
-  N3072 = 3072,
-  N1184 = 1184,
-  N1480 = 1480,
-  N1496 = 1496,
-  N1808 = 1808,
-  N1512 = 1512,
-  N864 = 864,
-  N2744 = 2744,
-  N1296 = 1296,
 }
 
 // =============================================================================================
@@ -79,12 +42,3 @@ export enum CircuitSignatureType {
 }
 
 // =============================================================================================
-
-// AA_SIGNATURE_TYPE:
-//   - 0: NO AA
-//   - 1: RSA 1024 bits + SHA2-256 + e = 65537
-
-//   - 20: ECDSA brainpoolP256r1 + SHA256
-//   - 21: ECDSA secp256r1 + SHA256
-//   - 22: ECDSA brainpoolP320r1 + SHA256
-//   - 23: ECDSA secp192r1 + SHA1

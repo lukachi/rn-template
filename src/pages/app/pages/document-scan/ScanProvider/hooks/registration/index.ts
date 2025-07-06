@@ -1,31 +1,14 @@
-import { InMemoryDB, Merkletree } from '@iden3/js-merkletree'
+import { parseLdifString } from '@lukachi/rn-csca'
 import { scanDocument } from '@modules/e-document'
 import { groth16ProveWithZKeyFilePath, ZKProof } from '@modules/rapidsnark-wrp'
-import {
-  ECParameters,
-  id_ecdsaWithSHA1,
-  id_ecdsaWithSHA256,
-  id_ecdsaWithSHA384,
-  id_ecdsaWithSHA512,
-} from '@peculiar/asn1-ecc'
-import {
-  id_pkcs_1,
-  id_RSASSA_PSS,
-  id_sha1WithRSAEncryption,
-  id_sha256WithRSAEncryption,
-  id_sha384WithRSAEncryption,
-  id_sha512WithRSAEncryption,
-  RSAPublicKey,
-} from '@peculiar/asn1-rsa'
+import { ECParameters } from '@peculiar/asn1-ecc'
+import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
-import { X509Certificate } from '@peculiar/x509'
 import { AxiosError } from 'axios'
-import { decodeBase64, ethers, getBytes, JsonRpcProvider, keccak256, zeroPadValue } from 'ethers'
-import { useAssets } from 'expo-asset'
+import { ethers, getBytes, JsonRpcProvider, keccak256, toBeArray, zeroPadValue } from 'ethers'
 import * as FileSystem from 'expo-file-system'
 import { FieldRecords } from 'mrz'
-import forge from 'node-forge'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
@@ -43,9 +26,11 @@ import { walletStore } from '@/store/modules/wallet'
 import { Registration__factory, StateKeeper } from '@/types'
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registration'
-import { padBitsToFixedBlocks } from '@/utils/circuits/helpers'
+import { getCircuitHashAlgorithm } from '@/utils/circuits/helpers'
+import { CertTree } from '@/utils/circuits/helpers/treap-tree'
 import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
 import { EDocument } from '@/utils/e-document/e-document'
+import { getPublicKeyFromEcParameters } from '@/utils/e-document/helpers/crypto'
 import { ECDSA_ALGO_PREFIX } from '@/utils/e-document/sod'
 
 const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
@@ -55,11 +40,17 @@ type PassportInfo = {
   identityInfo_: StateKeeper.IdentityInfoStructOutput
 }
 
+const icaoDownloadUrl =
+  'https://www.googleapis.com/download/storage/v1/b/rarimo-temp/o/icaopkd-list.ldif?generation=1715355629405816&alt=media'
+const icaoPkdFileUri = `${FileSystem.documentDirectory}/icaopkd-list.ldif`
+
 export const useRegistration = () => {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
   const publicKeyHash = walletStore.usePublicKeyHash()
 
-  const [assets] = useAssets([require('@assets/certificates/ICAO.pem')])
+  const downloadResumable = useMemo(() => {
+    return FileSystem.createDownloadResumable(icaoDownloadUrl, icaoPkdFileUri, {})
+  }, [])
 
   // ----------------------------------------------------------------------------------------
 
@@ -87,155 +78,153 @@ export const useRegistration = () => {
   // ----------------------------------------------------------------------------------------
 
   const newBuildRegisterCertCallData = useCallback(
-    async (CSCAs: Certificate[], tempEDoc: EDocument, slaveMaster: X509Certificate) => {
-      // priority = keccak256.Hash(key) % (2^64-1)
-      function toField(bytes: Uint8Array): bigint {
-        const bi = BigInt('0x' + Buffer.from(bytes).toString('hex'))
-        return bi % (2n ** 64n - 1n)
-      }
+    async (CSCAs: Certificate[], tempEDoc: EDocument, masterCert: Certificate) => {
+      const icaoTree = await CertTree.buildFromX509(CSCAs)
 
-      // TODO: replace with merkletree lib
-      const [icaoTree, getIcaoTreeError] = await tryCatch(
-        (async () => {
-          const db = new InMemoryDB(new Uint8Array([0])) // arbitrary prefix
-          const tree = new Merkletree(db, true, 256)
+      const inclusionProof = icaoTree.genInclusionProof(masterCert)
 
-          for (const cert of CSCAs) {
-            const digest = keccak256(
-              new Uint8Array(cert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
-            )
-            const value = toField(getBytes(digest))
+      const root = icaoTree.tree.merkleRoot()
 
-            await tryCatch(tree.add(BigInt(digest), value))
-          }
+      if (!root) throw new TypeError('failed to generate inclusion proof')
 
-          return tree
-        })(),
-      )
-      if (getIcaoTreeError) {
-        throw new TypeError(`Failed to create ICAO Merkle tree: ${getIcaoTreeError}`)
-      }
-
-      const [inclusionProof, getInclusionProofError] = await tryCatch(
-        (async () => {
-          const leafDigest = keccak256(new Uint8Array(slaveMaster.publicKey.rawData))
-          const { proof } = await icaoTree.generateProof(toField(getBytes(leafDigest)))
-          return { root: await icaoTree.root(), proof }
-        })(),
-      )
-      if (getInclusionProofError) {
-        throw new TypeError(`Failed to generate inclusion proof: ${getInclusionProofError.message}`)
-      }
-
-      if (inclusionProof.proof.allSiblings().length <= 0) {
+      if (inclusionProof.siblings.length === 0) {
         throw new TypeError('failed to generate inclusion proof')
       }
 
-      const masterCert = AsnConvert.parse(slaveMaster.rawData, Certificate)
-
-      const icaoMemberSignature = tempEDoc.sod.getSlaveCertIcaoMemberSignature(masterCert)
-      const icaoMemberKey = tempEDoc.sod.getSlaveCertIcaoMemberKey(masterCert)
-
-      const slaveCertPubKeyOffset = tempEDoc.sod.slaveCertPubKeyOffset
-      const expOffset = tempEDoc.sod.slaveCertExpOffset
-
       const dispatcherName = (() => {
-        const subjPubKeyAlg =
-          tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm
+        const masterSubjPubKeyAlg =
+          masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm
 
-        if (subjPubKeyAlg.includes(id_pkcs_1)) {
-          return dispatcherForRSA(tempEDoc.sod.slaveCert)
-        }
-
-        if (subjPubKeyAlg.includes(ECDSA_ALGO_PREFIX)) {
-          return dispatcherForECDSA(tempEDoc.sod.slaveCert)
-        }
-
-        throw new Error(`unsupported public key type: ${subjPubKeyAlg}`)
-
-        /* ----------  RSA family  ------------------------------------------------- */
-        function dispatcherForRSA(slave: Certificate): string {
-          const slaveRSAPubKey = AsnConvert.parse(
-            slave.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-            RSAPublicKey,
-          )
-
-          const bits = (slaveRSAPubKey.modulus.byteLength * 8).toString()
-
-          switch (slave.signatureAlgorithm.algorithm) {
-            case id_sha1WithRSAEncryption:
-              return `C_RSA_SHA1_${bits}`
-            case id_sha256WithRSAEncryption:
-              return `C_RSA_${bits}`
-            case id_sha384WithRSAEncryption:
-              return `C_RSA_SHA384_${bits}`
-            case id_sha512WithRSAEncryption:
-              return `C_RSA_SHA512_${bits}`
-            case id_RSASSA_PSS:
-              return `C_RSAPSS_SHA2_${bits}`
-            default:
-              throw new Error(
-                `unsupported certificate signature algorithm: ${slave.signatureAlgorithm.algorithm}`,
+        if (masterSubjPubKeyAlg.includes(id_pkcs_1)) {
+          const bits = (() => {
+            if (
+              tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+                id_pkcs_1,
               )
+            ) {
+              const slaveRSAPubKey = AsnConvert.parse(
+                tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+                RSAPublicKey,
+              )
+
+              const modulusBytes = new Uint8Array(slaveRSAPubKey.modulus)
+
+              const unpaddedRsaPubKey =
+                modulusBytes[0] === 0x00 ? modulusBytes.subarray(1) : modulusBytes
+
+              return (unpaddedRsaPubKey.byteLength * 8).toString()
+            }
+
+            if (
+              tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+                ECDSA_ALGO_PREFIX,
+              )
+            ) {
+              if (!tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+                throw new TypeError('ECDSA public key does not have parameters')
+
+              const ecParameters = AsnConvert.parse(
+                tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+                ECParameters,
+              )
+
+              const [publicKey] = getPublicKeyFromEcParameters(
+                ecParameters,
+                new Uint8Array(
+                  tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+                ),
+              )
+
+              const rawPoint = new Uint8Array([
+                ...toBeArray(publicKey.px),
+                ...toBeArray(publicKey.py),
+              ])
+
+              return rawPoint.length * 8
+            }
+          })()
+
+          let dispatcherName = `C_RSA`
+
+          const circuitHashAlgorithm = getCircuitHashAlgorithm(tempEDoc.sod.slaveCert)
+          if (circuitHashAlgorithm) {
+            dispatcherName += `_${circuitHashAlgorithm}`
           }
+
+          dispatcherName += `_${bits}`
+
+          return dispatcherName
         }
 
-        /* ----------  ECDSA family  ---------------------------------------------- */
-        function dispatcherForECDSA(slave: Certificate): string {
-          const ecParameters = AsnConvert.parse(
-            slave.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+        if (masterSubjPubKeyAlg.includes(ECDSA_ALGO_PREFIX)) {
+          if (!masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters) {
+            throw new TypeError('Master ECDSA public key does not have parameters')
+          }
+
+          if (!tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters) {
+            throw new TypeError('Slave ECDSA public key does not have parameters')
+          }
+
+          const masterEcParameters = AsnConvert.parse(
+            masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
             ECParameters,
           )
 
-          // TODO: implement for brainpool
-          // if (!ecParameters.specifiedCurve?.fieldID.parameters) {
-          //   throw new TypeError('ECDSA public key does not have a fieldID parameters')
-          // }
+          const slaveEcParameters = AsnConvert.parse(
+            tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+            ECParameters,
+          )
 
-          // const fieldParameterHex = Buffer.from(
-          //   ecParameters.specifiedCurve?.fieldID.parameters,
-          // ).toString('hex')
+          const [, , masterCertCurveName] = getPublicKeyFromEcParameters(
+            masterEcParameters,
+            new Uint8Array(masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+          )
 
-          const bitLen = (tempEDoc.sod.x509SlaveCert.publicKey.rawData.byteLength * 8).toString()
+          const [slaveCertPubKey] = getPublicKeyFromEcParameters(
+            slaveEcParameters,
+            new Uint8Array(
+              tempEDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+            ),
+          )
 
-          switch (slave.signatureAlgorithm.algorithm) {
-            case id_ecdsaWithSHA1: // ECDSAwithSHA1
-              return `C_ECDSA_${ecParameters.namedCurve}_SHA1_${bitLen}`
-            case id_ecdsaWithSHA256: // ECDSAwithSHA256
-              return `C_ECDSA_${ecParameters.namedCurve}_SHA2_${bitLen}`
-            case id_ecdsaWithSHA384: // ECDSAwithSHA384
-              return `C_ECDSA_${ecParameters.namedCurve}_SHA384_${bitLen}`
-            case id_ecdsaWithSHA512: // ECDSAwithSHA512
-              return `C_ECDSA_${ecParameters.namedCurve}_SHA512_${bitLen}`
-            default:
-              throw new Error(
-                `unsupported certificate signature algorithm: ${slave.signatureAlgorithm}`,
-              )
+          const pubKeyBytes = new Uint8Array([
+            ...toBeArray(slaveCertPubKey.px),
+            ...toBeArray(slaveCertPubKey.py),
+          ])
+
+          const bits = pubKeyBytes.length * 8
+
+          let dispatcherName = `C_ECDSA_${masterCertCurveName}`
+
+          const circuitHashAlgorithm = getCircuitHashAlgorithm(tempEDoc.sod.slaveCert)
+          if (circuitHashAlgorithm) {
+            dispatcherName += `_${circuitHashAlgorithm}`
           }
+
+          dispatcherName += `_${bits}`
+
+          return dispatcherName
         }
+
+        throw new Error(`unsupported public key type: ${masterSubjPubKeyAlg}`)
       })()
 
-      const dispatcherHash = keccak256(Buffer.from(dispatcherName, 'utf-8'))
+      const dispatcherHash = getBytes(keccak256(Buffer.from(dispatcherName, 'utf-8')))
 
       const certificate: Registration2.CertificateStruct = {
         dataType: dispatcherHash,
-        signedAttributes:
-          '0x' +
-          Buffer.from(AsnConvert.serialize(tempEDoc.sod.slaveCert.tbsCertificate)).toString('hex'),
-        keyOffset: slaveCertPubKeyOffset,
-        expirationOffset: expOffset,
+        signedAttributes: new Uint8Array(
+          AsnConvert.serialize(tempEDoc.sod.slaveCert.tbsCertificate),
+        ),
+        keyOffset: tempEDoc.sod.slaveCertPubKeyOffset,
+        expirationOffset: tempEDoc.sod.slaveCertExpOffset,
       }
       const icaoMember: Registration2.ICAOMemberStruct = {
-        signature: '0x' + Buffer.from(icaoMemberSignature).toString('hex'),
-        publicKey: '0x' + Buffer.from(icaoMemberKey).toString('hex'),
+        signature: tempEDoc.sod.getSlaveCertIcaoMemberSignature(masterCert),
+        publicKey: tempEDoc.sod.getSlaveCertIcaoMemberKey(masterCert),
       }
 
-      const icaoMerkleProofSiblings = inclusionProof.proof
-        .allSiblings()
-        .map(el => {
-          return '0x' + el.hex()
-        })
-        .flat()
+      const icaoMerkleProofSiblings = inclusionProof.siblings.flat()
 
       return registrationContractInterface.encodeFunctionData('registerCertificate', [
         certificate,
@@ -247,7 +236,7 @@ export const useRegistration = () => {
   )
 
   const registerCertificate = useCallback(
-    async (CSCAs: Certificate[], tempEDoc: EDocument, slaveMaster: X509Certificate) => {
+    async (CSCAs: Certificate[], tempEDoc: EDocument, slaveMaster: Certificate) => {
       try {
         const newCallData = await newBuildRegisterCertCallData(CSCAs, tempEDoc, slaveMaster)
 
@@ -272,11 +261,7 @@ export const useRegistration = () => {
   )
 
   const getIdentityRegProof = useCallback(
-    async (
-      eDoc: EDocument,
-      smtProof: SparseMerkleTree.ProofStructOutput,
-      circuit: RegistrationCircuit,
-    ) => {
+    async (smtProof: SparseMerkleTree.ProofStructOutput, circuit: RegistrationCircuit) => {
       const { datBytes, zkeyLocalUri } = await circuit.circuitParams.retrieveZkeyNDat({
         onDownloadStart() {},
         onDownloadingProgress(downloadProgressData) {
@@ -295,26 +280,6 @@ export const useRegistration = () => {
       const wtns = await circuit.calcWtns(
         {
           skIdentity: BigInt(`0x${privateKey}`),
-          encapsulatedContent: padBitsToFixedBlocks(
-            eDoc.sod.encapsulatedContent,
-            circuit.ecChunkNumber,
-            circuit.hashType,
-          ),
-          signedAttributes: padBitsToFixedBlocks(eDoc.sod.signedAttributes, 2, circuit.hashType),
-          pubkey: (() => {
-            return [0]
-          })(),
-          signature: (() => {
-            return [0]
-          })(),
-          dg1: padBitsToFixedBlocks(eDoc.dg1Bytes, 2, circuit.hashType),
-          dg15: (() => {
-            if (!eDoc.dg15Bytes || !circuit.dg15EcChunkNumber) {
-              return []
-            }
-
-            return padBitsToFixedBlocks(eDoc.dg15Bytes, circuit.dg15EcChunkNumber, circuit.hashType)
-          })(),
           slaveMerkleRoot: BigInt(smtProof.root),
           slaveMerkleInclusionBranches: smtProof.siblings.map(el => BigInt(el)),
         },
@@ -334,13 +299,12 @@ export const useRegistration = () => {
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
       circuit: RegistrationCircuit,
       isRevoked: boolean,
-      circuitName: string,
     ) => {
       const aaSignature = identityItem.document.getAASignature()
 
       if (!aaSignature) throw new TypeError('AA signature is not defined')
 
-      const parts = circuitName.split('_')
+      const parts = circuit.name.split('_')
 
       if (parts.length < 2) {
         throw new Error('circuit name is in invalid format')
@@ -420,7 +384,6 @@ export const useRegistration = () => {
         slaveCertSmtProof,
         circuit,
         isRevoked,
-        circuit.circuitParams.name,
       )
 
       const { data } = await relayerRegister(registerCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
@@ -517,7 +480,7 @@ export const useRegistration = () => {
       const revokedEDocument = currentIdentityItem.document || eDocumentResponse
       revokedEDocument.aaSignature = eDocumentResponse.aaSignature
 
-      const circuit = RegistrationCircuit.fromEDoc(revokedEDocument)
+      const circuit = new RegistrationCircuit(revokedEDocument)
 
       const [passportInfo, getPassportInfoError] = await (async () => {
         if (_passportInfo) return [_passportInfo, null]
@@ -600,7 +563,6 @@ export const useRegistration = () => {
   // ---------------------------------------------------------------------------------------------
 
   const [tempCSCAs, setTempCSCAs] = useState<Certificate[]>()
-  const [tempMaster, setTempMaster] = useState<X509Certificate>()
 
   const createIdentity = useCallback(
     async (
@@ -609,54 +571,25 @@ export const useRegistration = () => {
         onRevocation: (identityItem: IdentityItem) => void
       },
     ): Promise<IdentityItem> => {
-      const [icaoBytes, getIcaoBytesError] = await tryCatch(
-        (async () => {
-          const icaoAsset = assets?.[0]
-
-          if (!icaoAsset?.localUri) throw new TypeError('ICAO asset not found')
-          const icaoBase64 = await FileSystem.readAsStringAsync(icaoAsset.localUri, {
-            encoding: FileSystem.EncodingType.Base64,
-          })
-
-          return decodeBase64(icaoBase64)
-        })(),
-      )
-      if (getIcaoBytesError) {
-        throw new TypeError('Failed to get ICAO bytes', getIcaoBytesError)
+      if (!(await FileSystem.getInfoAsync(icaoPkdFileUri)).exists) {
+        await downloadResumable.downloadAsync()
       }
 
-      const [CSCAs, error] = await tryCatch(
-        (async () => {
-          const pemObjects = forge.pem.decode(Buffer.from(icaoBytes.buffer).toString('utf-8'))
+      const icaoLdif = await FileSystem.readAsStringAsync(icaoPkdFileUri, {
+        encoding: FileSystem.EncodingType.UTF8,
+      })
 
-          const pems = pemObjects.map(el => forge.pem.encode(el))
+      const CSCACertBytes = parseLdifString(icaoLdif)
 
-          return pems.map(el => {
-            const der = forge.pki.pemToDer(el)
-            return AsnConvert.parse(Buffer.from(der.toHex(), 'hex'), Certificate)
-          })
-        })(),
-      )
-      if (error) {
-        throw new TypeError('Failed to parse ICAO CMS', error)
-      }
+      const CSCAs = CSCACertBytes.map(el => {
+        return AsnConvert.parse(el, Certificate)
+      })
+
       if (!tempCSCAs) {
         setTempCSCAs(CSCAs)
       }
 
-      const [slaveMaster, getSlaveMasterError] = await tryCatch(
-        (async () => {
-          if (tempMaster) return tempMaster
-
-          return tempEDoc.sod.getSlaveMaster(CSCAs)
-        })(),
-      )
-      if (getSlaveMasterError) {
-        throw new TypeError('Failed to get master certificate', getSlaveMasterError)
-      }
-      if (!tempMaster) {
-        setTempMaster(slaveMaster)
-      }
+      const slaveMaster = await tempEDoc.sod.getSlaveMaster(CSCACertBytes)
 
       const [slaveCertSmtProof, getSlaveCertSmtProofError] = await tryCatch(
         getSlaveCertSmtProof(tempEDoc),
@@ -678,10 +611,10 @@ export const useRegistration = () => {
         }
       }
 
-      const registrationCircuit = RegistrationCircuit.fromEDoc(tempEDoc)
+      const registrationCircuit = new RegistrationCircuit(tempEDoc)
 
       const [regProof, getRegProofError] = await tryCatch(
-        getIdentityRegProof(tempEDoc, slaveCertSmtProof, registrationCircuit),
+        getIdentityRegProof(slaveCertSmtProof, registrationCircuit),
       )
       if (getRegProofError) {
         throw new TypeError('Failed to get identity registration proof', getRegProofError)
@@ -707,13 +640,12 @@ export const useRegistration = () => {
       return identityItem
     },
     [
-      assets,
+      downloadResumable,
       getIdentityRegProof,
       getSlaveCertSmtProof,
       registerCertificate,
       registerIdentity,
       tempCSCAs,
-      tempMaster,
     ],
   )
 

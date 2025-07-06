@@ -192,8 +192,7 @@ export class Sod {
     return new Uint8Array(signedData.encapContentInfo.eContent?.single?.buffer || [])
   }
 
-  /** Works */
-  get signedAttributes(): Uint8Array {
+  get signedData(): SignedData {
     const contentInfo = AsnConvert.parse(this.valueBlockBytes, ContentInfo)
 
     if (contentInfo.contentType !== id_signedData) {
@@ -208,7 +207,12 @@ export class Sod {
       throw new TypeError('No signerInfos found in SignedData')
     }
 
-    const signerInfo = signedData.signerInfos[0]
+    return signedData
+  }
+
+  /** Works */
+  get signedAttributes(): Uint8Array {
+    const signerInfo = this.signedData.signerInfos[0]
 
     if (!signerInfo.signedAttrs?.length) {
       throw new TypeError('No signed attributes found in SignerInfo')
@@ -225,17 +229,8 @@ export class Sod {
 
   /** TODO: mb remove */
   get signature(): Uint8Array {
-    const contentInfo = AsnConvert.parse(this.valueBlockBytes, ContentInfo)
-    if (contentInfo.contentType !== id_signedData) {
-      throw new TypeError(
-        `Invalid ContentType: Expected ${id_signedData} (SignedData), but got ${contentInfo.contentType}`,
-      )
-    }
-    const signedData = AsnConvert.parse(contentInfo.content, SignedData)
-    if (!signedData.signerInfos || signedData.signerInfos.length === 0) {
-      throw new TypeError('No signerInfos found in SignedData')
-    }
-    const signerInfo = signedData.signerInfos[0]
+    const signerInfo = this.signedData.signerInfos[0]
+
     if (!signerInfo.signature) {
       throw new TypeError('No signature found in SignerInfo')
     }

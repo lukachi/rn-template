@@ -1,3 +1,4 @@
+import { ProjPointType } from '@noble/curves/abstract/weierstrass'
 import { CertificateSet, ContentInfo, SignedData } from '@peculiar/asn1-cms'
 import { ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
@@ -78,18 +79,14 @@ export function figureOutRSAAAHashAlgorithm(
   }
 }
 
-export function extractRawPubKey(certificate: Certificate): Uint8Array {
+export function extractPubKey(certificate: Certificate): RSAPublicKey | ProjPointType<bigint> {
   const certPubKeyAlgo = certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm
 
   if (certPubKeyAlgo.includes(id_pkcs_1)) {
-    const pub = AsnConvert.parse(
+    return AsnConvert.parse(
       certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
       RSAPublicKey,
     )
-
-    const certPubKey = new Uint8Array(pub.modulus)
-
-    return certPubKey[0] === 0x00 ? certPubKey.slice(1) : certPubKey
   }
 
   if (certPubKeyAlgo.includes(ECDSA_ALGO_PREFIX)) {
@@ -106,14 +103,25 @@ export function extractRawPubKey(certificate: Certificate): Uint8Array {
       new Uint8Array(certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
     )
 
-    if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
+    return publicKey
+  }
 
-    const certPubKey = new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)])
+  throw new TypeError(`Unsupported public key algorithm: ${certPubKeyAlgo}`)
+}
+
+export function extractRawPubKey(certificate: Certificate): Uint8Array {
+  const pubKey = extractPubKey(certificate)
+
+  if (pubKey instanceof RSAPublicKey) {
+    const certPubKey = new Uint8Array(pubKey.modulus)
 
     return certPubKey[0] === 0x00 ? certPubKey.slice(1) : certPubKey
   }
 
-  throw new TypeError(`Unsupported public key algorithm: ${certPubKeyAlgo}`)
+  // ECDSA public key is a point on the curve
+  const certPubKey = new Uint8Array([...toBeArray(pubKey.px), ...toBeArray(pubKey.py)])
+
+  return certPubKey[0] === 0x00 ? certPubKey.slice(1) : certPubKey
 }
 
 /**

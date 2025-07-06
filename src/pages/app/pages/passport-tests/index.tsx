@@ -1,5 +1,4 @@
 import { Hex } from '@iden3/js-crypto'
-import { parseLdifString } from '@lukachi/rn-csca'
 import { ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
@@ -20,6 +19,7 @@ import { Registration2 } from '@/types/contracts/Registration'
 import { UiButton, UiScreenScrollable } from '@/ui'
 import { getCircuitHashAlgorithm } from '@/utils/circuits/helpers'
 import { CertTree } from '@/utils/circuits/helpers/treap-tree'
+import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
 import { ECDSA_ALGO_PREFIX, EDocument, PersonDetails } from '@/utils/e-document'
 import { getPublicKeyFromEcParameters } from '@/utils/e-document/helpers/crypto'
 
@@ -214,6 +214,9 @@ export default function PassportTests() {
           })
         })()
 
+        const circuit = new RegistrationCircuit(eDoc)
+        console.log(circuit)
+
         // console.log(eDoc.sod.slaveCertExpOffset)
 
         // console.log(Buffer.from(eDoc.dg1Bytes).toString('base64'))
@@ -233,17 +236,17 @@ export default function PassportTests() {
 
         // console.log(Hex.encodeString(eDoc.sod.slaveCertificateIndex))
 
-        if (!(await FileSystem.getInfoAsync(icaopkdFileUri)).exists) {
-          await downloadResumable.downloadAsync()
-        }
+        // if (!(await FileSystem.getInfoAsync(icaopkdFileUri)).exists) {
+        //   await downloadResumable.downloadAsync()
+        // }
 
-        const icaoLdif = await FileSystem.readAsStringAsync(icaopkdFileUri, {
-          encoding: FileSystem.EncodingType.UTF8,
-        })
+        // const icaoLdif = await FileSystem.readAsStringAsync(icaopkdFileUri, {
+        //   encoding: FileSystem.EncodingType.UTF8,
+        // })
 
-        const CSCACertBytes = parseLdifString(icaoLdif)
+        // const CSCACertBytes = parseLdifString(icaoLdif)
 
-        const slaveMaster = await eDoc.sod.getSlaveMaster(CSCACertBytes)
+        // const slaveMaster = await eDoc.sod.getSlaveMaster(CSCACertBytes)
 
         // console.log(
         //   'inclusionProof',
@@ -276,21 +279,21 @@ export default function PassportTests() {
         // )
         // console.log(Hex.encodeString(eDoc.sod.getSlaveCertIcaoMemberSignature(slaveMaster)))
 
-        console.log(CSCACertBytes.length)
+        // console.log(CSCACertBytes.length)
 
-        const CSCACerts = CSCACertBytes.map(el => {
-          return AsnConvert.parse(el, Certificate)
-        })
+        // const CSCACerts = CSCACertBytes.map(el => {
+        //   return AsnConvert.parse(el, Certificate)
+        // })
 
-        const icaoTree = await CertTree.buildFromX509(CSCACerts)
+        // const icaoTree = await CertTree.buildFromX509(CSCACerts)
 
         // const inclusionProof = icaoTree.genInclusionProof(masterCert)
 
-        const root = icaoTree.tree.merkleRoot()
+        // const root = icaoTree.tree.merkleRoot()
 
-        if (!root) throw new TypeError('failed to generate inclusion proof')
+        // if (!root) throw new TypeError('failed to generate inclusion proof')
 
-        console.log('root', Hex.encodeString(root))
+        // console.log('root', Hex.encodeString(root))
 
         // const callData = await newBuildRegisterCertCallData(CSCACerts, eDoc, slaveMaster)
 

@@ -17,7 +17,7 @@ import {
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
 
-import { CircuitHashAlgorithm } from '../enums'
+import { CircuitHashAlgorithmName } from '../constants'
 
 /**
  * Convert a byte array to an array of 0/1 numbers (MSB-first).
@@ -100,11 +100,11 @@ export function padBitsToFixedBlocks(
   return result
 }
 
-export function getCircuitHashAlgorithm(certificate: Certificate): CircuitHashAlgorithm | null {
+export function getCircuitHashAlgorithm(certificate: Certificate): CircuitHashAlgorithmName | null {
   switch (certificate.signatureAlgorithm.algorithm) {
     case id_sha1WithRSAEncryption:
     case id_ecdsaWithSHA1:
-      return CircuitHashAlgorithm.SHA1
+      return CircuitHashAlgorithmName.SHA1
     // TODO: need to check
     case id_RSASSA_PSS:
       if (!certificate.signatureAlgorithm.parameters)
@@ -120,32 +120,32 @@ export function getCircuitHashAlgorithm(certificate: Certificate): CircuitHashAl
         rsaSaPssParams.hashAlgorithm.algorithm === id_sha256 &&
         rsaSaPssParams.saltLength === 32
       ) {
-        return CircuitHashAlgorithm.SHA2
+        return CircuitHashAlgorithmName.SHA2
       }
 
       if (
         rsaSaPssParams.hashAlgorithm.algorithm === id_sha384 &&
         rsaSaPssParams.saltLength === 48
       ) {
-        return CircuitHashAlgorithm.SHA384
+        return CircuitHashAlgorithmName.SHA384
       }
 
       if (
         rsaSaPssParams.hashAlgorithm.algorithm === id_sha512 &&
         rsaSaPssParams.saltLength === 64
       ) {
-        return CircuitHashAlgorithm.SHA384
+        return CircuitHashAlgorithmName.SHA384
       }
 
       return null
     case id_ecdsaWithSHA256:
-      return CircuitHashAlgorithm.SHA2
+      return CircuitHashAlgorithmName.SHA2
     case id_sha384WithRSAEncryption:
     case id_ecdsaWithSHA384:
-      return CircuitHashAlgorithm.SHA384
+      return CircuitHashAlgorithmName.SHA384
     case id_sha512WithRSAEncryption:
     case id_ecdsaWithSHA512:
-      return CircuitHashAlgorithm.SHA512
+      return CircuitHashAlgorithmName.SHA512
     default:
       return null
   }
