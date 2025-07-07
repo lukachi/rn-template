@@ -34,7 +34,6 @@ export class RegistrationCircuit {
   }
 
   get docType() {
-    console.log(this.eDoc.dg1Bytes.length)
     switch (this.eDoc.dg1Bytes.length) {
       case 95:
         return CircuitDocumentType.TD1
@@ -46,7 +45,7 @@ export class RegistrationCircuit {
   }
 
   get dg1Shift() {
-    const hash = computeHash(this.dgHashType.algorithm, this.eDoc.dg1Bytes)
+    const hash = RegistrationCircuit.computeHash(this.dgHashType.algorithm, this.eDoc.dg1Bytes)
 
     return (
       Hex.encodeString(this.eDoc.sod.encapsulatedContent).split(Hex.encodeString(hash))[0].length /
@@ -55,7 +54,10 @@ export class RegistrationCircuit {
   }
 
   get encapContentShift() {
-    const hash = computeHash(this.sigAttrHashType.algorithm, this.eDoc.sod.encapsulatedContent)
+    const hash = RegistrationCircuit.computeHash(
+      this.sigAttrHashType.algorithm,
+      this.eDoc.sod.encapsulatedContent,
+    )
 
     return (
       Hex.encodeString(this.eDoc.sod.signedAttributes).split(Hex.encodeString(hash))[0].length / 2
@@ -65,7 +67,7 @@ export class RegistrationCircuit {
   get dg15Shift() {
     if (!this.eDoc.dg15Bytes) return 0
 
-    const hash = computeHash(this.dgHashType.algorithm, this.eDoc.dg15Bytes)
+    const hash = RegistrationCircuit.computeHash(this.dgHashType.algorithm, this.eDoc.dg15Bytes)
 
     return (
       Hex.encodeString(this.eDoc.sod.encapsulatedContent).split(Hex.encodeString(hash))[0].length /
@@ -74,7 +76,7 @@ export class RegistrationCircuit {
   }
 
   get chunkedParams() {
-    return getChunkedParams(this.eDoc.sod.slaveCert)
+    return RegistrationCircuit.getChunkedParams(this.eDoc.sod.slaveCert)
   }
 
   get sigType() {
@@ -348,90 +350,94 @@ export class RegistrationCircuit {
 
     return this.circuitParams.wtnsCalcMethod(datBytes, Buffer.from(JSON.stringify(inputs)))
   }
-}
 
-const getChunkedParams = (certificate: Certificate) => {
-  const pubKey = extractPubKey(certificate.tbsCertificate.subjectPublicKeyInfo)
+  static getChunkedParams(certificate: Certificate) {
+    const pubKey = extractPubKey(certificate.tbsCertificate.subjectPublicKeyInfo)
 
-  if (pubKey instanceof RSAPublicKey) {
-    const ecFieldSize = 0
-    const chunkSize = 64
-    const chunkNumber = Math.ceil(pubKey.modulus.byteLength / 16)
+    if (pubKey instanceof RSAPublicKey) {
+      const ecFieldSize = 0
+      const chunkSize = 64
+      const chunkNumber = Math.ceil(pubKey.modulus.byteLength / 16)
 
-    const publicKeyChunked = splitBigIntToChunks(
-      chunkSize,
+      const publicKeyChunked = RegistrationCircuit.splitBigIntToChunks(
+        chunkSize,
+        chunkNumber,
+        toBigInt(new Uint8Array(pubKey.modulus)),
+      )
+
+      const sigChunked = RegistrationCircuit.splitBigIntToChunks(
+        chunkSize,
+        chunkNumber,
+        toBigInt(new Uint8Array(certificate.signatureValue)),
+      )
+
+      return {
+        ec_field_size: ecFieldSize,
+        chunk_number: chunkNumber,
+        pk_chunked: publicKeyChunked,
+        sig_chunked: sigChunked,
+      }
+    }
+
+    // ECDSA public key handling
+
+    if (!certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters?.byteLength) {
+      throw new TypeError('ECDSA public key does not have parameters')
+    }
+
+    const ecFieldSize =
+      certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters?.byteLength * 4
+
+    const chunk_size = 66
+
+    const chunkNumber = (() => {
+      if (ecFieldSize <= 512) {
+        return Math.ceil(toBeArray(pubKey.px).length / 16)
+      }
+
+      return 8
+    })()
+
+    const pk_chunked = RegistrationCircuit.splitBigIntToChunks(
+      chunk_size,
       chunkNumber,
-      toBigInt(new Uint8Array(pubKey.modulus)),
-    )
+      pubKey.px,
+    ).concat(RegistrationCircuit.splitBigIntToChunks(chunk_size, chunkNumber, pubKey.py))
 
-    const sigChunked = splitBigIntToChunks(
-      chunkSize,
+    const { r, s } = AsnConvert.parse(certificate.signatureValue, ECDSASigValue)
+
+    // Convert r and s to BigInt directly without creating a Signature object
+    const rBigInt = toBigInt(new Uint8Array(r))
+    const sBigInt = toBigInt(new Uint8Array(s))
+
+    const sig_chunked = RegistrationCircuit.splitBigIntToChunks(
+      chunk_size,
       chunkNumber,
-      toBigInt(new Uint8Array(certificate.signatureValue)),
-    )
+      rBigInt,
+    ).concat(RegistrationCircuit.splitBigIntToChunks(chunk_size, chunkNumber, sBigInt))
 
     return {
       ec_field_size: ecFieldSize,
-      chunk_number: chunkNumber,
-      pk_chunked: publicKeyChunked,
-      sig_chunked: sigChunked,
+      chunk_number: chunkNumber * 2, // bits
+      pk_chunked: pk_chunked,
+      sig_chunked: sig_chunked,
     }
   }
 
-  // ECDSA public key handling
-
-  if (!certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters?.byteLength) {
-    throw new TypeError('ECDSA public key does not have parameters')
+  static splitBigIntToChunks(bitsPerChunk: number, chunkCount: number, value: bigint): string[] {
+    const mask = (1n << BigInt(bitsPerChunk)) - 1n
+    return Array.from({ length: chunkCount }, (_, i) => {
+      return ((value >> (BigInt(i) * BigInt(bitsPerChunk))) & mask).toString(10)
+    })
   }
 
-  const ecFieldSize =
-    certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters?.byteLength * 4
+  static computeHash(outLen: string, input: Uint8Array) {
+    const algorithm = HASH_ALGORITHMS[outLen]
 
-  const chunk_size = 66
-
-  const chunkNumber = (() => {
-    if (ecFieldSize <= 512) {
-      return Math.ceil(toBeArray(pubKey.px).length / 16)
+    if (!algorithm) {
+      throw new Error('Invalid hash output length. Use 20, 28, 32, 48, or 64 bytes.')
     }
 
-    return 8
-  })()
-
-  const pk_chunked = splitBigIntToChunks(chunk_size, chunkNumber, pubKey.px).concat(
-    splitBigIntToChunks(chunk_size, chunkNumber, pubKey.py),
-  )
-
-  const { r, s } = AsnConvert.parse(certificate.signatureValue, ECDSASigValue)
-
-  // Convert r and s to BigInt directly without creating a Signature object
-  const rBigInt = toBigInt(new Uint8Array(r))
-  const sBigInt = toBigInt(new Uint8Array(s))
-
-  const sig_chunked = splitBigIntToChunks(chunk_size, chunkNumber, rBigInt).concat(
-    splitBigIntToChunks(chunk_size, chunkNumber, sBigInt),
-  )
-
-  return {
-    ec_field_size: ecFieldSize,
-    chunk_number: chunkNumber * 2, // bits
-    pk_chunked: pk_chunked,
-    sig_chunked: sig_chunked,
+    return algorithm.hasher(input)
   }
-}
-
-const splitBigIntToChunks = (bitsPerChunk: number, chunkCount: number, value: bigint): string[] => {
-  const mask = (1n << BigInt(bitsPerChunk)) - 1n
-  return Array.from({ length: chunkCount }, (_, i) => {
-    return ((value >> (BigInt(i) * BigInt(bitsPerChunk))) & mask).toString(10)
-  })
-}
-
-function computeHash(outLen: string, input: Uint8Array) {
-  const algorithm = HASH_ALGORITHMS[outLen]
-
-  if (!algorithm) {
-    throw new Error('Invalid hash output length. Use 20, 28, 32, 48, or 64 bytes.')
-  }
-
-  return algorithm.hasher(input)
 }
