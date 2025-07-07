@@ -34,10 +34,11 @@ export class RegistrationCircuit {
   }
 
   get docType() {
-    switch (this.eDoc.docType) {
-      case 'ID':
+    console.log(this.eDoc.dg1Bytes.length)
+    switch (this.eDoc.dg1Bytes.length) {
+      case 95:
         return CircuitDocumentType.TD1
-      case 'PASSPORT':
+      case 93:
         return CircuitDocumentType.TD3
       default:
         return CircuitDocumentType.TD3
@@ -89,15 +90,19 @@ export class RegistrationCircuit {
       const unpaddedModulusHex = Hex.encodeString(unpaddedModulus)
 
       if (this.eDoc.sod.slaveCert.signatureAlgorithm.parameters) {
-        const rsaSaPssParams = AsnConvert.parse(
-          this.eDoc.sod.slaveCert.signatureAlgorithm.parameters,
+        if (!this.eDoc.sod.signatures[0].signatureAlgorithm.parameters) {
+          throw new TypeError('RSASSA-PSS public key does not have parameters')
+        }
+
+        const sodRsaSaPssParams = AsnConvert.parse(
+          this.eDoc.sod.signatures[0].signatureAlgorithm.parameters,
           RsaSaPssParams,
         )
 
         if (
           unpaddedModulusHex.length === 512 &&
           exponent === '3' &&
-          rsaSaPssParams.saltLength === 32 &&
+          sodRsaSaPssParams.saltLength === 32 &&
           hashAlgLen === 32
         ) {
           return 10
@@ -106,7 +111,7 @@ export class RegistrationCircuit {
         if (
           unpaddedModulusHex.length === 512 &&
           exponent === '10001' &&
-          rsaSaPssParams.saltLength === 32 &&
+          sodRsaSaPssParams.saltLength === 32 &&
           hashAlgLen === 32
         ) {
           return 11
@@ -115,7 +120,7 @@ export class RegistrationCircuit {
         if (
           unpaddedModulusHex.length === 512 &&
           exponent === '10001' &&
-          rsaSaPssParams.saltLength === 64 &&
+          sodRsaSaPssParams.saltLength === 64 &&
           hashAlgLen === 32
         ) {
           return 12
@@ -124,7 +129,7 @@ export class RegistrationCircuit {
         if (
           unpaddedModulusHex.length === 512 &&
           exponent === '10001' &&
-          rsaSaPssParams.saltLength === 48 &&
+          sodRsaSaPssParams.saltLength === 48 &&
           hashAlgLen === 48
         ) {
           return 13
@@ -133,7 +138,7 @@ export class RegistrationCircuit {
         if (
           unpaddedModulusHex.length === 768 &&
           exponent === '10001' &&
-          rsaSaPssParams.saltLength === 32 &&
+          sodRsaSaPssParams.saltLength === 32 &&
           hashAlgLen === 32
         ) {
           return 14

@@ -211,6 +211,9 @@ export default function PassportTests() {
             personDetails: {} as PersonDetails,
             dg1Bytes: new Uint8Array(Buffer.from(passport.dg1, 'base64')),
             sodBytes: new Uint8Array(Buffer.from(passport.sod, 'base64')),
+            ...(passport.dg15 && {
+              dg15Bytes: new Uint8Array(Buffer.from(passport.dg15, 'base64')),
+            }),
           })
         })()
 
@@ -219,12 +222,7 @@ export default function PassportTests() {
         // console.log(eDoc.dg1Bytes)
 
         const circuit = new RegistrationCircuit(eDoc)
-        console.log(circuit.signedAttrsHashType)
-        console.log(circuit.sigAttrHashType)
-        // console.log(circuit.encapContentHashAlgorithm)
-        console.log(circuit.encapContentShift)
-
-        console.log(circuit.name)
+        console.log(circuit.name, circuit)
 
         // console.log(eDoc.sod.slaveCertExpOffset)
 
@@ -346,6 +344,16 @@ export default function PassportTests() {
             disabled={isSubmitting}
             onPress={() => test(Config.PASSPORT_4)}
             title='Test 4'
+          />
+          <UiButton
+            disabled={isSubmitting}
+            onPress={() => test(Config.PASSPORT_5)}
+            title='Test 5'
+          />
+          <UiButton
+            disabled={isSubmitting}
+            onPress={() => test(Config.PASSPORT_6)}
+            title='Test 6'
           />
           <UiButton disabled={isSubmitting} onPress={() => test('', testEDoc)} title='Test rsa' />
         </View>
