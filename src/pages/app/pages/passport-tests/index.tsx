@@ -214,8 +214,17 @@ export default function PassportTests() {
           })
         })()
 
+        // console.log(Buffer.from(eDoc.sodBytes).toString('base64'))
+
+        // console.log(eDoc.dg1Bytes)
+
         const circuit = new RegistrationCircuit(eDoc)
-        console.log(circuit.keySize)
+        console.log(circuit.signedAttrsHashType)
+        console.log(circuit.sigAttrHashType)
+        // console.log(circuit.encapContentHashAlgorithm)
+        console.log(circuit.encapContentShift)
+
+        console.log(circuit.name)
 
         // console.log(eDoc.sod.slaveCertExpOffset)
 
@@ -332,6 +341,11 @@ export default function PassportTests() {
             disabled={isSubmitting}
             onPress={() => test(Config.PASSPORT_3)}
             title='Test 3'
+          />
+          <UiButton
+            disabled={isSubmitting}
+            onPress={() => test(Config.PASSPORT_4)}
+            title='Test 4'
           />
           <UiButton disabled={isSubmitting} onPress={() => test('', testEDoc)} title='Test rsa' />
         </View>

@@ -19,4 +19,5 @@ export const Config = {
   PASSPORT_1: Env.PASSPORT_1,
   PASSPORT_2: Env.PASSPORT_2,
   PASSPORT_3: Env.PASSPORT_3,
+  PASSPORT_4: Env.PASSPORT_4,
 }

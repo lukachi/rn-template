@@ -5,7 +5,6 @@ import { ECDSASigValue, ECParameters } from '@peculiar/asn1-ecc'
 import { RSAPublicKey, RsaSaPssParams } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
-import { ShaAlgorithm } from '@peculiar/x509'
 import { toBeArray, toBigInt } from 'ethers'
 
 import { EDocument } from '@/utils/e-document/e-document'
@@ -26,18 +25,12 @@ import { PrivateRegisterIdentityBuilderGroth16 } from './types/RegisterIdentityB
 export class RegistrationCircuit {
   public prefixName = 'registerIdentity'
 
-  get hashAlgorithm() {
-    const hashAlgorithm = new ShaAlgorithm().toAsnAlgorithm(
-      this.eDoc.sod.x509SlaveCert.signatureAlgorithm.hash,
-    )
+  get sigAttrHashType() {
+    return this.eDoc.sod.signatures[0].digestAlgorithm
+  }
 
-    if (!hashAlgorithm?.algorithm) {
-      throw new TypeError(
-        `Unsupported hash algorithm: ${this.eDoc.sod.x509SlaveCert.signatureAlgorithm.hash.name}`,
-      )
-    }
-
-    return hashAlgorithm
+  get dgHashType() {
+    return this.eDoc.sod.ldsObject.algorithm
   }
 
   get docType() {
@@ -52,7 +45,7 @@ export class RegistrationCircuit {
   }
 
   get dg1Shift() {
-    const hash = computeHash(this.hashAlgorithm.algorithm, this.eDoc.dg1Bytes)
+    const hash = computeHash(this.dgHashType.algorithm, this.eDoc.dg1Bytes)
 
     return (
       Hex.encodeString(this.eDoc.sod.encapsulatedContent).split(Hex.encodeString(hash))[0].length /
@@ -61,15 +54,17 @@ export class RegistrationCircuit {
   }
 
   get encapContentShift() {
-    const hash = computeHash(this.hashAlgorithm.algorithm, this.eDoc.sod.encapsulatedContent)
+    const hash = computeHash(this.sigAttrHashType.algorithm, this.eDoc.sod.encapsulatedContent)
 
-    return Hex.encodeString(this.eDoc.sodBytes).split(Hex.encodeString(hash))[0].length / 2
+    return (
+      Hex.encodeString(this.eDoc.sod.signedAttributes).split(Hex.encodeString(hash))[0].length / 2
+    )
   }
 
   get dg15Shift() {
     if (!this.eDoc.dg15Bytes) return 0
 
-    const hash = computeHash(this.hashAlgorithm.algorithm, this.eDoc.dg15Bytes)
+    const hash = computeHash(this.dgHashType.algorithm, this.eDoc.dg15Bytes)
 
     return (
       Hex.encodeString(this.eDoc.sod.encapsulatedContent).split(Hex.encodeString(hash))[0].length /
@@ -83,13 +78,15 @@ export class RegistrationCircuit {
 
   get sigType() {
     const pubKey = extractPubKey(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo)
-    const hashAlgLen = HASH_ALGORITHMS[this.hashAlgorithm.algorithm].len
+    const hashAlgLen = HASH_ALGORITHMS[this.sigAttrHashType.algorithm].len
 
     if (pubKey instanceof RSAPublicKey) {
       const exponent = toBigInt(new Uint8Array(pubKey.publicExponent)).toString(16)
       const unpaddedModulus = new Uint8Array(
         pubKey.modulus[0] === 0x00 ? pubKey.modulus.slice(1) : pubKey.modulus,
       )
+
+      const unpaddedModulusHex = Hex.encodeString(unpaddedModulus)
 
       if (this.eDoc.sod.slaveCert.signatureAlgorithm.parameters) {
         const rsaSaPssParams = AsnConvert.parse(
@@ -98,7 +95,7 @@ export class RegistrationCircuit {
         )
 
         if (
-          unpaddedModulus.length === 512 &&
+          unpaddedModulusHex.length === 512 &&
           exponent === '3' &&
           rsaSaPssParams.saltLength === 32 &&
           hashAlgLen === 32
@@ -107,7 +104,7 @@ export class RegistrationCircuit {
         }
 
         if (
-          unpaddedModulus.length === 512 &&
+          unpaddedModulusHex.length === 512 &&
           exponent === '10001' &&
           rsaSaPssParams.saltLength === 32 &&
           hashAlgLen === 32
@@ -116,7 +113,7 @@ export class RegistrationCircuit {
         }
 
         if (
-          unpaddedModulus.length === 512 &&
+          unpaddedModulusHex.length === 512 &&
           exponent === '10001' &&
           rsaSaPssParams.saltLength === 64 &&
           hashAlgLen === 32
@@ -125,7 +122,7 @@ export class RegistrationCircuit {
         }
 
         if (
-          unpaddedModulus.length === 512 &&
+          unpaddedModulusHex.length === 512 &&
           exponent === '10001' &&
           rsaSaPssParams.saltLength === 48 &&
           hashAlgLen === 48
@@ -134,7 +131,7 @@ export class RegistrationCircuit {
         }
 
         if (
-          unpaddedModulus.length === 768 &&
+          unpaddedModulusHex.length === 768 &&
           exponent === '10001' &&
           rsaSaPssParams.saltLength === 32 &&
           hashAlgLen === 32
@@ -143,15 +140,15 @@ export class RegistrationCircuit {
         }
       }
 
-      if (unpaddedModulus.length === 512 && exponent === '10001' && hashAlgLen === 32) {
+      if (unpaddedModulusHex.length === 512 && exponent === '10001' && hashAlgLen === 32) {
         return 1
       }
 
-      if (unpaddedModulus.length === 1024 && exponent === '10001' && hashAlgLen === 32) {
+      if (unpaddedModulusHex.length === 1024 && exponent === '10001' && hashAlgLen === 32) {
         return 2
       }
 
-      if (unpaddedModulus.length === 512 && exponent === '10001' && hashAlgLen === 20) {
+      if (unpaddedModulusHex.length === 512 && exponent === '10001' && hashAlgLen === 20) {
         return 3
       }
 
@@ -192,8 +189,8 @@ export class RegistrationCircuit {
   }
 
   get name(): string {
-    const dgHashTypeLen = HASH_ALGORITHMS[this.hashAlgorithm.algorithm].len
-    const dgHashTypeLenBits = HASH_ALGORITHMS[this.hashAlgorithm.algorithm].len * 8
+    const dgHashTypeLen = HASH_ALGORITHMS[this.dgHashType.algorithm].len
+    const dgHashTypeLenBits = HASH_ALGORITHMS[this.dgHashType.algorithm].len * 8
 
     const ecChunkNumber =
       dgHashTypeLen <= 32
@@ -258,9 +255,12 @@ export class RegistrationCircuit {
     })()
     const aaShiftBytes = (() => {
       if (dg15PubKey instanceof RSAPublicKey) {
+        const unpaddedModulus =
+          dg15PubKey.modulus[0] === 0x00 ? dg15PubKey.modulus.slice(1) : dg15PubKey.modulus
+
         return (
           Hex.encodeString(this.eDoc.dg15Bytes).split(
-            Hex.encodeString(new Uint8Array(dg15PubKey.modulus)),
+            Hex.encodeString(new Uint8Array(unpaddedModulus)),
           )[0].length / 2
         )
       }

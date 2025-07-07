@@ -1,8 +1,15 @@
 import { time } from '@distributedlab/tools'
 import { Hex } from '@iden3/js-crypto'
 import { SOD } from '@li0ard/tsemrtd'
+import { LDSObject } from '@li0ard/tsemrtd/dist/asn1/sod'
 import { findMasterCertificate } from '@lukachi/rn-csca'
-import { CertificateSet, ContentInfo, id_signedData, SignedData } from '@peculiar/asn1-cms'
+import {
+  CertificateSet,
+  ContentInfo,
+  id_signedData,
+  SignedData,
+  SignerInfos,
+} from '@peculiar/asn1-cms'
 import { ECDSASigValue, ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
@@ -28,12 +35,17 @@ export class Sod {
   private sodBytes: Uint8Array
   private certSet: CertificateSet
 
+  public ldsObject: LDSObject
+  signatures: SignerInfos
+
   constructor(readonly sod: Uint8Array) {
     this.sodBytes = sod
 
-    const { certificates } = SOD.load(Buffer.from(sod))
+    const { certificates, ldsObject, signatures } = SOD.load(Buffer.from(sod))
 
+    this.ldsObject = ldsObject
     this.certSet = certificates
+    this.signatures = signatures
   }
 
   get bytes(): Uint8Array {
