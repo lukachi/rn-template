@@ -38,6 +38,7 @@ const withCircomFilesAndPolyfills = (config) => {
       'zkey',
       'dat',
       'pem',
+      'cer'
     ],
     extraNodeModules: {
       crypto: require.resolve('crypto-browserify'),

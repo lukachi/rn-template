@@ -39,7 +39,9 @@ export class NoirRegistrationCircuit extends RegistrationCircuit {
   public get chunkedParams() {
     const defaultChunkedParams = super.chunkedParams
 
-    const pubKey = extractPubKey(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo)
+    const pubKey = extractPubKey(
+      this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo,
+    )
 
     let reduction: string[] = []
 

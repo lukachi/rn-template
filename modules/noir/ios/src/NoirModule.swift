@@ -15,17 +15,17 @@ public class NoirModule: Module {
       guard let byteCodeData = utf8ByteCodeString.data(using: .utf8) else {
         throw NSError(domain: "NoirModule", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert bytecode string to Data"])
       }
-      
+
       guard let inputsDictionaryMap = try JSONSerialization.jsonObject(with: inputs.data(using: .utf8)!, options: []) as? [String: Any] else {
         throw NSError(domain: "NoirModule", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert inputs string to Dictionary"])
       }
 
       let circuit = try Swoir(backend: Swoirenberg.self).createCircuit(manifest: byteCodeData)
-      
+
       try circuit.setupSrs(srs_path: trustedSetupUri)
 
       let proof = try circuit.prove(inputsDictionaryMap, proof_type: "plonk")
-      
+
       return proof.proof
     }
   }

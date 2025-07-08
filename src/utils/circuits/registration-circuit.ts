@@ -76,11 +76,13 @@ export class RegistrationCircuit {
   }
 
   get chunkedParams() {
-    return RegistrationCircuit.getChunkedParams(this.eDoc.sod.slaveCert)
+    return RegistrationCircuit.getChunkedParams(this.eDoc.sod.slaveCertificate.certificate)
   }
 
   get sigType() {
-    const pubKey = extractPubKey(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo)
+    const pubKey = extractPubKey(
+      this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo,
+    )
     const hashAlgLen = HASH_ALGORITHMS[this.sigAttrHashType.algorithm].len
 
     if (pubKey instanceof RSAPublicKey) {
@@ -91,7 +93,7 @@ export class RegistrationCircuit {
 
       const unpaddedModulusHex = Hex.encodeString(unpaddedModulus)
 
-      if (this.eDoc.sod.slaveCert.signatureAlgorithm.parameters) {
+      if (this.eDoc.sod.slaveCertificate.certificate.signatureAlgorithm.parameters) {
         if (!this.eDoc.sod.signatures[0].signatureAlgorithm.parameters) {
           throw new TypeError('RSASSA-PSS public key does not have parameters')
         }
@@ -162,17 +164,23 @@ export class RegistrationCircuit {
       return 0
     }
 
-    if (!this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+    if (
+      !this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
+        .parameters
+    )
       throw new TypeError('ECDSA public key does not have parameters')
 
     const ecParameters = AsnConvert.parse(
-      this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+      this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
+        .parameters,
       ECParameters,
     )
 
     const [, namedCurve] = namedCurveFromParameters(
       ecParameters,
-      new Uint8Array(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+      new Uint8Array(
+        this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+      ),
     )
 
     if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
@@ -241,7 +249,7 @@ export class RegistrationCircuit {
       const [, namedCurve] = namedCurveFromParameters(
         ecParameters,
         new Uint8Array(
-          this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+          this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
         ),
       )
 
@@ -299,7 +307,9 @@ export class RegistrationCircuit {
   }
 
   get keySize() {
-    const pubKey = extractPubKey(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo)
+    const pubKey = extractPubKey(
+      this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo,
+    )
 
     if (pubKey instanceof RSAPublicKey) {
       return (
@@ -308,18 +318,24 @@ export class RegistrationCircuit {
       )
     }
 
-    if (!this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters) {
+    if (
+      !this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
+        .parameters
+    ) {
       throw new TypeError('ECDSA public key does not have parameters')
     }
 
     const ecParameters = AsnConvert.parse(
-      this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+      this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
+        .parameters,
       ECParameters,
     )
 
     const [, namedCurve] = namedCurveFromParameters(
       ecParameters,
-      new Uint8Array(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+      new Uint8Array(
+        this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+      ),
     )
 
     if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
@@ -341,7 +357,9 @@ export class RegistrationCircuit {
       dg15: this.eDoc.dg15Bytes,
       signedAttributes: this.eDoc.sod.signedAttributes,
       encapsulatedContent: this.eDoc.sod.encapsulatedContent,
-      pubkey: extractPubKey(this.eDoc.sod.slaveCert.tbsCertificate.subjectPublicKeyInfo),
+      pubkey: extractPubKey(
+        this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo,
+      ),
       signature: this.eDoc.sod.signature,
       skIdentity: params.skIdentity,
       slaveMerkleRoot: params.slaveMerkleRoot,

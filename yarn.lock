@@ -3843,15 +3843,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lukachi/rn-csca@npm:^0.1.3":
-  version: 0.1.3
-  resolution: "@lukachi/rn-csca@npm:0.1.3"
+"@lukachi/rn-csca@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@lukachi/rn-csca@npm:0.2.0"
   dependencies:
     uniffi-bindgen-react-native: "npm:^0.29.3-0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10/08802becf41d3402a691f473b13040e0398aa487585175474bffc58096cdf5a49e742618d7800af284502c0431b181d8b58e7cff20b0e2f23ba6f01613765862
+  checksum: 10/4ec5ee96fd591c4d3b8a011743ad3e63f92628d02e3ea0b0e5db49d9db3fc05e94829d672689dee8e755a1737751954d9ddc95dca85853b6a0894c700eabbeda
   languageName: node
   linkType: hard
 
@@ -19369,7 +19369,7 @@ __metadata:
     "@iden3/js-crypto": "npm:^1.3.1"
     "@iden3/js-merkletree": "npm:^1.5.0"
     "@li0ard/tsemrtd": "npm:^0.2.2"
-    "@lukachi/rn-csca": "npm:^0.1.3"
+    "@lukachi/rn-csca": "npm:^0.2.0"
     "@noble/curves": "npm:^1.9.2"
     "@peculiar/asn1-cert-transparency": "npm:^2.3.15"
     "@peculiar/asn1-cms": "npm:^2.3.15"

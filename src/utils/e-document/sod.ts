@@ -1,8 +1,5 @@
-import { time } from '@distributedlab/tools'
-import { Hex } from '@iden3/js-crypto'
 import { SOD } from '@li0ard/tsemrtd'
 import { LDSObject } from '@li0ard/tsemrtd/dist/asn1/sod'
-import { findMasterCertificate } from '@lukachi/rn-csca'
 import {
   CertificateSet,
   ContentInfo,
@@ -10,22 +7,12 @@ import {
   SignedData,
   SignerInfos,
 } from '@peculiar/asn1-cms'
-import { ECDSASigValue, ECParameters } from '@peculiar/asn1-ecc'
-import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert, AsnSerializer } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
-import * as x509 from '@peculiar/x509'
 import { fromBER, Set } from 'asn1js'
 import { Buffer } from 'buffer'
-import { getBytes, toBeArray, toBigInt, zeroPadBytes } from 'ethers'
 
-import {
-  getPublicKeyFromEcParameters,
-  hash512,
-  hash512P512,
-  hashPacked,
-  namedCurveFromParameters,
-} from './helpers/crypto'
+import { ExtendedCertificate } from './extended-cert'
 import { extractRawPubKey } from './helpers/misc'
 
 // TODO: maybe move remove
@@ -58,131 +45,133 @@ export class Sod {
     return new Uint8Array(result.valueBlock.toBER())
   }
 
-  /** Works */
-  get slaveCert(): Certificate {
-    if (!this.certSet[0].certificate) throw new TypeError('No certificate found in SOD')
+  get slaveCertificate(): ExtendedCertificate {
+    if (!this.certSet[0].certificate) {
+      throw new TypeError('No certificate found in SOD')
+    }
 
-    return this.certSet[0].certificate
+    return new ExtendedCertificate(this.certSet[0].certificate)
   }
 
   /** Works */
-  get x509SlaveCert(): x509.X509Certificate {
-    const der = AsnConvert.serialize(this.slaveCert)
-    return new x509.X509Certificate(der)
-  }
+  // get slaveCert(): Certificate {
+  //   if (!this.certSet[0].certificate) throw new TypeError('No certificate found in SOD')
+
+  //   return this.certSet[0].certificate
+  // }
 
   /** Works */
-  get slaveCertPubKeyOffset() {
-    const rawTbsCertHex = Buffer.from(AsnConvert.serialize(this.slaveCert.tbsCertificate)).toString(
-      'hex',
-    )
+  // get slaveCertPubKeyOffset() {
+  //   const rawTbsCertHex = Buffer.from(AsnConvert.serialize(this.slaveCert.tbsCertificate)).toString(
+  //     'hex',
+  //   )
 
-    if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
-    ) {
-      const rsaPub = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-        RSAPublicKey,
-      )
+  //   if (
+  //     this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
+  //   ) {
+  //     const rsaPub = AsnConvert.parse(
+  //       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+  //       RSAPublicKey,
+  //     )
 
-      return rawTbsCertHex.indexOf(Buffer.from(rsaPub.modulus).toString('hex')) / 2 + 1
-    }
+  //     return rawTbsCertHex.indexOf(Buffer.from(rsaPub.modulus).toString('hex')) / 2 + 1
+  //   }
 
-    if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
-        ECDSA_ALGO_PREFIX,
-      )
-    ) {
-      if (!this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
-        throw new TypeError('ECDSA public key does not have parameters')
+  //   if (
+  //     this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+  //       ECDSA_ALGO_PREFIX,
+  //     )
+  //   ) {
+  //     if (!this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+  //       throw new TypeError('ECDSA public key does not have parameters')
 
-      const ecParameters = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
-        ECParameters,
-      )
+  //     const ecParameters = AsnConvert.parse(
+  //       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+  //       ECParameters,
+  //     )
 
-      const [publicKey] = getPublicKeyFromEcParameters(
-        ecParameters,
-        new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
-      )
+  //     const [publicKey] = getPublicKeyFromEcParameters(
+  //       ecParameters,
+  //       new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+  //     )
 
-      if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
+  //     if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      return (
-        rawTbsCertHex.indexOf(
-          Buffer.from(
-            new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)]),
-          ).toString('hex'),
-        ) / 2
-      )
-    }
+  //     return (
+  //       rawTbsCertHex.indexOf(
+  //         Buffer.from(
+  //           new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)]),
+  //         ).toString('hex'),
+  //       ) / 2
+  //     )
+  //   }
 
-    throw new TypeError(
-      `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
-    )
-  }
-
-  /** Works */
-  get slaveCertExpOffset(): bigint {
-    const tbsCertificateHex = Buffer.from(
-      AsnConvert.serialize(this.slaveCert.tbsCertificate),
-    ).toString('hex')
-
-    if (!this.slaveCert.tbsCertificate.validity.notAfter.utcTime)
-      throw new TypeError('Expiration time not found in TBS Certificate')
-
-    const expirationHex = Buffer.from(
-      time(this.slaveCert.tbsCertificate.validity.notAfter.utcTime?.toISOString())
-        .utc()
-        .format('YYMMDDHHmmss[Z]'),
-      'utf-8',
-    ).toString('hex')
-
-    const index = tbsCertificateHex.indexOf(expirationHex)
-
-    if (index < 0) {
-      throw new TypeError('Expiration time not found in TBS Certificate')
-    }
-
-    return BigInt(index / 2) // index in bytes, not hex
-  }
+  //   throw new TypeError(
+  //     `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+  //   )
+  // }
 
   /** Works */
-  getSlaveCertIcaoMemberSignature(masterCert: Certificate): Uint8Array {
-    if (masterCert.signatureAlgorithm.algorithm.includes(id_pkcs_1)) {
-      return new Uint8Array(this.slaveCert.signatureValue)
-    }
+  // get slaveCertExpOffset(): bigint {
+  //   const tbsCertificateHex = Buffer.from(
+  //     AsnConvert.serialize(this.slaveCert.tbsCertificate),
+  //   ).toString('hex')
 
-    if (masterCert.signatureAlgorithm.algorithm.includes(ECDSA_ALGO_PREFIX)) {
-      if (!masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
-        throw new TypeError('ECDSA public key does not have parameters')
+  //   if (!this.slaveCert.tbsCertificate.validity.notAfter.utcTime)
+  //     throw new TypeError('Expiration time not found in TBS Certificate')
 
-      const ecParameters = AsnConvert.parse(
-        masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
-        ECParameters,
-      )
+  //   const expirationHex = Buffer.from(
+  //     time(this.slaveCert.tbsCertificate.validity.notAfter.utcTime?.toISOString())
+  //       .utc()
+  //       .format('YYMMDDHHmmss[Z]'),
+  //     'utf-8',
+  //   ).toString('hex')
 
-      const [, namedCurve] = namedCurveFromParameters(
-        ecParameters,
-        new Uint8Array(masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
-      )
+  //   const index = tbsCertificateHex.indexOf(expirationHex)
 
-      if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
+  //   if (index < 0) {
+  //     throw new TypeError('Expiration time not found in TBS Certificate')
+  //   }
 
-      const { r, s } = AsnConvert.parse(this.slaveCert.signatureValue, ECDSASigValue)
+  //   return BigInt(index / 2) // index in bytes, not hex
+  // }
 
-      const signature = new namedCurve.Signature(
-        toBigInt(new Uint8Array(r)),
-        toBigInt(new Uint8Array(s)),
-      )
+  /** Works */
+  // getSlaveCertIcaoMemberSignature(masterCert: Certificate): Uint8Array {
+  //   if (masterCert.signatureAlgorithm.algorithm.includes(id_pkcs_1)) {
+  //     return new Uint8Array(this.slaveCert.signatureValue)
+  //   }
 
-      return signature.normalizeS().toCompactRawBytes()
-    }
+  //   if (masterCert.signatureAlgorithm.algorithm.includes(ECDSA_ALGO_PREFIX)) {
+  //     if (!masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+  //       throw new TypeError('ECDSA public key does not have parameters')
 
-    throw new TypeError(
-      `Unsupported public key algorithm: ${this.slaveCert.signatureAlgorithm.algorithm}`,
-    )
-  }
+  //     const ecParameters = AsnConvert.parse(
+  //       masterCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+  //       ECParameters,
+  //     )
+
+  //     const [, namedCurve] = namedCurveFromParameters(
+  //       ecParameters,
+  //       new Uint8Array(masterCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+  //     )
+
+  //     if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
+
+  //     const { r, s } = AsnConvert.parse(this.slaveCert.signatureValue, ECDSASigValue)
+
+  //     const signature = new namedCurve.Signature(
+  //       toBigInt(new Uint8Array(r)),
+  //       toBigInt(new Uint8Array(s)),
+  //     )
+
+  //     return signature.normalizeS().toCompactRawBytes()
+  //   }
+
+  //   throw new TypeError(
+  //     `Unsupported public key algorithm: ${this.slaveCert.signatureAlgorithm.algorithm}`,
+  //   )
+  // }
 
   /** Works */
   getSlaveCertIcaoMemberKey(masterCert: Certificate): Uint8Array {
@@ -250,70 +239,70 @@ export class Sod {
   }
 
   /** Works */
-  async getSlaveMaster(CSCAs: ArrayBuffer[]) {
-    const master = findMasterCertificate(AsnConvert.serialize(this.slaveCert), CSCAs)
+  // async getSlaveMaster(CSCAs: ArrayBuffer[]) {
+  //   const master = findMasterCertificate(AsnConvert.serialize(this.slaveCert), CSCAs)
 
-    if (!master) throw new TypeError('Master certificate not found for slave certificate')
+  //   if (!master) throw new TypeError('Master certificate not found for slave certificate')
 
-    return AsnConvert.parse(new Uint8Array(master), Certificate)
-  }
+  //   return AsnConvert.parse(new Uint8Array(master), Certificate)
+  // }
 
   /** Works */
-  get slaveCertificateIndex(): Uint8Array {
-    if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
-    ) {
-      const rsa = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-        RSAPublicKey,
-      )
-      const modulusBytes = new Uint8Array(rsa.modulus)
-      const unpadded = modulusBytes[0] === 0x00 ? modulusBytes.subarray(1) : modulusBytes
+  // get slaveCertificateIndex(): Uint8Array {
+  //   if (
+  //     this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(id_pkcs_1)
+  //   ) {
+  //     const rsa = AsnConvert.parse(
+  //       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+  //       RSAPublicKey,
+  //     )
+  //     const modulusBytes = new Uint8Array(rsa.modulus)
+  //     const unpadded = modulusBytes[0] === 0x00 ? modulusBytes.subarray(1) : modulusBytes
 
-      return hashPacked(unpadded)
-    }
+  //     return hashPacked(unpadded)
+  //   }
 
-    if (
-      this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
-        ECDSA_ALGO_PREFIX,
-      )
-    ) {
-      if (!this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
-        throw new TypeError('ECDSA public key does not have parameters')
+  //   if (
+  //     this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+  //       ECDSA_ALGO_PREFIX,
+  //     )
+  //   ) {
+  //     if (!this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
+  //       throw new TypeError('ECDSA public key does not have parameters')
 
-      const ecParameters = AsnConvert.parse(
-        this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
-        ECParameters,
-      )
+  //     const ecParameters = AsnConvert.parse(
+  //       this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+  //       ECParameters,
+  //     )
 
-      const [publicKey, namedCurve] = getPublicKeyFromEcParameters(
-        ecParameters,
-        new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
-      )
+  //     const [publicKey, namedCurve] = getPublicKeyFromEcParameters(
+  //       ecParameters,
+  //       new Uint8Array(this.slaveCert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+  //     )
 
-      if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
+  //     if (!publicKey) throw new TypeError('Public key not found in TBS Certificate')
 
-      const rawPoint = new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)])
+  //     const rawPoint = new Uint8Array([...toBeArray(publicKey.px), ...toBeArray(publicKey.py)])
 
-      const nBitLength = Hex.decodeString(namedCurve.CURVE.n.toString(16)).length * 8
+  //     const nBitLength = Hex.decodeString(namedCurve.CURVE.n.toString(16)).length * 8
 
-      const hashedHex = (() => {
-        const paddedRaw = zeroPadBytes(rawPoint, 64)
+  //     const hashedHex = (() => {
+  //       const paddedRaw = zeroPadBytes(rawPoint, 64)
 
-        const paddedRawBytes = getBytes(paddedRaw)
+  //       const paddedRawBytes = getBytes(paddedRaw)
 
-        if (nBitLength === 512) {
-          return hash512P512(paddedRawBytes).toString(16)
-        }
+  //       if (nBitLength === 512) {
+  //         return hash512P512(paddedRawBytes).toString(16)
+  //       }
 
-        return hash512(paddedRawBytes).toString(16)
-      })()
+  //       return hash512(paddedRawBytes).toString(16)
+  //     })()
 
-      return Hex.decodeString(hashedHex)
-    }
+  //     return Hex.decodeString(hashedHex)
+  //   }
 
-    throw new TypeError(
-      `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
-    )
-  }
+  //   throw new TypeError(
+  //     `Unsupported public key algorithm: ${this.slaveCert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
+  //   )
+  // }
 }
