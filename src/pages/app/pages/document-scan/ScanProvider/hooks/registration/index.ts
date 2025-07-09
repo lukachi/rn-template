@@ -30,7 +30,7 @@ import { getCircuitHashAlgorithm } from '@/utils/circuits/helpers'
 import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
 import { EDocument } from '@/utils/e-document/e-document'
 import { getPublicKeyFromEcParameters } from '@/utils/e-document/helpers/crypto'
-import { ECDSA_ALGO_PREFIX } from '@/utils/e-document/sod'
+import { ECDSA_ALGO_PREFIX, Sod } from '@/utils/e-document/sod'
 
 const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
 
@@ -230,7 +230,7 @@ export const useRegistration = () => {
       }
       const icaoMember: Registration2.ICAOMemberStruct = {
         signature: tempEDoc.sod.slaveCertificate.getSlaveCertIcaoMemberSignature(masterCert),
-        publicKey: tempEDoc.sod.getSlaveCertIcaoMemberKey(masterCert),
+        publicKey: Sod.getSlaveCertIcaoMemberKey(masterCert),
       }
 
       return registrationContractInterface.encodeFunctionData('registerCertificate', [

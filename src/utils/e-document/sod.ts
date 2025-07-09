@@ -174,7 +174,7 @@ export class Sod {
   // }
 
   /** Works */
-  getSlaveCertIcaoMemberKey(masterCert: Certificate): Uint8Array {
+  static getSlaveCertIcaoMemberKey(masterCert: Certificate): Uint8Array {
     return extractRawPubKey(masterCert)
   }
 

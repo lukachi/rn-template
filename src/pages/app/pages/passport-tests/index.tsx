@@ -19,7 +19,8 @@ import { Registration__factory } from '@/types/contracts/factories/Registration_
 import { Registration2 } from '@/types/contracts/Registration'
 import { UiButton, UiScreenScrollable } from '@/ui'
 import { getCircuitHashAlgorithm } from '@/utils/circuits/helpers'
-import { ECDSA_ALGO_PREFIX, EDocument, PersonDetails } from '@/utils/e-document'
+import { ECDSA_ALGO_PREFIX, EDocument, PersonDetails, Sod } from '@/utils/e-document'
+import { ExtendedCertificate } from '@/utils/e-document/extended-cert'
 import { getPublicKeyFromEcParameters } from '@/utils/e-document/helpers/crypto'
 
 import ExampleCertReader from './NfcDemo'
@@ -28,7 +29,7 @@ const registrationContractInterface = Registration__factory.createInterface()
 
 const newBuildRegisterCertCallData = async (
   CSCABytes: ArrayBuffer[],
-  tempEDoc: EDocument,
+  extendedCertificate: ExtendedCertificate,
   masterCert: Certificate,
 ) => {
   const inclusionProofSiblings = buildCertTreeAndGenProof(
@@ -48,13 +49,12 @@ const newBuildRegisterCertCallData = async (
     if (masterSubjPubKeyAlg.includes(id_pkcs_1)) {
       const bits = (() => {
         if (
-          tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+          extendedCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
             id_pkcs_1,
           )
         ) {
           const slaveRSAPubKey = AsnConvert.parse(
-            tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo
-              .subjectPublicKey,
+            extendedCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
             RSAPublicKey,
           )
 
@@ -67,18 +67,18 @@ const newBuildRegisterCertCallData = async (
         }
 
         if (
-          tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+          extendedCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
             ECDSA_ALGO_PREFIX,
           )
         ) {
           if (
-            !tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
+            !extendedCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
               .parameters
           )
             throw new TypeError('ECDSA public key does not have parameters')
 
           const ecParameters = AsnConvert.parse(
-            tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
+            extendedCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
               .parameters,
             ECParameters,
           )
@@ -86,7 +86,7 @@ const newBuildRegisterCertCallData = async (
           const [publicKey] = getPublicKeyFromEcParameters(
             ecParameters,
             new Uint8Array(
-              tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+              extendedCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
             ),
           )
 
@@ -98,9 +98,7 @@ const newBuildRegisterCertCallData = async (
 
       let dispatcherName = `C_RSA`
 
-      const circuitHashAlgorithm = getCircuitHashAlgorithm(
-        tempEDoc.sod.slaveCertificate.certificate,
-      )
+      const circuitHashAlgorithm = getCircuitHashAlgorithm(extendedCertificate.certificate)
       if (circuitHashAlgorithm) {
         dispatcherName += `_${circuitHashAlgorithm}`
       }
@@ -116,8 +114,7 @@ const newBuildRegisterCertCallData = async (
       }
 
       if (
-        !tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
-          .parameters
+        !extendedCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters
       ) {
         throw new TypeError('Slave ECDSA public key does not have parameters')
       }
@@ -128,8 +125,7 @@ const newBuildRegisterCertCallData = async (
       )
 
       const slaveEcParameters = AsnConvert.parse(
-        tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
-          .parameters,
+        extendedCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
         ECParameters,
       )
 
@@ -141,7 +137,7 @@ const newBuildRegisterCertCallData = async (
       const [slaveCertPubKey] = getPublicKeyFromEcParameters(
         slaveEcParameters,
         new Uint8Array(
-          tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+          extendedCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
         ),
       )
 
@@ -154,9 +150,7 @@ const newBuildRegisterCertCallData = async (
 
       let dispatcherName = `C_ECDSA_${masterCertCurveName}`
 
-      const circuitHashAlgorithm = getCircuitHashAlgorithm(
-        tempEDoc.sod.slaveCertificate.certificate,
-      )
+      const circuitHashAlgorithm = getCircuitHashAlgorithm(extendedCertificate.certificate)
       if (circuitHashAlgorithm) {
         dispatcherName += `_${circuitHashAlgorithm}`
       }
@@ -176,15 +170,15 @@ const newBuildRegisterCertCallData = async (
   const certificate: Registration2.CertificateStruct = {
     dataType: dispatcherHash,
     signedAttributes: new Uint8Array(
-      AsnConvert.serialize(tempEDoc.sod.slaveCertificate.certificate.tbsCertificate),
+      AsnConvert.serialize(extendedCertificate.certificate.tbsCertificate),
     ),
-    keyOffset: tempEDoc.sod.slaveCertificate.slaveCertPubKeyOffset,
-    expirationOffset: tempEDoc.sod.slaveCertificate.slaveCertExpOffset,
+    keyOffset: extendedCertificate.slaveCertPubKeyOffset,
+    expirationOffset: extendedCertificate.slaveCertExpOffset,
   }
   console.log({ certificate })
   const icaoMember: Registration2.ICAOMemberStruct = {
-    signature: tempEDoc.sod.slaveCertificate.getSlaveCertIcaoMemberSignature(masterCert),
-    publicKey: tempEDoc.sod.getSlaveCertIcaoMemberKey(masterCert),
+    signature: extendedCertificate.getSlaveCertIcaoMemberSignature(masterCert),
+    publicKey: Sod.getSlaveCertIcaoMemberKey(masterCert),
   }
   console.log({ icaoMember })
 
@@ -305,9 +299,9 @@ export default function PassportTests() {
 
         // console.log(CSCACertBytes.length)
 
-        const callData = await newBuildRegisterCertCallData(CSCACertBytes, eDoc, slaveMaster)
+        // const callData = await newBuildRegisterCertCallData(CSCACertBytes, eDoc, slaveMaster)
 
-        console.log(callData)
+        // console.log(callData)
       } catch (error) {
         console.error('Error during test:', error)
       }
@@ -353,8 +347,24 @@ export default function PassportTests() {
 
     const signingCertFileContentBytes = Buffer.from(signingCertFileContent, 'base64')
 
-    console.log(AsnConvert.parse(signingCertFileContentBytes, Certificate))
-  }, [])
+    if (!(await FileSystem.getInfoAsync(icaopkdFileUri)).exists) {
+      await downloadResumable.downloadAsync()
+    }
+
+    const icaoLdif = await FileSystem.readAsStringAsync(icaopkdFileUri, {
+      encoding: FileSystem.EncodingType.UTF8,
+    })
+
+    const CSCACertBytes = parseLdifString(icaoLdif)
+
+    const sigCert = ExtendedCertificate.fromBytes(signingCertFileContentBytes)
+
+    const slaveMaster = await sigCert.getSlaveMaster(CSCACertBytes)
+
+    const callData = await newBuildRegisterCertCallData(CSCACertBytes, sigCert, slaveMaster)
+
+    console.log(callData)
+  }, [downloadResumable])
 
   return (
     <AppContainer>

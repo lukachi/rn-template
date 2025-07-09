@@ -130,7 +130,7 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                           backgroundColor: defaultDataWith6Colors[index],
                           borderRadius: 32,
                         }}
-                      />
+                      ></Animated.View>
                     </Pressable>
                   )
                 }}
