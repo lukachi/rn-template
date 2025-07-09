@@ -22,6 +22,8 @@ import { getCircuitHashAlgorithm } from '@/utils/circuits/helpers'
 import { ECDSA_ALGO_PREFIX, EDocument, PersonDetails } from '@/utils/e-document'
 import { getPublicKeyFromEcParameters } from '@/utils/e-document/helpers/crypto'
 
+import ExampleCertReader from './NfcDemo'
+
 const registrationContractInterface = Registration__factory.createInterface()
 
 const newBuildRegisterCertCallData = async (
@@ -366,6 +368,7 @@ export default function PassportTests() {
         className='gap-3'
       >
         <View className='flex gap-4'>
+          <ExampleCertReader />
           <UiButton disabled={isSubmitting} onPress={testCert} title='Test Cert' />
           <UiButton
             disabled={isSubmitting}
