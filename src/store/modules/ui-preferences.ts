@@ -1,4 +1,3 @@
-import type { PersonDetails } from '@modules/e-document'
 import { useCallback, useMemo } from 'react'
 import type { ImageBackgroundProps, TextProps, ViewProps } from 'react-native'
 import { create } from 'zustand'
@@ -7,6 +6,7 @@ import { combine, createJSONStorage, persist } from 'zustand/middleware'
 import { translate } from '@/core'
 import { zustandStorage } from '@/store/helpers'
 import { useAppTheme } from '@/theme'
+import { PersonDetails } from '@/utils/e-document'
 
 export type DocumentCardUi = {
   title: string

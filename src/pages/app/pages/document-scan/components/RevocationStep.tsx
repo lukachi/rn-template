@@ -2,86 +2,24 @@ import {
   EDocumentModuleEvents,
   EDocumentModuleListener,
   EDocumentModuleRemoveAllListeners,
-  scanDocument,
 } from '@modules/e-document'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 
-import { ErrorHandler } from '@/core'
-import {
-  rejectRevocationEDoc,
-  resolveRevocationEDoc,
-  useDocumentScanContext,
-} from '@/pages/app/pages/document-scan/context'
-import { walletStore } from '@/store'
 import { UiButton, UiIcon } from '@/ui'
 
+import { useDocumentScanContext } from '../ScanProvider'
+
 export default function RevocationStep() {
-  const { mrz, eDoc, getRevocationChallenge } = useDocumentScanContext()
-
-  const pk = walletStore.useWalletStore(state => state.privateKey)
-
+  const { revokeIdentity } = useDocumentScanContext()
   const [isScanning, setIsScanning] = useState(false)
 
   const [title, setTitle] = useState('Scan NFC')
 
-  const startScanListener = useCallback(async () => {
-    if (
-      !pk ||
-      !eDoc ||
-      !mrz?.birthDate ||
-      !mrz?.documentNumber ||
-      !mrz?.expirationDate ||
-      !mrz?.documentCode
-    )
-      return
-
-    setIsScanning(true)
-
-    try {
-      const challenge = await getRevocationChallenge()
-
-      const eDocumentResponse = await scanDocument(
-        mrz.documentCode,
-        {
-          dateOfBirth: mrz.birthDate,
-          dateOfExpiry: mrz.expirationDate,
-          documentNumber: mrz.documentNumber,
-        },
-        challenge,
-      )
-
-      resolveRevocationEDoc({
-        ...(eDoc || eDocumentResponse),
-        signature: eDocumentResponse.signature,
-      })
-    } catch (error) {
-      ErrorHandler.process(error)
-      rejectRevocationEDoc(error)
-    }
-
-    setIsScanning(false)
-  }, [
-    eDoc,
-    getRevocationChallenge,
-    mrz?.birthDate,
-    mrz?.documentCode,
-    mrz?.documentNumber,
-    mrz?.expirationDate,
-    pk,
-  ])
-
-  useEffect(() => {
-    if (isScanning) return
-
-    startScanListener()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   useEffect(() => {
     EDocumentModuleListener(EDocumentModuleEvents.ScanStarted, () => {
       setTitle('ScanStarted')
+      setIsScanning(true)
     })
     EDocumentModuleListener(EDocumentModuleEvents.RequestPresentPassport, () => {
       setTitle('RequestPresentPassport')
@@ -100,9 +38,11 @@ export default function RevocationStep() {
     })
     EDocumentModuleListener(EDocumentModuleEvents.ScanError, () => {
       setTitle('ScanError')
+      setIsScanning(false)
     })
     EDocumentModuleListener(EDocumentModuleEvents.ScanStopped, () => {
       setTitle('ScanStopped')
+      setIsScanning(false)
     })
 
     return () => {
@@ -126,7 +66,7 @@ export default function RevocationStep() {
           <UiIcon customIcon='bellFillIcon' className='size-[120] text-textPrimary' />
         </View>
       ) : (
-        <UiButton onPress={startScanListener} title='Try Scan Again' />
+        <UiButton onPress={revokeIdentity} title='Try Scan Again' />
       )}
     </View>
   )

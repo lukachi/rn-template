@@ -55,81 +55,74 @@ export interface StateKeeperInterface extends Interface {
   getFunction(
     nameOrSignature:
       | 'ICAO_PREFIX'
-      | 'MAGIC_ID'
-      | 'P'
       | 'REVOKED'
+      | 'UPGRADE_INTERFACE_VERSION'
       | 'USED'
       | '__StateKeeper_init'
       | 'addBond'
       | 'addCertificate'
+      | 'addOwners'
       | 'certificatesSmt'
-      | 'chainName'
       | 'changeICAOMasterTreeRoot'
-      | 'changeSigner'
       | 'getCertificateInfo'
-      | 'getNonce'
+      | 'getOwners'
       | 'getPassportInfo'
       | 'getRegistrationByKey'
       | 'getRegistrations'
       | 'icaoMasterTreeMerkleRoot'
       | 'implementation'
+      | 'isOwner'
       | 'isRegistration'
       | 'proxiableUUID'
       | 'registrationSmt'
       | 'reissueBondIdentity'
       | 'removeCertificate'
+      | 'removeOwners'
+      | 'renounceOwnership'
       | 'revokeBond'
-      | 'signer'
       | 'updateRegistrationSet'
-      | 'upgradeTo'
       | 'upgradeToAndCall'
-      | 'upgradeToAndCallWithProof'
-      | 'upgradeToWithProof'
       | 'useSignature'
       | 'usedSignatures',
   ): FunctionFragment
 
   getEvent(
     nameOrSignatureOrTopic:
-      | 'AdminChanged'
-      | 'BeaconUpgraded'
       | 'BondAdded'
       | 'BondIdentityReissued'
       | 'BondRevoked'
       | 'CertificateAdded'
       | 'CertificateRemoved'
       | 'Initialized'
+      | 'OwnersAdded'
+      | 'OwnersRemoved'
       | 'Upgraded',
   ): EventFragment
 
   encodeFunctionData(functionFragment: 'ICAO_PREFIX', values?: undefined): string
-  encodeFunctionData(functionFragment: 'MAGIC_ID', values?: undefined): string
-  encodeFunctionData(functionFragment: 'P', values?: undefined): string
   encodeFunctionData(functionFragment: 'REVOKED', values?: undefined): string
+  encodeFunctionData(functionFragment: 'UPGRADE_INTERFACE_VERSION', values?: undefined): string
   encodeFunctionData(functionFragment: 'USED', values?: undefined): string
   encodeFunctionData(
     functionFragment: '__StateKeeper_init',
-    values: [AddressLike, string, AddressLike, AddressLike, BytesLike],
+    values: [AddressLike, AddressLike, AddressLike, BytesLike],
   ): string
   encodeFunctionData(
     functionFragment: 'addBond',
     values: [BytesLike, BytesLike, BytesLike, BigNumberish],
   ): string
   encodeFunctionData(functionFragment: 'addCertificate', values: [BytesLike, BigNumberish]): string
+  encodeFunctionData(functionFragment: 'addOwners', values: [AddressLike[]]): string
   encodeFunctionData(functionFragment: 'certificatesSmt', values?: undefined): string
-  encodeFunctionData(functionFragment: 'chainName', values?: undefined): string
-  encodeFunctionData(
-    functionFragment: 'changeICAOMasterTreeRoot',
-    values: [BytesLike, BigNumberish, BytesLike],
-  ): string
-  encodeFunctionData(functionFragment: 'changeSigner', values: [BytesLike, BytesLike]): string
+  encodeFunctionData(functionFragment: 'changeICAOMasterTreeRoot', values: [BytesLike]): string
   encodeFunctionData(functionFragment: 'getCertificateInfo', values: [BytesLike]): string
-  encodeFunctionData(functionFragment: 'getNonce', values: [BigNumberish]): string
+  encodeFunctionData(functionFragment: 'getOwners', values?: undefined): string
   encodeFunctionData(functionFragment: 'getPassportInfo', values: [BytesLike]): string
   encodeFunctionData(functionFragment: 'getRegistrationByKey', values: [string]): string
   encodeFunctionData(functionFragment: 'getRegistrations', values?: undefined): string
   encodeFunctionData(functionFragment: 'icaoMasterTreeMerkleRoot', values?: undefined): string
   encodeFunctionData(functionFragment: 'implementation', values?: undefined): string
+  encodeFunctionData(functionFragment: 'isOwner', values: [AddressLike]): string
   encodeFunctionData(functionFragment: 'isRegistration', values: [AddressLike]): string
   encodeFunctionData(functionFragment: 'proxiableUUID', values?: undefined): string
   encodeFunctionData(functionFragment: 'registrationSmt', values?: undefined): string
@@ -138,83 +131,47 @@ export interface StateKeeperInterface extends Interface {
     values: [BytesLike, BytesLike, BigNumberish],
   ): string
   encodeFunctionData(functionFragment: 'removeCertificate', values: [BytesLike]): string
+  encodeFunctionData(functionFragment: 'removeOwners', values: [AddressLike[]]): string
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string
   encodeFunctionData(functionFragment: 'revokeBond', values: [BytesLike, BytesLike]): string
-  encodeFunctionData(functionFragment: 'signer', values?: undefined): string
   encodeFunctionData(
     functionFragment: 'updateRegistrationSet',
-    values: [BigNumberish, BytesLike, BytesLike],
+    values: [BigNumberish, BytesLike],
   ): string
-  encodeFunctionData(functionFragment: 'upgradeTo', values: [AddressLike]): string
   encodeFunctionData(functionFragment: 'upgradeToAndCall', values: [AddressLike, BytesLike]): string
-  encodeFunctionData(
-    functionFragment: 'upgradeToAndCallWithProof',
-    values: [AddressLike, BytesLike, BytesLike],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'upgradeToWithProof',
-    values: [AddressLike, BytesLike],
-  ): string
   encodeFunctionData(functionFragment: 'useSignature', values: [BytesLike]): string
   encodeFunctionData(functionFragment: 'usedSignatures', values: [BytesLike]): string
 
   decodeFunctionResult(functionFragment: 'ICAO_PREFIX', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'MAGIC_ID', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'P', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'REVOKED', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'UPGRADE_INTERFACE_VERSION', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'USED', data: BytesLike): Result
   decodeFunctionResult(functionFragment: '__StateKeeper_init', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'addBond', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'addCertificate', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'addOwners', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'certificatesSmt', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'chainName', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'changeICAOMasterTreeRoot', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'changeSigner', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'getCertificateInfo', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'getNonce', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'getOwners', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'getPassportInfo', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'getRegistrationByKey', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'getRegistrations', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'icaoMasterTreeMerkleRoot', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'implementation', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'isOwner', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'isRegistration', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'proxiableUUID', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'registrationSmt', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'reissueBondIdentity', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'removeCertificate', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'removeOwners', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'revokeBond', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'signer', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'updateRegistrationSet', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'upgradeTo', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'upgradeToAndCall', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'upgradeToAndCallWithProof', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'upgradeToWithProof', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'useSignature', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'usedSignatures', data: BytesLike): Result
-}
-
-export namespace AdminChangedEvent {
-  export type InputTuple = [previousAdmin: AddressLike, newAdmin: AddressLike]
-  export type OutputTuple = [previousAdmin: string, newAdmin: string]
-  export interface OutputObject {
-    previousAdmin: string
-    newAdmin: string
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
-}
-
-export namespace BeaconUpgradedEvent {
-  export type InputTuple = [beacon: AddressLike]
-  export type OutputTuple = [beacon: string]
-  export interface OutputObject {
-    beacon: string
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
 }
 
 export namespace BondAddedEvent {
@@ -293,6 +250,30 @@ export namespace InitializedEvent {
   export type LogDescription = TypedLogDescription<Event>
 }
 
+export namespace OwnersAddedEvent {
+  export type InputTuple = [newOwners: AddressLike[]]
+  export type OutputTuple = [newOwners: string[]]
+  export interface OutputObject {
+    newOwners: string[]
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
+}
+
+export namespace OwnersRemovedEvent {
+  export type InputTuple = [removedOwners: AddressLike[]]
+  export type OutputTuple = [removedOwners: string[]]
+  export interface OutputObject {
+    removedOwners: string[]
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
+}
+
 export namespace UpgradedEvent {
   export type InputTuple = [implementation: AddressLike]
   export type OutputTuple = [implementation: string]
@@ -348,18 +329,15 @@ export interface StateKeeper extends BaseContract {
 
   ICAO_PREFIX: TypedContractMethod<[], [string], 'view'>
 
-  MAGIC_ID: TypedContractMethod<[], [bigint], 'view'>
-
-  P: TypedContractMethod<[], [bigint], 'view'>
-
   REVOKED: TypedContractMethod<[], [string], 'view'>
+
+  UPGRADE_INTERFACE_VERSION: TypedContractMethod<[], [string], 'view'>
 
   USED: TypedContractMethod<[], [string], 'view'>
 
   __StateKeeper_init: TypedContractMethod<
     [
-      signer_: AddressLike,
-      chainName_: string,
+      initialOwner_: AddressLike,
       registrationSmt_: AddressLike,
       certificatesSmt_: AddressLike,
       icaoMasterTreeMerkleRoot_: BytesLike,
@@ -385,21 +363,11 @@ export interface StateKeeper extends BaseContract {
     'nonpayable'
   >
 
+  addOwners: TypedContractMethod<[newOwners_: AddressLike[]], [void], 'nonpayable'>
+
   certificatesSmt: TypedContractMethod<[], [string], 'view'>
 
-  chainName: TypedContractMethod<[], [string], 'view'>
-
-  changeICAOMasterTreeRoot: TypedContractMethod<
-    [newRoot_: BytesLike, timestamp: BigNumberish, proof_: BytesLike],
-    [void],
-    'nonpayable'
-  >
-
-  changeSigner: TypedContractMethod<
-    [newSignerPubKey_: BytesLike, signature_: BytesLike],
-    [void],
-    'nonpayable'
-  >
+  changeICAOMasterTreeRoot: TypedContractMethod<[newRoot_: BytesLike], [void], 'nonpayable'>
 
   getCertificateInfo: TypedContractMethod<
     [certificateKey_: BytesLike],
@@ -407,7 +375,7 @@ export interface StateKeeper extends BaseContract {
     'view'
   >
 
-  getNonce: TypedContractMethod<[methodId_: BigNumberish], [bigint], 'view'>
+  getOwners: TypedContractMethod<[], [string[]], 'view'>
 
   getPassportInfo: TypedContractMethod<
     [passportKey_: BytesLike],
@@ -432,6 +400,8 @@ export interface StateKeeper extends BaseContract {
 
   implementation: TypedContractMethod<[], [string], 'view'>
 
+  isOwner: TypedContractMethod<[address_: AddressLike], [boolean], 'view'>
+
   isRegistration: TypedContractMethod<[registration_: AddressLike], [boolean], 'view'>
 
   proxiableUUID: TypedContractMethod<[], [string], 'view'>
@@ -446,6 +416,10 @@ export interface StateKeeper extends BaseContract {
 
   removeCertificate: TypedContractMethod<[certificateKey_: BytesLike], [void], 'nonpayable'>
 
+  removeOwners: TypedContractMethod<[oldOwners_: AddressLike[]], [void], 'nonpayable'>
+
+  renounceOwnership: TypedContractMethod<[], [void], 'nonpayable'>
+
   revokeBond: TypedContractMethod<
     [passportKey_: BytesLike, identityKey_: BytesLike],
     [void],
@@ -453,29 +427,15 @@ export interface StateKeeper extends BaseContract {
   >
 
   updateRegistrationSet: TypedContractMethod<
-    [methodId_: BigNumberish, data_: BytesLike, proof_: BytesLike],
+    [methodId_: BigNumberish, data_: BytesLike],
     [void],
     'nonpayable'
   >
-
-  upgradeTo: TypedContractMethod<[newImplementation: AddressLike], [void], 'nonpayable'>
 
   upgradeToAndCall: TypedContractMethod<
     [newImplementation: AddressLike, data: BytesLike],
     [void],
     'payable'
-  >
-
-  upgradeToAndCallWithProof: TypedContractMethod<
-    [newImplementation_: AddressLike, proof_: BytesLike, data_: BytesLike],
-    [void],
-    'nonpayable'
-  >
-
-  upgradeToWithProof: TypedContractMethod<
-    [newImplementation_: AddressLike, proof_: BytesLike],
-    [void],
-    'nonpayable'
   >
 
   useSignature: TypedContractMethod<[sigHash_: BytesLike], [void], 'nonpayable'>
@@ -485,16 +445,16 @@ export interface StateKeeper extends BaseContract {
   getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T
 
   getFunction(nameOrSignature: 'ICAO_PREFIX'): TypedContractMethod<[], [string], 'view'>
-  getFunction(nameOrSignature: 'MAGIC_ID'): TypedContractMethod<[], [bigint], 'view'>
-  getFunction(nameOrSignature: 'P'): TypedContractMethod<[], [bigint], 'view'>
   getFunction(nameOrSignature: 'REVOKED'): TypedContractMethod<[], [string], 'view'>
+  getFunction(
+    nameOrSignature: 'UPGRADE_INTERFACE_VERSION',
+  ): TypedContractMethod<[], [string], 'view'>
   getFunction(nameOrSignature: 'USED'): TypedContractMethod<[], [string], 'view'>
   getFunction(
     nameOrSignature: '__StateKeeper_init',
   ): TypedContractMethod<
     [
-      signer_: AddressLike,
-      chainName_: string,
+      initialOwner_: AddressLike,
       registrationSmt_: AddressLike,
       certificatesSmt_: AddressLike,
       icaoMasterTreeMerkleRoot_: BytesLike,
@@ -521,18 +481,13 @@ export interface StateKeeper extends BaseContract {
     [void],
     'nonpayable'
   >
+  getFunction(
+    nameOrSignature: 'addOwners',
+  ): TypedContractMethod<[newOwners_: AddressLike[]], [void], 'nonpayable'>
   getFunction(nameOrSignature: 'certificatesSmt'): TypedContractMethod<[], [string], 'view'>
-  getFunction(nameOrSignature: 'chainName'): TypedContractMethod<[], [string], 'view'>
   getFunction(
     nameOrSignature: 'changeICAOMasterTreeRoot',
-  ): TypedContractMethod<
-    [newRoot_: BytesLike, timestamp: BigNumberish, proof_: BytesLike],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'changeSigner',
-  ): TypedContractMethod<[newSignerPubKey_: BytesLike, signature_: BytesLike], [void], 'nonpayable'>
+  ): TypedContractMethod<[newRoot_: BytesLike], [void], 'nonpayable'>
   getFunction(
     nameOrSignature: 'getCertificateInfo',
   ): TypedContractMethod<
@@ -540,9 +495,7 @@ export interface StateKeeper extends BaseContract {
     [StateKeeper.CertificateInfoStructOutput],
     'view'
   >
-  getFunction(
-    nameOrSignature: 'getNonce',
-  ): TypedContractMethod<[methodId_: BigNumberish], [bigint], 'view'>
+  getFunction(nameOrSignature: 'getOwners'): TypedContractMethod<[], [string[]], 'view'>
   getFunction(nameOrSignature: 'getPassportInfo'): TypedContractMethod<
     [passportKey_: BytesLike],
     [
@@ -568,6 +521,9 @@ export interface StateKeeper extends BaseContract {
   ): TypedContractMethod<[], [string], 'view'>
   getFunction(nameOrSignature: 'implementation'): TypedContractMethod<[], [string], 'view'>
   getFunction(
+    nameOrSignature: 'isOwner',
+  ): TypedContractMethod<[address_: AddressLike], [boolean], 'view'>
+  getFunction(
     nameOrSignature: 'isRegistration',
   ): TypedContractMethod<[registration_: AddressLike], [boolean], 'view'>
   getFunction(nameOrSignature: 'proxiableUUID'): TypedContractMethod<[], [string], 'view'>
@@ -583,32 +539,18 @@ export interface StateKeeper extends BaseContract {
     nameOrSignature: 'removeCertificate',
   ): TypedContractMethod<[certificateKey_: BytesLike], [void], 'nonpayable'>
   getFunction(
+    nameOrSignature: 'removeOwners',
+  ): TypedContractMethod<[oldOwners_: AddressLike[]], [void], 'nonpayable'>
+  getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>
+  getFunction(
     nameOrSignature: 'revokeBond',
   ): TypedContractMethod<[passportKey_: BytesLike, identityKey_: BytesLike], [void], 'nonpayable'>
-  getFunction(nameOrSignature: 'signer'): TypedContractMethod<[], [string], 'view'>
   getFunction(
     nameOrSignature: 'updateRegistrationSet',
-  ): TypedContractMethod<
-    [methodId_: BigNumberish, data_: BytesLike, proof_: BytesLike],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'upgradeTo',
-  ): TypedContractMethod<[newImplementation: AddressLike], [void], 'nonpayable'>
+  ): TypedContractMethod<[methodId_: BigNumberish, data_: BytesLike], [void], 'nonpayable'>
   getFunction(
     nameOrSignature: 'upgradeToAndCall',
   ): TypedContractMethod<[newImplementation: AddressLike, data: BytesLike], [void], 'payable'>
-  getFunction(
-    nameOrSignature: 'upgradeToAndCallWithProof',
-  ): TypedContractMethod<
-    [newImplementation_: AddressLike, proof_: BytesLike, data_: BytesLike],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'upgradeToWithProof',
-  ): TypedContractMethod<[newImplementation_: AddressLike, proof_: BytesLike], [void], 'nonpayable'>
   getFunction(
     nameOrSignature: 'useSignature',
   ): TypedContractMethod<[sigHash_: BytesLike], [void], 'nonpayable'>
@@ -616,20 +558,6 @@ export interface StateKeeper extends BaseContract {
     nameOrSignature: 'usedSignatures',
   ): TypedContractMethod<[arg0: BytesLike], [boolean], 'view'>
 
-  getEvent(
-    key: 'AdminChanged',
-  ): TypedContractEvent<
-    AdminChangedEvent.InputTuple,
-    AdminChangedEvent.OutputTuple,
-    AdminChangedEvent.OutputObject
-  >
-  getEvent(
-    key: 'BeaconUpgraded',
-  ): TypedContractEvent<
-    BeaconUpgradedEvent.InputTuple,
-    BeaconUpgradedEvent.OutputTuple,
-    BeaconUpgradedEvent.OutputObject
-  >
   getEvent(
     key: 'BondAdded',
   ): TypedContractEvent<
@@ -673,6 +601,20 @@ export interface StateKeeper extends BaseContract {
     InitializedEvent.OutputObject
   >
   getEvent(
+    key: 'OwnersAdded',
+  ): TypedContractEvent<
+    OwnersAddedEvent.InputTuple,
+    OwnersAddedEvent.OutputTuple,
+    OwnersAddedEvent.OutputObject
+  >
+  getEvent(
+    key: 'OwnersRemoved',
+  ): TypedContractEvent<
+    OwnersRemovedEvent.InputTuple,
+    OwnersRemovedEvent.OutputTuple,
+    OwnersRemovedEvent.OutputObject
+  >
+  getEvent(
     key: 'Upgraded',
   ): TypedContractEvent<
     UpgradedEvent.InputTuple,
@@ -681,28 +623,6 @@ export interface StateKeeper extends BaseContract {
   >
 
   filters: {
-    'AdminChanged(address,address)': TypedContractEvent<
-      AdminChangedEvent.InputTuple,
-      AdminChangedEvent.OutputTuple,
-      AdminChangedEvent.OutputObject
-    >
-    AdminChanged: TypedContractEvent<
-      AdminChangedEvent.InputTuple,
-      AdminChangedEvent.OutputTuple,
-      AdminChangedEvent.OutputObject
-    >
-
-    'BeaconUpgraded(address)': TypedContractEvent<
-      BeaconUpgradedEvent.InputTuple,
-      BeaconUpgradedEvent.OutputTuple,
-      BeaconUpgradedEvent.OutputObject
-    >
-    BeaconUpgraded: TypedContractEvent<
-      BeaconUpgradedEvent.InputTuple,
-      BeaconUpgradedEvent.OutputTuple,
-      BeaconUpgradedEvent.OutputObject
-    >
-
     'BondAdded(bytes32,bytes32)': TypedContractEvent<
       BondAddedEvent.InputTuple,
       BondAddedEvent.OutputTuple,
@@ -758,7 +678,7 @@ export interface StateKeeper extends BaseContract {
       CertificateRemovedEvent.OutputObject
     >
 
-    'Initialized(uint8)': TypedContractEvent<
+    'Initialized(uint64)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -767,6 +687,28 @@ export interface StateKeeper extends BaseContract {
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
+    >
+
+    'OwnersAdded(address[])': TypedContractEvent<
+      OwnersAddedEvent.InputTuple,
+      OwnersAddedEvent.OutputTuple,
+      OwnersAddedEvent.OutputObject
+    >
+    OwnersAdded: TypedContractEvent<
+      OwnersAddedEvent.InputTuple,
+      OwnersAddedEvent.OutputTuple,
+      OwnersAddedEvent.OutputObject
+    >
+
+    'OwnersRemoved(address[])': TypedContractEvent<
+      OwnersRemovedEvent.InputTuple,
+      OwnersRemovedEvent.OutputTuple,
+      OwnersRemovedEvent.OutputObject
+    >
+    OwnersRemoved: TypedContractEvent<
+      OwnersRemovedEvent.InputTuple,
+      OwnersRemovedEvent.OutputTuple,
+      OwnersRemovedEvent.OutputObject
     >
 
     'Upgraded(address)': TypedContractEvent<

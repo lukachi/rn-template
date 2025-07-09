@@ -7,8 +7,8 @@ import { Platform } from 'react-native'
 
 import EDocumentModule from './src/EDocumentModule'
 import type { EDocumentModuleEvents } from './src/enums'
-import { getDocType, parseDocumentAndroid, parseDocumentIOS } from './src/helpers'
-import type { EDocument } from './src/types'
+import get from 'lodash/get'
+import { EDocument } from '@/utils/e-document'
 
 export async function scanDocument(
   documentCode: string,
@@ -19,12 +19,6 @@ export async function scanDocument(
   },
   challenge: Uint8Array,
 ): Promise<EDocument> {
-  const docType = getDocType(documentCode)
-
-  if (!docType) {
-    throw new TypeError('Unsupported document type')
-  }
-
   const eDocumentString = await EDocumentModule.scanDocument(
     JSON.stringify(bacKeyParameters),
     new Uint8Array(challenge),
@@ -33,36 +27,48 @@ export async function scanDocument(
   const eDocumentJson = JSON.parse(eDocumentString)
 
   if (Platform.OS === 'ios') {
-    return parseDocumentIOS(eDocumentJson, docType)
+    return new EDocument({
+      docCode: documentCode,
+      personDetails: {
+        firstName: get(eDocumentJson, 'personDetails.firstName', null),
+        lastName: get(eDocumentJson, 'personDetails.lastName', null),
+        gender: get(eDocumentJson, 'personDetails.gender', null),
+        birthDate: get(eDocumentJson, 'personDetails.dateOfBirth', null),
+        expiryDate: get(eDocumentJson, 'personDetails.documentExpiryDate', null),
+        documentNumber: get(eDocumentJson, 'personDetails.documentNumber', null),
+        nationality: get(eDocumentJson, 'personDetails.nationality', null),
+        issuingAuthority: get(eDocumentJson, 'personDetails.issuingAuthority', null),
+        passportImageRaw: get(eDocumentJson, 'personDetails.passportImageRaw', null),
+      },
+      sodBytes: Buffer.from(get(eDocumentJson, 'sod', ''), 'base64'),
+      dg1Bytes: Buffer.from(get(eDocumentJson, 'dg1', ''), 'base64'),
+      dg15Bytes: Buffer.from(get(eDocumentJson, 'dg15', ''), 'base64'),
+      dg11Bytes: Buffer.from(get(eDocumentJson, 'dg11', ''), 'base64'),
+      aaSignature: Buffer.from(get(eDocumentJson, 'signature', ''), 'base64'),
+    })
   } else if (Platform.OS === 'android') {
-    return parseDocumentAndroid(eDocumentJson, docType)
+    return new EDocument({
+      docCode: documentCode,
+      personDetails: {
+        firstName: get(eDocumentJson, 'personDetails.primaryIdentifier', null),
+        lastName: get(eDocumentJson, 'personDetails.secondaryIdentifier', null),
+        gender: get(eDocumentJson, 'personDetails.gender', null),
+        birthDate: get(eDocumentJson, 'personDetails.dateOfBirth', null),
+        expiryDate: get(eDocumentJson, 'personDetails.dateOfExpiry', null),
+        documentNumber: get(eDocumentJson, 'personDetails.documentNumber', null),
+        nationality: get(eDocumentJson, 'personDetails.nationality', null),
+        issuingAuthority: get(eDocumentJson, 'personDetails.issuingState', null),
+        passportImageRaw: get(eDocumentJson, 'personDetails.passportImageRaw', null),
+      },
+      sodBytes: Buffer.from(get(eDocumentJson, 'sod', ''), 'base64'),
+      dg1Bytes: Buffer.from(get(eDocumentJson, 'dg1', ''), 'base64'),
+      dg15Bytes: Buffer.from(get(eDocumentJson, 'dg15', ''), 'base64'),
+      dg11Bytes: Buffer.from(get(eDocumentJson, 'dg11', ''), 'base64'),
+      aaSignature: Buffer.from(get(eDocumentJson, 'signature', ''), 'base64'),
+    })
   }
 
   throw new TypeError('Unsupported platform')
-}
-
-export async function getPublicKeyPem(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getPublicKeyPem(new Uint8Array(sod))
-}
-
-export async function getSlaveCertificatePem(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getSlaveCertificatePem(new Uint8Array(sod))
-}
-
-export async function getSodEncapsulatedContent(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getSodEncapsulatedContent(new Uint8Array(sod))
-}
-
-export async function getSodSignedAttributes(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getSodSignedAttributes(new Uint8Array(sod))
-}
-
-export async function getSodSignature(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getSodSignature(new Uint8Array(sod))
-}
-
-export async function getDG15PubKeyPem(sod: Uint8Array): Promise<Uint8Array> {
-  return await EDocumentModule.getDG15PubKeyPem(new Uint8Array(sod))
 }
 
 const EDocumentModuleEmitter = new EventEmitter(EDocumentModule)
@@ -85,5 +91,3 @@ export function EDocumentModuleRemoveAllListeners(eventName: EDocumentModuleEven
 }
 
 export * from './src/enums'
-export * from './src/helpers'
-export * from './src/types'

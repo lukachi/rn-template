@@ -1,5 +1,7 @@
-import { calculateEventNullifierInt, generatePrivateKey } from '@modules/rarime-sdk'
+import { babyJub, ffUtils, Hex, Poseidon, poseidon, PublicKey } from '@iden3/js-crypto'
 import { Buffer } from 'buffer'
+import { randomBytes } from 'ethers'
+import { useMemo } from 'react'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
@@ -41,20 +43,49 @@ const useWalletStore = create(
 
 const useGeneratePrivateKey = () => {
   return async () => {
-    const pkBytes = await generatePrivateKey()
-
-    return Buffer.from(pkBytes).toString('hex')
+    return Buffer.from(randomBytes(32)).toString('hex')
   }
 }
 
-const usePointsNullifierHex = () => {
+const usePublicKeyKey = () => {
+  const privateKeyHex = useWalletStore(state => state.privateKey)
+
+  const skBuff = Hex.decodeString(privateKeyHex)
+  const skBig = ffUtils.beBuff2int(skBuff)
+
+  const point = babyJub.mulPointEScalar(babyJub.Base8, skBig)
+
+  return new PublicKey(point)
+}
+
+const usePublicKeyHash = () => {
+  const publicKey = usePublicKeyKey()
+
+  return useMemo(() => {
+    const hash = poseidon.hash(publicKey.p)
+
+    return ffUtils.beInt2Buff(hash, 32)
+  }, [publicKey.p])
+}
+
+const usePointsNullifier = () => {
   return async (pkHex: string) => {
-    const eventNullifierIntStr = await calculateEventNullifierInt(Config.POINTS_SVC_ID, pkHex)
+    const secretKey = BigInt(`0x${pkHex}`) % Poseidon.F.p
 
-    const eventNullifierBN = BigInt(eventNullifierIntStr)
+    const secretKeyHash = poseidon.hash([secretKey])
 
-    return `0x${eventNullifierBN.toString(16).padStart(64, '0')}`
+    const eventIDInt = BigInt(Config.POINTS_SVC_ID)
+
+    return poseidon.hash([secretKey, secretKeyHash, eventIDInt])
   }
+}
+
+const useRegistrationChallenge = () => {
+  const publicKeyHash = usePublicKeyHash()
+
+  return useMemo(() => {
+    return publicKeyHash.slice(-8)
+  }, [publicKeyHash])
 }
 
 const useDeletePrivateKey = () => {
@@ -69,6 +100,9 @@ export const walletStore = {
   useWalletStore,
 
   useGeneratePrivateKey: useGeneratePrivateKey,
-  usePointsNullifierHex: usePointsNullifierHex,
+  usePointsNullifier: usePointsNullifier,
   useDeletePrivateKey,
+  usePublicKeyKey,
+  usePublicKeyHash,
+  useRegistrationChallenge,
 }

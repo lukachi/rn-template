@@ -56,3 +56,5 @@ modules/**/*/.cxx
 
 .env.secrets
 .env.secrets.*
+
+*.cer

@@ -1,7 +1,8 @@
-import type { DocType } from '@modules/e-document'
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs'
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
+
+import { DocType } from './utils/e-document'
 
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamsList>
@@ -55,6 +56,7 @@ export type AppTabParamsList = {
         documentType?: DocType
       }
     | undefined
+  PassportTests: undefined
 }
 
 export type AppTabScreenProps<T extends keyof AppTabParamsList> = CompositeScreenProps<

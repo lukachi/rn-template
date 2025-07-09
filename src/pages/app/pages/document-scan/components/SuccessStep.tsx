@@ -1,21 +1,24 @@
 import { useNavigation } from '@react-navigation/native'
 import { Text, View } from 'react-native'
+import SuperJSON from 'superjson'
 
-import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
+import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { UiButton, UiCard } from '@/ui'
 
 export default function DocumentPreviewStep() {
-  const { eDoc, regProof } = useDocumentScanContext()
+  const { identity } = useDocumentScanContext()
 
   const navigation = useNavigation()
 
   return (
     <View className='flex-1 flex-col gap-4 p-5'>
       <UiCard>
-        <Text className='text-textPrimary'>{JSON.stringify(eDoc)?.length}</Text>
+        <Text className='text-textPrimary'>{SuperJSON.stringify(identity?.document)?.length}</Text>
       </UiCard>
       <UiCard>
-        <Text className='text-textPrimary'>{JSON.stringify(regProof)?.length}</Text>
+        <Text className='text-textPrimary'>
+          {SuperJSON.stringify(identity?.registrationProof)?.length}
+        </Text>
       </UiCard>
 
       <UiButton

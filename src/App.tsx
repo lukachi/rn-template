@@ -1,7 +1,3 @@
-// polyfills
-// import '@react-native/js-polyfills'
-import 'react-native-get-random-values'
-
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import * as SplashScreen from 'expo-splash-screen'
 import { useMemo, useState } from 'react'

@@ -102,6 +102,13 @@ const client = z.object({
   POINTS_SVC_ID: z.string(),
 
   SOME_SECRET_KEY: z.string(),
+
+  PASSPORT_1: z.string(),
+  PASSPORT_2: z.string(),
+  PASSPORT_3: z.string(),
+  PASSPORT_4: z.string(),
+  PASSPORT_5: z.string(),
+  PASSPORT_6: z.string(),
 })
 
 const buildTime = z.object({
@@ -140,6 +147,13 @@ const _clientEnv = {
   POINTS_SVC_ID: process.env.EXPO_PUBLIC_POINTS_SVC_ID,
 
   SOME_SECRET_KEY: getSecretWithSuffix('SOME_SECRET_KEY'),
+
+  PASSPORT_1: getSecretWithSuffix('PASSPORT_1'),
+  PASSPORT_2: getSecretWithSuffix('PASSPORT_2'),
+  PASSPORT_3: getSecretWithSuffix('PASSPORT_3'),
+  PASSPORT_4: getSecretWithSuffix('PASSPORT_4'),
+  PASSPORT_5: getSecretWithSuffix('PASSPORT_5'),
+  PASSPORT_6: getSecretWithSuffix('PASSPORT_6'),
 }
 
 /**

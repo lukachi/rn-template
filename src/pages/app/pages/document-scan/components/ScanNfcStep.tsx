@@ -4,64 +4,61 @@ import {
   EDocumentModuleRemoveAllListeners,
   scanDocument,
 } from '@modules/e-document'
-import { registrationChallenge } from '@modules/rarime-sdk'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 
 import { ErrorHandler } from '@/core'
-import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
+import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { walletStore } from '@/store'
 import { UiButton, UiIcon } from '@/ui'
 
 export default function ScanNfcStep() {
-  const { mrz, setEDoc } = useDocumentScanContext()
+  const { tempMRZ, setTempEDoc } = useDocumentScanContext()
 
   const pk = walletStore.useWalletStore(state => state.privateKey)
+  const registrationChallenge = walletStore.useRegistrationChallenge()
 
-  const [isScanning, setIsScanning] = useState(false)
+  const isScanning = useRef(false)
 
   const [title, setTitle] = useState('Scan NFC')
 
   const startScanListener = useCallback(async () => {
-    if (
-      !pk ||
-      !mrz?.birthDate ||
-      !mrz?.documentNumber ||
-      !mrz?.expirationDate ||
-      !mrz?.documentCode
-    )
-      return
+    if (!tempMRZ) throw new TypeError('MRZ data is not available')
 
-    setIsScanning(true)
+    if (!tempMRZ.documentCode) throw new TypeError('Document code is not available in MRZ data')
+
+    if (!tempMRZ.birthDate) throw new TypeError('Birth date is not available in MRZ data')
+
+    if (!tempMRZ.expirationDate) throw new TypeError('Expiration date is not available in MRZ data')
+
+    if (!tempMRZ.documentNumber) throw new TypeError('Document number is not available in MRZ data')
+
+    if (!pk) return
 
     try {
-      const challenge = await registrationChallenge(pk)
-
       const eDocumentResponse = await scanDocument(
-        mrz.documentCode,
+        tempMRZ.documentCode,
         {
-          dateOfBirth: mrz.birthDate,
-          dateOfExpiry: mrz.expirationDate,
-          documentNumber: mrz.documentNumber,
+          dateOfBirth: tempMRZ.birthDate,
+          dateOfExpiry: tempMRZ.expirationDate,
+          documentNumber: tempMRZ.documentNumber,
         },
-        challenge,
+        registrationChallenge,
       )
 
-      setEDoc(eDocumentResponse)
+      setTempEDoc(eDocumentResponse)
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
-
-    setIsScanning(false)
-  }, [mrz?.birthDate, mrz?.documentCode, mrz?.documentNumber, mrz?.expirationDate, pk, setEDoc])
+  }, [pk, registrationChallenge, setTempEDoc, tempMRZ])
 
   useEffect(() => {
-    if (isScanning) return
+    if (isScanning.current) return
+
+    isScanning.current = true
 
     startScanListener()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [startScanListener])
 
   useEffect(() => {
     EDocumentModuleListener(EDocumentModuleEvents.ScanStarted, () => {

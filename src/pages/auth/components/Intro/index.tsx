@@ -90,9 +90,6 @@ export default function Intro() {
           loop={false}
           autoPlay={true}
           autoPlayInterval={5_000}
-          style={{
-            flex: 1,
-          }}
           renderItem={({ index }) => (
             <StepLayout
               className='flex-1'

@@ -1,9 +1,7 @@
-import { DocType } from '@modules/e-document'
 import { useAppState } from '@react-native-community/hooks'
 import { useIsFocused } from '@react-navigation/native'
 import { parse } from 'mrz'
 import { useCallback, useEffect, useMemo } from 'react'
-import type { ViewProps } from 'react-native'
 import { ScrollView, Text, View } from 'react-native'
 import {
   Camera,
@@ -16,8 +14,9 @@ import { useTextRecognition } from 'react-native-vision-camera-text-recognition'
 import { Worklets } from 'react-native-worklets-core'
 
 import { bus, DefaultBusEvents, ErrorHandler } from '@/core'
-import { useDocumentScanContext } from '@/pages/app/pages/document-scan/context'
+import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { UiButton } from '@/ui'
+import { DocType } from '@/utils/e-document'
 
 const useMrzParser = (docType: DocType) => {
   const idCardParser = useCallback((lines: string[]) => {
@@ -68,11 +67,8 @@ const useMrzParser = (docType: DocType) => {
   }[docType]
 }
 
-type Props = {} & ViewProps
-
-// eslint-disable-next-line no-empty-pattern
-export default function ScanMrzStep({}: Props) {
-  const { docType, setMrz } = useDocumentScanContext()
+export default function ScanMrzStep() {
+  const { docType, setTempMrz } = useDocumentScanContext()
 
   const isFocused = useIsFocused()
   const currentAppState = useAppState()
@@ -94,7 +90,7 @@ export default function ScanMrzStep({}: Props) {
         bus.emit(DefaultBusEvents.success, {
           message: 'MRZ Detected',
         })
-        setMrz(result.fields)
+        setTempMrz(result.fields)
       }
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
@@ -169,15 +165,11 @@ export default function ScanMrzStep({}: Props) {
                 )}
               </>
             ) : (
-              <>
-                <View>
-                  <Text className='text-textPrimary typography-h4'>
-                    Requesting Camera Permission
-                  </Text>
+              <View>
+                <Text className='text-textPrimary typography-h4'>Requesting Camera Permission</Text>
 
-                  <UiButton onPress={requestPermission} title='Request Permission' />
-                </View>
-              </>
+                <UiButton onPress={requestPermission} title='Request Permission' />
+              </View>
             )}
           </>
         )}
