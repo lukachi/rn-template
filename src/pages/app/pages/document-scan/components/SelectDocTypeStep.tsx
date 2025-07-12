@@ -18,7 +18,7 @@ export default function SelectDocTypeStep() {
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View className='flex flex-1 flex-col gap-4 p-5'>
-          <Text className='my-4 text-center text-textPrimary typography-h4'>
+          <Text className='typography-h4 my-4 text-center text-textPrimary'>
             Select doc type step
           </Text>
 
@@ -30,7 +30,7 @@ export default function SelectDocTypeStep() {
             >
               <UiCard className='flex flex-row items-center gap-2'>
                 <UiIcon customIcon='starFillIcon' className='text-textPrimary' />
-                <Text className='text-textPrimary typography-subtitle4'>Passport</Text>
+                <Text className='typography-subtitle4 text-textPrimary'>Passport</Text>
               </UiCard>
             </Pressable>
 
@@ -41,7 +41,7 @@ export default function SelectDocTypeStep() {
             >
               <UiCard className='flex flex-row items-center gap-2'>
                 <UiIcon customIcon='cardholderIcon' className='text-textPrimary' />
-                <Text className='text-textPrimary typography-subtitle4'>ID CARD</Text>
+                <Text className='typography-subtitle4 text-textPrimary'>ID CARD</Text>
               </UiCard>
             </Pressable>
           </View>

@@ -42,8 +42,8 @@ export default function DocumentsWithoutDocs() {
         <UiCard>
           <UiIcon customIcon='starFillIcon' className='m-auto mb-5 size-[110]' />
           <View className='flex flex-col gap-2'>
-            <Text className='text-center text-textPrimary typography-h6'>Join Rewards Program</Text>
-            <Text className='text-center text-textPrimary typography-body2'>
+            <Text className='typography-h6 text-center text-textPrimary'>Join Rewards Program</Text>
+            <Text className='typography-body2 text-center text-textPrimary'>
               Check your eligibility
             </Text>
           </View>
@@ -88,21 +88,21 @@ export default function DocumentsWithoutDocs() {
             <View className={cn('py-0, flex flex-col items-center gap-4 p-5')}>
               <UiIcon customIcon='infoIcon' className='size-[80] text-primaryMain' />
 
-              <Text className='text-textPrimary typography-h5'>About the App</Text>
+              <Text className='typography-h5 text-textPrimary'>About the App</Text>
 
               <UiHorizontalDivider className='my-4' />
 
-              <Text className='text-textSecondary typography-body2'>
+              <Text className='typography-body2 text-textSecondary'>
                 This is a sample app built using the following technologies: This is a sample app
                 built using the following technologies: This is a sample app built using the
                 following technologies:
               </Text>
-              <Text className='text-textSecondary typography-body2'>
+              <Text className='typography-body2 text-textSecondary'>
                 This is a sample app built using the following technologies: This is a sample app
                 built using the following technologies: This is a sample app built using the
                 following technologies:
               </Text>
-              <Text className='text-textSecondary typography-body2'>
+              <Text className='typography-body2 text-textSecondary'>
                 This is a sample app built using the following technologies: This is a sample app
                 built using the following technologies: This is a sample app built using the
                 following technologies:
@@ -130,21 +130,21 @@ export default function DocumentsWithoutDocs() {
             <View className={cn('py-0, flex flex-col items-center gap-4 p-5')}>
               <UiIcon customIcon='infoIcon' className='size-[80] text-primaryMain' />
 
-              <Text className='text-textPrimary typography-h5'>Start scan</Text>
+              <Text className='typography-h5 text-textPrimary'>Start scan</Text>
 
               <UiHorizontalDivider className='my-4' />
 
-              <Text className='text-textSecondary typography-body2'>
+              <Text className='typography-body2 text-textSecondary'>
                 This is a sample app built using the following technologies: This is a sample app
                 built using the following technologies: This is a sample app built using the
                 following technologies:
               </Text>
-              <Text className='text-textSecondary typography-body2'>
+              <Text className='typography-body2 text-textSecondary'>
                 This is a sample app built using the following technologies: This is a sample app
                 built using the following technologies: This is a sample app built using the
                 following technologies:
               </Text>
-              <Text className='text-textSecondary typography-body2'>
+              <Text className='typography-body2 text-textSecondary'>
                 This is a sample app built using the following technologies: This is a sample app
                 built using the following technologies: This is a sample app built using the
                 following technologies:

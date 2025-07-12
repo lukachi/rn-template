@@ -38,8 +38,8 @@ export default function DocumentPreviewStep() {
               Object.keys(restDetails).map(key => {
                 return (
                   <View key={key} className='flex flex-row items-center justify-between gap-2'>
-                    <Text className='capitalize text-textPrimary typography-body3'>{key}</Text>
-                    <Text className='text-textPrimary typography-subtitle4'>
+                    <Text className='typography-body3 capitalize text-textPrimary'>{key}</Text>
+                    <Text className='typography-subtitle4 text-textPrimary'>
                       {restDetails?.[key as keyof typeof tempEDoc.personDetails]}
                     </Text>
                   </View>
@@ -47,29 +47,29 @@ export default function DocumentPreviewStep() {
               })}
 
             <View className='flex flex-row items-center justify-between gap-2'>
-              <Text className='capitalize text-textPrimary typography-body3'>dg1</Text>
-              <Text className='text-textPrimary typography-subtitle4'>
+              <Text className='typography-body3 capitalize text-textPrimary'>dg1</Text>
+              <Text className='typography-subtitle4 text-textPrimary'>
                 {tempEDoc.dg1Bytes.length} length
               </Text>
             </View>
 
             <View className='flex flex-row items-center justify-between gap-2'>
-              <Text className='capitalize text-textPrimary typography-body3'>dg11</Text>
-              <Text className='text-textPrimary typography-subtitle4'>
+              <Text className='typography-body3 capitalize text-textPrimary'>dg11</Text>
+              <Text className='typography-subtitle4 text-textPrimary'>
                 {tempEDoc.dg11Bytes?.length} length
               </Text>
             </View>
 
             <View className='flex flex-row items-center justify-between gap-2'>
-              <Text className='capitalize text-textPrimary typography-body3'>dg15</Text>
-              <Text className='text-textPrimary typography-subtitle4'>
+              <Text className='typography-body3 capitalize text-textPrimary'>dg15</Text>
+              <Text className='typography-subtitle4 text-textPrimary'>
                 {tempEDoc.dg15Bytes?.length ?? 0} length
               </Text>
             </View>
 
             <View className='flex flex-row items-center justify-between gap-2'>
-              <Text className='capitalize text-textPrimary typography-body3'>signature</Text>
-              <Text className='text-textPrimary typography-subtitle4'>
+              <Text className='typography-body3 capitalize text-textPrimary'>signature</Text>
+              <Text className='typography-subtitle4 text-textPrimary'>
                 {tempEDoc?.aaSignature?.length ?? 0} length
               </Text>
             </View>
@@ -88,7 +88,7 @@ export default function DocumentPreviewStep() {
     return (
       <AppContainer className='flex-1 items-center justify-center'>
         <Text className='typography-title1 text-textPrimary'>EID Document Preview</Text>
-        <Text className='mt-2 text-textPrimary typography-body2'>
+        <Text className='typography-body2 mt-2 text-textPrimary'>
           EID document preview is not implemented yet.
         </Text>
       </AppContainer>
@@ -98,7 +98,7 @@ export default function DocumentPreviewStep() {
   return (
     <AppContainer className='flex-1 items-center justify-center'>
       <Text className='typography-title1 text-textPrimary'>Document Preview</Text>
-      <Text className='mt-2 text-textPrimary typography-body2'>
+      <Text className='typography-body2 mt-2 text-textPrimary'>
         Document preview is not available for this document type.
       </Text>
     </AppContainer>

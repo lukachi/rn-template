@@ -166,7 +166,7 @@ export default function ScanMrzStep() {
               </>
             ) : (
               <View>
-                <Text className='text-textPrimary typography-h4'>Requesting Camera Permission</Text>
+                <Text className='typography-h4 text-textPrimary'>Requesting Camera Permission</Text>
 
                 <UiButton onPress={requestPermission} title='Request Permission' />
               </View>
