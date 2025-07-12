@@ -100,6 +100,7 @@ export function padBitsToFixedBlocks(
   return result
 }
 
+// TODO: remove
 export function getCircuitHashAlgorithm(certificate: Certificate): CircuitHashAlgorithmName | null {
   switch (certificate.signatureAlgorithm.algorithm) {
     case id_sha1WithRSAEncryption:

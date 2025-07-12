@@ -1,13 +1,11 @@
 import { NoirCircuitParams, NoirZKProof } from '@modules/noir'
-import { ExternalCircomCircuitParams } from '@modules/witnesscalculator'
 import { RSAPublicKey } from '@peculiar/asn1-rsa'
 import { getBytes, toBigInt, zeroPadBytes } from 'ethers'
 
 import { tryCatch } from '@/helpers/try-catch'
 import { EPassport } from '@/utils/e-document/e-document'
+import { extractPubKey } from '@/utils/e-document/helpers/misc'
 
-import { extractPubKey } from '../../e-document/helpers/misc'
-import { PrivateRegisterIdentityBuilderGroth16 } from '../types/RegisterIdentityBuilder'
 import {
   EIDBasedRegistrationCircuit,
   EPassportBasedRegistrationCircuit,
@@ -17,20 +15,6 @@ import {
 export class NoirEPassportBasedRegistrationCircuit extends EPassportBasedRegistrationCircuit {
   constructor(public eDoc: EPassport) {
     super(eDoc)
-  }
-
-  public get circuitParams(): ExternalCircomCircuitParams {
-    throw new Error('Disabled for NoirRegistrationCircuit')
-  }
-
-  calcWtns(
-    _: Pick<
-      PrivateRegisterIdentityBuilderGroth16,
-      'skIdentity' | 'slaveMerkleRoot' | 'slaveMerkleInclusionBranches'
-    >,
-    __: Uint8Array,
-  ): Promise<Uint8Array> {
-    throw new Error('NoirRegistrationCircuit does not support calcWtns. Use prove instead.')
   }
 
   static computeBarretReduction(nBits: number, n: bigint): bigint {

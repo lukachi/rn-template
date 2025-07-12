@@ -9,16 +9,13 @@ import { useCallback, useState } from 'react'
 import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { NoirEIDRegistration } from '@/api/modules/registration/variants/noir-eid'
 import AppContainer from '@/pages/app/components/AppContainer'
+import { walletStore } from '@/store'
 import { useAppPaddings } from '@/theme'
-import { Registration__factory } from '@/types/contracts/factories/Registration__factory'
 import { UiButton, UiScreenScrollable } from '@/ui'
 import { EID } from '@/utils/e-document'
 import { ExtendedCertificate } from '@/utils/e-document/extended-cert'
-
-import { useRegistration } from '../document-scan/ScanProvider/hooks/registration'
-
-const registrationContractInterface = Registration__factory.createInterface()
 
 const downloadUrl =
   'https://www.googleapis.com/download/storage/v1/b/rarimo-temp/o/icaopkd-list.ldif?generation=1715355629405816&alt=media'
@@ -38,22 +35,19 @@ const getIcaoPkdLdifFile = async () => {
   return parseLdifString(icaoLdif)
 }
 
-function decToHex(d: string): string {
-  return '0x' + BigInt(d).toString(16)
-}
-
-function ensureHex(s: string): string {
-  return s.startsWith('0x') ? s : decToHex(s)
-}
+const eidRegistration = new NoirEIDRegistration()
 
 export default function PassportTests() {
+  const privateKey = walletStore.useWalletStore(state => state.privateKey)
+  const publicKeyHash = walletStore.usePublicKeyHash()
+
   const insets = useSafeAreaInsets()
   const appPaddings = useAppPaddings()
   const bottomBarHeight = useBottomTabBarHeight()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { createIdentity } = useRegistration()
+  // const { createIdentity } = useRegistration()
 
   const testCert = useCallback(async () => {
     setIsSubmitting(true)
@@ -104,15 +98,13 @@ export default function PassportTests() {
 
       const eID = new EID(sigCertificate, authCertificate)
 
-      await createIdentity(eID, {
-        onRevocation: () => {},
-      })
+      await eidRegistration.createIdentity(eID, privateKey, publicKeyHash)
     } catch (error) {
       console.error('Error in testCert:', error)
     } finally {
       setIsSubmitting(false)
     }
-  }, [createIdentity])
+  }, [privateKey, publicKeyHash])
 
   return (
     <AppContainer>

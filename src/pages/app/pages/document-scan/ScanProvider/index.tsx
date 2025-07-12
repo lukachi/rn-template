@@ -1,17 +1,18 @@
+import { scanDocument } from '@modules/e-document'
 import type { FieldRecords } from 'mrz'
 import type { PropsWithChildren } from 'react'
 import { useCallback } from 'react'
 import { useState } from 'react'
 import { createContext, useContext } from 'react'
 
+import { NoirEPassportRegistration } from '@/api/modules/registration/variants/noir-epassport'
 import { ErrorHandler } from '@/core'
 import { tryCatch } from '@/helpers/try-catch'
 import { identityStore } from '@/store/modules/identity'
 import { PassportRegisteredWithAnotherPKError } from '@/store/modules/identity/errors'
 import { IdentityItem } from '@/store/modules/identity/Identity'
-import { DocType, EDocument } from '@/utils/e-document/e-document'
-
-import { useRegistration } from './hooks/registration'
+import { walletStore } from '@/store/modules/wallet'
+import { DocType, EDocument, EPassport } from '@/utils/e-document/e-document'
 
 export enum Steps {
   SelectDocTypeStep,
@@ -81,12 +82,18 @@ export function useDocumentScanContext() {
   return useContext(documentScanContext)
 }
 
+// TODO: add circuit strategy selection
+const registrationStrategy = new NoirEPassportRegistration()
+
 export function ScanContextProvider({
   docType,
   children,
 }: {
   docType?: DocType
 } & PropsWithChildren) {
+  const privateKey = walletStore.useWalletStore(state => state.privateKey)
+  const publicKeyHash = walletStore.usePublicKeyHash()
+
   const addIdentity = identityStore.useIdentityStore(state => state.addIdentity)
 
   const [currentStep, setCurrentStep] = useState<Steps>(
@@ -99,18 +106,20 @@ export function ScanContextProvider({
 
   const [identity, setIdentity] = useState<IdentityItem>()
 
-  const registration = useRegistration()
-
   const revokeIdentity = useCallback(async () => {
     if (!identity) throw new TypeError('Identity is not set for revocation')
 
     if (!tempMRZ) throw new TypeError('MRZ is not set for revocation')
 
-    const [, revokeIdentityError] = await tryCatch(registration.revokeIdentity(tempMRZ, identity))
+    const [, revokeIdentityError] = await tryCatch(
+      registrationStrategy.revokeIdentity(tempMRZ, identity, async (docCode, bac, challenge) => {
+        return scanDocument(docCode, bac, challenge)
+      }),
+    )
     if (revokeIdentityError) {
       throw new TypeError('Failed to revoke identity after registration error', revokeIdentityError)
     }
-  }, [identity, registration, tempMRZ])
+  }, [identity, tempMRZ])
 
   const createIdentity = useCallback(async () => {
     if (!tempEDoc) {
@@ -119,21 +128,21 @@ export function ScanContextProvider({
 
     setCurrentStep(Steps.GenerateProofStep)
 
-    const [identityItem, createIdentityError] = await tryCatch(
-      registration.createIdentity(tempEDoc, {
-        onRevocation: async identityItem => {
-          setIdentity(identityItem)
-          setCurrentStep(Steps.RevocationStep)
-        },
-      }),
+    const [identityItem, registrationError] = await tryCatch(
+      registrationStrategy.createIdentity(tempEDoc as EPassport, privateKey, publicKeyHash),
     )
-    if (createIdentityError) {
-      ErrorHandler.processWithoutFeedback(createIdentityError)
+    if (registrationError) {
+      ErrorHandler.processWithoutFeedback(registrationError)
 
-      if (createIdentityError instanceof PassportRegisteredWithAnotherPKError) {
+      if (registrationError instanceof PassportRegisteredWithAnotherPKError) {
+        setCurrentStep(Steps.RevocationStep)
         return
       }
 
+      ErrorHandler.process(
+        registrationError,
+        'Failed to create identity. Please check your NFC connection and try again.',
+      )
       setCurrentStep(Steps.DocumentPreviewStep)
       return
     }
@@ -141,7 +150,7 @@ export function ScanContextProvider({
     addIdentity(identityItem)
     setIdentity(identityItem)
     setCurrentStep(Steps.FinishStep)
-  }, [addIdentity, registration, tempEDoc])
+  }, [addIdentity, privateKey, publicKeyHash, tempEDoc])
 
   // ---------------------------------------------------------------------------------------------
 
@@ -180,9 +189,9 @@ export function ScanContextProvider({
         setTempEDoc: handleSetEDoc,
 
         createIdentity,
-        revokeIdentity,
+        revokeIdentity: revokeIdentity,
 
-        circuitLoadingDetails: registration.circuitLoadingDetails,
+        circuitLoadingDetails: {}, // registration.circuitLoadingDetails,
       }}
       children={children}
     />
