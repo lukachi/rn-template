@@ -14,7 +14,6 @@ import BottomTabBar from './components/BottomTabBarTabBar'
 import DocumentScanScreen from './pages/document-scan'
 import DocumentsScreen from './pages/documents'
 import HomeScreen from './pages/home'
-import PassportTests from './pages/passport-tests'
 import ProfileScreen from './pages/profile'
 
 const Stack = createNativeStackNavigator<AppStackParamsList>()
@@ -55,32 +54,12 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         }}
       />
       <Tab.Screen
-        name='Scan'
-        component={DocumentScanScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <UiIcon libIcon='MaterialCommunityIcons' name='line-scan' size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
         name='Profile'
         component={ProfileScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <UiIcon customIcon='userIcon' size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name='PassportTests'
-        component={PassportTests}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <UiIcon libIcon='MaterialCommunityIcons' name='test-tube' size={size} color={color} />
           ),
         }}
       />
@@ -102,6 +81,14 @@ export default function App({}: RootStackScreenProps<'App'>) {
         component={InviteOthers}
         options={{
           animation: 'fade',
+        }}
+      />
+
+      <Stack.Screen
+        name='Scan'
+        component={DocumentScanScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

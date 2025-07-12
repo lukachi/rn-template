@@ -156,10 +156,7 @@ export default function DocumentsWithoutDocs() {
                 onPress={() => {
                   startScanBottomSheet.dismiss()
                   navigation.navigate('App', {
-                    screen: 'Tabs',
-                    params: {
-                      screen: 'Scan',
-                    },
+                    screen: 'Scan',
                   })
                 }}
               />

@@ -34,16 +34,12 @@ module.exports = {
       },
     }),
 
-    plugin(({addUtilities}) => {
-      addUtilities(typography, {
-        variants: ["responsive", "hover"],
-      })
+    plugin(({addComponents}) => {
+      addComponents(typography)
     }),
 
-    plugin(({addUtilities}) => {
-      addUtilities(zIndex, {
-        variants: ["responsive", "hover"],
-      })
+    plugin(({addComponents}) => {
+      addComponents(zIndex)
     }),
   ],
 }
