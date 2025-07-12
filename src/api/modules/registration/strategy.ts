@@ -275,8 +275,6 @@ export abstract class RegistrationStrategy {
 
       const { data } = await relayerRegister(callData, Config.REGISTRATION_CONTRACT_ADDRESS)
 
-      console.log({ data })
-
       const tx = await RegistrationStrategy.rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
 
       if (!tx) throw new TypeError('Transaction not found')
