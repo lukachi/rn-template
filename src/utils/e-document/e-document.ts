@@ -1,20 +1,17 @@
 import { ECDSASigValue, ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
+import { Certificate } from '@peculiar/asn1-x509'
 import { SubjectPublicKeyInfo } from '@peculiar/asn1-x509'
 import { fromBER } from 'asn1js'
 import { decodeBase64, getBytes, keccak256, toBigInt } from 'ethers'
 import forge from 'node-forge'
 import superjson from 'superjson'
 
+import { ExtendedCertificate } from './extended-cert'
 import { namedCurveFromParameters } from './helpers/crypto'
 import { figureOutRSAAAHashAlgorithm } from './helpers/misc'
 import { ECDSA_ALGO_PREFIX, Sod } from './sod'
-
-export enum DocType {
-  ID = 'ID',
-  PASSPORT = 'PASSPORT',
-}
 
 export type PersonDetails = {
   firstName: string | null
@@ -28,7 +25,32 @@ export type PersonDetails = {
   passportImageRaw: string | null
 }
 
-type NewEDocumentSerialized = {
+export enum DocType {
+  ID = 'ID',
+  PASSPORT = 'PASSPORT',
+}
+
+export abstract class EDocument {
+  docCode: string
+
+  constructor(params: { docCode: string }) {
+    this.docCode = params.docCode
+  }
+
+  get personDetails(): PersonDetails {
+    throw new Error('Method personDetails() must be implemented in subclass')
+  }
+
+  serialize(): string {
+    throw new Error('Method serialize() must be implemented in subclass')
+  }
+
+  static deserialize(serialized: string): EDocument {
+    throw new Error(`Method deserialize() must be implemented in subclass for ${serialized}`)
+  }
+}
+
+type EPassportSerialized = {
   docCode: string
   personDetails: PersonDetails
   sodBytes: string
@@ -37,11 +59,11 @@ type NewEDocumentSerialized = {
   dg11Bytes?: string
 }
 
-export class EDocument {
+export class EPassport extends EDocument {
   static ECMaxSizeInBits = 2688 // Represents the maximum size in bits for an encapsulated content
 
   docCode: string
-  personDetails: PersonDetails
+  _personDetails: PersonDetails
   sodBytes: Uint8Array
   dg1Bytes: Uint8Array
   dg15Bytes?: Uint8Array
@@ -57,8 +79,9 @@ export class EDocument {
     dg11Bytes?: Uint8Array
     aaSignature?: Uint8Array
   }) {
+    super({ docCode: params.docCode })
     this.docCode = params.docCode
-    this.personDetails = params.personDetails
+    this._personDetails = params.personDetails
     this.sodBytes = params.sodBytes
     this.dg1Bytes = params.dg1Bytes
     this.dg15Bytes = params.dg15Bytes
@@ -82,8 +105,12 @@ export class EDocument {
     throw new TypeError('Unsupported document type')
   }
 
+  get personDetails(): PersonDetails {
+    return this._personDetails
+  }
+
   serialize(): string {
-    const target: NewEDocumentSerialized = {
+    const target: EPassportSerialized = {
       docCode: this.docCode,
       personDetails: this.personDetails,
       sodBytes: Buffer.from(this.sodBytes).toString('base64'),
@@ -98,9 +125,9 @@ export class EDocument {
 
   static deserialize(serialized: string): EDocument {
     try {
-      const parsed = superjson.parse<NewEDocumentSerialized>(serialized)
+      const parsed = superjson.parse<EPassportSerialized>(serialized)
 
-      const res = new EDocument({
+      const res = new EPassport({
         docCode: parsed.docCode,
         personDetails: parsed.personDetails,
         sodBytes: decodeBase64(parsed.sodBytes),
@@ -135,7 +162,7 @@ export class EDocument {
 
   getAADataType(ecSizeInBits: number) {
     if (!this.dg15PubKey) {
-      return getBytes(keccak256(Buffer.from('P_NO_DATA', 'utf-8')))
+      return getBytes(keccak256(Buffer.from('P_NO_AA', 'utf-8')))
     }
 
     if (this.dg15PubKey?.algorithm.algorithm.includes(id_pkcs_1)) {
@@ -146,14 +173,14 @@ export class EDocument {
       const hashAlg = figureOutRSAAAHashAlgorithm(rsaPubKey, this.aaSignature)
 
       if (!hashAlg) {
-        return getBytes(keccak256(Buffer.from('P_NO_DATA', 'utf-8')))
+        return getBytes(keccak256(Buffer.from('P_NO_AA', 'utf-8')))
       }
 
       const exponentHex = Buffer.from(rsaPubKey.publicExponent).toString('hex')
 
       const e = new forge.jsbn.BigInteger(exponentHex, 16)
 
-      const dispatcherName = `P_RSA_${hashAlg}_${EDocument.ECMaxSizeInBits > ecSizeInBits ? EDocument.ECMaxSizeInBits : ecSizeInBits}`
+      const dispatcherName = `P_RSA_${hashAlg}_${EPassport.ECMaxSizeInBits > ecSizeInBits ? EPassport.ECMaxSizeInBits : ecSizeInBits}`
       if (e.intValue() === 3) {
         dispatcherName.concat('_3')
       }
@@ -232,5 +259,53 @@ export class EDocument {
     }
 
     throw new TypeError('Unsupported DG15 public key algorithm for AA public key extraction')
+  }
+}
+
+export class EID extends EDocument {
+  constructor(
+    public sigCertificate: ExtendedCertificate,
+    public authCertificate: ExtendedCertificate,
+  ) {
+    super({ docCode: 'ID' })
+  }
+
+  get AADataType() {
+    return keccak256(Buffer.from('P_NO_AA', 'utf-8'))
+  }
+
+  static fromBytes(sigBytes: Uint8Array, authBytes: Uint8Array): EID {
+    const sigCert = AsnConvert.parse(sigBytes, Certificate)
+    const authCert = AsnConvert.parse(authBytes, Certificate)
+
+    return new EID(new ExtendedCertificate(sigCert), new ExtendedCertificate(authCert))
+  }
+
+  get personDetails(): PersonDetails {
+    return {} as PersonDetails // TODO: Implement PersonDetails extraction logic
+  }
+
+  serialize(): string {
+    return superjson.stringify({
+      sigCertificate: AsnConvert.serialize(this.sigCertificate.certificate),
+      authCertificate: AsnConvert.serialize(this.authCertificate.certificate),
+    })
+  }
+
+  deserialize(serialized: string): EID {
+    try {
+      const parsed = superjson.parse<{
+        sigCertificate: ArrayBuffer
+        authCertificate: ArrayBuffer
+      }>(serialized)
+
+      const sigCert = AsnConvert.parse(parsed.sigCertificate, Certificate)
+      const authCert = AsnConvert.parse(parsed.authCertificate, Certificate)
+
+      return new EID(new ExtendedCertificate(sigCert), new ExtendedCertificate(authCert))
+    } catch (error) {
+      console.error('Error during deserialization:', error)
+      throw new Error('Failed to deserialize EID')
+    }
   }
 }

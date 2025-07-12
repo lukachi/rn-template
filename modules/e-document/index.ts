@@ -8,7 +8,7 @@ import { Platform } from 'react-native'
 import EDocumentModule from './src/EDocumentModule'
 import type { EDocumentModuleEvents } from './src/enums'
 import get from 'lodash/get'
-import { EDocument } from '@/utils/e-document'
+import { EDocument, EPassport } from '@/utils/e-document'
 
 export async function scanDocument(
   documentCode: string,
@@ -27,7 +27,7 @@ export async function scanDocument(
   const eDocumentJson = JSON.parse(eDocumentString)
 
   if (Platform.OS === 'ios') {
-    return new EDocument({
+    return new EPassport({
       docCode: documentCode,
       personDetails: {
         firstName: get(eDocumentJson, 'personDetails.firstName', null),
@@ -47,7 +47,7 @@ export async function scanDocument(
       aaSignature: Buffer.from(get(eDocumentJson, 'signature', ''), 'base64'),
     })
   } else if (Platform.OS === 'android') {
-    return new EDocument({
+    return new EPassport({
       docCode: documentCode,
       personDetails: {
         firstName: get(eDocumentJson, 'personDetails.primaryIdentifier', null),

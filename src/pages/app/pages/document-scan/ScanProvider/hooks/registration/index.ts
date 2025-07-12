@@ -1,12 +1,12 @@
-import { buildCertTreeAndGenProof, parseLdifString } from '@lukachi/rn-csca'
+import { buildCertTreeAndGenProof, parsePemString } from '@lukachi/rn-csca'
 import { scanDocument } from '@modules/e-document'
-import { groth16ProveWithZKeyFilePath, ZKProof } from '@modules/rapidsnark-wrp'
 import { ECParameters } from '@peculiar/asn1-ecc'
 import { id_pkcs_1, RSAPublicKey } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
 import { AxiosError } from 'axios'
 import { ethers, getBytes, JsonRpcProvider, keccak256, toBeArray, zeroPadValue } from 'ethers'
+import { Asset } from 'expo-asset'
 import * as FileSystem from 'expo-file-system'
 import { FieldRecords } from 'mrz'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -25,12 +25,18 @@ import { IdentityItem } from '@/store/modules/identity/Identity'
 import { walletStore } from '@/store/modules/wallet'
 import { Registration__factory, StateKeeper } from '@/types'
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
-import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registration'
+import { Registration2 } from '@/types/contracts/Registration'
 import { getCircuitHashAlgorithm } from '@/utils/circuits/helpers'
-import { RegistrationCircuit } from '@/utils/circuits/registration-circuit'
-import { EDocument } from '@/utils/e-document/e-document'
+import {
+  NoirEIDBasedRegistrationCircuit,
+  NoirEPassportBasedRegistrationCircuit,
+} from '@/utils/circuits/registration/noir-registration-circuit'
+import { EDocument, EID, EPassport } from '@/utils/e-document/e-document'
+import { ExtendedCertificate } from '@/utils/e-document/extended-cert'
 import { getPublicKeyFromEcParameters } from '@/utils/e-document/helpers/crypto'
-import { ECDSA_ALGO_PREFIX } from '@/utils/e-document/sod'
+import { ECDSA_ALGO_PREFIX, Sod } from '@/utils/e-document/sod'
+
+import { useRegisterContracts } from './register-contracts'
 
 const ZERO_BYTES32_HEX = ethers.encodeBytes32String('')
 
@@ -39,23 +45,17 @@ type PassportInfo = {
   identityInfo_: StateKeeper.IdentityInfoStructOutput
 }
 
-const icaoDownloadUrl =
-  'https://www.googleapis.com/download/storage/v1/b/rarimo-temp/o/icaopkd-list.ldif?generation=1715355629405816&alt=media'
-const icaoPkdFileUri = `${FileSystem.documentDirectory}/icaopkd-list.ldif`
-
 export const useRegistration = () => {
   const privateKey = walletStore.useWalletStore(state => state.privateKey)
   const publicKeyHash = walletStore.usePublicKeyHash()
 
-  const downloadResumable = useMemo(() => {
-    return FileSystem.createDownloadResumable(icaoDownloadUrl, icaoPkdFileUri, {})
-  }, [])
+  const registerContracts = useRegisterContracts()
 
   // ----------------------------------------------------------------------------------------
 
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [isLoadFailed, setIsLoadFailed] = useState(false)
-  const [downloadingProgress, setDownloadingProgress] = useState('')
+  const [isLoaded] = useState(false)
+  const [isLoadFailed] = useState(false)
+  const [downloadingProgress] = useState('')
 
   // ----------------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ export const useRegistration = () => {
   // ----------------------------------------------------------------------------------------
 
   const newBuildRegisterCertCallData = useCallback(
-    async (CSCABytes: ArrayBuffer[], tempEDoc: EDocument, masterCert: Certificate) => {
+    async (CSCABytes: ArrayBuffer[], cert: ExtendedCertificate, masterCert: Certificate) => {
       const inclusionProofSiblings = buildCertTreeAndGenProof(
         CSCABytes,
         AsnConvert.serialize(masterCert),
@@ -94,13 +94,12 @@ export const useRegistration = () => {
         if (masterSubjPubKeyAlg.includes(id_pkcs_1)) {
           const bits = (() => {
             if (
-              tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+              cert.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
                 id_pkcs_1,
               )
             ) {
               const slaveRSAPubKey = AsnConvert.parse(
-                tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo
-                  .subjectPublicKey,
+                cert.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
                 RSAPublicKey,
               )
 
@@ -113,26 +112,22 @@ export const useRegistration = () => {
             }
 
             if (
-              tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
+              cert.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.includes(
                 ECDSA_ALGO_PREFIX,
               )
             ) {
-              if (
-                !tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo
-                  .algorithm.parameters
-              )
+              if (!cert.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters)
                 throw new TypeError('ECDSA public key does not have parameters')
 
               const ecParameters = AsnConvert.parse(
-                tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo
-                  .algorithm.parameters,
+                cert.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
                 ECParameters,
               )
 
               const [publicKey] = getPublicKeyFromEcParameters(
                 ecParameters,
                 new Uint8Array(
-                  tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
+                  cert.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
                 ),
               )
 
@@ -147,9 +142,7 @@ export const useRegistration = () => {
 
           let dispatcherName = `C_RSA`
 
-          const circuitHashAlgorithm = getCircuitHashAlgorithm(
-            tempEDoc.sod.slaveCertificate.certificate,
-          )
+          const circuitHashAlgorithm = getCircuitHashAlgorithm(cert.certificate)
           if (circuitHashAlgorithm) {
             dispatcherName += `_${circuitHashAlgorithm}`
           }
@@ -164,10 +157,7 @@ export const useRegistration = () => {
             throw new TypeError('Master ECDSA public key does not have parameters')
           }
 
-          if (
-            !tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
-              .parameters
-          ) {
+          if (!cert.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters) {
             throw new TypeError('Slave ECDSA public key does not have parameters')
           }
 
@@ -177,8 +167,7 @@ export const useRegistration = () => {
           )
 
           const slaveEcParameters = AsnConvert.parse(
-            tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
-              .parameters,
+            cert.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
             ECParameters,
           )
 
@@ -189,9 +178,7 @@ export const useRegistration = () => {
 
           const [slaveCertPubKey] = getPublicKeyFromEcParameters(
             slaveEcParameters,
-            new Uint8Array(
-              tempEDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-            ),
+            new Uint8Array(cert.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
           )
 
           const pubKeyBytes = new Uint8Array([
@@ -203,9 +190,7 @@ export const useRegistration = () => {
 
           let dispatcherName = `C_ECDSA_${masterCertCurveName}`
 
-          const circuitHashAlgorithm = getCircuitHashAlgorithm(
-            tempEDoc.sod.slaveCertificate.certificate,
-          )
+          const circuitHashAlgorithm = getCircuitHashAlgorithm(cert.certificate)
           if (circuitHashAlgorithm) {
             dispatcherName += `_${circuitHashAlgorithm}`
           }
@@ -222,15 +207,13 @@ export const useRegistration = () => {
 
       const certificate: Registration2.CertificateStruct = {
         dataType: dispatcherHash,
-        signedAttributes: new Uint8Array(
-          AsnConvert.serialize(tempEDoc.sod.slaveCertificate.certificate.tbsCertificate),
-        ),
-        keyOffset: tempEDoc.sod.slaveCertificate.slaveCertPubKeyOffset,
-        expirationOffset: tempEDoc.sod.slaveCertificate.slaveCertExpOffset,
+        signedAttributes: new Uint8Array(AsnConvert.serialize(cert.certificate.tbsCertificate)),
+        keyOffset: cert.slaveCertPubKeyOffset,
+        expirationOffset: cert.slaveCertExpOffset,
       }
       const icaoMember: Registration2.ICAOMemberStruct = {
-        signature: tempEDoc.sod.slaveCertificate.getSlaveCertIcaoMemberSignature(masterCert),
-        publicKey: tempEDoc.sod.getSlaveCertIcaoMemberKey(masterCert),
+        signature: cert.getSlaveCertIcaoMemberSignature(masterCert),
+        publicKey: Sod.getSlaveCertIcaoMemberKey(masterCert),
       }
 
       return registrationContractInterface.encodeFunctionData('registerCertificate', [
@@ -243,9 +226,9 @@ export const useRegistration = () => {
   )
 
   const registerCertificate = useCallback(
-    async (CSCABytes: ArrayBuffer[], tempEDoc: EDocument, slaveMaster: Certificate) => {
+    async (CSCABytes: ArrayBuffer[], cert: ExtendedCertificate, slaveMaster: Certificate) => {
       try {
-        const newCallData = await newBuildRegisterCertCallData(CSCABytes, tempEDoc, slaveMaster)
+        const newCallData = await newBuildRegisterCertCallData(CSCABytes, cert, slaveMaster)
 
         const { data } = await relayerRegister(newCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
 
@@ -257,7 +240,13 @@ export const useRegistration = () => {
       } catch (error) {
         const axiosError = error as AxiosError
 
-        if (JSON.stringify(axiosError.response?.data)?.includes('the key already exists')) {
+        const stringifiedError = JSON.stringify(axiosError.response?.data)
+
+        if (
+          stringifiedError?.includes('the key already exists') &&
+          // TODO: remove once contracts got fixed
+          stringifiedError?.includes('code = Unknown desc = execution reverted')
+        ) {
           throw new CertificateAlreadyRegisteredError()
         }
 
@@ -267,129 +256,16 @@ export const useRegistration = () => {
     [newBuildRegisterCertCallData, rmoEvmJsonRpcProvider],
   )
 
-  const getIdentityRegProof = useCallback(
-    async (smtProof: SparseMerkleTree.ProofStructOutput, circuit: RegistrationCircuit) => {
-      const { datBytes, zkeyLocalUri } = await circuit.circuitParams.retrieveZkeyNDat({
-        onDownloadStart() {},
-        onDownloadingProgress(downloadProgressData) {
-          setDownloadingProgress(
-            `${downloadProgressData.totalBytesWritten} / ${downloadProgressData.totalBytesExpectedToWrite}`,
-          )
-        },
-        onFailed(_) {
-          setIsLoadFailed(true)
-        },
-        onLoaded() {
-          setIsLoaded(true)
-        },
-      })
-
-      const wtns = await circuit.calcWtns(
-        {
-          skIdentity: BigInt(`0x${privateKey}`),
-          slaveMerkleRoot: BigInt(smtProof.root),
-          slaveMerkleInclusionBranches: smtProof.siblings.map(el => BigInt(el)),
-        },
-        datBytes,
-      )
-
-      const registerIdentityZkProofBytes = await groth16ProveWithZKeyFilePath(wtns, zkeyLocalUri)
-
-      return JSON.parse(Buffer.from(registerIdentityZkProofBytes).toString()) as ZKProof
-    },
-    [privateKey],
-  )
-
-  const newBuildRegisterCallData = useCallback(
-    (
-      identityItem: IdentityItem,
-      slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
-      circuit: RegistrationCircuit,
-      isRevoked: boolean,
-    ) => {
-      const aaSignature = identityItem.document.getAASignature()
-
-      if (!aaSignature) throw new TypeError('AA signature is not defined')
-
-      const parts = circuit.name.split('_')
-
-      if (parts.length < 2) {
-        throw new Error('circuit name is in invalid format')
-      }
-
-      // ZKTypePrefix represerts the circuit zk type prefix
-      const ZKTypePrefix = 'Z_PER_PASSPORT'
-
-      const zkTypeSuffix = parts.slice(1).join('_') // support for multi-underscore suffix
-      const zkTypeName = `${ZKTypePrefix}_${zkTypeSuffix}`
-
-      const passport: Registration2.PassportStruct = {
-        dataType: identityItem.document.getAADataType(circuit.keySize),
-        zkType: keccak256(zkTypeName),
-        signature: aaSignature,
-        publicKey: (() => {
-          const aaPublicKey = identityItem.document.getAAPublicKey()
-
-          if (!aaPublicKey) return identityItem.passportKey
-
-          return aaPublicKey
-        })(),
-        passportHash: identityItem.passportHash,
-      }
-
-      const proofPoints: Groth16VerifierHelper.ProofPointsStruct = {
-        a: [
-          BigInt(identityItem.registrationProof.proof.pi_a[0]),
-          BigInt(identityItem.registrationProof.proof.pi_a[1]),
-        ],
-        b: [
-          [
-            BigInt(identityItem.registrationProof.proof.pi_b[0][0]),
-            BigInt(identityItem.registrationProof.proof.pi_b[0][1]),
-          ],
-          [
-            BigInt(identityItem.registrationProof.proof.pi_b[1][0]),
-            BigInt(identityItem.registrationProof.proof.pi_b[1][1]),
-          ],
-        ],
-        c: [
-          BigInt(identityItem.registrationProof.proof.pi_c[0]),
-          BigInt(identityItem.registrationProof.proof.pi_c[1]),
-        ],
-      }
-
-      if (isRevoked) {
-        return registrationContractInterface.encodeFunctionData('reissueIdentity', [
-          slaveCertSmtProof.root,
-          identityItem.pkIdentityHash,
-          identityItem.dg1Commitment,
-          passport,
-          proofPoints,
-        ])
-      }
-
-      return registrationContractInterface.encodeFunctionData('register', [
-        slaveCertSmtProof.root,
-        identityItem.pkIdentityHash,
-        identityItem.dg1Commitment,
-        passport,
-        proofPoints,
-      ])
-    },
-    [registrationContractInterface],
-  )
-
   const requestRelayerRegisterMethod = useCallback(
     async (
       identityItem: IdentityItem,
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
-      circuit: RegistrationCircuit,
       isRevoked: boolean,
     ) => {
-      const registerCallData = newBuildRegisterCallData(
+      // TODO: handle circom
+      const registerCallData = await registerContracts.buildNoirRegisterCallData(
         identityItem,
         slaveCertSmtProof,
-        circuit,
         isRevoked,
       )
 
@@ -401,7 +277,7 @@ export const useRegistration = () => {
 
       await tx.wait()
     },
-    [newBuildRegisterCallData, rmoEvmJsonRpcProvider],
+    [registerContracts, rmoEvmJsonRpcProvider],
   )
 
   const registerIdentity = useCallback(
@@ -409,7 +285,6 @@ export const useRegistration = () => {
       identityItem: IdentityItem,
       slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
       passportInfo: PassportInfo | null,
-      circuit: RegistrationCircuit,
     ): Promise<void> => {
       const currentIdentityKey = publicKeyHash
       const currentIdentityKeyHex = ethers.hexlify(currentIdentityKey)
@@ -421,7 +296,7 @@ export const useRegistration = () => {
         passportInfo?.passportInfo_.activeIdentity === currentIdentityKeyHex
 
       if (isPassportNotRegistered) {
-        await requestRelayerRegisterMethod(identityItem, slaveCertSmtProof, circuit, false)
+        await requestRelayerRegisterMethod(identityItem, slaveCertSmtProof, false)
       }
 
       if (!isPassportRegisteredWithCurrentPK) {
@@ -446,9 +321,9 @@ export const useRegistration = () => {
   )
 
   const getSlaveCertSmtProof = useCallback(
-    async (tempEDoc: EDocument) => {
+    async (cert: ExtendedCertificate) => {
       return certPoseidonSMTContract.contractInstance.getProof(
-        zeroPadValue(tempEDoc.sod.slaveCertificate.slaveCertificateIndex, 32),
+        zeroPadValue(cert.slaveCertificateIndex, 32),
       )
     },
     [certPoseidonSMTContract.contractInstance],
@@ -485,78 +360,90 @@ export const useRegistration = () => {
       )
 
       const revokedEDocument = currentIdentityItem.document || eDocumentResponse
-      revokedEDocument.aaSignature = eDocumentResponse.aaSignature
+      const currentIdentityItemDocument = currentIdentityItem.document
 
-      const circuit = new RegistrationCircuit(revokedEDocument)
+      if (
+        revokedEDocument instanceof EPassport &&
+        currentIdentityItemDocument instanceof EPassport &&
+        eDocumentResponse instanceof EPassport
+      ) {
+        revokedEDocument.aaSignature = eDocumentResponse.aaSignature
 
-      const [passportInfo, getPassportInfoError] = await (async () => {
-        if (_passportInfo) return [_passportInfo, null]
+        const [passportInfo, getPassportInfoError] = await (async () => {
+          if (_passportInfo) return [_passportInfo, null]
 
-        return tryCatch(currentIdentityItem.getPassportInfo())
-      })()
-      if (getPassportInfoError) {
-        throw new TypeError('Failed to get passport info', getPassportInfoError)
-      }
-
-      if (!passportInfo?.passportInfo_.activeIdentity)
-        throw new TypeError('Active identity not found')
-
-      const aaSignature = revokedEDocument.getAASignature()
-
-      if (!aaSignature) throw new TypeError('AA signature is not defined')
-
-      const isPassportRegistered = passportInfo?.passportInfo_.activeIdentity !== ZERO_BYTES32_HEX
-
-      if (isPassportRegistered) {
-        const passport: Registration2.PassportStruct = {
-          dataType: revokedEDocument.getAADataType(circuit.keySize),
-          zkType: ZERO_BYTES32_HEX,
-          signature: aaSignature,
-          publicKey: revokedEDocument.getAAPublicKey() || ZERO_BYTES32_HEX,
-          passportHash: ZERO_BYTES32_HEX,
+          return tryCatch(currentIdentityItem.getPassportInfo())
+        })()
+        if (getPassportInfoError) {
+          throw new TypeError('Failed to get passport info', getPassportInfoError)
         }
 
-        const txCallData = registrationContractInterface.encodeFunctionData('revoke', [
-          passportInfo?.passportInfo_.activeIdentity,
-          passport,
-        ])
+        if (!passportInfo?.passportInfo_.activeIdentity)
+          throw new TypeError('Active identity not found')
 
-        try {
-          const { data } = await relayerRegister(txCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
+        const aaSignature = revokedEDocument.getAASignature()
 
-          const tx = await rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
+        if (!aaSignature) throw new TypeError('AA signature is not defined')
 
-          if (!tx) throw new TypeError('Transaction not found')
+        const isPassportRegistered = passportInfo?.passportInfo_.activeIdentity !== ZERO_BYTES32_HEX
 
-          await tx.wait()
-        } catch (error) {
-          const axiosError = error as AxiosError
-          if (axiosError.response?.data) {
-            console.warn(JSON.stringify(axiosError.response?.data))
+        if (isPassportRegistered) {
+          const passport: Registration2.PassportStruct = {
+            dataType: revokedEDocument.getAADataType(revokedEDocument.sod.slaveCertificate.keySize),
+            zkType: ZERO_BYTES32_HEX,
+            signature: aaSignature,
+            publicKey: revokedEDocument.getAAPublicKey() || ZERO_BYTES32_HEX,
+            passportHash: ZERO_BYTES32_HEX,
           }
 
-          const errorMsgsToSkip = ['the leaf does not match', 'already revoked']
+          const txCallData = registrationContractInterface.encodeFunctionData('revoke', [
+            passportInfo?.passportInfo_.activeIdentity,
+            passport,
+          ])
 
-          const isSkip = errorMsgsToSkip.some(q =>
-            JSON.stringify(axiosError.response?.data)?.includes(q),
-          )
+          try {
+            const { data } = await relayerRegister(txCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
 
-          if (!isSkip) {
-            throw axiosError
+            const tx = await rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
+
+            if (!tx) throw new TypeError('Transaction not found')
+
+            await tx.wait()
+          } catch (error) {
+            const axiosError = error as AxiosError
+            if (axiosError.response?.data) {
+              console.warn(JSON.stringify(axiosError.response?.data))
+            }
+
+            const errorMsgsToSkip = ['the leaf does not match', 'already revoked']
+
+            const isSkip = errorMsgsToSkip.some(q =>
+              JSON.stringify(axiosError.response?.data)?.includes(q),
+            )
+
+            if (!isSkip) {
+              throw axiosError
+            }
           }
         }
+
+        const [slaveCertSmtProof, getSlaveCertSmtProofError] = await (async () => {
+          if (_slaveCertSmtProof) return [_slaveCertSmtProof, null]
+
+          return tryCatch(getSlaveCertSmtProof(currentIdentityItemDocument.sod.slaveCertificate))
+        })()
+        if (getSlaveCertSmtProofError) {
+          throw new TypeError('Slave certificate SMT proof not found', getSlaveCertSmtProofError)
+        }
+
+        await requestRelayerRegisterMethod(currentIdentityItem, slaveCertSmtProof, true)
       }
 
-      const [slaveCertSmtProof, getSlaveCertSmtProofError] = await (async () => {
-        if (_slaveCertSmtProof) return [_slaveCertSmtProof, null]
-
-        return tryCatch(getSlaveCertSmtProof(currentIdentityItem.document))
-      })()
-      if (getSlaveCertSmtProofError) {
-        throw new TypeError('Slave certificate SMT proof not found', getSlaveCertSmtProofError)
+      if (revokedEDocument instanceof EID) {
+        throw new TypeError('EID revocation is not supported yet')
       }
 
-      await requestRelayerRegisterMethod(currentIdentityItem, slaveCertSmtProof, circuit, true)
+      throw new TypeError('Unsupported document type for revocation')
     },
     [
       getRevocationChallenge,
@@ -576,20 +463,43 @@ export const useRegistration = () => {
         onRevocation: (identityItem: IdentityItem) => void
       },
     ): Promise<IdentityItem> => {
-      if (!(await FileSystem.getInfoAsync(icaoPkdFileUri)).exists) {
-        await downloadResumable.downloadAsync()
-      }
+      const targetCertificate = (() => {
+        if (tempEDoc instanceof EPassport) {
+          return tempEDoc.sod.slaveCertificate
+        }
 
-      const icaoLdif = await FileSystem.readAsStringAsync(icaoPkdFileUri, {
+        if (tempEDoc instanceof EID) {
+          return tempEDoc.authCertificate
+        }
+
+        throw new TypeError('Unsupported document type for identity creation')
+      })()
+
+      const [CSCAPemAsset] = await Asset.loadAsync(
+        require('@assets/certificates/master_000316.pem'),
+      )
+
+      if (!CSCAPemAsset.localUri) throw new Error('CSCA cert asset local URI is not available')
+
+      const CSCAPemFileInfo = await FileSystem.getInfoAsync(CSCAPemAsset.localUri)
+
+      if (!CSCAPemFileInfo.exists) throw new Error('CSCA cert file does not exist')
+
+      const CSCAPemFileContent = await FileSystem.readAsStringAsync(CSCAPemFileInfo.uri, {
         encoding: FileSystem.EncodingType.UTF8,
       })
 
-      const CSCACertBytes = parseLdifString(icaoLdif)
+      const CSCACertBytes = parsePemString(CSCAPemFileContent)
 
-      const slaveMaster = await tempEDoc.sod.slaveCertificate.getSlaveMaster(CSCACertBytes)
+      const [slaveMaster, getSlaveMasterError] = await tryCatch(
+        targetCertificate.getSlaveMaster(CSCACertBytes),
+      )
+      if (getSlaveMasterError) {
+        throw new TypeError('Failed to get slave master certificate', getSlaveMasterError)
+      }
 
       const [slaveCertSmtProof, getSlaveCertSmtProofError] = await tryCatch(
-        getSlaveCertSmtProof(tempEDoc),
+        getSlaveCertSmtProof(targetCertificate),
       )
       if (getSlaveCertSmtProofError) {
         throw new TypeError('Slave certificate SMT proof not found', getSlaveCertSmtProofError)
@@ -597,7 +507,7 @@ export const useRegistration = () => {
 
       if (!slaveCertSmtProof.existence) {
         const [, registerCertificateError] = await tryCatch(
-          registerCertificate(CSCACertBytes, tempEDoc, slaveMaster),
+          registerCertificate(CSCACertBytes, targetCertificate, slaveMaster),
         )
         if (registerCertificateError) {
           ErrorHandler.processWithoutFeedback(registerCertificateError)
@@ -608,14 +518,30 @@ export const useRegistration = () => {
         }
       }
 
-      const registrationCircuit = new RegistrationCircuit(tempEDoc)
+      const circuit = (() => {
+        if (tempEDoc instanceof EPassport) {
+          return new NoirEPassportBasedRegistrationCircuit(tempEDoc)
+        }
 
+        if (tempEDoc instanceof EID) {
+          return new NoirEIDBasedRegistrationCircuit(tempEDoc)
+        }
+
+        throw new TypeError('Unsupported document type for identity creation')
+      })()
+
+      // TODO: prove in different thread
       const [regProof, getRegProofError] = await tryCatch(
-        getIdentityRegProof(slaveCertSmtProof, registrationCircuit),
+        circuit.prove({
+          skIdentity: BigInt(`0x${privateKey}`),
+          icaoRoot: BigInt(slaveCertSmtProof.root),
+          inclusionBranches: slaveCertSmtProof.siblings.map(el => BigInt(el)),
+        }),
       )
       if (getRegProofError) {
         throw new TypeError('Failed to get identity registration proof', getRegProofError)
       }
+
       const identityItem = new IdentityItem(tempEDoc, regProof)
 
       const [passportInfo, getPassportInfoError] = await tryCatch(identityItem.getPassportInfo())
@@ -624,7 +550,7 @@ export const useRegistration = () => {
       }
 
       const [, registerIdentityError] = await tryCatch(
-        registerIdentity(identityItem, slaveCertSmtProof, passportInfo, registrationCircuit),
+        registerIdentity(identityItem, slaveCertSmtProof, passportInfo),
       )
       if (registerIdentityError) {
         if (registerIdentityError instanceof PassportRegisteredWithAnotherPKError) {
@@ -636,13 +562,7 @@ export const useRegistration = () => {
 
       return identityItem
     },
-    [
-      downloadResumable,
-      getIdentityRegProof,
-      getSlaveCertSmtProof,
-      registerCertificate,
-      registerIdentity,
-    ],
+    [getSlaveCertSmtProof, privateKey, registerCertificate, registerIdentity],
   )
 
   return {

@@ -7,16 +7,13 @@ This repository provides a React Native template for building applications with 
 Before you begin, ensure you have the following installed on your machine:
 
 - **Node.js** (version >= 20.15.0)
-
   - [Download Node.js](https://nodejs.org/en/download/) or use a version manager like [nvm](https://github.com/nvm-sh/nvm) for easy version management.
 
 - **Android Studio**
-
   - [Download Android Studio](https://developer.android.com/studio/install) and install the latest stable version.
   - Install the Android SDK and set up environment variables as per the [React Native environment setup guide](https://reactnative.dev/docs/environment-setup).
 
 - **Xcode** (for macOS users)
-
   - Install from the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835?mt=12).
   - Ensure command-line tools are installed by running:
 
@@ -25,7 +22,6 @@ Before you begin, ensure you have the following installed on your machine:
     ```
 
 - **EAS CLI**
-
   - Install globally using npm:
 
     ```bash
@@ -35,7 +31,6 @@ Before you begin, ensure you have the following installed on your machine:
   - Refer to the [EAS CLI documentation](https://docs.expo.dev/eas-update/getting-started/) for more details.
 
 - **Fastlane**
-
   - Install via RubyGems:
 
     ```bash
@@ -45,7 +40,6 @@ Before you begin, ensure you have the following installed on your machine:
   - See the [Fastlane getting started guide](https://docs.fastlane.tools/getting-started/ios/setup/) for configuration.
 
 - **Git LFS**
-
   - Install Git LFS:
 
     ```bash
@@ -56,7 +50,6 @@ Before you begin, ensure you have the following installed on your machine:
   - Visit the [Git LFS website](https://git-lfs.github.com/) for more information.
 
 - **Watchman** (required only for macOS or Linux users)
-
   - Install via Homebrew:
 
     ```bash
@@ -519,12 +512,10 @@ This error indicates a permission issue with Gradle wrapper scripts.
 ### Debugging Tips
 
 - **Check Build Logs:**
-
   - For iOS, open Xcode and check the build logs for more detailed error messages.
   - For Android, use Android Studio's logcat to view logs.
 
 - **Clean Project:**
-
   - Sometimes, cleaning the build folders helps resolve issues:
 
     ```bash

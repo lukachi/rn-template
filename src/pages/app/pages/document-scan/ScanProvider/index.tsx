@@ -1,6 +1,6 @@
 import type { FieldRecords } from 'mrz'
 import type { PropsWithChildren } from 'react'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback } from 'react'
 import { useState } from 'react'
 import { createContext, useContext } from 'react'
 
@@ -150,44 +150,18 @@ export function ScanContextProvider({
     setCurrentStep(Steps.ScanMrzStep)
   }, [])
 
-  const setTestEDoc = identityStore.useIdentityStore(state => state.setTestEDoc)
-  const setTestMRZ = identityStore.useIdentityStore(state => state.setTestMRZ)
-
-  const handleSetMrz = useCallback(
-    (value: FieldRecords) => {
-      setTempMRZ(value)
-      setTestMRZ(value)
-      setCurrentStep(Steps.ScanNfcStep)
-    },
-    [setTestMRZ],
-  )
+  const handleSetMrz = useCallback((value: FieldRecords) => {
+    setTempMRZ(value)
+    setCurrentStep(Steps.ScanNfcStep)
+  }, [])
 
   const handleSetEDoc = useCallback(
     (value: EDocument) => {
       setTempEDoc(value)
-      setTestEDoc(value)
       setCurrentStep(Steps.DocumentPreviewStep)
     },
-    [setTestEDoc],
+    [setTempEDoc],
   )
-
-  // TODO: remove me
-  const testEDoc = identityStore.useIdentityStore(state => state.testEDoc)
-  const testMRZ = identityStore.useIdentityStore(state => state.testMRZ)
-
-  // // TODO: remove me
-  const initted = useRef(false)
-  useEffect(() => {
-    if (initted.current || currentStep === Steps.DocumentPreviewStep) return
-
-    initted.current = true
-
-    if (testEDoc && testMRZ) {
-      setTempEDoc(testEDoc)
-      setTempMRZ(testMRZ)
-      setCurrentStep(Steps.DocumentPreviewStep)
-    }
-  }, [currentStep, testEDoc, testMRZ])
 
   return (
     <documentScanContext.Provider

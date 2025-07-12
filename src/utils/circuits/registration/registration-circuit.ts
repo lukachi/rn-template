@@ -1,13 +1,13 @@
 import { Hex } from '@iden3/js-crypto'
-import { ExternalCircuitParams } from '@modules/witnesscalculator'
 import { secp256r1, secp521r1 } from '@noble/curves/nist'
-import { ECDSASigValue, ECParameters } from '@peculiar/asn1-ecc'
+import { ECDSASigValue } from '@peculiar/asn1-ecc'
+import { ECParameters } from '@peculiar/asn1-ecc'
 import { RSAPublicKey, RsaSaPssParams } from '@peculiar/asn1-rsa'
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
 import { toBeArray, toBigInt } from 'ethers'
 
-import { EDocument } from '@/utils/e-document/e-document'
+import { EID, EPassport } from '@/utils/e-document/e-document'
 
 import {
   brainpoolP256r1,
@@ -16,15 +16,106 @@ import {
   brainpoolP512r1,
   secp192r1,
   secp224r1,
-} from '../curves'
-import { namedCurveFromParameters } from '../e-document/helpers/crypto'
-import { extractPubKey } from '../e-document/helpers/misc'
-import { CircuitDocumentType, HASH_ALGORITHMS } from './constants'
-import { PrivateRegisterIdentityBuilderGroth16 } from './types/RegisterIdentityBuilder'
+} from '../../curves'
+import { namedCurveFromParameters } from '../../e-document/helpers/crypto'
+import { extractPubKey, extractRawPubKey } from '../../e-document/helpers/misc'
+import { CircuitDocumentType, HASH_ALGORITHMS } from '../constants'
 
-export class RegistrationCircuit {
+export abstract class RegistrationCircuit {
   public prefixName = 'registerIdentity'
 
+  static getChunkedParams(certificate: Certificate) {
+    const pubKey = extractPubKey(certificate.tbsCertificate.subjectPublicKeyInfo)
+
+    if (pubKey instanceof RSAPublicKey) {
+      const ecFieldSize = 0
+      const chunkSize = 64
+      const chunkNumber = Math.ceil(pubKey.modulus.byteLength / 16)
+
+      const publicKeyChunked = RegistrationCircuit.splitBigIntToChunks(
+        chunkSize,
+        chunkNumber,
+        toBigInt(new Uint8Array(pubKey.modulus)),
+      )
+
+      const sigChunked = RegistrationCircuit.splitBigIntToChunks(
+        chunkSize,
+        chunkNumber,
+        toBigInt(new Uint8Array(certificate.signatureValue)),
+      )
+
+      return {
+        ec_field_size: ecFieldSize,
+        chunk_number: chunkNumber,
+        pk_chunked: publicKeyChunked,
+        sig_chunked: sigChunked,
+      }
+    }
+
+    // ECDSA public key handling
+
+    if (!certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters?.byteLength) {
+      throw new TypeError('ECDSA public key does not have parameters')
+    }
+
+    const ecFieldSize =
+      certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters?.byteLength * 4
+
+    const chunk_size = 66
+
+    const chunkNumber = (() => {
+      if (ecFieldSize <= 512) {
+        return Math.ceil(toBeArray(pubKey.px).length / 16)
+      }
+
+      return 8
+    })()
+
+    const pk_chunked = RegistrationCircuit.splitBigIntToChunks(
+      chunk_size,
+      chunkNumber,
+      pubKey.px,
+    ).concat(RegistrationCircuit.splitBigIntToChunks(chunk_size, chunkNumber, pubKey.py))
+
+    const { r, s } = AsnConvert.parse(certificate.signatureValue, ECDSASigValue)
+
+    // Convert r and s to BigInt directly without creating a Signature object
+    const rBigInt = toBigInt(new Uint8Array(r))
+    const sBigInt = toBigInt(new Uint8Array(s))
+
+    const sig_chunked = RegistrationCircuit.splitBigIntToChunks(
+      chunk_size,
+      chunkNumber,
+      rBigInt,
+    ).concat(RegistrationCircuit.splitBigIntToChunks(chunk_size, chunkNumber, sBigInt))
+
+    return {
+      ec_field_size: ecFieldSize,
+      chunk_number: chunkNumber * 2, // bits
+      pk_chunked: pk_chunked,
+      sig_chunked: sig_chunked,
+    }
+  }
+
+  static splitBigIntToChunks(bitsPerChunk: number, chunkCount: number, value: bigint): string[] {
+    const mask = (1n << BigInt(bitsPerChunk)) - 1n
+    return Array.from({ length: chunkCount }, (_, i) => {
+      return ((value >> (BigInt(i) * BigInt(bitsPerChunk))) & mask).toString(10)
+    })
+  }
+
+  static computeHash(outLen: string, input: Uint8Array) {
+    const algorithm = HASH_ALGORITHMS[outLen]
+
+    if (!algorithm) {
+      throw new Error('Invalid hash output length. Use 20, 28, 32, 48, or 64 bytes.')
+    }
+
+    return algorithm.hasher(input)
+  }
+}
+
+export abstract class EPassportBasedRegistrationCircuit extends RegistrationCircuit {
   get sigAttrHashType() {
     return this.eDoc.sod.signatures[0].digestAlgorithm
   }
@@ -302,160 +393,21 @@ export class RegistrationCircuit {
     ].join('_')
   }
 
-  get circuitParams(): ExternalCircuitParams {
-    return ExternalCircuitParams.fromName(this.name)
+  constructor(public eDoc: EPassport) {
+    super()
+  }
+}
+
+export abstract class EIDBasedRegistrationCircuit extends RegistrationCircuit {
+  constructor(public eID: EID) {
+    super()
   }
 
-  get keySize() {
-    const pubKey = extractPubKey(
-      this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo,
-    )
-
-    if (pubKey instanceof RSAPublicKey) {
-      return (
-        new Uint8Array(pubKey.modulus[0] === 0x00 ? pubKey.modulus.slice(1) : pubKey.modulus)
-          .length * 8
-      )
-    }
-
-    if (
-      !this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
-        .parameters
-    ) {
-      throw new TypeError('ECDSA public key does not have parameters')
-    }
-
-    const ecParameters = AsnConvert.parse(
-      this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm
-        .parameters,
-      ECParameters,
-    )
-
-    const [, namedCurve] = namedCurveFromParameters(
-      ecParameters,
-      new Uint8Array(
-        this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey,
-      ),
-    )
-
-    if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
-
-    return toBeArray(namedCurve.CURVE.n).length * 8
+  get pubKey() {
+    return extractRawPubKey(this.eID.authCertificate.certificate)
   }
 
-  constructor(public eDoc: EDocument) {}
-
-  calcWtns(
-    params: Pick<
-      PrivateRegisterIdentityBuilderGroth16,
-      'skIdentity' | 'slaveMerkleRoot' | 'slaveMerkleInclusionBranches'
-    >,
-    datBytes: Uint8Array,
-  ): Promise<Uint8Array> {
-    const inputs: PrivateRegisterIdentityBuilderGroth16 = {
-      dg1: this.eDoc.dg1Bytes,
-      dg15: this.eDoc.dg15Bytes,
-      signedAttributes: this.eDoc.sod.signedAttributes,
-      encapsulatedContent: this.eDoc.sod.encapsulatedContent,
-      pubkey: extractPubKey(
-        this.eDoc.sod.slaveCertificate.certificate.tbsCertificate.subjectPublicKeyInfo,
-      ),
-      signature: this.eDoc.sod.signature,
-      skIdentity: params.skIdentity,
-      slaveMerkleRoot: params.slaveMerkleRoot,
-      slaveMerkleInclusionBranches: params.slaveMerkleInclusionBranches,
-    }
-
-    return this.circuitParams.wtnsCalcMethod(datBytes, Buffer.from(JSON.stringify(inputs)))
-  }
-
-  static getChunkedParams(certificate: Certificate) {
-    const pubKey = extractPubKey(certificate.tbsCertificate.subjectPublicKeyInfo)
-
-    if (pubKey instanceof RSAPublicKey) {
-      const ecFieldSize = 0
-      const chunkSize = 64
-      const chunkNumber = Math.ceil(pubKey.modulus.byteLength / 16)
-
-      const publicKeyChunked = RegistrationCircuit.splitBigIntToChunks(
-        chunkSize,
-        chunkNumber,
-        toBigInt(new Uint8Array(pubKey.modulus)),
-      )
-
-      const sigChunked = RegistrationCircuit.splitBigIntToChunks(
-        chunkSize,
-        chunkNumber,
-        toBigInt(new Uint8Array(certificate.signatureValue)),
-      )
-
-      return {
-        ec_field_size: ecFieldSize,
-        chunk_number: chunkNumber,
-        pk_chunked: publicKeyChunked,
-        sig_chunked: sigChunked,
-      }
-    }
-
-    // ECDSA public key handling
-
-    if (!certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters?.byteLength) {
-      throw new TypeError('ECDSA public key does not have parameters')
-    }
-
-    const ecFieldSize =
-      certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters?.byteLength * 4
-
-    const chunk_size = 66
-
-    const chunkNumber = (() => {
-      if (ecFieldSize <= 512) {
-        return Math.ceil(toBeArray(pubKey.px).length / 16)
-      }
-
-      return 8
-    })()
-
-    const pk_chunked = RegistrationCircuit.splitBigIntToChunks(
-      chunk_size,
-      chunkNumber,
-      pubKey.px,
-    ).concat(RegistrationCircuit.splitBigIntToChunks(chunk_size, chunkNumber, pubKey.py))
-
-    const { r, s } = AsnConvert.parse(certificate.signatureValue, ECDSASigValue)
-
-    // Convert r and s to BigInt directly without creating a Signature object
-    const rBigInt = toBigInt(new Uint8Array(r))
-    const sBigInt = toBigInt(new Uint8Array(s))
-
-    const sig_chunked = RegistrationCircuit.splitBigIntToChunks(
-      chunk_size,
-      chunkNumber,
-      rBigInt,
-    ).concat(RegistrationCircuit.splitBigIntToChunks(chunk_size, chunkNumber, sBigInt))
-
-    return {
-      ec_field_size: ecFieldSize,
-      chunk_number: chunkNumber * 2, // bits
-      pk_chunked: pk_chunked,
-      sig_chunked: sig_chunked,
-    }
-  }
-
-  static splitBigIntToChunks(bitsPerChunk: number, chunkCount: number, value: bigint): string[] {
-    const mask = (1n << BigInt(bitsPerChunk)) - 1n
-    return Array.from({ length: chunkCount }, (_, i) => {
-      return ((value >> (BigInt(i) * BigInt(bitsPerChunk))) & mask).toString(10)
-    })
-  }
-
-  static computeHash(outLen: string, input: Uint8Array) {
-    const algorithm = HASH_ALGORITHMS[outLen]
-
-    if (!algorithm) {
-      throw new Error('Invalid hash output length. Use 20, 28, 32, 48, or 64 bytes.')
-    }
-
-    return algorithm.hasher(input)
+  get tbsRaw() {
+    return AsnConvert.serialize(this.eID.sigCertificate.certificate.tbsCertificate)
   }
 }

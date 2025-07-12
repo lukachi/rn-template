@@ -1,9 +1,10 @@
+/* eslint-disable no-console */
 import { AsnConvert } from '@peculiar/asn1-schema'
 import { Certificate } from '@peculiar/asn1-x509'
 import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, Button, SafeAreaView, Text } from 'react-native'
 
-import { initNfc, readSigningAndAuthCertificates } from '@/utils/inid/inid-nfc-reader'
+import { initNfc, readSigningAndAuthCertificates } from '@/utils/e-document/inid-nfc-reader'
 
 export default function ExampleCertReader() {
   const [busy, setBusy] = useState(false)

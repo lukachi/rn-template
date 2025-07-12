@@ -14,6 +14,7 @@ import {
   hashPacked,
   namedCurveFromParameters,
 } from './helpers/crypto'
+import { extractPubKey } from './helpers/misc'
 import { ECDSA_ALGO_PREFIX } from './sod'
 
 export class ExtendedCertificate {
@@ -201,5 +202,34 @@ export class ExtendedCertificate {
     throw new TypeError(
       `Unsupported public key algorithm: ${this.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm}`,
     )
+  }
+
+  get keySize() {
+    const pubKey = extractPubKey(this.certificate.tbsCertificate.subjectPublicKeyInfo)
+
+    if (pubKey instanceof RSAPublicKey) {
+      return (
+        new Uint8Array(pubKey.modulus[0] === 0x00 ? pubKey.modulus.slice(1) : pubKey.modulus)
+          .length * 8
+      )
+    }
+
+    if (!this.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters) {
+      throw new TypeError('ECDSA public key does not have parameters')
+    }
+
+    const ecParameters = AsnConvert.parse(
+      this.certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters,
+      ECParameters,
+    )
+
+    const [, namedCurve] = namedCurveFromParameters(
+      ecParameters,
+      new Uint8Array(this.certificate.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey),
+    )
+
+    if (!namedCurve) throw new TypeError('Named curve not found in TBS Certificate')
+
+    return toBeArray(namedCurve.CURVE.n).length * 8
   }
 }

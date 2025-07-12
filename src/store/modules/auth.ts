@@ -1,8 +1,8 @@
-import type { ZKProof } from '@modules/rapidsnark-wrp'
 import { groth16Prove } from '@modules/rapidsnark-wrp'
 import { groth16ProveWithZKeyFilePath } from '@modules/rapidsnark-wrp'
+import type { CircomZKProof } from '@modules/witnesscalculator'
 import { Buffer } from 'buffer'
-import { ethers } from 'ethers'
+import { ethers, toBeArray, zeroPadValue } from 'ethers'
 import * as FileSystem from 'expo-file-system'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
@@ -79,12 +79,12 @@ const useIsAuthorized = () => {
 const useAuthProof = (opts?: { byFilePath?: boolean }) => {
   const getPointsNullifier = walletStore.usePointsNullifier()
 
-  return async (privateKey: string): Promise<ZKProof> => {
+  return async (privateKey: string): Promise<CircomZKProof> => {
     const pkHex = `0x${privateKey}`
 
     const pointsNullifier = await getPointsNullifier(privateKey)
 
-    const { data } = await getChallenge('0x' + pointsNullifier.toString(16))
+    const { data } = await getChallenge(zeroPadValue(toBeArray(pointsNullifier), 32))
 
     const challengeHex = ethers.hexlify(ethers.decodeBase64(data.challenge))
 
@@ -132,7 +132,10 @@ const useLogin = () => {
     const zkProof = await genAuthProof(privateKey)
     const pointsNullifier = await getPointsNullifier(privateKey)
 
-    const { data: authTokens } = await authorize('0x' + pointsNullifier.toString(16), zkProof)
+    const { data: authTokens } = await authorize(
+      zeroPadValue(toBeArray(pointsNullifier), 32),
+      zkProof,
+    )
 
     setTokens(authTokens.access_token.token, authTokens.refresh_token.token)
   }

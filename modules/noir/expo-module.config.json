@@ -1,17 +1,9 @@
 {
-  "platforms": [
-    "apple",
-    "android",
-    "web"
-  ],
+  "platforms": ["apple", "android", "web"],
   "apple": {
-    "modules": [
-      "NoirModule"
-    ]
+    "modules": ["NoirModule"]
   },
   "android": {
-    "modules": [
-      "expo.modules.noir.NoirModule"
-    ]
+    "modules": ["expo.modules.noir.NoirModule"]
   }
 }
