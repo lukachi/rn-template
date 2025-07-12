@@ -11,6 +11,7 @@ import {
   id_RSASSA_PSS,
   id_sha1WithRSAEncryption,
   id_sha256,
+  id_sha256WithRSAEncryption,
   id_sha384,
   id_sha384WithRSAEncryption,
   id_sha512,
@@ -127,6 +128,7 @@ export abstract class RegistrationStrategy {
         }
 
         throw new Error('Unsupported RSASSA-PSS parameters')
+      case id_sha256WithRSAEncryption:
       case id_ecdsaWithSHA256:
         return 'SHA2'
       case id_sha384WithRSAEncryption:
@@ -265,13 +267,15 @@ export abstract class RegistrationStrategy {
     slaveMaster: Certificate,
   ) => {
     try {
-      const newCallData = await RegistrationStrategy.buildRegisterCertCallData(
+      const callData = await RegistrationStrategy.buildRegisterCertCallData(
         CSCABytes,
         cert,
         slaveMaster,
       )
 
-      const { data } = await relayerRegister(newCallData, Config.REGISTRATION_CONTRACT_ADDRESS)
+      const { data } = await relayerRegister(callData, Config.REGISTRATION_CONTRACT_ADDRESS)
+
+      console.log({ data })
 
       const tx = await RegistrationStrategy.rmoEvmJsonRpcProvider.getTransaction(data.tx_hash)
 

@@ -85,6 +85,8 @@ export class NoirEIDRegistration extends RegistrationStrategy {
       eDocument.authCertificate,
     )
 
+    console.log({ slaveCertSmtProof })
+
     if (!slaveCertSmtProof.existence) {
       await RegistrationStrategy.registerCertificate(
         CSCACertBytes,
