@@ -3,10 +3,10 @@ import { hexlify, keccak256 } from 'ethers'
 
 import { RegistrationStrategy } from '@/api/modules/registration/strategy'
 import { PassportRegisteredWithAnotherPKError } from '@/store/modules/identity/errors'
-import { IdentityItem } from '@/store/modules/identity/Identity'
+import { IdentityItem, NoirEIDIdentity } from '@/store/modules/identity/Identity'
 import { Registration2 } from '@/types/contracts/Registration'
 import { NoirEIDBasedRegistrationCircuit } from '@/utils/circuits/registration/noir-registration-circuit'
-import { EID } from '@/utils/e-document'
+import { EDocument, EID } from '@/utils/e-document'
 
 export class NoirEIDRegistration extends RegistrationStrategy {
   buildRegisterCallData = async (identityItem, slaveCertSmtProof, isRevoked) => {
@@ -73,10 +73,12 @@ export class NoirEIDRegistration extends RegistrationStrategy {
   }
 
   createIdentity = async (
-    eDocument: EID,
+    _eDocument: EDocument,
     privateKey: string,
     publicKeyHash: Uint8Array,
   ): Promise<IdentityItem> => {
+    const eDocument = _eDocument as EID
+
     const CSCACertBytes = await RegistrationStrategy.retrieveCSCAFromPem()
 
     const slaveMaster = await eDocument.authCertificate.getSlaveMaster(CSCACertBytes)
@@ -84,8 +86,6 @@ export class NoirEIDRegistration extends RegistrationStrategy {
     const slaveCertSmtProof = await RegistrationStrategy.getSlaveCertSmtProof(
       eDocument.authCertificate,
     )
-
-    console.log({ slaveCertSmtProof })
 
     if (!slaveCertSmtProof.existence) {
       await RegistrationStrategy.registerCertificate(
@@ -103,7 +103,7 @@ export class NoirEIDRegistration extends RegistrationStrategy {
       inclusionBranches: slaveCertSmtProof.siblings.map(el => BigInt(el)),
     })
 
-    const identityItem = new IdentityItem(eDocument, registrationProof)
+    const identityItem = new NoirEIDIdentity(eDocument, registrationProof)
 
     const passportInfo = await identityItem.getPassportInfo()
 

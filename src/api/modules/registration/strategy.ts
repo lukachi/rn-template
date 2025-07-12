@@ -334,9 +334,9 @@ export abstract class RegistrationStrategy {
     throw new Error('Override this method in a subclass')
   }
 
-  public createIdentity = async <T>(
+  public createIdentity = async (
     // eslint-disable-next-line unused-imports/no-unused-vars
-    eDocument: T,
+    eDocument: EDocument,
     // eslint-disable-next-line unused-imports/no-unused-vars
     privateKey: string,
     // eslint-disable-next-line unused-imports/no-unused-vars

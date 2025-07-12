@@ -7,7 +7,7 @@ import { PassportInfo, RegistrationStrategy } from '@/api/modules/registration/s
 import { Config } from '@/config'
 import { tryCatch } from '@/helpers/try-catch'
 import { PassportRegisteredWithAnotherPKError } from '@/store/modules/identity/errors'
-import { IdentityItem } from '@/store/modules/identity/Identity'
+import { IdentityItem, NoirEpassportIdentity } from '@/store/modules/identity/Identity'
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Registration2 } from '@/types/contracts/Registration'
 import { NoirEPassportBasedRegistrationCircuit } from '@/utils/circuits/registration/noir-registration-circuit'
@@ -16,7 +16,11 @@ import { EDocument, EPassport } from '@/utils/e-document'
 import { relayerRegister } from '..'
 
 export class NoirEPassportRegistration extends RegistrationStrategy {
-  buildRegisterCallData = async (identityItem, slaveCertSmtProof, isRevoked) => {
+  buildRegisterCallData = async (
+    identityItem: NoirEpassportIdentity,
+    slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
+    isRevoked: boolean,
+  ) => {
     if (typeof identityItem.registrationProof !== 'string') {
       throw new TypeError('Noir proof is not supported for Circom registration')
     }
@@ -82,10 +86,12 @@ export class NoirEPassportRegistration extends RegistrationStrategy {
   }
 
   createIdentity = async (
-    eDocument: EPassport,
+    _eDocument: EDocument,
     privateKey: string,
     publicKeyHash: Uint8Array,
-  ): Promise<IdentityItem> => {
+  ): Promise<NoirEpassportIdentity> => {
+    const eDocument = _eDocument as EPassport
+
     const CSCACertBytes = await RegistrationStrategy.retrieveCSCAFromPem()
 
     const slaveMaster = await eDocument.sod.slaveCertificate.getSlaveMaster(CSCACertBytes)
@@ -110,7 +116,7 @@ export class NoirEPassportRegistration extends RegistrationStrategy {
       inclusionBranches: slaveCertSmtProof.siblings.map(el => BigInt(el)),
     })
 
-    const identityItem = new IdentityItem(eDocument, registrationProof)
+    const identityItem = new NoirEpassportIdentity(eDocument, registrationProof)
 
     const passportInfo = await identityItem.getPassportInfo()
 
@@ -143,7 +149,7 @@ export class NoirEPassportRegistration extends RegistrationStrategy {
 
   public revokeIdentity = async (
     tempMRZ: FieldRecords,
-    currentIdentityItem: IdentityItem,
+    _currentIdentityItem: IdentityItem,
     scanDocument: (
       documentCode: string,
       bacKeyParameters: {
@@ -163,6 +169,8 @@ export class NoirEPassportRegistration extends RegistrationStrategy {
       !tempMRZ.documentCode
     )
       throw new TypeError('MRZ data is empty')
+
+    const currentIdentityItem = _currentIdentityItem as NoirEpassportIdentity
 
     const [passportInfo, getPassportInfoError] = await (async () => {
       if (_passportInfo) return [_passportInfo, null]
@@ -191,8 +199,7 @@ export class NoirEPassportRegistration extends RegistrationStrategy {
       challenge,
     )) as EPassport
 
-    const revokedEDocument = (currentIdentityItem.document || eDocumentResponse) as EPassport
-    const currentIdentityItemDocument = currentIdentityItem.document as EPassport
+    const revokedEDocument = currentIdentityItem.document || eDocumentResponse
 
     revokedEDocument.aaSignature = eDocumentResponse.aaSignature
 
@@ -247,7 +254,9 @@ export class NoirEPassportRegistration extends RegistrationStrategy {
       if (_slaveCertSmtProof) return [_slaveCertSmtProof, null]
 
       return tryCatch(
-        RegistrationStrategy.getSlaveCertSmtProof(currentIdentityItemDocument.sod.slaveCertificate),
+        RegistrationStrategy.getSlaveCertSmtProof(
+          currentIdentityItem.document.sod.slaveCertificate,
+        ),
       )
     })()
     if (getSlaveCertSmtProofError) {

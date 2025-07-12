@@ -190,8 +190,6 @@ export function ScanContextProvider({
 
         createIdentity,
         revokeIdentity: revokeIdentity,
-
-        circuitLoadingDetails: {}, // registration.circuitLoadingDetails,
       }}
       children={children}
     />

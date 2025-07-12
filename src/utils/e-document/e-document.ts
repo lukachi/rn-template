@@ -30,24 +30,16 @@ export enum DocType {
   PASSPORT = 'PASSPORT',
 }
 
-export abstract class EDocument {
+export interface EDocument {
   docCode: string
 
-  constructor(params: { docCode: string }) {
-    this.docCode = params.docCode
-  }
+  // constructor(params: { docCode: string }) {
+  //   this.docCode = params.docCode
+  // }
 
-  get personDetails(): PersonDetails {
-    throw new Error('Method personDetails() must be implemented in subclass')
-  }
+  get personDetails(): PersonDetails
 
-  serialize(): string {
-    throw new Error('Method serialize() must be implemented in subclass')
-  }
-
-  static deserialize(serialized: string): EDocument {
-    throw new Error(`Method deserialize() must be implemented in subclass for ${serialized}`)
-  }
+  serialize(): string
 }
 
 type EPassportSerialized = {
@@ -59,7 +51,7 @@ type EPassportSerialized = {
   dg11Bytes?: string
 }
 
-export class EPassport extends EDocument {
+export class EPassport implements EDocument {
   static ECMaxSizeInBits = 2688 // Represents the maximum size in bits for an encapsulated content
 
   docCode: string
@@ -79,7 +71,7 @@ export class EPassport extends EDocument {
     dg11Bytes?: Uint8Array
     aaSignature?: Uint8Array
   }) {
-    super({ docCode: params.docCode })
+    this.docCode = params.docCode
     this.docCode = params.docCode
     this._personDetails = params.personDetails
     this.sodBytes = params.sodBytes
@@ -123,7 +115,7 @@ export class EPassport extends EDocument {
     return serialized
   }
 
-  static deserialize(serialized: string): EDocument {
+  static deserialize(serialized: string): EPassport {
     try {
       const parsed = superjson.parse<EPassportSerialized>(serialized)
 
@@ -262,13 +254,13 @@ export class EPassport extends EDocument {
   }
 }
 
-export class EID extends EDocument {
+export class EID implements EDocument {
+  docCode = 'EID'
+
   constructor(
     public sigCertificate: ExtendedCertificate,
     public authCertificate: ExtendedCertificate,
-  ) {
-    super({ docCode: 'ID' })
-  }
+  ) {}
 
   get AADataType() {
     return keccak256(Buffer.from('P_NO_AA', 'utf-8'))
@@ -292,7 +284,7 @@ export class EID extends EDocument {
     })
   }
 
-  deserialize(serialized: string): EID {
+  static deserialize(serialized: string): EID {
     try {
       const parsed = superjson.parse<{
         sigCertificate: ArrayBuffer

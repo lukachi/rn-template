@@ -1,4 +1,3 @@
-import { CircomZKProof } from '@modules/witnesscalculator'
 import { AxiosError } from 'axios'
 import { hexlify, keccak256 } from 'ethers'
 import { FieldRecords } from 'mrz'
@@ -7,22 +6,23 @@ import { PassportInfo, RegistrationStrategy } from '@/api/modules/registration/s
 import { Config } from '@/config'
 import { tryCatch } from '@/helpers/try-catch'
 import { PassportRegisteredWithAnotherPKError } from '@/store/modules/identity/errors'
-import { IdentityItem } from '@/store/modules/identity/Identity'
+import { CircomEpassportIdentity, IdentityItem } from '@/store/modules/identity/Identity'
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registration'
 import { CircomEPassportBasedRegistrationCircuit } from '@/utils/circuits/registration/circom-registration-circuit'
-import { NoirEPassportBasedRegistrationCircuit } from '@/utils/circuits/registration/noir-registration-circuit'
 import { EDocument, EPassport } from '@/utils/e-document'
 
 import { relayerRegister } from '..'
 
 export class CircomEPassportRegistration extends RegistrationStrategy {
-  buildRegisterCallData = async (identityItem, slaveCertSmtProof, isRevoked) => {
+  buildRegisterCallData = async (
+    identityItem: CircomEpassportIdentity,
+    slaveCertSmtProof: SparseMerkleTree.ProofStructOutput,
+    isRevoked: boolean,
+  ) => {
     if (typeof identityItem.registrationProof === 'string') {
       throw new TypeError('Circom proof is not supported for Noir registration')
     }
-
-    const registrationProof = identityItem.registrationProof as CircomZKProof
 
     const circuit = new CircomEPassportBasedRegistrationCircuit(identityItem.document)
 
@@ -57,12 +57,24 @@ export class CircomEPassportRegistration extends RegistrationStrategy {
     }
 
     const proofPoints: Groth16VerifierHelper.ProofPointsStruct = {
-      a: [BigInt(registrationProof.proof.pi_a[0]), BigInt(registrationProof.proof.pi_a[1])],
-      b: [
-        [BigInt(registrationProof.proof.pi_b[0][0]), BigInt(registrationProof.proof.pi_b[0][1])],
-        [BigInt(registrationProof.proof.pi_b[1][0]), BigInt(registrationProof.proof.pi_b[1][1])],
+      a: [
+        BigInt(identityItem.registrationProof.proof.pi_a[0]),
+        BigInt(identityItem.registrationProof.proof.pi_a[1]),
       ],
-      c: [BigInt(registrationProof.proof.pi_c[0]), BigInt(registrationProof.proof.pi_c[1])],
+      b: [
+        [
+          BigInt(identityItem.registrationProof.proof.pi_b[0][0]),
+          BigInt(identityItem.registrationProof.proof.pi_b[0][1]),
+        ],
+        [
+          BigInt(identityItem.registrationProof.proof.pi_b[1][0]),
+          BigInt(identityItem.registrationProof.proof.pi_b[1][1]),
+        ],
+      ],
+      c: [
+        BigInt(identityItem.registrationProof.proof.pi_c[0]),
+        BigInt(identityItem.registrationProof.proof.pi_c[1]),
+      ],
     }
 
     if (isRevoked) {
@@ -88,10 +100,12 @@ export class CircomEPassportRegistration extends RegistrationStrategy {
   }
 
   createIdentity = async (
-    eDocument: EPassport,
+    _eDocument: EDocument,
     privateKey: string,
     publicKeyHash: Uint8Array,
-  ): Promise<IdentityItem> => {
+  ): Promise<CircomEpassportIdentity> => {
+    const eDocument = _eDocument as EPassport
+
     const CSCACertBytes = await RegistrationStrategy.retrieveCSCAFromPem()
 
     const slaveMaster = await eDocument.sod.slaveCertificate.getSlaveMaster(CSCACertBytes)
@@ -108,15 +122,15 @@ export class CircomEPassportRegistration extends RegistrationStrategy {
       )
     }
 
-    const circuit = new NoirEPassportBasedRegistrationCircuit(eDocument)
+    const circuit = new CircomEPassportBasedRegistrationCircuit(eDocument)
 
     const registrationProof = await circuit.prove({
       skIdentity: BigInt(`0x${privateKey}`),
-      icaoRoot: BigInt(slaveCertSmtProof.root),
-      inclusionBranches: slaveCertSmtProof.siblings.map(el => BigInt(el)),
+      slaveMerkleRoot: BigInt(slaveCertSmtProof.root),
+      slaveMerkleInclusionBranches: slaveCertSmtProof.siblings.map(el => BigInt(el)),
     })
 
-    const identityItem = new IdentityItem(eDocument, registrationProof)
+    const identityItem = new CircomEpassportIdentity(eDocument, registrationProof)
 
     const passportInfo = await identityItem.getPassportInfo()
 
@@ -149,7 +163,7 @@ export class CircomEPassportRegistration extends RegistrationStrategy {
 
   public revokeIdentity = async (
     tempMRZ: FieldRecords,
-    currentIdentityItem: IdentityItem,
+    _currentIdentityItem: IdentityItem,
     scanDocument: (
       documentCode: string,
       bacKeyParameters: {
@@ -169,6 +183,8 @@ export class CircomEPassportRegistration extends RegistrationStrategy {
       !tempMRZ.documentCode
     )
       throw new TypeError('MRZ data is empty')
+
+    const currentIdentityItem = _currentIdentityItem as CircomEpassportIdentity
 
     const [passportInfo, getPassportInfoError] = await (async () => {
       if (_passportInfo) return [_passportInfo, null]
@@ -198,7 +214,6 @@ export class CircomEPassportRegistration extends RegistrationStrategy {
     )) as EPassport
 
     const revokedEDocument = (currentIdentityItem.document || eDocumentResponse) as EPassport
-    const currentIdentityItemDocument = currentIdentityItem.document as EPassport
 
     revokedEDocument.aaSignature = eDocumentResponse.aaSignature
 
@@ -253,7 +268,9 @@ export class CircomEPassportRegistration extends RegistrationStrategy {
       if (_slaveCertSmtProof) return [_slaveCertSmtProof, null]
 
       return tryCatch(
-        RegistrationStrategy.getSlaveCertSmtProof(currentIdentityItemDocument.sod.slaveCertificate),
+        RegistrationStrategy.getSlaveCertSmtProof(
+          currentIdentityItem.document.sod.slaveCertificate,
+        ),
       )
     })()
     if (getSlaveCertSmtProofError) {

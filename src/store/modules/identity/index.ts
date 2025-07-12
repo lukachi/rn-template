@@ -1,9 +1,7 @@
-import { FieldRecords } from 'mrz'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
 import { zustandStorage } from '@/store/helpers'
-import { EDocument } from '@/utils/e-document/e-document'
 
 import { IdentityItem } from './Identity'
 
@@ -14,25 +12,8 @@ const useIdentityStore = create(
         identities: [] as IdentityItem[],
 
         _hasHydrated: false,
-
-        // TODO: remove me
-        testEDoc: undefined as EDocument | undefined,
-        testMRZ: undefined as FieldRecords | undefined,
       },
       (set, get) => ({
-        // TODO: remove me
-        setTestEDoc: (value: EDocument) => {
-          set({
-            testEDoc: value,
-          })
-        },
-        // TODO: remove me
-        setTestMRZ: (value: FieldRecords) => {
-          set({
-            testMRZ: value,
-          })
-        },
-
         setHasHydrated: (value: boolean) => {
           set({
             _hasHydrated: value,
@@ -62,10 +43,6 @@ const useIdentityStore = create(
             return (value as string[]).map(el => IdentityItem.deserialize(el as string))
           }
 
-          if (key === 'testEDoc') {
-            return EDocument.deserialize(value as string)
-          }
-
           return value
         },
         replacer: (key, value) => {
@@ -73,11 +50,6 @@ const useIdentityStore = create(
 
           if (key === 'identities') {
             return (value as IdentityItem[]).map(el => el.serialize())
-          }
-
-          if (key === 'testEDoc') {
-            const res = value instanceof EDocument ? value.serialize() : value
-            return res
           }
 
           return value
@@ -90,8 +62,6 @@ const useIdentityStore = create(
 
       partialize: state => ({
         identities: state.identities,
-        testEDoc: state.testEDoc,
-        testMRZ: state.testMRZ,
       }),
     },
   ),
