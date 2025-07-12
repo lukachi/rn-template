@@ -80,7 +80,7 @@ export default tseslint.config(
       ],
     },
     plugins: {
-      import: importPlugin.flatConfigs.recommended.plugins.import,
+      import: importPlugin,
       'simple-import-sort': simpleImportSort,
       'unused-imports': unusedImports,
     },
