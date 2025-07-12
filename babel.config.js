@@ -22,7 +22,6 @@ module.exports = (api) => {
             'crypto': 'crypto-browserify',
             'stream': 'readable-stream',
             '@iden3/js-crypto': '@iden3/js-crypto/dist/browser/esm/index.js',
-            '@iden3/js-merkletree': '@iden3/js-merkletree/dist/browser/esm/index.js',
           },
           extensions: [
             '.ios.ts',

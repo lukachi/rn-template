@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useCallback, useMemo } from 'react'
 import type { ViewProps } from 'react-native'
 import { Text, View } from 'react-native'
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ErrorHandler } from '@/core'
@@ -85,72 +86,74 @@ export default function CreateWallet({ route }: Props) {
 
   return (
     <UiScreenScrollable style={{ paddingBottom: insets.bottom, paddingTop: insets.top }}>
-      <View className='flex w-full flex-row'>
-        <UiButton
-          leadingIconProps={{
-            customIcon: 'arrowLeftIcon',
-          }}
-          variant='text'
-          onPress={() => {
-            navigation.goBack()
-          }}
-        />
-      </View>
-      <View className='flex flex-1 flex-col px-5'>
-        <View className='my-auto flex flex-col items-center gap-4'>
-          <UiIcon customIcon='starFillIcon' className='size-[200px] text-primaryMain' />
-          <Text className='text-textPrimary typography-h4'>Your keys</Text>
+      <KeyboardAvoidingView behavior='height' keyboardVerticalOffset={10} style={{ flex: 1 }}>
+        <View className='flex w-full flex-row'>
+          <UiButton
+            leadingIconProps={{
+              customIcon: 'arrowLeftIcon',
+            }}
+            variant='text'
+            onPress={() => {
+              navigation.goBack()
+            }}
+          />
         </View>
-        <UiCard className={cn('mt-5 flex gap-4')}>
-          {isImporting ? (
-            <>
-              <ControlledUiTextField
-                name='privateKey'
-                placeholder='Your private key'
-                control={control}
-                disabled={isFormDisabled}
-              />
+        <View className='flex flex-1 flex-col px-5'>
+          <View className='my-auto flex flex-col items-center gap-4'>
+            <UiIcon customIcon='starFillIcon' className='size-[200px] text-primaryMain' />
+            <Text className='text-textPrimary typography-h4'>Your keys</Text>
+          </View>
+          <UiCard className={cn('mt-5 flex gap-4')}>
+            {isImporting ? (
+              <>
+                <ControlledUiTextField
+                  name='privateKey'
+                  placeholder='Your private key'
+                  control={control}
+                  disabled={isFormDisabled}
+                />
 
-              <UiButton
-                variant='text'
-                color='text'
-                leadingIconProps={{
-                  customIcon: isCopied ? 'checkIcon' : 'copySimpleIcon',
-                }}
-                title='Paste From Clipboard'
-                onPress={pasteFromClipboard}
-              />
-            </>
-          ) : (
-            <>
-              <UiCard className='bg-backgroundPrimary'>
-                <Text className='text-textPrimary typography-body3'>{formState.privateKey}</Text>
-              </UiCard>
+                <UiButton
+                  variant='text'
+                  color='text'
+                  leadingIconProps={{
+                    customIcon: isCopied ? 'checkIcon' : 'copySimpleIcon',
+                  }}
+                  title='Paste From Clipboard'
+                  onPress={pasteFromClipboard}
+                />
+              </>
+            ) : (
+              <>
+                <UiCard className='bg-backgroundPrimary'>
+                  <Text className='text-textPrimary typography-body3'>{formState.privateKey}</Text>
+                </UiCard>
 
-              <UiButton
-                variant='text'
-                color='text'
-                leadingIconProps={{
-                  customIcon: isCopied ? 'checkIcon' : 'copySimpleIcon',
-                }}
-                title='Copy to Clipboard'
-                onPress={() => copy(formState.privateKey)}
-              />
-            </>
-          )}
-        </UiCard>
-      </View>
-      <View className='p-5'>
-        <UiHorizontalDivider />
-      </View>
-      <View className='flex w-full flex-row px-5'>
-        <UiButton
-          title={isImporting ? 'Import Key' : 'Create Key'}
-          className='mt-auto w-full'
-          onPress={handleSubmit(submit)}
-          disabled={isFormDisabled}
-        />
-      </View>
+                <UiButton
+                  variant='text'
+                  color='text'
+                  leadingIconProps={{
+                    customIcon: isCopied ? 'checkIcon' : 'copySimpleIcon',
+                  }}
+                  title='Copy to Clipboard'
+                  onPress={() => copy(formState.privateKey)}
+                />
+              </>
+            )}
+          </UiCard>
+        </View>
+        <View className='p-5'>
+          <UiHorizontalDivider />
+        </View>
+        <View className='flex w-full flex-row px-5'>
+          <UiButton
+            title={isImporting ? 'Import Key' : 'Create Key'}
+            className='mt-auto w-full'
+            onPress={handleSubmit(submit)}
+            disabled={isFormDisabled}
+          />
+        </View>
+      </KeyboardAvoidingView>
     </UiScreenScrollable>
   )
 }

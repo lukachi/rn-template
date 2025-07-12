@@ -3,6 +3,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import { useMemo, useState } from 'react'
 import { View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { KeyboardProvider } from 'react-native-keyboard-controller'
 
 import { APIProvider } from '@/api/client'
 import { initInterceptors } from '@/api/interceptors'
@@ -57,12 +58,14 @@ export default function App() {
     <View style={{ flex: 1 }} key={[language, isStoresHydrated].join(';')} onLayout={initApp}>
       {isAppInitialized && (
         <GestureHandlerRootView>
-          <APIProvider>
-            <BottomSheetModalProvider>
-              <AppRoutes />
-            </BottomSheetModalProvider>
-          </APIProvider>
-          <Toasts />
+          <KeyboardProvider>
+            <APIProvider>
+              <BottomSheetModalProvider>
+                <AppRoutes />
+              </BottomSheetModalProvider>
+            </APIProvider>
+            <Toasts />
+          </KeyboardProvider>
         </GestureHandlerRootView>
       )}
     </View>
