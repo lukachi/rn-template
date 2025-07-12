@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { UiCard, UiIcon } from '@/ui'
-import { DocType } from '@/utils/e-document'
+import { DocType } from '@/utils/e-document/e-document'
 
 export default function SelectDocTypeStep() {
   const { setDocType } = useDocumentScanContext()

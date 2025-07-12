@@ -2,7 +2,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs'
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { DocType } from './utils/e-document'
+import { DocType } from './utils/e-document/e-document'
 
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamsList>

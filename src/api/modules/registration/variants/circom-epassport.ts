@@ -2,6 +2,7 @@ import { AxiosError } from 'axios'
 import { hexlify, keccak256 } from 'ethers'
 import { FieldRecords } from 'mrz'
 
+import { relayerRegister } from '@/api/modules/registration/relayer'
 import { PassportInfo, RegistrationStrategy } from '@/api/modules/registration/strategy'
 import { Config } from '@/config'
 import { tryCatch } from '@/helpers/try-catch'
@@ -10,9 +11,7 @@ import { CircomEpassportIdentity, IdentityItem } from '@/store/modules/identity/
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Groth16VerifierHelper, Registration2 } from '@/types/contracts/Registration'
 import { CircomEPassportBasedRegistrationCircuit } from '@/utils/circuits/registration/circom-registration-circuit'
-import { EDocument, EPassport } from '@/utils/e-document'
-
-import { relayerRegister } from '..'
+import { EDocument, EPassport } from '@/utils/e-document/e-document'
 
 export class CircomEPassportRegistration extends RegistrationStrategy {
   buildRegisterCallData = async (

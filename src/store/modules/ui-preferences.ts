@@ -6,7 +6,7 @@ import { combine, createJSONStorage, persist } from 'zustand/middleware'
 import { translate } from '@/core'
 import { zustandStorage } from '@/store/helpers'
 import { useAppTheme } from '@/theme'
-import { PersonDetails } from '@/utils/e-document'
+import { PersonDetails } from '@/utils/e-document/e-document'
 
 export type DocumentCardUi = {
   title: string

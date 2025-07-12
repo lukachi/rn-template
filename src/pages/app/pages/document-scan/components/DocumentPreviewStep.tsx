@@ -4,7 +4,7 @@ import { Text, View } from 'react-native'
 import AppContainer from '@/pages/app/components/AppContainer'
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
 import { UiButton, UiCard, UiHorizontalDivider } from '@/ui'
-import { EID, EPassport } from '@/utils/e-document'
+import { EID, EPassport } from '@/utils/e-document/e-document'
 
 export default function DocumentPreviewStep() {
   const { tempEDoc, createIdentity } = useDocumentScanContext()

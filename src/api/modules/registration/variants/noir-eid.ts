@@ -6,7 +6,7 @@ import { PassportRegisteredWithAnotherPKError } from '@/store/modules/identity/e
 import { IdentityItem, NoirEIDIdentity } from '@/store/modules/identity/Identity'
 import { Registration2 } from '@/types/contracts/Registration'
 import { NoirEIDBasedRegistrationCircuit } from '@/utils/circuits/registration/noir-registration-circuit'
-import { EDocument, EID } from '@/utils/e-document'
+import { EDocument, EID } from '@/utils/e-document/e-document'
 
 export class NoirEIDRegistration extends RegistrationStrategy {
   buildRegisterCallData = async (identityItem, slaveCertSmtProof, isRevoked) => {

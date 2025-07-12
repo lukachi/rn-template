@@ -3,6 +3,7 @@ import { AxiosError } from 'axios'
 import { hexlify, keccak256 } from 'ethers'
 import { FieldRecords } from 'mrz'
 
+import { relayerRegister } from '@/api/modules/registration/relayer'
 import { PassportInfo, RegistrationStrategy } from '@/api/modules/registration/strategy'
 import { Config } from '@/config'
 import { tryCatch } from '@/helpers/try-catch'
@@ -11,9 +12,7 @@ import { IdentityItem, NoirEpassportIdentity } from '@/store/modules/identity/Id
 import { SparseMerkleTree } from '@/types/contracts/PoseidonSMT'
 import { Registration2 } from '@/types/contracts/Registration'
 import { NoirEPassportBasedRegistrationCircuit } from '@/utils/circuits/registration/noir-registration-circuit'
-import { EDocument, EPassport } from '@/utils/e-document'
-
-import { relayerRegister } from '..'
+import { EDocument, EPassport } from '@/utils/e-document/e-document'
 
 export class NoirEPassportRegistration extends RegistrationStrategy {
   buildRegisterCallData = async (

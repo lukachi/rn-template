@@ -8,7 +8,7 @@ import { Platform } from 'react-native'
 import EDocumentModule from './src/EDocumentModule'
 import type { EDocumentModuleEvents } from './src/enums'
 import get from 'lodash/get'
-import { EDocument, EPassport } from '@/utils/e-document'
+import { EDocument, EPassport } from '@/utils/e-document/e-document'
 
 export async function scanDocument(
   documentCode: string,

@@ -14,7 +14,7 @@ import AppContainer from '@/pages/app/components/AppContainer'
 import { walletStore } from '@/store'
 import { useAppPaddings } from '@/theme'
 import { UiButton, UiScreenScrollable } from '@/ui'
-import { EID } from '@/utils/e-document'
+import { EID } from '@/utils/e-document/e-document'
 import { ExtendedCertificate } from '@/utils/e-document/extended-cert'
 
 const downloadUrl =
