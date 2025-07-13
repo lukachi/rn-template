@@ -16,7 +16,7 @@ on:
 jobs:
   release:
     name: Create New Version and push new tag
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     outputs:
