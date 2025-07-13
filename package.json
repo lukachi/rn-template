@@ -21,9 +21,8 @@
     "ios:production": "cross-env APP_ENV=production yarn ios",
     "build:production:ios": "cross-env APP_ENV=production eas build --profile production --platform ios",
     "build:production:android": "cross-env APP_ENV=production eas build --profile production --platform android",
-    "prepare": "husky",
     "prepare-secrets": "node ./scripts/prepare-secrets.cjs",
-    "app-release": "cross-env SKIP_BRANCH_PROTECTION=true np --no-publish --no-cleanup --no-release-draft",
+    "release": "release-it",
     "version": "yarn prebuild && git add .",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
@@ -36,8 +35,17 @@
     "generate:ethers-types": "typechain --target=ethers-v6 'abis/**/*.json' --out-dir src/types/contracts",
     "xcode": "xed -b ios",
     "doctor": "npx expo-doctor@latest",
-    "eas-build-pre-install": "./scripts/git-lfs-pre-install.sh",
-    "test-pre-commit": "lefthook run pre-commit"
+    "eas-build-pre-install": "./scripts/git-lfs-pre-install.sh"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release ${version}",
+      "tagName": "v${version}",
+      "requireCleanWorkingDir": false
+    },
+    "github": {
+      "release": true
+    }
   },
   "jest": {
     "preset": "jest-expo"
@@ -134,6 +142,7 @@
     "react-native-worklets-core": "1.5.0",
     "react-native-zip-archive": "^7.0.1",
     "readable-stream": "^4.5.2",
+    "release-it": "^19.0.3",
     "stream-http": "^3.2.0",
     "superjson": "^2.2.2",
     "tailwind-merge": "^2.4.0",
@@ -196,7 +205,6 @@
     "jest-expo": "~52.0.2",
     "jest-junit": "^16.0.0",
     "lefthook": "^1.12.2",
-    "np": "^10.0.7",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "react-native-svg": "15.9.0",

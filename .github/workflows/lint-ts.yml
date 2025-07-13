@@ -32,14 +32,11 @@ jobs:
       - name: 📦 Setup Node + YARN + install deps
         uses: ./.github/actions/setup-node-yarn-install
 
-      #      - name: 🏃‍♂️ Run ESLint PR
-      #        if: github.event_name == 'pull_request'
-      #        uses: reviewdog/action-eslint@v1
-      #        with:
-      #          github_token: ${{ secrets.GITHUB_TOKEN }}
-      #          reporter: github-pr-review
-      #          eslint_flags: '. --ext .js,.jsx,.ts,.tsx'
-
-      - name: 🏃‍♂️ Run ESLint PR
-        #        if: github.event_name != 'pull_request'
+      - name: 🏃‍♂️ Run ESLint
         run: yarn lint
+
+      - name: 🏃‍♂️ Run TypeScript Commit
+        run: yarn type-check
+
+      - name: 🏃‍♂️ Run Prettier
+        run: yarn format
