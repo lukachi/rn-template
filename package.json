@@ -47,7 +47,8 @@
       "release": true
     },
     "npm": {
-      "publish": false
+      "publish": false,
+      "skipChecks": true
     },
     "plugins": {
       "@release-it/conventional-changelog": {

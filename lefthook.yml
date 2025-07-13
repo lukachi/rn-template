@@ -25,4 +25,4 @@ pre-commit:
     type-check:
       run: yarn type-check
     format:
-      run: yarn format
+      run: yarn format:fix && git add .
