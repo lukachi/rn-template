@@ -2,9 +2,6 @@
   "name": "template-v1",
   "main": "src/main.ts",
   "version": "1.2.0",
-  "gitHooks": {
-    "pre-push": "yarn lint && yarn type-check"
-  },
   "scripts": {
     "prebuild": "npx expo prebuild --clean && npx pod-install",
     "start": "npx expo start --clear",
@@ -39,7 +36,8 @@
     "generate:ethers-types": "typechain --target=ethers-v6 'abis/**/*.json' --out-dir src/types/contracts",
     "xcode": "xed -b ios",
     "doctor": "npx expo-doctor@latest",
-    "eas-build-pre-install": "./scripts/git-lfs-pre-install.sh"
+    "eas-build-pre-install": "./scripts/git-lfs-pre-install.sh",
+    "test-pre-commit": "lefthook run pre-commit"
   },
   "jest": {
     "preset": "jest-expo"
@@ -197,6 +195,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-expo": "~52.0.2",
     "jest-junit": "^16.0.0",
+    "lefthook": "^1.12.2",
     "np": "^10.0.7",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
@@ -205,8 +204,7 @@
     "ts-jest": "^29.1.2",
     "typechain": "^8.3.2",
     "typescript": "~5.7.3",
-    "typescript-eslint": "^8.23.0",
-    "yorkie": "^2.0.0"
+    "typescript-eslint": "^8.23.0"
   },
   "private": true,
   "packageManager": "yarn@4.5.0"
