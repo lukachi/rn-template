@@ -42,7 +42,7 @@ jobs:
 
       - name: 🏃‍♂️ Run release
         run: |
-          yarn release --ci --increment $RELEASE_TYPE
+          NODE_DEBUG=release-it:* yarn release -VV --ci --increment $RELEASE_TYPE
         env:
           RELEASE_TYPE: ${{ github.event.inputs.release-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
