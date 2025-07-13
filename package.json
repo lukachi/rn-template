@@ -1,7 +1,7 @@
 {
   "name": "rn-template",
   "main": "src/main.ts",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "scripts": {
     "prebuild": "npx expo prebuild --clean && npx pod-install",
     "start": "npx expo start --clear",
@@ -22,7 +22,7 @@
     "build:production:ios": "cross-env APP_ENV=production eas build --profile production --platform ios",
     "build:production:android": "cross-env APP_ENV=production eas build --profile production --platform android",
     "prepare-secrets": "node ./scripts/prepare-secrets.cjs",
-    "release": "release-it",
+    "release": "release-it --verbose",
     "version": "yarn prebuild && git add .",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
