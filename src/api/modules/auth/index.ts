@@ -1,9 +1,9 @@
-import type { ZKProof } from '@modules/rapidsnark-wrp'
+import { CircomZKProof } from '@modules/witnesscalculator'
 
 import { apiClient } from '@/api/client'
 
 // fixme: ZkProof type
-export const authorize = async (nullifierHex: string, zkProof: ZKProof) => {
+export const authorize = async (nullifierHex: string, zkProof: CircomZKProof) => {
   return apiClient.post<{
     id: string
     type: 'token'

@@ -22,5 +22,3 @@ export const groth16ProveWithZKeyFilePath = async (
     errorBufferSize,
   )
 }
-
-export * from './src/types'
