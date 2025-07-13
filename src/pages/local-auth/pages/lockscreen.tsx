@@ -113,7 +113,7 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
         >
           {lockDeadline === Infinity ? (
             <View className='flex flex-1 items-center gap-2 px-2'>
-              <Text className={cn('my-auto text-center text-textPrimary typography-h4')}>
+              <Text className={cn('typography-h4 my-auto text-center text-textPrimary')}>
                 {translate('lockscreen.locked-permanently')}
               </Text>
               <UiButton
@@ -124,10 +124,10 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
             </View>
           ) : (
             <View className='my-auto flex items-center gap-2'>
-              <Text className={cn('text-center text-textPrimary typography-h4')}>
+              <Text className={cn('typography-h4 text-center text-textPrimary')}>
                 {translate('lockscreen.locked-temp')}
               </Text>
-              <Text className={cn('text-textPrimary typography-subtitle1')}>
+              <Text className={cn('typography-subtitle1 text-textPrimary')}>
                 <Countdown deadline={lockDeadline} onFinish={checkLockDeadline} />
               </Text>
             </View>
@@ -142,14 +142,14 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
           className='w-full flex-1'
         >
           <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-            <Text className={cn('text-center text-textPrimary typography-h4')}>
+            <Text className={cn('typography-h4 text-center text-textPrimary')}>
               {translate('lockscreen.default-title')}
             </Text>
 
             <HiddenPasscodeView length={passcode.length} />
 
             {attemptsLeft < MAX_ATTEMPTS && (
-              <Text className={cn('text-textPrimary typography-subtitle1')}>
+              <Text className={cn('typography-subtitle1 text-textPrimary')}>
                 {translate('lockscreen.attempts-left', {
                   attemptsLeft,
                 })}
@@ -201,7 +201,7 @@ function BiometricsLockScreen() {
       }}
     >
       <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-        <Text className={cn('text-center text-textPrimary typography-h4')}>
+        <Text className={cn('typography-h4 text-center text-textPrimary')}>
           Unlock with Biometrics
         </Text>
         <Pressable onPress={unlockWithBiometrics}>

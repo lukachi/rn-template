@@ -101,7 +101,7 @@ export default function CreateWallet({ route }: Props) {
         <View className='flex flex-1 flex-col px-5'>
           <View className='my-auto flex flex-col items-center gap-4'>
             <UiIcon customIcon='starFillIcon' className='size-[200px] text-primaryMain' />
-            <Text className='text-textPrimary typography-h4'>Your keys</Text>
+            <Text className='typography-h4 text-textPrimary'>Your keys</Text>
           </View>
           <UiCard className={cn('mt-5 flex gap-4')}>
             {isImporting ? (
@@ -126,7 +126,7 @@ export default function CreateWallet({ route }: Props) {
             ) : (
               <>
                 <UiCard className='bg-backgroundPrimary'>
-                  <Text className='text-textPrimary typography-body3'>{formState.privateKey}</Text>
+                  <Text className='typography-body3 text-textPrimary'>{formState.privateKey}</Text>
                 </UiCard>
 
                 <UiButton

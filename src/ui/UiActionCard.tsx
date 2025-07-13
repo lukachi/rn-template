@@ -32,8 +32,8 @@ export default function UiActionCard({
         <View className='flex flex-1 flex-col gap-2'>
           {children || (
             <>
-              <Text className='text-textPrimary typography-subtitle3'>{title}</Text>
-              <Text className='text-textPrimary typography-body3'>{subtitle}</Text>
+              <Text className='typography-subtitle3 text-textPrimary'>{title}</Text>
+              <Text className='typography-body3 text-textPrimary'>{subtitle}</Text>
             </>
           )}
         </View>

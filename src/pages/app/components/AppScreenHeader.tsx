@@ -8,7 +8,7 @@ type Props = {
 export default function AppScreenHeader({ title, ...rest }: Props) {
   return (
     <View {...rest}>
-      <Text className='text-textPrimary typography-h5'>{title}</Text>
+      <Text className='typography-h5 text-textPrimary'>{title}</Text>
     </View>
   )
 }

@@ -50,7 +50,7 @@ export default function EnableBiometrics({}: LocalAuthStackScreenProps<'EnableBi
   return (
     <View className={cn('flex flex-1 items-center justify-center gap-4')}>
       <View className={cn('my-auto flex w-full items-center gap-4 px-5 text-center')}>
-        <Text className={cn('text-textPrimary typography-h4')}>
+        <Text className={cn('typography-h4 text-textPrimary')}>
           {translate('enable-biometrics.title')}
         </Text>
         <View className='flex size-[120] items-center justify-center rounded-full bg-primaryMain'>

@@ -59,8 +59,8 @@ export default function RevocationStep() {
 
   return (
     <View className='flex flex-1 flex-col justify-center'>
-      <Text className='text-center text-textPrimary typography-h5'>Revocation</Text>
-      <Text className='text-center text-textPrimary typography-h5'>{title}</Text>
+      <Text className='typography-h5 text-center text-textPrimary'>Revocation</Text>
+      <Text className='typography-h5 text-center text-textPrimary'>{title}</Text>
       {isScanning ? (
         <View className='flex items-center'>
           <UiIcon customIcon='bellFillIcon' className='size-[120] text-textPrimary' />

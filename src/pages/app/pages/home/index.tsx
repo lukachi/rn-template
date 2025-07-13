@@ -80,7 +80,7 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
               paddingRight: appPaddings.right,
             }}
           >
-            <Text className='!font-normal text-textPrimary typography-h5'>Hi Stranger</Text>
+            <Text className='typography-h5 !font-normal text-textPrimary'>Hi Stranger</Text>
 
             <Pressable className='relative size-10 rounded-full bg-backgroundContainer'>
               <UiIcon

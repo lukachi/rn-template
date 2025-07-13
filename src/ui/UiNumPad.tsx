@@ -60,7 +60,7 @@ export default function UiNumPad({ value, setValue, className, extra, ...rest }:
                   }}
                 >
                   <View className='flex items-center justify-center rounded-xl bg-backgroundContainer'>
-                    <Text className='text-textPrimary typography-h4'>{num}</Text>
+                    <Text className='typography-h4 text-textPrimary'>{num}</Text>
                   </View>
                 </Pressable>
               </View>

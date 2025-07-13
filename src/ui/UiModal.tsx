@@ -17,7 +17,7 @@ export default function UiModal({ children, isCloseByClickOutside = true, ...res
           }}
           onPress={isCloseByClickOutside ? rest.onRequestClose : undefined}
         />
-        <View className='absolute left-1/2 top-1/2 flex flex-1 -translate-x-1/2 -translate-y-1/2 items-center justify-center z-modal'>
+        <View className='z-modal absolute left-1/2 top-1/2 flex flex-1 -translate-x-1/2 -translate-y-1/2 items-center justify-center'>
           {children}
         </View>
       </Modal>

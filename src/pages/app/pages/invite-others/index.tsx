@@ -64,8 +64,8 @@ export default function InviteOthers({ route }: AppStackScreenProps<'InviteOther
               paddingRight: appPaddings.right,
             }}
           >
-            <Text className='text-textPrimary typography-h4'>Invite</Text>
-            <Text className='text-textSecondary typography-h3'>Others</Text>
+            <Text className='typography-h4 text-textPrimary'>Invite</Text>
+            <Text className='typography-h3 text-textSecondary'>Others</Text>
 
             <Pressable
               className='absolute size-10 rounded-full bg-componentPrimary'
@@ -103,7 +103,7 @@ export default function InviteOthers({ route }: AppStackScreenProps<'InviteOther
               paddingRight: appPaddings.right,
             }}
           >
-            <Text className='text-textPrimary typography-subtitle3'>Invited 4/5</Text>
+            <Text className='typography-subtitle3 text-textPrimary'>Invited 4/5</Text>
 
             <View className='mt-5 flex flex-1 gap-2'>
               {['', '', '', '', ''].map((el, idx) => (
@@ -112,11 +112,11 @@ export default function InviteOthers({ route }: AppStackScreenProps<'InviteOther
                   className='flex flex-row items-center justify-between rounded-[12] bg-componentPrimary px-4 py-3'
                 >
                   <View className='flex gap-1'>
-                    <Text className='text-textPrimary typography-subtitle4'>14925-1592</Text>
-                    <Text className='text-textSecondary typography-body3'>
+                    <Text className='typography-subtitle4 text-textPrimary'>14925-1592</Text>
+                    <Text className='typography-body3 text-textSecondary'>
                       Rarime.app/QrisPfszkps
                     </Text>
-                    <Text className='text-textPrimary typography-body4'>Active</Text>
+                    <Text className='typography-body4 text-textPrimary'>Active</Text>
                   </View>
 
                   <Pressable className='size-8' onPress={() => shareInvite('')}>

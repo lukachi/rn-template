@@ -37,7 +37,7 @@ export default function EnablePasscode({}: LocalAuthStackScreenProps<'EnablePass
       className={cn('flex flex-1 items-center justify-center')}
     >
       <View className='my-auto flex items-center gap-6'>
-        <Text className={cn('text-textPrimary typography-h4')}>
+        <Text className={cn('typography-h4 text-textPrimary')}>
           {translate('enable-passcode.title')}
         </Text>
 

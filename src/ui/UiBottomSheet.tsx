@@ -179,7 +179,7 @@ export const BottomSheetHeader = memo(
       >
         <View className='relative w-full'>
           {title && (
-            <Text className='flex-1 font-bold text-textPrimary typography-h5'>{title}</Text>
+            <Text className='typography-h5 flex-1 font-bold text-textPrimary'>{title}</Text>
           )}
 
           <Pressable

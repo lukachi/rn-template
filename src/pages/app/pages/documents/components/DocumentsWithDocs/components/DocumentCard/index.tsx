@@ -195,7 +195,7 @@ export default function DocumentCard({ identity }: Props) {
         <BottomSheetScrollView style={{ paddingBottom: insets.bottom }}>
           <View className={cn('flex flex-col gap-4 p-5 pb-10')}>
             <View className={cn('flex flex-col gap-4')}>
-              <Text className='text-textSecondary typography-overline3'>CARD VISUAL</Text>
+              <Text className='typography-overline3 text-textSecondary'>CARD VISUAL</Text>
 
               <ScrollView horizontal={true}>
                 <View className='flex flex-row gap-6'>
@@ -257,7 +257,7 @@ export default function DocumentCard({ identity }: Props) {
                               />
                             ))}
                           </Container>
-                          <Text className='text-textPrimary typography-buttonMedium'>
+                          <Text className='typography-buttonMedium text-textPrimary'>
                             {el.title}
                           </Text>
                         </View>
@@ -272,8 +272,8 @@ export default function DocumentCard({ identity }: Props) {
 
             <View className={cn('flex flex-col gap-4')}>
               <View className={cn('flex flex-col gap-2')}>
-                <Text className='text-textSecondary typography-overline3'>DATA</Text>
-                <Text className='text-textSecondary typography-body4'>
+                <Text className='typography-overline3 text-textSecondary'>DATA</Text>
+                <Text className='typography-body4 text-textSecondary'>
                   Shows two identifiers on the card
                 </Text>
               </View>
@@ -281,7 +281,7 @@ export default function DocumentCard({ identity }: Props) {
               <View className='flex flex-col gap-4'>
                 {personalDetailsShownVariants.map((el, idx) => (
                   <View key={idx} className='flex flex-row items-center justify-between'>
-                    <Text className='text-textPrimary typography-subtitle4'>{el}</Text>
+                    <Text className='typography-subtitle4 text-textPrimary'>{el}</Text>
                     <UiSwitcher
                       value={documentCardUi.personalDetailsShown?.includes(el)}
                       onValueChange={() => togglePersonalDetailsVisibility(el)}

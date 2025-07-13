@@ -133,7 +133,7 @@ export default function Intro() {
           <View className={cn('py-0, flex flex-col items-center gap-4 p-5')}>
             <UiHorizontalDivider />
 
-            <Text className='text-textSecondary typography-body2'>Choose a preferred method</Text>
+            <Text className='typography-body2 text-textSecondary'>Choose a preferred method</Text>
 
             <View className='mt-auto flex w-full flex-col gap-2'>
               <UiButton size='large' title='Create a new profile' onPress={handleCreatePK} />
