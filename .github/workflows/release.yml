@@ -40,7 +40,7 @@ jobs:
         env:
           RELEASE_TYPE: ${{ github.event.inputs.release-type }}
 
-      - name: 🏃‍♂️ Run Lib release
+      - name: 🏃‍♂️ Run release
         run: |
           yarn release --ci --increment $RELEASE_TYPE
         env:
