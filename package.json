@@ -1,7 +1,7 @@
 {
   "name": "rn-template",
   "main": "src/main.ts",
-  "version": "1.2.1",
+  "version": "1.2.0",
   "scripts": {
     "prebuild": "npx expo prebuild --clean && npx pod-install",
     "start": "npx expo start --clear",
@@ -23,7 +23,6 @@
     "build:production:android": "cross-env APP_ENV=production eas build --profile production --platform android",
     "prepare-secrets": "node ./scripts/prepare-secrets.cjs",
     "release": "release-it --verbose",
-    "version": "yarn prebuild && git add .",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
     "lint:fix": "eslint . --fix --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
@@ -49,6 +48,13 @@
     },
     "npm": {
       "publish": false
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "angular"
+        }
+      }
     }
   },
   "jest": {
@@ -144,7 +150,6 @@
     "react-native-worklets-core": "1.5.0",
     "react-native-zip-archive": "^7.0.1",
     "readable-stream": "^4.5.2",
-    "release-it": "^17.11.0",
     "stream-http": "^3.2.0",
     "superjson": "^2.2.2",
     "tailwind-merge": "^2.4.0",
@@ -165,6 +170,7 @@
     "@expo/config-plugins": "~9.0.0",
     "@expo/metro-config": "~0.19.5",
     "@expo/metro-runtime": "~4.0.0",
+    "@release-it/conventional-changelog": "^10.0.1",
     "@stylistic/eslint-plugin-js": "^3.0.1",
     "@stylistic/eslint-plugin-jsx": "^3.0.1",
     "@stylistic/eslint-plugin-ts": "^3.0.1",
@@ -211,6 +217,7 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "react-native-svg": "15.9.0",
     "react-native-svg-transformer": "^1.5.0",
+    "release-it": "^19.0.3",
     "ts-jest": "^29.1.2",
     "typechain": "^8.3.2",
     "typescript": "~5.7.3",
