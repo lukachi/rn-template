@@ -16,7 +16,7 @@ on:
 jobs:
   release:
     name: Create New Version and push new tag
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     outputs:
@@ -42,7 +42,7 @@ jobs:
 
       - name: 🏃‍♂️ Run release
         run: |
-          yarn release --ci --increment $RELEASE_TYPE
+          yarn release --ci --dry-run --verbose --increment $RELEASE_TYPE
         env:
           RELEASE_TYPE: ${{ github.event.inputs.release-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
