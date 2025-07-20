@@ -19,16 +19,13 @@ export default function BottomTabBar({
     <View
       style={{
         ...(tabBarStyle as object),
+        paddingTop: 20,
+        paddingBottom: insets.bottom,
+        backgroundColor: 'transparent',
       }}
-      className={cn('flex w-full items-center justify-center')}
+      className={cn('absolute bottom-0 left-0 w-full')}
     >
-      <View
-        className='flex w-full flex-row items-center justify-around bg-backgroundPrimary'
-        style={{
-          paddingTop: 12,
-          paddingBottom: insets.bottom,
-        }}
-      >
+      <View className='mx-auto flex w-[60%] flex-row items-center justify-around rounded-full bg-backgroundContainer'>
         {state.routes.map((route, idx) => {
           const isFocused = idx === state.index
 

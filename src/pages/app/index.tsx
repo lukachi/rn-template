@@ -22,17 +22,7 @@ const Tab = createBottomTabNavigator<AppTabParamsList>()
 // eslint-disable-next-line no-empty-pattern
 function AppTabs({}: AppStackScreenProps<'Tabs'>) {
   return (
-    <Tab.Navigator
-      tabBar={props => <BottomTabBar {...props} />}
-      screenOptions={{
-        tabBarStyle: {
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-        },
-      }}
-      initialRouteName='Home'
-    >
+    <Tab.Navigator tabBar={props => <BottomTabBar {...props} />} initialRouteName='Home'>
       <Tab.Screen
         name='Home'
         component={HomeScreen}

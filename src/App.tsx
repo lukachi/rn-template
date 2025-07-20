@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import { View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import { APIProvider } from '@/api/client'
 import { initInterceptors } from '@/api/interceptors'
@@ -57,19 +58,21 @@ export default function App() {
 
   return (
     <View style={{ flex: 1 }} key={[language, isStoresHydrated].join(';')} onLayout={initApp}>
-      {isAppInitialized && (
-        <GestureHandlerRootView>
-          <KeyboardProvider>
-            <APIProvider>
-              <BottomSheetModalProvider>
-                <StatusBar />
-                <AppRoutes />
-              </BottomSheetModalProvider>
-            </APIProvider>
-            <Toasts />
-          </KeyboardProvider>
-        </GestureHandlerRootView>
-      )}
+      <SafeAreaProvider>
+        {isAppInitialized && (
+          <GestureHandlerRootView>
+            <KeyboardProvider>
+              <APIProvider>
+                <BottomSheetModalProvider>
+                  <StatusBar />
+                  <AppRoutes />
+                </BottomSheetModalProvider>
+              </APIProvider>
+              <Toasts />
+            </KeyboardProvider>
+          </GestureHandlerRootView>
+        )}
+      </SafeAreaProvider>
     </View>
   )
 }

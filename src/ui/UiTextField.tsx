@@ -16,9 +16,9 @@ const inputTv = tv({
   slots: {
     label: cn('typography-subtitle4 text-textPrimary mb-2'),
     container: cn(
-      'flex flex-row items-center gap-2 rounded-xl border-[1px] border-componentPrimary bg-transparent px-4 py-3',
+      'flex flex-row items-center gap-2 rounded-xl border-[2px] border-componentPrimary bg-transparent px-4 py-3',
     ),
-    input: cn('placeholder-textSecondary text-textPrimary typography-body3'),
+    input: cn('placeholder-textSecondary text-textPrimary typography-body1'),
   },
 
   variants: {

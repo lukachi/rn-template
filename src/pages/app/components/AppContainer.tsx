@@ -4,10 +4,10 @@ import { View } from 'react-native'
 import { cn, useBottomBarOffset } from '@/theme'
 
 type Props = {
-  isWithBottomBlock?: boolean
+  isBottomBlockShown?: boolean
 } & ViewProps
 
-export default function AppContainer({ isWithBottomBlock = false, children, ...rest }: Props) {
+export default function AppContainer({ isBottomBlockShown = false, children, ...rest }: Props) {
   const offset = useBottomBarOffset()
 
   return (
@@ -21,7 +21,7 @@ export default function AppContainer({ isWithBottomBlock = false, children, ...r
       ]}
     >
       <View className={cn('flex-1')}>{children}</View>
-      {isWithBottomBlock && (
+      {isBottomBlockShown && (
         <View
           style={{
             height: offset,

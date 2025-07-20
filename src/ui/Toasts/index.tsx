@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { useEffect } from 'react'
 import { View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast, { BaseToast } from 'react-native-toast-message'
 
 import { DefaultBusEvents, ErrorHandler, translate } from '@/core'
@@ -9,7 +10,7 @@ import { sleep } from '@/helpers'
 import { cn, useAppTheme } from '@/theme'
 import UiIcon from '@/ui/UiIcon'
 
-const STATUS_MESSAGE_AUTO_HIDE_DURATION = 2 * 1000
+const STATUS_MESSAGE_AUTO_HIDE_DURATION = 5 * 1000
 
 export type ToastPayload = {
   messageType?: DefaultBusEvents
@@ -88,7 +89,8 @@ const showInfoToast = (payload?: unknown) =>
   2. Pass the config as prop to the Toast component instance
 */
 export default function Toasts() {
-  const { palette } = useAppTheme()
+  const { palette, typography } = useAppTheme()
+  const insets = useSafeAreaInsets()
 
   useEffect(() => {
     bus.on(DefaultBusEvents.success, showSuccessToast)
@@ -106,8 +108,9 @@ export default function Toasts() {
 
   return (
     <Toast
+      topOffset={insets.top}
       config={{
-        defaultToast: ({ props: { title, message, icon, messageType } }) => {
+        defaultToast: ({ props: { title, message, icon } }) => {
           // Fast solution, just for showcase, implement your own toast container
           return (
             <BaseToast
@@ -117,13 +120,17 @@ export default function Toasts() {
                 <View className={cn('flex items-center justify-center pl-4')}>{icon()}</View>
               )}
               style={{
-                // currently not working
-                borderLeftColor: {
-                  [DefaultBusEvents.success]: palette.successMain,
-                  [DefaultBusEvents.error]: palette.errorMain,
-                  [DefaultBusEvents.warning]: palette.warningMain,
-                  [DefaultBusEvents.info]: palette.secondaryMain,
-                }[messageType],
+                borderRadius: 999,
+                backgroundColor: palette.backgroundContainer,
+              }}
+              text1Style={{
+                color: palette.textPrimary,
+                ...(typography['.typography-body2'] as object),
+                fontWeight: 600,
+              }}
+              text2Style={{
+                color: palette.textSecondary,
+                ...(typography['.typography-caption2'] as object),
               }}
             />
           )
