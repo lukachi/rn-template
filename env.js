@@ -37,6 +37,7 @@ require('dotenv').config({
 const BUNDLE_ID = 'com.lukachi.template' // ios bundle id
 const PACKAGE = 'com.lukachi.template' // android package name
 const NAME = 'lukachi-template' // app name
+const SLUG = 'template' // app name
 const EXPO_ACCOUNT_OWNER = 'lukachi' // expo account owner
 const EAS_PROJECT_ID = '40c83c51-180e-486a-bb1e-290cd69e8fe3' // eas project id
 const SCHEME = 'lukachiTemplateApp' // app scheme
@@ -79,6 +80,7 @@ const getSecretWithSuffix = name => {
 const client = z.object({
   APP_ENV: z.enum(['development', 'staging', 'production']),
   NAME: z.string(),
+  SLUG: z.string(),
   SCHEME: z.string(),
   BUNDLE_ID: z.string(),
   PACKAGE: z.string(),
@@ -109,6 +111,7 @@ const _clientEnv = {
   APP_ENV,
   NAME: NAME,
   SCHEME: SCHEME,
+  SLUG: SLUG,
   BUNDLE_ID: withEnvSuffix(BUNDLE_ID),
   PACKAGE: withEnvSuffix(PACKAGE),
   VERSION: packageJSON.version,

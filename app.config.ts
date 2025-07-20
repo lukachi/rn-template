@@ -1,35 +1,15 @@
-import type {ConfigContext, ExpoConfig} from '@expo/config';
+import type { ConfigContext, ExpoConfig } from '@expo/config'
 
-import {ClientEnv, Env} from './env';
+import { ClientEnv, Env } from './env'
 
-// TODO: rollback once ready
-// import {
-//   extraBuildPropertyProps as eDocExtraBuildPropertyProps
-// } from './modules/e-document/extra-build-properties'
-// import {
-//   extraBuildPropertyProps as tfExecExtraBuildPropertyProps
-// } from './modules/tf-exec/extra-build-properties'
-
-// const buildPropertiesProps = tfExecExtraBuildPropertyProps(
-//   eDocExtraBuildPropertyProps({
-//     android: {
-//       minSdkVersion: 27,
-//       targetSdkVersion: 34,
-//     },
-//     ios: {
-//       deploymentTarget: '17.5',
-//     },
-//   })
-// )
-
-export default ({config}: ConfigContext): ExpoConfig => ({
+export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   newArchEnabled: true,
   name: Env.NAME,
   description: `${Env.NAME} Mobile App`,
   owner: Env.EXPO_ACCOUNT_OWNER,
   scheme: Env.SCHEME,
-  slug: 'template',
+  slug: Env.SLUG,
   version: Env.VERSION.toString(),
   orientation: 'portrait',
   icon: './assets/icon.png',
@@ -41,14 +21,13 @@ export default ({config}: ConfigContext): ExpoConfig => ({
   runtimeVersion: {
     policy: 'appVersion',
   },
-  // assetBundlePatterns: ['**/*'],
   ios: {
-    // supportsTablet: true,
     bundleIdentifier: Env.BUNDLE_ID,
+    entitlements: {
+      'com.apple.developer.kernel.increased-memory-limit': true,
+      'com.apple.developer.kernel.extended-virtual-addressing': true
+    },
   },
-  // experiments: {
-  //   typedRoutes: true,
-  // },
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
@@ -97,14 +76,13 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         "imageWidth": 200
       }
     ],
-    // 'expo-localization',
     [
       "expo-secure-store",
       {
         "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
       }
     ],
-    // since "modules/e-document" uses custom pod,
+    // TEMP: since "modules/e-document" uses custom pod,
     // we need to use `withBuildProperties` in module's plugin
     // in order to incapsulate per module configuration.
     // But `withBuildProperties` method ain't supposed to be called multiple times,
@@ -119,12 +97,6 @@ export default ({config}: ConfigContext): ExpoConfig => ({
       ios: {
         deploymentTarget: '17.5',
         extraPods: [
-          // {
-          //   name: 'TensorFlowLiteSwift',
-          //   git: 'https://github.com/rarimo/TensorFlowLiteSwift.git',
-          //   commit: '8c3b0f9638eedfa9138789cf07b55433c03b8225',
-          // },
-
           {
             name: "OpenSSL-Universal",
             configurations: ["Release", "Debug"],
@@ -135,19 +107,6 @@ export default ({config}: ConfigContext): ExpoConfig => ({
             git: 'https://github.com/rarimo/NFCPassportReader.git',
             commit: '4c463a687f59eb6cc5c7955af854c7d41295d54f',
           },
-          // {
-          //   name: 'SwoirCore',
-          //   podspec: 'https://raw.githubusercontent.com/lukachi/rn-template/refs/heads/feature/upd-e-doc/modules/noir/ios/specs/SwoirCore.podspec',
-          //   // git: 'https://github.com/Swoir/SwoirCore.git',
-          //   // tag: '0.7.1',
-          //   // source: 'https://github.com/Swoir/SwoirCore.git'
-          // },
-          // {
-          //   name: 'Swoir',
-          //   podspec: 'https://raw.githubusercontent.com/lukachi/rn-template/refs/heads/feature/upd-e-doc/modules/noir/ios/specs/Swoir.podspec'
-          //   // git: 'https://github.com/rarimo/Swoir.git',
-          //   // commit: '59bf91879d5aca5c275d6c646f65d47c97fa14eb',
-          // },
         ]
       },
     }],
@@ -175,7 +134,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
       }
     ],
-    [ "react-native-vision-camera", {
+    ["react-native-vision-camera", {
       "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
     }],
     ['./plugins/withNfc.plugin/build/index.js'],

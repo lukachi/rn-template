@@ -1,6 +1,7 @@
 import { NoirCircuitParams, NoirZKProof } from '@modules/noir'
 import { RSAPublicKey } from '@peculiar/asn1-rsa'
 import { getBytes, toBigInt, zeroPadBytes } from 'ethers'
+import { Platform } from 'react-native'
 
 import { tryCatch } from '@/helpers/try-catch'
 import { EPassport } from '@/utils/e-document/e-document'
@@ -96,26 +97,70 @@ export class NoirEIDBasedRegistrationCircuit extends EIDBasedRegistrationCircuit
 
     const byteCode = await this.noirCircuitParams.downloadByteCode()
 
+    const tbsInput =
+      Platform.OS === 'ios'
+        ? Array.from(getBytes(zeroPadBytes(new Uint8Array(this.tbsRaw), 1200))).map(String)
+        : Array.from(getBytes(zeroPadBytes(new Uint8Array(this.tbsRaw), 1200)))
+
+    let pk = RegistrationCircuit.splitBigIntToChunks(120, 18, toBigInt(this.pubKey))
+
+    if (Platform.OS === 'android') {
+      pk = pk.map(el => `0x${BigInt(el).toString(16)}`)
+    }
+
+    let reduction = RegistrationCircuit.splitBigIntToChunks(
+      120,
+      18,
+      NoirEPassportBasedRegistrationCircuit.computeBarretReduction(2048 + 2, toBigInt(this.pubKey)),
+    )
+
+    if (Platform.OS === 'android') {
+      reduction = reduction.map(el => `0x${BigInt(el).toString(16)}`)
+    }
+
+    let signature = RegistrationCircuit.splitBigIntToChunks(
+      120,
+      18,
+      toBigInt(new Uint8Array(this.eID.sigCertificate.certificate.signatureValue)),
+    )
+
+    if (Platform.OS === 'android') {
+      signature = signature.map(el => `0x${BigInt(el).toString(16)}`)
+    }
+
+    let len = String(this.tbsRaw.byteLength)
+
+    if (Platform.OS === 'android') {
+      len = `0x${BigInt(len).toString(16)}`
+    }
+
+    let icao_root = String(params.icaoRoot)
+
+    if (Platform.OS === 'android') {
+      icao_root = `0x${BigInt(icao_root).toString(16)}`
+    }
+
+    let inclusion_branches = params.inclusionBranches.map(String)
+
+    if (Platform.OS === 'android') {
+      inclusion_branches = inclusion_branches.map(el => `0x${BigInt(el).toString(16)}`)
+    }
+
+    let skIdentity = String(params.skIdentity)
+
+    if (Platform.OS === 'android') {
+      skIdentity = `0x${BigInt(skIdentity).toString(16)}`
+    }
+
     const inputs = {
-      tbs: Array.from(getBytes(zeroPadBytes(new Uint8Array(this.tbsRaw), 1200))).map(String),
-      pk: RegistrationCircuit.splitBigIntToChunks(120, 18, toBigInt(this.pubKey)),
-      reduction: RegistrationCircuit.splitBigIntToChunks(
-        120,
-        18,
-        NoirEPassportBasedRegistrationCircuit.computeBarretReduction(
-          2048 + 2,
-          toBigInt(this.pubKey),
-        ),
-      ),
-      len: String(this.tbsRaw.byteLength),
-      signature: RegistrationCircuit.splitBigIntToChunks(
-        120,
-        18,
-        toBigInt(new Uint8Array(this.eID.sigCertificate.certificate.signatureValue)),
-      ),
-      icao_root: String(params.icaoRoot),
-      inclusion_branches: params.inclusionBranches.map(String),
-      sk_identity: String(params.skIdentity),
+      tbs: tbsInput,
+      pk: pk,
+      reduction: reduction,
+      len: len,
+      signature: signature,
+      icao_root: icao_root,
+      inclusion_branches: inclusion_branches,
+      sk_identity: skIdentity,
     }
 
     const [proof, getProofError] = await tryCatch(

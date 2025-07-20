@@ -274,7 +274,14 @@ export class EID implements EDocument {
   }
 
   get personDetails(): PersonDetails {
-    return {} as PersonDetails // TODO: Implement PersonDetails extraction logic
+    const certData = this.sigCertificate.certificate.tbsCertificate
+    return {
+      firstName: certData.subject[2][0].value.toString(),
+      lastName: certData.subject[3][0].value.toString(),
+      expiryDate: certData.validity.notAfter.getTime().toString(),
+      nationality: certData.subject[0][0].value.toString(),
+      issuingAuthority: certData.issuer[3][0].value.toString(),
+    } as PersonDetails
   }
 
   serialize(): string {

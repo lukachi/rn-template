@@ -11,7 +11,6 @@ import {
   id_RSASSA_PSS,
   id_sha1WithRSAEncryption,
   id_sha256,
-  id_sha256WithRSAEncryption,
   id_sha384,
   id_sha384WithRSAEncryption,
   id_sha512,
@@ -128,7 +127,6 @@ export abstract class RegistrationStrategy {
         }
 
         throw new Error('Unsupported RSASSA-PSS parameters')
-      case id_sha256WithRSAEncryption:
       case id_ecdsaWithSHA256:
         return 'SHA2'
       case id_sha384WithRSAEncryption:
@@ -138,9 +136,7 @@ export abstract class RegistrationStrategy {
       case id_ecdsaWithSHA512:
         return 'SHA512'
       default:
-        throw new Error(
-          `Unsupported signature algorithm: ${certificate.signatureAlgorithm.algorithm}`,
-        )
+        return ''
     }
   }
 

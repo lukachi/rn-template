@@ -1,11 +1,14 @@
+import { poseidon } from '@iden3/js-crypto'
 import { NoirZKProof } from '@modules/noir'
 import type { CircomZKProof } from '@modules/witnesscalculator'
 import { getBigInt, JsonRpcProvider } from 'ethers'
 import SuperJSON from 'superjson'
 
 import { RARIMO_CHAINS } from '@/api/modules/rarimo'
+import { RegistrationStrategy } from '@/api/modules/registration/strategy'
 import { Config } from '@/config'
-import { createStateKeeperContract } from '@/helpers/contracts'
+import { ErrorHandler } from '@/core'
+import { createPoseidonSMTContract, createStateKeeperContract } from '@/helpers/contracts'
 import { EDocument, EID, EPassport } from '@/utils/e-document/e-document'
 
 // TODO: add checking if the passport need to be revoked
@@ -74,6 +77,13 @@ export class NoirEIDIdentity extends IdentityItem {
     super(document, registrationProof)
   }
 
+  public static get registrationPoseidonSMTContract() {
+    return createPoseidonSMTContract(
+      Config.REGISTRATION_POSEIDON_SMT_CONTRACT_ADDRESS,
+      RegistrationStrategy.rmoEvmJsonRpcProvider,
+    )
+  }
+
   serialize() {
     return SuperJSON.stringify({
       document: this.document.serialize(),
@@ -99,16 +109,41 @@ export class NoirEIDIdentity extends IdentityItem {
     throw new Error('EID does not have a public key')
   }
   get passportHash() {
-    return this.registrationProof.pub_signals[2]
+    return this.registrationProof.pub_signals[1]
   }
   get dg1Commitment() {
-    return this.registrationProof.pub_signals[3]
+    return this.registrationProof.pub_signals[2]
   }
   get pkIdentityHash() {
-    return this.registrationProof.pub_signals[4]
+    return this.registrationProof.pub_signals[3]
   }
   get identityKey() {
     return this.passportHash
+  }
+
+  // https://github.com/rarimo/rarime-mobile-identity-sdk/blob/10e56474d1afeb7381b01ff4185fab0df1e24197/utils.go#L260
+  public getPassportProofIndex = async (
+    identityKey: string,
+    pkIdentityHash: string,
+  ): Promise<string> => {
+    try {
+      const sanitizedIdentityKey = identityKey.startsWith('0x') ? identityKey : `0x${identityKey}`
+      const sanitizedPkIdentityHash = identityKey.startsWith('0x')
+        ? pkIdentityHash
+        : `0x${pkIdentityHash}`
+
+      const hash = poseidon.hash([BigInt(sanitizedIdentityKey), BigInt(sanitizedPkIdentityHash)])
+      const hex = hash.toString(16).padStart(64, '0')
+
+      return '0x' + hex
+    } catch (error) {
+      ErrorHandler.process(error)
+      throw error
+    }
+  }
+
+  public getPassportRegistrationProof = async (proofIndex: string) => {
+    return NoirEIDIdentity.registrationPoseidonSMTContract.contractInstance.getProof(proofIndex)
   }
 }
 
