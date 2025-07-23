@@ -25,7 +25,7 @@ export default function BottomTabBar({
       }}
       className={cn('absolute bottom-0 left-0 w-full')}
     >
-      <View className='mx-auto flex w-[60%] flex-row items-center justify-around rounded-full bg-backgroundContainer'>
+      <View className='mx-auto flex w-[60%] flex-row items-center justify-around rounded-full bg-componentPrimary py-2'>
         {state.routes.map((route, idx) => {
           const isFocused = idx === state.index
 

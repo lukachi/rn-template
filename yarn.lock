@@ -4013,6 +4013,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@quidone/react-native-wheel-picker@npm:^1.5.2":
+  version: 1.5.2
+  resolution: "@quidone/react-native-wheel-picker@npm:1.5.2"
+  dependencies:
+    "@rozhkov/react-useful-hooks": "npm:^1.0.10"
+  peerDependencies:
+    react: ">=16.8"
+    react-native: ">=0.71.6"
+  checksum: 10/e306414e84e0d083932a8a2b705cf3ff60e05dd8558cdf3374a5e8a0e56cb620a3fb936bdf9ac7edd8220a2b7ae46465106e97302b39fccf84a2c3065edb7afd
+  languageName: node
+  linkType: hard
+
 "@react-native-community/hooks@npm:^3.0.0":
   version: 3.1.0
   resolution: "@react-native-community/hooks@npm:3.1.0"
@@ -4486,6 +4498,17 @@ __metadata:
   peerDependencies:
     release-it: ^18.0.0 || ^19.0.0
   checksum: 10/99c748588a583b337bbac6418f4fc6f55a4a9427e50eee70aac8b0d61b5e30de153c5f66e4c3b0cdbbc76bfad670f9ae857b09e9959e955523fe1f3740959092
+  languageName: node
+  linkType: hard
+
+"@rozhkov/react-useful-hooks@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "@rozhkov/react-useful-hooks@npm:1.0.10"
+  dependencies:
+    default-values: "npm:^1.0.2"
+  peerDependencies:
+    react: ^16.8 || ^17 || ^18 || ^19
+  checksum: 10/42ec6e869cccb610617e6fd2978b50d185859ce773d0e405337f0551fd963efc79eef6fac07f5f09037a76e5218bd47e68a96f4b7061dabf0ad529fce5012df8
   languageName: node
   linkType: hard
 
@@ -8384,6 +8407,13 @@ __metadata:
     execa: "npm:^1.0.0"
     ip-regex: "npm:^2.1.0"
   checksum: 10/1f5be765471689c6bab33e0c8b87363c3e2485cc1ab78904d383a8a8293a79f684da2a3303744b112503f986af4ea87d917c63a468ed913e9b0c31588c02d6a4
+  languageName: node
+  linkType: hard
+
+"default-values@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "default-values@npm:1.0.2"
+  checksum: 10/e0acb0b0dde2c716314330527b78f64c5e8d3a31022134f2b03ab8e370d8022468746d2902da25966eacc9e336f366e7874ab63aa026c34edea1c37a8f9e5bf5
   languageName: node
   linkType: hard
 
@@ -17460,6 +17490,7 @@ __metadata:
     "@peculiar/asn1-rsa": "npm:^2.3.15"
     "@peculiar/asn1-schema": "npm:^2.3.15"
     "@peculiar/x509": "npm:^1.12.4"
+    "@quidone/react-native-wheel-picker": "npm:^1.5.2"
     "@react-native-community/hooks": "npm:^3.0.0"
     "@react-native-community/slider": "npm:^4.5.5"
     "@react-native-masked-view/masked-view": "npm:^0.3.2"

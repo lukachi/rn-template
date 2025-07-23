@@ -76,6 +76,7 @@
     "@peculiar/asn1-rsa": "^2.3.15",
     "@peculiar/asn1-schema": "^2.3.15",
     "@peculiar/x509": "^1.12.4",
+    "@quidone/react-native-wheel-picker": "^1.5.2",
     "@react-native-community/hooks": "^3.0.0",
     "@react-native-community/slider": "^4.5.5",
     "@react-native-masked-view/masked-view": "^0.3.2",
