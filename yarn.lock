@@ -5074,6 +5074,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/matter-js@npm:^0.19.8":
+  version: 0.19.8
+  resolution: "@types/matter-js@npm:0.19.8"
+  checksum: 10/a853868e97ff70fc771174528d3d545431b204708e30af7f89d302f357d9237aa8891d9b58ef951f3aca246ff72661cd0318b02f3a7cc939aeb8e1538a025e12
+  languageName: node
+  linkType: hard
+
 "@types/node-forge@npm:^1.3.0":
   version: 1.3.11
   resolution: "@types/node-forge@npm:1.3.11"
@@ -13949,6 +13956,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"matter-js@npm:^0.20.0":
+  version: 0.20.0
+  resolution: "matter-js@npm:0.20.0"
+  checksum: 10/db275f6b7ab5e7174692b5699cd31cb8be92af5e6b4acf944f82b5c4e61ceee79bd164578011dd90c996d106a8fc4f717087eb3845492a1b3bb6df7ca38d4d87
+  languageName: node
+  linkType: hard
+
 "md5-file@npm:^3.2.3":
   version: 3.2.3
   resolution: "md5-file@npm:3.2.3"
@@ -17564,6 +17578,7 @@ __metadata:
     "@types/eslint": "npm:^9.6.1"
     "@types/jest": "npm:^29.5.12"
     "@types/lodash": "npm:^4"
+    "@types/matter-js": "npm:^0.19.8"
     "@types/path-browserify": "npm:^1"
     "@types/react": "npm:~18.3.12"
     "@types/react-native-get-random-values": "npm:^1.8.2"
@@ -17632,6 +17647,7 @@ __metadata:
     jsona: "npm:^1.12.1"
     lefthook: "npm:^1.12.2"
     lodash: "npm:^4.17.21"
+    matter-js: "npm:^0.20.0"
     mrz: "npm:^4.2.0"
     nativewind: "npm:4.1.21"
     os-browserify: "npm:^0.3.0"

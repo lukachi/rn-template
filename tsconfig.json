@@ -10,7 +10,7 @@
       "@modules/*": ["./modules/*"],
       "@env": ["./src/core/env.js"]
     },
-    "types": ["lodash"]
+    "types": ["lodash", "@types/matter-js"]
   },
   "include": ["**/*.ts", "**/*.tsx", "declarations.d.ts", "nativewind-env.d.ts"],
   "exclude": [
