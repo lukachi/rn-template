@@ -23,7 +23,7 @@ export class NoirEPassportBasedRegistrationCircuit extends EPassportBasedRegistr
   }
 
   public get noirCircuitParams(): NoirCircuitParams {
-    return NoirCircuitParams.fromName(this.prefixName)
+    return NoirCircuitParams.fromName(this.name)
   }
 
   public get chunkedParams() {
@@ -64,20 +64,39 @@ export class NoirEPassportBasedRegistrationCircuit extends EPassportBasedRegistr
 
     const byteCode = await this.noirCircuitParams.downloadByteCode()
 
-    const inputs = {
-      dg1: this.eDoc.dg1Bytes,
-      dg15: this.eDoc.dg15Bytes,
-      ec: this.eDoc.sod.encapsulatedContent,
-      sa: this.eDoc.sod.signedAttributes,
+    const inputs = (() => {
+      if (Platform.OS === 'ios') {
+        return {
+          dg1: Array.from(this.eDoc.dg1Bytes).map(el => String(el)),
+          dg15: this.eDoc.dg15Bytes ? Array.from(this.eDoc.dg15Bytes).map(el => String(el)) : [],
+          ec: Array.from(this.eDoc.sod.encapsulatedContent).map(el => String(el)),
+          sa: Array.from(this.eDoc.sod.signedAttributes).map(el => String(el)),
 
-      pk: this.chunkedParams.pk_chunked,
-      reduction: this.chunkedParams.reduction,
-      sig: this.chunkedParams.sig_chunked,
+          pk: this.chunkedParams.pk_chunked,
+          reduction: this.chunkedParams.reduction,
+          sig: this.chunkedParams.sig_chunked,
 
-      sk_identity: params.skIdentity,
-      icao_root: params.icaoRoot,
-      inclusion_branches: params.inclusionBranches,
-    }
+          sk_identity: params.skIdentity.toString(),
+          icao_root: params.icaoRoot.toString(),
+          inclusion_branches: Array.from(params.inclusionBranches).map(el => el.toString()),
+        }
+      }
+
+      return {
+        dg1: Array.from(this.eDoc.dg1Bytes),
+        dg15: this.eDoc.dg15Bytes ? Array.from(this.eDoc.dg15Bytes) : [],
+        ec: Array.from(this.eDoc.sod.encapsulatedContent),
+        sa: Array.from(this.eDoc.sod.signedAttributes),
+
+        pk: this.chunkedParams.pk_chunked,
+        reduction: this.chunkedParams.reduction,
+        sig: this.chunkedParams.sig_chunked,
+
+        sk_identity: params.skIdentity.toString(),
+        icao_root: params.icaoRoot.toString(),
+        inclusion_branches: Array.from(params.inclusionBranches),
+      }
+    })()
 
     return this.noirCircuitParams.prove(JSON.stringify(inputs), byteCode)
   }

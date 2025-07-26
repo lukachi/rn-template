@@ -55,7 +55,7 @@ function addValuesToArray(
 function withIosNfcEntitlement(
   c: ExpoConfig,
   {
-    includeNdefEntitlement,
+    includeNdefEntitlement = false,
   }: {
     includeNdefEntitlement?: boolean
   },

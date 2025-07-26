@@ -27,6 +27,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'com.apple.developer.kernel.increased-memory-limit': true,
       'com.apple.developer.kernel.extended-virtual-addressing': true
     },
+    "infoPlist": {
+      "ITSAppUsesNonExemptEncryption": false
+    },
+    bitcode: false
   },
   android: {
     adaptiveIcon: {
@@ -101,11 +105,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             name: "OpenSSL-Universal",
             configurations: ["Release", "Debug"],
             modular_headers: true,
+            version: '1.1.2301'
           },
           {
             name: 'NFCPassportReader',
-            git: 'https://github.com/rarimo/NFCPassportReader.git',
-            commit: '4c463a687f59eb6cc5c7955af854c7d41295d54f',
+            git: 'https://github.com/lukachi/NFCPassportReader.git',
+            commit: "4e36d5b4b902ce847589d2270c887764f6e09029",
           },
         ]
       },
@@ -136,6 +141,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     ["react-native-vision-camera", {
       "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+    }],
+    ["react-native-edge-to-edge",
+      {
+        "android": {
+          "parentTheme": "Default",
+          "enforceNavigationBarContrast": false
+        }
     }],
     ['./plugins/withNfc.plugin/build/index.js'],
     ['./plugins/withLocalAar.plugin.js']

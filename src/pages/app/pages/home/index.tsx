@@ -1,12 +1,6 @@
 import { useState } from 'react'
 import { Dimensions, Pressable, Text, View } from 'react-native'
-import Animated, {
-  Extrapolation,
-  interpolate,
-  SharedTransitionType,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated'
+import Animated, { Extrapolation, interpolate, useSharedValue } from 'react-native-reanimated'
 import Carousel, { Pagination } from 'react-native-reanimated-carousel'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -29,30 +23,9 @@ const screenWidth = Dimensions.get('window').width
 const defaultDataWith6Colors = ['#899F9C', '#B0604D', '#B3C680', '#5C6265', '#F5D399', '#F1F1F1']
 
 import * as Haptics from 'expo-haptics'
-import { SharedTransition } from 'react-native-reanimated'
 
 import { bus, DefaultBusEvents } from '@/core'
 import UiSkeleton from '@/ui/UiSkeleton'
-
-const transition = SharedTransition.custom(values => {
-  'worklet'
-  return {
-    height: withSpring(values.targetHeight),
-    width: withSpring(values.targetWidth),
-  }
-})
-  .progressAnimation((values, progress) => {
-    'worklet'
-    const getValue = (progress: number, target: number, current: number): number => {
-      return progress * (target - current) + current
-    }
-
-    return {
-      width: getValue(progress, values.targetWidth, values.currentWidth),
-      height: getValue(progress, values.targetHeight, values.currentHeight),
-    }
-  })
-  .defaultTransitionType(SharedTransitionType.ANIMATION)
 
 // eslint-disable-next-line no-empty-pattern
 export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
@@ -112,8 +85,6 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                 renderItem={({ index }) => {
                   return (
                     <Animated.View
-                      sharedTransitionTag={`my-tag-${index}`}
-                      sharedTransitionStyle={transition}
                       style={{
                         width: '100%',
                         height: '90%',

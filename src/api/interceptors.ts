@@ -24,9 +24,13 @@ export const initInterceptors = () => {
         }
       }
 
+      const deserializedData = dataFormatter.deserialize(response.data)
+
+      if (!deserializedData) return response
+
       return {
         ...response,
-        data: dataFormatter.deserialize(response.data),
+        data: deserializedData,
       }
     } catch (error) {
       console.error('Could not deserialize data', error)

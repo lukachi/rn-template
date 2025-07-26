@@ -1,12 +1,14 @@
 import { Image } from 'expo-image'
 import { Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import AppContainer from '@/pages/app/components/AppContainer'
 import { useDocumentScanContext } from '@/pages/app/pages/document-scan/ScanProvider'
-import { UiButton, UiCard, UiHorizontalDivider } from '@/ui'
+import { UiButton, UiCard, UiHorizontalDivider, UiScreenScrollable } from '@/ui'
 import { EID, EPassport } from '@/utils/e-document/e-document'
 
 export default function DocumentPreviewStep() {
+  const insets = useSafeAreaInsets()
   const { tempEDoc, createIdentity } = useDocumentScanContext()
 
   if (tempEDoc instanceof EPassport) {
@@ -15,7 +17,13 @@ export default function DocumentPreviewStep() {
     const { firstName, lastName, gender, passportImageRaw, ...restDetails } = tempEDoc.personDetails
 
     return (
-      <AppContainer className='pb-20'>
+      <UiScreenScrollable
+        className='pb-20'
+        style={{
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+        }}
+      >
         <View className='flex-1 flex-col gap-4 p-5'>
           <UiCard>
             <View className='flex flex-row'>
@@ -80,7 +88,7 @@ export default function DocumentPreviewStep() {
             <UiButton title='Generate Proof' onPress={createIdentity} />
           </View>
         </View>
-      </AppContainer>
+      </UiScreenScrollable>
     )
   }
 

@@ -1,8 +1,8 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import * as SplashScreen from 'expo-splash-screen'
-import { StatusBar } from 'expo-status-bar'
 import { useMemo, useState } from 'react'
 import { View } from 'react-native'
+import { SystemBars } from 'react-native-edge-to-edge'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -64,7 +64,7 @@ export default function App() {
             <KeyboardProvider>
               <APIProvider>
                 <BottomSheetModalProvider>
-                  <StatusBar />
+                  <SystemBars style='auto' />
                   <AppRoutes />
                 </BottomSheetModalProvider>
               </APIProvider>
