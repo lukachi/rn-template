@@ -59,19 +59,17 @@ export default function App() {
   return (
     <View style={{ flex: 1 }} key={[language, isStoresHydrated].join(';')} onLayout={initApp}>
       <SafeAreaProvider>
-        {isAppInitialized && (
-          <GestureHandlerRootView>
-            <KeyboardProvider>
-              <APIProvider>
-                <BottomSheetModalProvider>
-                  <SystemBars style='auto' />
-                  <AppRoutes />
-                </BottomSheetModalProvider>
-              </APIProvider>
-              <Toasts />
-            </KeyboardProvider>
-          </GestureHandlerRootView>
-        )}
+        <GestureHandlerRootView>
+          <KeyboardProvider>
+            <APIProvider>
+              <BottomSheetModalProvider>
+                <SystemBars style='auto' />
+                {isAppInitialized && <AppRoutes />}
+              </BottomSheetModalProvider>
+            </APIProvider>
+            <Toasts />
+          </KeyboardProvider>
+        </GestureHandlerRootView>
       </SafeAreaProvider>
     </View>
   )

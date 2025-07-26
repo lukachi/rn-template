@@ -9,6 +9,7 @@ import type { AppTabScreenProps } from '@/route-types'
 import { useAppPaddings, useAppTheme } from '@/theme'
 import {
   UiButton,
+  UiCard,
   UiHorizontalDivider,
   UiIcon,
   UiScreenScrollable,
@@ -93,26 +94,26 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                       }}
                     >
                       {[
-                        <View className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
+                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
                           <UiTextField label='Input 1' />
                           <UiTextField label='Input 2' errorMessage='test error' />
                           <UiTextField label='Input 3 (disabled)' disabled />
                           <UiTextField label='Input 4 (readonly)' readOnly />
-                        </View>,
-                        <View className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
+                        </UiCard>,
+                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
                           <UiSwitcher label='Switcher 1' />
                           <UiHorizontalDivider />
                           <UiSwitcher label='Switcher 2' errorMessage='test error' />
                           <UiHorizontalDivider />
                           <UiSwitcher label='Switcher 3 (disabled)' disabled />
-                        </View>,
-                        <View className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
+                        </UiCard>,
+                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
                           <UiSkeleton className='size-20 rounded-full bg-red-50' />
                           <UiSkeleton className='size-10 w-[300] rounded-full bg-red-50' />
                           <UiSkeleton className='size-10 w-[200] rounded-full bg-red-50' />
                           <UiSkeleton className='size-10 w-[100] rounded-full bg-red-50' />
-                        </View>,
-                        <View className='flex size-full flex-row flex-wrap items-center justify-center gap-6 bg-backgroundContainer p-6'>
+                        </UiCard>,
+                        <UiCard className='flex size-full flex-row flex-wrap items-center justify-center gap-6 bg-backgroundContainer p-6'>
                           <UiIcon
                             size={40}
                             customIcon='calendarBlankIcon'
@@ -140,13 +141,13 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                             name='logo-html5'
                             className='text-textPrimary'
                           />
-                        </View>,
-                        <View className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
+                        </UiCard>,
+                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
                           <UiButton title='filled' />
                           <UiButton title='outline' variant='outlined' />
                           <UiButton title='text' variant='text' />
-                        </View>,
-                        <View className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
+                        </UiCard>,
+                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
                           <UiButton
                             title='error'
                             color='error'
@@ -176,7 +177,7 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                               })
                             }}
                           />
-                        </View>,
+                        </UiCard>,
                       ][index] ?? (
                         <View
                           className='size-full'
