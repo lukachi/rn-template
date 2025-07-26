@@ -44,14 +44,14 @@ export default function UiAnimatedGyroBg(props: ViewProps) {
     // Create engine with optimized settings
     const engine = Matter.Engine.create({
       enableSleeping: false, // Disable sleeping for continuous animation
-      positionIterations: 6,
-      velocityIterations: 4,
-      constraintIterations: 2,
+      positionIterations: 3,
+      velocityIterations: 2,
+      constraintIterations: 1,
     })
 
     // Configure world - use normal gravity scale
-    engine.gravity.scale = 0.001
-    engine.timing.timeScale = 1
+    engine.gravity.scale = 0.0005
+    engine.timing.timeScale = 0.8
 
     // Create ball with optimized properties
     const ball = Matter.Bodies.circle(screenWidth / 2, screenHeight / 2, 30, {
@@ -118,11 +118,11 @@ export default function UiAnimatedGyroBg(props: ViewProps) {
       if (!engine || !ball) return
 
       // Apply gravity based on gyroscope
-      engine.gravity.x = -gyroYValue * 0.5
-      engine.gravity.y = gyroXValue * 0.5
+      engine.gravity.x = -gyroYValue * 0.3
+      engine.gravity.y = gyroXValue * 0.3
 
       // Step physics simulation
-      Matter.Engine.update(engine, 16.67) // Fixed 60fps timestep
+      Matter.Engine.update(engine, 33.33) // Fixed 60fps timestep
 
       // Update shared values
       ballX.value = ball.position.x
@@ -184,13 +184,13 @@ export default function UiAnimatedGyroBg(props: ViewProps) {
 
   // Derived values for gradient
   const derivedRadialGradientC = useDerivedValue(() => {
-    return vec(ballX.value, ballY.value)
+    return vec(Math.round(ballX.value), Math.round(ballY.value))
   })
 
   const derivedRadialGradientR = useDerivedValue(() => {
-    const baseRadius = screenHeight / 2
-    const maxSpeedEffect = 40
-    const speedEffect = Math.min(velocityMagnitude.value * 3, maxSpeedEffect)
+    const baseRadius = screenHeight / 3 // Reduce base radius
+    const maxSpeedEffect = 20 // Reduce from 40
+    const speedEffect = Math.min(Math.round(velocityMagnitude.value * 2), maxSpeedEffect)
 
     return baseRadius + speedEffect
   })
