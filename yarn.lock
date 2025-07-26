@@ -4543,7 +4543,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shopify/react-native-skia@npm:^1.11.4":
+"@shopify/react-native-skia@npm:1.12.4":
   version: 1.12.4
   resolution: "@shopify/react-native-skia@npm:1.12.4"
   dependencies:
@@ -10203,7 +10203,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo@npm:~52.0.0":
+"expo@npm:~52.0.47":
   version: 52.0.47
   resolution: "expo@npm:52.0.47"
   dependencies:
@@ -17565,7 +17565,7 @@ __metadata:
     "@react-navigation/stack": "npm:^7.1.1"
     "@release-it/conventional-changelog": "npm:^10.0.1"
     "@shopify/flash-list": "npm:^1.8.0"
-    "@shopify/react-native-skia": "npm:^1.11.4"
+    "@shopify/react-native-skia": "npm:1.12.4"
     "@solarity/zkit": "npm:^0.3.7"
     "@stylistic/eslint-plugin-js": "npm:^3.0.1"
     "@stylistic/eslint-plugin-jsx": "npm:^3.0.1"
@@ -17615,7 +17615,7 @@ __metadata:
     eslint-plugin-testing-library: "npm:^7.1.1"
     eslint-plugin-unused-imports: "npm:^4.1.4"
     ethers: "npm:^6.13.2"
-    expo: "npm:~52.0.0"
+    expo: "npm:~52.0.47"
     expo-asset: "npm:~11.0.1"
     expo-atlas: "npm:^0.4.0"
     expo-blur: "npm:~14.0.1"
