@@ -1,4 +1,5 @@
 import { Canvas, Fill, FractalNoise, RadialGradient, Rect, vec } from '@shopify/react-native-skia'
+import { BlurView } from 'expo-blur'
 import Matter from 'matter-js'
 import { useCallback, useEffect, useRef } from 'react'
 import type { ViewProps } from 'react-native'
@@ -187,7 +188,7 @@ export default function UiAnimatedGyroBg(props: ViewProps) {
   })
 
   const derivedRadialGradientR = useDerivedValue(() => {
-    const baseRadius = screenHeight / 4
+    const baseRadius = screenHeight / 2
     const maxSpeedEffect = 40
     const speedEffect = Math.min(velocityMagnitude.value * 3, maxSpeedEffect)
 
@@ -217,7 +218,10 @@ export default function UiAnimatedGyroBg(props: ViewProps) {
         </Canvas>
       </View>
 
-      {/* Noise overlay for texture */}
+      <View className='absolute inset-0 size-full overflow-hidden'>
+        <BlurView experimentalBlurMethod='dimezisBlurView' intensity={85} className='size-full' />
+      </View>
+
       <View className='absolute inset-0 opacity-10'>
         <Canvas style={{ flex: 1 }}>
           <Fill color={palette.backgroundPrimary} />
