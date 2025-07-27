@@ -1,5 +1,16 @@
-import { Canvas, Fill, FractalNoise, RadialGradient, Rect, vec } from '@shopify/react-native-skia'
-import { BlurView } from 'expo-blur'
+import {
+  Blur,
+  Canvas,
+  Circle,
+  ColorMatrix,
+  Fill,
+  FractalNoise,
+  Group,
+  Paint,
+  Rect,
+  SweepGradient,
+  vec,
+} from '@shopify/react-native-skia'
 import Matter from 'matter-js'
 import { useCallback, useEffect, useRef } from 'react'
 import type { ViewProps } from 'react-native'
@@ -183,16 +194,38 @@ export default function UiAnimatedGyroBg(props: ViewProps) {
   }, [initializePhysics, cleanup, colorProgress])
 
   // Derived values for gradient
-  const derivedRadialGradientC = useDerivedValue(() => {
-    return vec(Math.round(ballX.value), Math.round(ballY.value))
-  })
+  // const derivedRadialGradientC = useDerivedValue(() => {
+  //   return vec(Math.round(ballX.value), Math.round(ballY.value))
+  // })
 
   const derivedRadialGradientR = useDerivedValue(() => {
-    const baseRadius = screenHeight / 3 // Reduce base radius
+    const baseRadius = screenHeight / 8 // Reduce base radius
     const maxSpeedEffect = 20 // Reduce from 40
     const speedEffect = Math.min(Math.round(velocityMagnitude.value * 2), maxSpeedEffect)
 
     return baseRadius + speedEffect
+  })
+
+  // Add derived values for the floating rect position and size
+  const derivedFloatingRectX = useDerivedValue(() => {
+    return ballX.value - derivedRadialGradientR.value
+  })
+
+  const derivedFloatingRectY = useDerivedValue(() => {
+    return ballY.value - derivedRadialGradientR.value
+  })
+
+  // Add derived values for static circle to be symmetric (opposite) to floating circle
+  const derivedStaticCircleX = useDerivedValue(() => {
+    const centerX = screenWidth / 2
+    const ballOffsetX = ballX.value - centerX
+    return centerX - ballOffsetX // Mirror position across center
+  })
+
+  const derivedStaticCircleY = useDerivedValue(() => {
+    const centerY = screenHeight / 2
+    const ballOffsetY = ballY.value - centerY
+    return centerY - ballOffsetY // Mirror position across center
   })
 
   // Add derived value for interpolated color
@@ -205,29 +238,38 @@ export default function UiAnimatedGyroBg(props: ViewProps) {
 
   return (
     <View {...props} style={[{ flex: 1 }, props.style]}>
-      {/* Background gradient layer */}
       <View className='absolute inset-0'>
         <Canvas style={{ flex: 1 }}>
-          <Rect x={0} y={0} width={screenWidth} height={screenHeight}>
-            <RadialGradient
-              c={derivedRadialGradientC}
-              r={derivedRadialGradientR}
-              colors={derivedGradientColors}
-            />
-          </Rect>
-        </Canvas>
-      </View>
-
-      <View className='absolute inset-0 size-full overflow-hidden'>
-        <BlurView experimentalBlurMethod='dimezisBlurView' intensity={85} className='size-full' />
-      </View>
-
-      <View className='absolute inset-0 opacity-10'>
-        <Canvas style={{ flex: 1 }}>
           <Fill color={palette.backgroundPrimary} />
-          <Rect x={0} y={0} width={screenWidth} height={screenHeight}>
-            <FractalNoise freqX={0.4} freqY={0.4} octaves={7} />
-          </Rect>
+          <Group layer={<Paint blendMode='overlay' opacity={1} />}>
+            <Rect x={0} y={0} width={screenWidth} height={screenHeight}>
+              <FractalNoise freqX={0.3} freqY={0.3} octaves={9} />
+            </Rect>
+          </Group>
+          <Group
+            layer={
+              <Paint>
+                <Blur blur={30} />
+                <ColorMatrix
+                  matrix={[
+                    // R, G, B, A, Position
+                    [1, 0, 0, 0, 0],
+                    [0, 1, 0, 0, 0],
+                    [0, 0, 1, 0, 0],
+                    [0, 0, 0, 60, -30],
+                  ].flat()}
+                />
+              </Paint>
+            }
+          >
+            <Circle cx={derivedStaticCircleX} cy={derivedStaticCircleY} r={derivedRadialGradientR}>
+              <SweepGradient c={vec(0, 0)} colors={derivedGradientColors} />
+            </Circle>
+
+            <Circle cx={derivedFloatingRectX} cy={derivedFloatingRectY} r={derivedRadialGradientR}>
+              <SweepGradient c={vec(0, 0)} colors={derivedGradientColors} />
+            </Circle>
+          </Group>
         </Canvas>
       </View>
     </View>
