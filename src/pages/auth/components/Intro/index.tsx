@@ -6,7 +6,7 @@ import type { ICarouselInstance } from 'react-native-reanimated-carousel'
 import Carousel from 'react-native-reanimated-carousel'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { translate } from '@/core'
+import { useTranslate } from '@/core'
 import { sleep } from '@/helpers'
 import { cn, useAppTheme } from '@/theme'
 import {
@@ -34,6 +34,8 @@ export default function Intro() {
 
   const navigation = useNavigation()
 
+  const translate = useTranslate()
+
   const steps = useMemo(() => {
     return [
       {
@@ -59,7 +61,7 @@ export default function Intro() {
         media: <UiIcon customIcon='sunIcon' className='size-[150px] text-textSecondary' />,
       },
     ]
-  }, [])
+  }, [translate])
 
   const handleCreatePK = useCallback(async () => {
     bottomSheet.dismiss()

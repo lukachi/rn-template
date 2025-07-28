@@ -33,6 +33,9 @@
   "errors": {
     "default": "Something went wrong"
   },
+  "home-screen": {
+    "welcome-title": "Hi stranger 👋"
+  },
   "lockscreen": {
     "attempts-left": "Attempts Left: {{attemptsLeft}}",
     "default-title": "Enter passcode",

@@ -2,7 +2,6 @@ import type { ViewProps } from 'react-native'
 import { View } from 'react-native'
 
 import { cn, useBottomBarOffset } from '@/theme'
-import UiAnimatedGyroBg from '@/ui/UiAnimatedGyroBg'
 
 type Props = {
   isBottomBlockShown?: boolean
@@ -17,7 +16,7 @@ export default function AppContainer({ isBottomBlockShown = false, children, ...
         flex: 1,
       }}
     >
-      <UiAnimatedGyroBg className='absolute inset-0' />
+      {/* <UiAnimatedGyroBg className='absolute inset-0' /> */}
       {/* Content layer */}
       <View
         {...rest}

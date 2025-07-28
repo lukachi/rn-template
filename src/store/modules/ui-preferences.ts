@@ -3,7 +3,7 @@ import type { ImageBackgroundProps, TextProps, ViewProps } from 'react-native'
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
-import { translate } from '@/core'
+import { useTranslate } from '@/core'
 import { zustandStorage } from '@/store/helpers'
 import { useAppTheme } from '@/theme'
 import { PersonDetails } from '@/utils/e-document/e-document'
@@ -47,6 +47,8 @@ const useUiPreferencesStore = create(
 )
 
 const useDocumentCardUiPreference = (id: string) => {
+  const translate = useTranslate()
+
   const { documentsCardUi, updateDocumentsCardUi } = useUiPreferencesStore(state => ({
     documentsCardUi: state.documentsCardUi,
     updateDocumentsCardUi: state.updateDocumentsCardUi,
@@ -154,6 +156,7 @@ const useDocumentCardUiPreference = (id: string) => {
     palette.primaryMain,
     palette.textPrimary,
     palette.textSecondary,
+    translate,
   ])
 
   const documentCardUi = useMemo<DocumentCardUi>(

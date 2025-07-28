@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { translate } from '@/core'
+import { useTranslate } from '@/core'
 import type { LocalAuthStackScreenProps } from '@/route-types'
 import { localAuthStore } from '@/store'
 import { cn, useAppTheme } from '@/theme'
@@ -18,6 +18,8 @@ export default function EnablePasscode({}: LocalAuthStackScreenProps<'EnablePass
   const insets = useSafeAreaInsets()
 
   const { palette } = useAppTheme()
+
+  const translate = useTranslate()
 
   const onConfirm = useCallback(() => {
     navigation.navigate('LocalAuth', {

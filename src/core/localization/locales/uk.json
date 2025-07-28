@@ -1,110 +1,113 @@
 {
   "auth": {
     "intro": {
-      "next-btn": "Create wallet",
+      "next-btn": "Створити гаманець",
       "step-1": {
-        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
-        "title": "Welcome to the app"
+        "subtitle": "Ласкаво просимо до нашого додатку!",
+        "title": "Вітаємо в додатку"
       },
       "step-2": {
-        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
-        "title": "Second intro step"
+        "subtitle": "Другий крок знайомства з додатком!",
+        "title": "Другий крок введення"
       },
       "step-3": {
-        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
-        "title": "Third intro step"
+        "subtitle": "Третій крок знайомства з додатком!",
+        "title": "Третій крок введення"
       },
       "step-4": {
-        "subtitle": "Lorem ipsum dolor sit amet concestetur!",
-        "title": "Fourth intro step"
+        "subtitle": "Четвертий крок знайомства з додатком!",
+        "title": "Четвертий крок введення"
       }
     }
   },
   "enable-biometrics": {
-    "enable-btn": "Enable",
-    "skip-btn": "Skip",
-    "title": "Enable Biometric Auth"
+    "enable-btn": "Увімкнути",
+    "skip-btn": "Пропустити",
+    "title": "Увімкнути біометричну автентифікацію"
   },
   "enable-passcode": {
-    "enable-btn": "Enable",
-    "skip-btn": "Skip",
-    "title": "Enable Passcode"
+    "enable-btn": "Увімкнути",
+    "skip-btn": "Пропустити",
+    "title": "Увімкнути код-пароль"
   },
   "errors": {
-    "default": "Something went wrong"
+    "default": "Щось пішло не так"
+  },
+  "home-screen": {
+    "welcome-title": "Привіт, незнайомець 👋"
   },
   "lockscreen": {
-    "attempts-left": "Attempts Left: {{attemptsLeft}}",
-    "default-title": "Enter passcode",
-    "forgot-btn": "Forgot password",
-    "locked-permanently": "Account locked permanently, until logout",
-    "locked-temp": "Account locked",
-    "logout-btn": "Logout"
+    "attempts-left": "Залишилось спроб: {{attemptsLeft}}",
+    "default-title": "Введіть код-пароль",
+    "forgot-btn": "Забули пароль",
+    "locked-permanently": "Акаунт заблоковано назавжди, до виходу з системи",
+    "locked-temp": "Акаунт заблоковано",
+    "logout-btn": "Вийти"
   },
   "notifications": {
-    "default-message-default": "Just a message",
-    "default-message-error": "Something went wrong",
-    "default-message-info": "Something is happening. Just want you to know that",
-    "default-message-success": "Action successful",
-    "default-message-warning": "Something you are doing is not recommended",
-    "default-title-default": "Just a message",
-    "default-title-error": "Error",
-    "default-title-info": "Info",
-    "default-title-success": "Success",
-    "default-title-warning": "Warning"
+    "default-message-default": "Просто повідомлення",
+    "default-message-error": "Щось пішло не так",
+    "default-message-info": "Щось відбувається. Просто хотіли вас повідомити",
+    "default-message-success": "Дія успішна",
+    "default-message-warning": "Те, що ви робите, не рекомендується",
+    "default-title-default": "Просто повідомлення",
+    "default-title-error": "Помилка",
+    "default-title-info": "Інформація",
+    "default-title-success": "Успіх",
+    "default-title-warning": "Попередження"
   },
   "plurals": {
-    "key_few": "few",
-    "key_many": "many",
-    "key_one": "singular",
-    "key_other": "other",
-    "key_two": "two",
-    "key_zero": "zero"
+    "key_few": "кілька",
+    "key_many": "багато",
+    "key_one": "один",
+    "key_other": "інші",
+    "key_two": "два",
+    "key_zero": "нуль"
   },
   "set-passcode": {
-    "submit-btn": "Set",
-    "title": "Set Passcode"
+    "submit-btn": "Встановити",
+    "title": "Встановити код-пароль"
   },
   "sign-in": {
-    "divider": "or",
-    "email-lbl": "Email",
-    "email-ph": "Enter your email",
-    "login-tip": "Sign up",
-    "oauth-btn": "Log in with Google",
-    "password-lbl": "Password",
-    "password-ph": "Enter your password",
-    "submit-btn": "Log in",
-    "tip": "Don't have an account?",
-    "title": "Welcome 👋"
+    "divider": "або",
+    "email-lbl": "Електронна пошта",
+    "email-ph": "Введіть вашу електронну пошту",
+    "login-tip": "Зареєструватися",
+    "oauth-btn": "Увійти через Google",
+    "password-lbl": "Пароль",
+    "password-ph": "Введіть ваш пароль",
+    "submit-btn": "Увійти",
+    "tip": "Не маєте акаунта?",
+    "title": "Вітаємо 👋"
   },
   "sign-up": {
-    "divider": "or",
-    "email-lbl": "Email",
-    "email-ph": "Enter your email",
-    "login-tip": "Log in",
-    "name-lbl": "Name",
-    "name-ph": "Enter your name",
-    "oauth-btn": "Log in with Google",
-    "password-lbl": "Password",
-    "password-ph": "Enter your password",
-    "submit-btn": "Sign up",
-    "tip": "Already have an account?",
-    "title": "Create Your Account"
+    "divider": "або",
+    "email-lbl": "Електронна пошта",
+    "email-ph": "Введіть вашу електронну пошту",
+    "login-tip": "Увійти",
+    "name-lbl": "Ім'я",
+    "name-ph": "Введіть ваше ім'я",
+    "oauth-btn": "Увійти через Google",
+    "password-lbl": "Пароль",
+    "password-ph": "Введіть ваш пароль",
+    "submit-btn": "Зареєструватися",
+    "tip": "Вже маєте акаунт?",
+    "title": "Створити ваш акаунт"
   },
   "tabs": {
-    "one": "TAB one",
-    "two": "TAB two",
-    "typography": "Typography"
+    "one": "ВКЛАДКА один",
+    "two": "ВКЛАДКА два",
+    "typography": "Типографія"
   },
   "ui-preferences": {
-    "primary": "Primary",
-    "quaternary": "Quaternary",
-    "secondary": "Secondary",
-    "tertiary": "Tertiary"
+    "primary": "Основний",
+    "quaternary": "Четвертинний",
+    "secondary": "Вторинний",
+    "tertiary": "Третинний"
   },
   "validations": {
-    "field-error_maxLength": "This field must contain maximum {{maxLength}} symbols",
-    "field-error_minLength": "This field must contain minimum {{minLength}} symbols",
-    "field-error_required": "Please fill out this field"
+    "field-error_maxLength": "Це поле повинно містити максимум {{maxLength}} символів",
+    "field-error_minLength": "Це поле повинно містити мінімум {{minLength}} символів",
+    "field-error_required": "Будь ласка, заповніть це поле"
   }
 }

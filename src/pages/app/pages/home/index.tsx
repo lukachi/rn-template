@@ -24,6 +24,7 @@ const screenWidth = Dimensions.get('window').width
 const defaultDataWith6Colors = ['#899F9C', '#B0604D', '#B3C680', '#5C6265', '#F5D399', '#F1F1F1']
 
 import * as Haptics from 'expo-haptics'
+import { useTranslation } from 'react-i18next'
 
 import { bus, DefaultBusEvents } from '@/core'
 import UiSkeleton from '@/ui/UiSkeleton'
@@ -37,6 +38,8 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
 
   const progress = useSharedValue<number>(0)
   const [containerHeight, setContainerHeight] = useState(0)
+
+  const { t } = useTranslation()
 
   return (
     <AppContainer>
@@ -54,15 +57,12 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
               paddingRight: appPaddings.right,
             }}
           >
-            <Text className='typography-h5 !font-normal text-textPrimary'>Hi Stranger</Text>
+            <Text className='typography-h5 !font-normal text-textPrimary'>
+              {t('home-screen.welcome-title')}
+            </Text>
 
-            <Pressable className='relative size-10 rounded-full bg-backgroundContainer'>
-              <UiIcon
-                libIcon='FontAwesome'
-                name='user-o'
-                size={16}
-                className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-textPrimary'
-              />
+            <Pressable className='relative flex size-10 items-center justify-center rounded-full bg-backgroundContainer'>
+              <UiIcon libIcon='FontAwesome' name='user-o' size={16} className='text-textPrimary' />
             </Pressable>
           </View>
           <View

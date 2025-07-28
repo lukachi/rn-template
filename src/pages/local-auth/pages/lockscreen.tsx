@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { ErrorHandler, translate } from '@/core'
+import { ErrorHandler, useTranslate } from '@/core'
 import BiometricsIcon from '@/pages/local-auth/components/BiometricsIcon'
 import HiddenPasscodeView from '@/pages/local-auth/components/HiddenPasscodeView'
 import type { LocalAuthStackScreenProps } from '@/route-types'
@@ -58,6 +58,8 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
   )
 
   // const { unlockWithBiometrics } = useUnlockWithBiometrics()
+
+  const translate = useTranslate()
 
   const navigation = useNavigation()
 

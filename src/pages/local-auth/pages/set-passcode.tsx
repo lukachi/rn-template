@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { ErrorHandler, translate } from '@/core'
+import { ErrorHandler, useTranslate } from '@/core'
 import type { LocalAuthStackScreenProps } from '@/route-types'
 import { BiometricStatuses, localAuthStore } from '@/store'
 import { cn } from '@/theme'
@@ -18,6 +18,8 @@ export default function SetPasscode({}: LocalAuthStackScreenProps<'SetPasscode'>
   const navigation = useNavigation()
 
   const insets = useSafeAreaInsets()
+
+  const translate = useTranslate()
 
   const submit = useCallback(async () => {
     if (!passcode) return

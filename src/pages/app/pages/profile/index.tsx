@@ -6,7 +6,7 @@ import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { useSelectedLanguage } from '@/core'
+import { isRTL, useSelectedLanguage } from '@/core'
 import { Language, resources } from '@/core/localization/resources'
 import { useCopyToClipboard } from '@/hooks'
 import AppContainer from '@/pages/app/components/AppContainer'
@@ -484,7 +484,7 @@ function ProfileCardMenuItem({
       {trailingIcon || (
         <UiIcon
           libIcon='FontAwesome'
-          name='chevron-right'
+          name={isRTL ? 'chevron-left' : 'chevron-right'}
           className='ml-2 text-textSecondary'
           size={3 * 4}
         />

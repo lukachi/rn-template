@@ -2,7 +2,7 @@ import { AuthenticationType } from 'expo-local-authentication'
 import { useCallback, useMemo } from 'react'
 import { Text, View } from 'react-native'
 
-import { ErrorHandler, translate } from '@/core'
+import { ErrorHandler, useTranslate } from '@/core'
 import { type LocalAuthStackScreenProps } from '@/route-types'
 import { localAuthStore } from '@/store'
 import { cn, useAppTheme } from '@/theme'
@@ -11,6 +11,7 @@ import { UiButton, UiIcon } from '@/ui'
 // eslint-disable-next-line no-empty-pattern
 export default function EnableBiometrics({}: LocalAuthStackScreenProps<'EnableBiometrics'>) {
   const { palette } = useAppTheme()
+  const translate = useTranslate()
 
   const biometricTypes = localAuthStore.useLocalAuthStore(state => state.biometricAuthTypes)
   const enableBiometrics = localAuthStore.useLocalAuthStore(state => state.enableBiometrics)

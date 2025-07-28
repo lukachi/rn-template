@@ -89,7 +89,10 @@ export const UiTextField = forwardRef<TextInput, Props>(
     const onFocus = useCallback(() => setIsFocussed(true), [])
 
     return (
-      <View {...containerProps} className={cn('w-full', containerProps?.className)}>
+      <View
+        {...containerProps}
+        className={cn('flex w-full items-start', containerProps?.className)}
+      >
         {label && <Text className={styles.label()}>{label}</Text>}
 
         <View className={cn(styles.container())}>

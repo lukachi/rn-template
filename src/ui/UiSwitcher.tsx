@@ -58,7 +58,7 @@ export const UiSwitcher = forwardRef<ElementRef<typeof RNSwitch>, Props>(
     )
 
     return (
-      <View {...viewProps}>
+      <View {...viewProps} className='flex items-start gap-2'>
         <View className='flex flex-row items-center gap-2'>
           {label && <Text className={styles.label()}>{label}</Text>}
 

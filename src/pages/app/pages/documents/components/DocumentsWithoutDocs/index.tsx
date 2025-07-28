@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { isRTL } from '@/core'
 import AppContainer from '@/pages/app/components/AppContainer'
 import { cn, useAppPaddings, useAppTheme, useBottomBarOffset } from '@/theme'
 import {
@@ -55,7 +56,7 @@ export default function DocumentsWithoutDocs() {
             size='large'
             title="Let's start"
             trailingIconProps={{
-              customIcon: 'arrowRightIcon',
+              customIcon: isRTL ? 'arrowLeftIcon' : 'arrowRightIcon',
             }}
             onPress={() => {
               startScanBottomSheet.present()
@@ -73,7 +74,10 @@ export default function DocumentsWithoutDocs() {
           subtitle='Learn more about the app'
           leadingContent={<UiIcon customIcon='infoIcon' className='size-[40] text-primaryMain' />}
           trailingContent={
-            <UiIcon customIcon='arrowRightIcon' className='size-[24] text-textPrimary' />
+            <UiIcon
+              customIcon={isRTL ? 'arrowLeftIcon' : 'arrowRightIcon'}
+              className='size-[24] text-textPrimary'
+            />
           }
         />
 
