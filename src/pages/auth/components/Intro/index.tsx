@@ -1,7 +1,7 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet'
 import { useNavigation } from '@react-navigation/native'
 import { useCallback, useMemo, useRef } from 'react'
-import { Dimensions, Text, View } from 'react-native'
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native'
 import type { ICarouselInstance } from 'react-native-reanimated-carousel'
 import Carousel from 'react-native-reanimated-carousel'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -9,14 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslate } from '@/core'
 import { sleep } from '@/helpers'
 import { cn, useAppTheme } from '@/theme'
-import {
-  UiBottomSheet,
-  UiButton,
-  UiHorizontalDivider,
-  UiIcon,
-  UiScreenScrollable,
-  useUiBottomSheet,
-} from '@/ui'
+import { UiBottomSheet, UiButton, UiIcon, useUiBottomSheet } from '@/ui'
 import { BottomSheetHeader } from '@/ui/UiBottomSheet'
 
 import { StepLayout } from './components'
@@ -83,14 +76,17 @@ export default function Intro() {
   }, [bottomSheet, navigation])
 
   return (
-    <UiScreenScrollable style={{ paddingBottom: insets.bottom, paddingTop: insets.top }}>
-      <View className='flex flex-1 flex-col justify-center'>
+    <View style={{ flex: 1, paddingBottom: insets.bottom }} className='bg-backgroundContainer'>
+      <View
+        style={{
+          paddingTop: insets.top,
+        }}
+        className='flex flex-1 flex-col justify-center rounded-b-[50] bg-backgroundPrimary pb-10'
+      >
         <Carousel
           ref={ref}
           width={screenWidth}
           data={steps}
-          loop={false}
-          autoPlay={true}
           autoPlayInterval={5_000}
           renderItem={({ index }) => (
             <StepLayout
@@ -103,12 +99,9 @@ export default function Intro() {
         />
       </View>
 
-      <View className='p-5'>
-        <UiHorizontalDivider />
-      </View>
-
-      <View className='flex flex-col px-5'>
+      <View className='flex flex-col px-5 pt-5'>
         <UiButton
+          size='large'
           className={cn('w-full')}
           title={translate('auth.intro.next-btn')}
           onPress={() => {
@@ -118,6 +111,8 @@ export default function Intro() {
       </View>
 
       <UiBottomSheet
+        detached
+        snapPoints={['40%']}
         headerComponent={
           <BottomSheetHeader
             title='Authorization'
@@ -126,24 +121,53 @@ export default function Intro() {
           />
         }
         ref={bottomSheet.ref}
-        enableDynamicSizing={true}
         backgroundStyle={{
           backgroundColor: palette.backgroundContainer,
+          borderRadius: 40,
         }}
       >
-        <BottomSheetView style={{ paddingBottom: insets.bottom }}>
-          <View className={cn('py-0, flex flex-col items-center gap-4 p-5')}>
-            <UiHorizontalDivider />
+        <BottomSheetView className={cn('flex h-full flex-1 items-center gap-2')}>
+          <Text className='typography-body2 text-textSecondary'>Choose a preferred method</Text>
 
-            <Text className='typography-body2 text-textSecondary'>Choose a preferred method</Text>
-
-            <View className='mt-auto flex w-full flex-col gap-2'>
-              <UiButton size='large' title='Create a new profile' onPress={handleCreatePK} />
-              <UiButton size='large' title='Re-activate old profile' onPress={handleImportPK} />
-            </View>
+          <View className='mb-6 mt-auto flex flex-row gap-4 px-5'>
+            {[
+              {
+                title: 'Create new',
+                handler: handleCreatePK,
+                icon: (
+                  <UiIcon
+                    libIcon='Ionicons'
+                    name='create-outline'
+                    className='text-textPrimary'
+                    size={48}
+                  />
+                ),
+              },
+              {
+                title: 'Import',
+                handler: handleImportPK,
+                icon: (
+                  <UiIcon
+                    libIcon='MaterialCommunityIcons'
+                    name='import'
+                    className='text-textPrimary'
+                    size={48}
+                  />
+                ),
+              },
+            ].map((el, idx) => (
+              <TouchableOpacity
+                key={idx}
+                className='flex flex-1 items-center gap-2 rounded-[30] border-2 border-componentHovered p-4 py-12 font-semibold'
+                onPress={el.handler}
+              >
+                {el.icon}
+                <Text className='typography-subtitle2 text-textPrimary'>{el.title}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </BottomSheetView>
       </UiBottomSheet>
-    </UiScreenScrollable>
+    </View>
   )
 }

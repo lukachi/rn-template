@@ -10,7 +10,7 @@ import {
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
-import { zustandSecureStorage } from '@/store/helpers'
+import { zustandStorage } from '../helpers'
 
 export enum PasscodeStatuses {
   NotSet = 'not-set',
@@ -67,6 +67,8 @@ const useLocalAuthStore = create(
   persist(
     combine(
       {
+        isFirstEnter: true,
+
         passcode: '',
         passcodeStatus: PasscodeStatuses.NotSet,
         biometricStatus: BiometricStatuses.NotSupported,
@@ -81,6 +83,10 @@ const useLocalAuthStore = create(
         _hasHydrated: false,
       },
       (setState, getState) => ({
+        updateIsFirstEnter: (value: boolean): void => {
+          setState({ isFirstEnter: value })
+        },
+
         setHasHydrated: (value: boolean) => {
           setState({
             _hasHydrated: value,
@@ -227,7 +233,7 @@ const useLocalAuthStore = create(
     {
       name: 'local-auth-store',
       version: 1,
-      storage: createJSONStorage(() => zustandSecureStorage),
+      storage: createJSONStorage(() => zustandStorage),
 
       onRehydrateStorage: () => state => {
         state?.setHasHydrated(true)

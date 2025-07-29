@@ -19,7 +19,6 @@
  * </UiBottomSheet>
  */
 
-import AntDesign from '@expo/vector-icons/AntDesign'
 import type { BottomSheetBackdropProps, BottomSheetModalProps } from '@gorhom/bottom-sheet'
 import { useBottomSheet } from '@gorhom/bottom-sheet'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
@@ -160,29 +159,29 @@ type BottomSheetHeaderProps = {
   dismiss: () => void
 } & ViewProps
 
-export const BottomSheetHeader = memo(
-  ({ title, dismiss, className, ...rest }: BottomSheetHeaderProps) => {
-    const { palette } = useAppTheme()
-    const appPaddings = useAppPaddings()
+export const BottomSheetHeader = memo(({ title, className, ...rest }: BottomSheetHeaderProps) => {
+  const appPaddings = useAppPaddings()
 
-    return (
-      <View
-        {...rest}
-        className={cn('flex-row items-center rounded-t-2xl py-6 pb-0', className)}
-        style={[
-          rest.style,
-          {
-            paddingLeft: appPaddings.left,
-            paddingRight: appPaddings.right,
-          },
-        ]}
-      >
-        <View className='relative w-full'>
-          {title && (
-            <Text className='typography-h5 flex-1 font-bold text-textPrimary'>{title}</Text>
-          )}
+  return (
+    <View
+      {...rest}
+      className={cn('flex-row items-center rounded-t-2xl py-4 pb-0', className)}
+      style={[
+        rest.style,
+        {
+          paddingLeft: appPaddings.left,
+          paddingRight: appPaddings.right,
+        },
+      ]}
+    >
+      <View className='relative w-full items-center justify-center'>
+        <View className='h-3 w-14 flex-1 rounded-full bg-componentHovered' />
 
-          <Pressable
+        {title && (
+          <Text className='typography-h5 mt-3 flex-1 font-bold text-textPrimary'>{title}</Text>
+        )}
+
+        {/* <Pressable
             onPress={dismiss}
             className='absolute right-0 top-1/2 size-[24px] -translate-y-1/2 items-center justify-center'
             hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
@@ -191,9 +190,8 @@ export const BottomSheetHeader = memo(
             accessibilityHint='closes the modal'
           >
             <AntDesign name='close' size={20} color={palette.textSecondary} />
-          </Pressable>
-        </View>
+          </Pressable> */}
       </View>
-    )
-  },
-)
+    </View>
+  )
+})

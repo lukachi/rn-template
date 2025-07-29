@@ -10,7 +10,7 @@ import { combine, createJSONStorage, persist } from 'zustand/middleware'
 import { authorize, getChallenge, refresh } from '@/api/modules/auth'
 import { Config } from '@/config'
 import { sleep } from '@/helpers'
-import { zustandSecureStorage } from '@/store/helpers'
+import { zustandStorage } from '@/store/helpers'
 import { identityStore } from '@/store/modules/identity'
 import { localAuthStore } from '@/store/modules/local-auth'
 import { uiPreferencesStore } from '@/store/modules/ui-preferences'
@@ -59,7 +59,7 @@ const useAuthStore = create(
     {
       name: 'auth-store',
       version: 1,
-      storage: createJSONStorage(() => zustandSecureStorage),
+      storage: createJSONStorage(() => zustandStorage),
 
       onRehydrateStorage: () => state => {
         state?.setHasHydrated(true)

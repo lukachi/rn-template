@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { useLayoutEffect } from 'react'
 
 import InviteOthers from '@/pages/app/pages/invite-others'
 import type {
@@ -8,6 +9,7 @@ import type {
   AppTabParamsList,
   RootStackScreenProps,
 } from '@/route-types'
+import { authStore, localAuthStore } from '@/store'
 import { UiIcon } from '@/ui'
 
 import BottomTabBar from './components/BottomTabBarTabBar'
@@ -59,6 +61,15 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
 
 // eslint-disable-next-line no-empty-pattern
 export default function App({}: RootStackScreenProps<'App'>) {
+  const isFirstEnter = localAuthStore.useLocalAuthStore(state => state.isFirstEnter)
+  const logout = authStore.useLogout()
+
+  useLayoutEffect(() => {
+    if (!isFirstEnter) return
+
+    logout()
+  }, [isFirstEnter, logout])
+
   return (
     <Stack.Navigator
       screenOptions={{

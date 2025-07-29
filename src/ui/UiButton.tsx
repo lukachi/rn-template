@@ -18,18 +18,18 @@ const buttonBaseTv = tv({
   variants: {
     size: {
       small: {
-        container: cn('h-[32px] px-[16px] rounded-[1000px] gap-2'),
-        text: cn('typography-bodySmall'),
+        container: cn('h-[40px] px-[24px] rounded-[1000px] gap-2'),
+        text: cn('typography-buttonSmall'),
         icon: cn('size-[16px]'),
       },
       medium: {
-        container: cn('h-[40px] px-[24px] rounded-[1000px] gap-4'),
-        text: cn('typography-bodyMedium'),
+        container: cn('h-[56px] px-[32px] rounded-[1000px] gap-4'),
+        text: cn('typography-buttonMedium'),
         icon: cn('size-[20px]'),
       },
       large: {
-        container: cn('h-[56px] px-[32px] rounded-full gap-6'),
-        text: cn('typography-bodyLarge'),
+        container: cn('h-[64px] px-[32px] rounded-full gap-4'),
+        text: cn('typography-buttonLarge'),
         icon: cn('size-[20px]'),
       },
     },
@@ -417,7 +417,7 @@ const buttonBaseTv = tv({
 
   defaultVariants: {
     variant: 'filled',
-    size: 'large',
+    size: 'medium',
     color: 'primary',
   },
 })

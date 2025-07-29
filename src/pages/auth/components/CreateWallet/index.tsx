@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ErrorHandler } from '@/core'
 import { useCopyToClipboard, useForm, useLoading } from '@/hooks'
 import type { AuthStackScreenProps } from '@/route-types'
-import { authStore, walletStore } from '@/store'
+import { authStore, localAuthStore, walletStore } from '@/store'
 import { cn } from '@/theme'
 import {
   ControlledUiTextField,
@@ -25,6 +25,7 @@ export default function CreateWallet({ route }: Props) {
   const generatePrivateKey = walletStore.useGeneratePrivateKey()
   const setPrivateKey = walletStore.useWalletStore(state => state.setPrivateKey)
   const login = authStore.useLogin()
+  const setIsFirstEnter = localAuthStore.useLocalAuthStore(state => state.updateIsFirstEnter)
 
   const isImporting = useMemo(() => {
     return route?.params?.isImporting
@@ -53,13 +54,14 @@ export default function CreateWallet({ route }: Props) {
     disableForm()
     try {
       setPrivateKey(formState.privateKey)
+      setIsFirstEnter(false)
       await login(formState.privateKey)
     } catch (error) {
       // TODO: network inspector
       ErrorHandler.process(error)
     }
     enableForm()
-  }, [disableForm, enableForm, formState.privateKey, login, setPrivateKey])
+  }, [disableForm, enableForm, formState.privateKey, login, setIsFirstEnter, setPrivateKey])
 
   const pasteFromClipboard = useCallback(async () => {
     const res = await fetchFromClipboard()

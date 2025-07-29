@@ -62,7 +62,6 @@ export const typography = {
     lineHeight: '36px',
     letterSpacing: 0.4,
     fontWeight: 400,
-    fontFamily: 'PlaywriteCU-Regular',
   },
   '.typography-body2': {
     fontSize: '16px',
@@ -84,22 +83,22 @@ export const typography = {
   },
 
   '.typography-buttonLarge': {
-    fontSize: '16px',
-    lineHeight: '20px',
+    fontSize: '20px',
+    lineHeight: '24px',
     letterSpacing: 0.32,
-    fontWeight: 600,
+    fontWeight: 500,
   },
   '.typography-buttonMedium': {
-    fontSize: '14px',
-    lineHeight: '18px',
+    fontSize: '18px',
+    lineHeight: '22px',
     letterSpacing: 0.28,
-    fontWeight: 600,
+    fontWeight: 500,
   },
   '.typography-buttonSmall': {
-    fontSize: '12px',
-    lineHeight: '14px',
+    fontSize: '14px',
+    lineHeight: '18px',
     letterSpacing: 0.24,
-    fontWeight: 600,
+    fontWeight: 500,
   },
 
   '.typography-caption1': {
