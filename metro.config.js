@@ -27,6 +27,20 @@ const withSvgTransformer = (config) => {
   return config;
 }
 
+const withRiveFiles = (config) => {
+  const { resolver } = config
+
+  config.resolver = {
+    ...resolver,
+    assetExts: [
+      ...resolver.assetExts,
+      'riv',
+    ],
+  }
+
+  return config
+}
+
 const withCircomFilesAndPolyfills = (config) => {
   const { resolver } = config
 
@@ -60,6 +74,7 @@ module.exports = (() => {
   return mergeConfig(
     withSvgTransformer(config),
     withCircomFilesAndPolyfills(config),
+    withRiveFiles(config),
     wrapWithReanimatedMetroConfig(config),
     withNativeWind(config, { input: './src/theme/global.css' })
   )
