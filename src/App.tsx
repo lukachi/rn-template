@@ -15,7 +15,8 @@ import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
 import { localAuthStore } from '@/store'
 import { loadSelectedTheme } from '@/theme'
-import { Toasts } from '@/ui'
+
+import Toasts from './ui/Toasts'
 
 loadSelectedTheme()
 

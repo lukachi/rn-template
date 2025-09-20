@@ -1,13 +1,16 @@
 import { useNavigation } from '@react-navigation/native'
 import { useCallback, useState } from 'react'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ErrorHandler, useTranslate } from '@/core'
 import type { LocalAuthStackScreenProps } from '@/route-types'
 import { BiometricStatuses, localAuthStore } from '@/store'
 import { cn } from '@/theme'
-import { UiButton, UiNumPad, UiScreenScrollable } from '@/ui'
+import { UiButton } from '@/ui/UiButton'
+import UiNumPad from '@/ui/UiNumPad'
+import UiScreenScrollable from '@/ui/UiScreenScrollable'
+import { UiText } from '@/ui/UiText'
 
 // eslint-disable-next-line no-empty-pattern
 export default function SetPasscode({}: LocalAuthStackScreenProps<'SetPasscode'>) {
@@ -53,24 +56,22 @@ export default function SetPasscode({}: LocalAuthStackScreenProps<'SetPasscode'>
     >
       <View className={cn('flex-1')}>
         <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-          <Text className={cn('typography-h4 text-center text-textPrimary')}>
+          <UiText variant='h4' className={cn('text-center')}>
             {translate('set-passcode.title')}
-          </Text>
+          </UiText>
 
           <View className='flex h-[16] flex-row items-center gap-2'>
             {Array.from({ length: passcode.length }).map((_, i) => (
-              <View key={i} className='size-[16] rounded-full bg-textPrimary' />
+              <View key={i} className='size-[16] rounded-full bg-foreground' />
             ))}
           </View>
         </View>
 
         <View className={cn('flex w-full gap-6 p-5')}>
           <UiNumPad value={passcode} setValue={handleSetPasscode} />
-          <UiButton
-            title={translate('set-passcode.submit-btn')}
-            onPress={submit}
-            disabled={!passcode}
-          />
+          <UiButton onPress={submit} disabled={!passcode}>
+            {translate('set-passcode.submit-btn')}
+          </UiButton>
         </View>
       </View>
     </UiScreenScrollable>

@@ -32,11 +32,10 @@ export default function AppRoutes() {
   const isAuthorized = true // FIXME
   const isUserNeedToLocalAuth = localAuthStore.useUserNeedToLocalAuth()
 
+  if (!colorScheme) return <></>
+
   return (
-    <NavigationContainer
-      linking={linking}
-      theme={NAV_THEME[colorScheme === 'dark' ? 'light' : 'dark']}
-    >
+    <NavigationContainer linking={linking} theme={NAV_THEME[colorScheme]}>
       <Stack.Navigator>
         {isAuthorized ? (
           <>

@@ -1,14 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import InviteOthers from '@/pages/app/pages/invite-others'
 import type {
   AppStackParamsList,
   AppStackScreenProps,
   AppTabParamsList,
   RootStackScreenProps,
 } from '@/route-types'
-import { UiIcon } from '@/ui'
+import UiIcon from '@/ui/UiIcon'
 
 import BottomTabBar from './components/BottomTabBarTabBar'
 import HomeScreen from './pages/home'
@@ -54,13 +53,6 @@ export default function App({}: RootStackScreenProps<'App'>) {
       }}
     >
       <Stack.Screen name='Tabs' component={AppTabs} />
-      <Stack.Screen
-        name='InviteOthers'
-        component={InviteOthers}
-        options={{
-          animation: 'fade',
-        }}
-      />
     </Stack.Navigator>
   )
 }

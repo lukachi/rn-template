@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react'
 import type { ViewProps } from 'react-native'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 
 import { cn } from '@/theme'
+import { UiText } from '@/ui/UiText'
 
 type StepLayoutProps = ViewProps & {
   title: string
@@ -21,8 +22,8 @@ export default function StepLayout({
     <View {...rest} className={cn('flex flex-col items-center justify-end gap-10', className)}>
       <View className={cn('my-auto')}>{media}</View>
       <View className={cn('flex flex-col gap-4')}>
-        <Text className={cn('typography-h5 text-center text-textPrimary')}>{title}</Text>
-        <Text className={cn('typography-body2 text-center text-textPrimary')}>{subtitle}</Text>
+        <UiText className={cn('typography-h5 text-center')}>{title}</UiText>
+        <UiText className={cn('typography-body2 text-center')}>{subtitle}</UiText>
       </View>
     </View>
   )

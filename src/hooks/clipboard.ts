@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
 import { useCallback, useState } from 'react'
 
-import { sleep } from '@/helpers'
+import { sleep } from '@/helpers/promise'
 
 export const useCopyToClipboard = (delay = 1000) => {
   const [isCopied, setIsCopied] = useState(false)

@@ -1,27 +1,61 @@
-import { BlurView } from 'expo-blur'
-import type { ViewProps } from 'react-native'
-import { View } from 'react-native'
-import tinycolor from 'tinycolor2'
+import { View, type ViewProps } from 'react-native'
 
-import { cn, useAppTheme } from '@/theme'
+import { cn } from '@/theme/utils'
 
-export default function UiCard({ children, className, ...rest }: ViewProps) {
-  const { palette } = useAppTheme()
+import { UiText, UiTextClassContext } from './UiText'
 
+function Card({ className, ...props }: ViewProps & React.RefAttributes<View>) {
   return (
-    <View className={cn('relative isolate overflow-hidden rounded-3xl')}>
-      <View className='absolute left-0 top-0 z-10 size-full'>
-        <BlurView experimentalBlurMethod='dimezisBlurView' intensity={25} className='size-full' />
-      </View>
+    <UiTextClassContext.Provider value='text-card-foreground'>
       <View
-        {...rest}
-        className={cn('z-20 p-4', className)}
-        style={{
-          backgroundColor: tinycolor(palette.backgroundContainer).setAlpha(0.25).toRgbString(),
-        }}
-      >
-        {children}
-      </View>
-    </View>
+        className={cn(
+          'flex flex-col gap-6 rounded-2xl border border-border bg-card py-6 shadow-sm shadow-black/5',
+          className,
+        )}
+        {...props}
+      />
+    </UiTextClassContext.Provider>
   )
+}
+
+function CardHeader({ className, ...props }: ViewProps & React.RefAttributes<View>) {
+  return <View className={cn('flex flex-col gap-1.5 px-6', className)} {...props} />
+}
+
+function CardTitle({
+  className,
+  ...props
+}: React.ComponentProps<typeof UiText> & React.RefAttributes<Text>) {
+  return (
+    <UiText
+      role='heading'
+      aria-level={3}
+      className={cn('font-semibold leading-none', className)}
+      {...props}
+    />
+  )
+}
+
+function CardDescription({
+  className,
+  ...props
+}: React.ComponentProps<typeof UiText> & React.RefAttributes<Text>) {
+  return <UiText className={cn('text-sm text-muted-foreground', className)} {...props} />
+}
+
+function CardContent({ className, ...props }: ViewProps & React.RefAttributes<View>) {
+  return <View className={cn('px-6', className)} {...props} />
+}
+
+function CardFooter({ className, ...props }: ViewProps & React.RefAttributes<View>) {
+  return <View className={cn('flex flex-row items-center px-6', className)} {...props} />
+}
+
+export {
+  Card as UiCard,
+  CardContent as UiCardContent,
+  CardDescription as UiCardDescription,
+  CardFooter as UiCardFooter,
+  CardHeader as UiCardHeader,
+  CardTitle as UiCardTitle,
 }

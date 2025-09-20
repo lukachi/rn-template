@@ -8,7 +8,7 @@
  *     <View className={cn('flex flex-col items-center gap-4 p-5 py-0')}>
  *       <UiHorizontalDivider />
  *
- *       <Text className='text-textSecondary typography-body2'>Choose a preferred method</Text>
+ *       <UiText className='text-muted-foreground typography-body2'>Choose a preferred method</UiText>
  *
  *       <View className='mt-auto flex w-full flex-col gap-2'>
  *         <UiButton size='large' title='Create a new profile' />
@@ -28,11 +28,13 @@ import { useImperativeHandle } from 'react'
 import { useMemo } from 'react'
 import { forwardRef, useCallback, useRef } from 'react'
 import type { ViewProps } from 'react-native'
-import { Pressable, Text, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { cn, useAppPaddings, useAppTheme } from '@/theme'
+
+import { UiText } from './UiText'
 
 type UiBottomSheetProps = BottomSheetModalProps & {
   title?: string
@@ -121,7 +123,7 @@ export const UiBottomSheet = forwardRef<BottomSheetModal, UiBottomSheetProps>(
         children={children}
         enablePanDownToClose={!isCloseDisabled}
         backgroundStyle={{
-          backgroundColor: palette.backgroundContainer,
+          backgroundColor: palette.card,
           borderRadius: 20,
           ...(rest.backgroundStyle as object),
         }}
@@ -175,10 +177,12 @@ export const BottomSheetHeader = memo(({ title, className, ...rest }: BottomShee
       ]}
     >
       <View className='relative w-full items-center justify-center'>
-        <View className='h-3 w-14 flex-1 rounded-full bg-componentHovered' />
+        <View className='h-3 w-14 flex-1 rounded-full bg-secondary' />
 
         {title && (
-          <Text className='typography-h5 mt-3 flex-1 font-bold text-textPrimary'>{title}</Text>
+          <UiText variant='h4' className='typography-h5 mt-3 flex-1 font-bold'>
+            {title}
+          </UiText>
         )}
 
         {/* <Pressable

@@ -1,14 +1,16 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet'
 import { useMemo, useRef } from 'react'
-import { Dimensions, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, TouchableOpacity, View } from 'react-native'
 import type { ICarouselInstance } from 'react-native-reanimated-carousel'
 import Carousel from 'react-native-reanimated-carousel'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useTranslate } from '@/core'
 import { cn, useAppTheme } from '@/theme'
-import { UiBottomSheet, UiButton, UiIcon, useUiBottomSheet } from '@/ui'
-import { BottomSheetHeader } from '@/ui/UiBottomSheet'
+import { BottomSheetHeader, UiBottomSheet, useUiBottomSheet } from '@/ui/UiBottomSheet'
+import { UiButton } from '@/ui/UiButton'
+import UiIcon from '@/ui/UiIcon'
+import { UiText } from '@/ui/UiText'
 
 import { StepLayout } from './components'
 
@@ -30,43 +32,38 @@ export default function Intro() {
       {
         title: translate('auth.intro.step-1.title'),
         subtitle: translate('auth.intro.step-1.subtitle'),
-        // media: <UiIcon customIcon='starFillIcon' className='size-[150px] text-textSecondary' />,
-        media: (
-          <UiIcon
-            libIcon='AntDesign'
-            name='account-book'
-            size={150}
-            className='size-[150px] text-textSecondary'
-          />
-        ),
+        media: <UiIcon customIcon='starFillIcon' className='size-[150px] text-muted-foreground' />,
       },
       {
         title: translate('auth.intro.step-2.title'),
         subtitle: translate('auth.intro.step-2.subtitle'),
-        media: <UiIcon customIcon='sealCheckIcon' className='size-[150px] text-textSecondary' />,
+        media: <UiIcon customIcon='sealCheckIcon' className='size-[150px] text-muted-foreground' />,
       },
       {
         title: translate('auth.intro.step-3.title'),
         subtitle: translate('auth.intro.step-3.subtitle'),
         media: (
-          <UiIcon customIcon='suitcaseSimpleFillIcon' className='size-[150px] text-textSecondary' />
+          <UiIcon
+            customIcon='suitcaseSimpleFillIcon'
+            className='size-[150px] text-muted-foreground'
+          />
         ),
       },
       {
         title: translate('auth.intro.step-4.title'),
         subtitle: translate('auth.intro.step-4.subtitle'),
-        media: <UiIcon customIcon='sunIcon' className='size-[150px] text-textSecondary' />,
+        media: <UiIcon customIcon='sunIcon' className='size-[150px] text-muted-foreground' />,
       },
     ]
   }, [translate])
 
   return (
-    <View style={{ flex: 1, paddingBottom: insets.bottom }} className='bg-backgroundContainer'>
+    <View style={{ flex: 1, paddingBottom: insets.bottom }}>
       <View
         style={{
           paddingTop: insets.top,
         }}
-        className='flex flex-1 flex-col justify-center rounded-b-[50] bg-backgroundPrimary pb-10'
+        className='flex flex-1 flex-col justify-center rounded-b-[50] pb-10'
       >
         <Carousel
           ref={ref}
@@ -86,13 +83,14 @@ export default function Intro() {
 
       <View className='flex flex-col px-5 pt-5'>
         <UiButton
-          size='large'
+          size='lg'
           className={cn('w-full')}
-          title={translate('auth.intro.next-btn')}
           onPress={() => {
             bottomSheet.present()
           }}
-        />
+        >
+          {translate('auth.intro.next-btn')}
+        </UiButton>
       </View>
 
       <UiBottomSheet
@@ -107,12 +105,12 @@ export default function Intro() {
         }
         ref={bottomSheet.ref}
         backgroundStyle={{
-          backgroundColor: palette.backgroundContainer,
+          backgroundColor: palette.card,
           borderRadius: 40,
         }}
       >
         <BottomSheetView className={cn('flex h-full flex-1 items-center gap-2')}>
-          <Text className='typography-body2 text-textSecondary'>Choose a preferred method</Text>
+          <UiText className='typography-body2'>Choose a preferred method</UiText>
 
           <View className='mb-6 mt-auto flex flex-row gap-4 px-5'>
             {[
@@ -123,7 +121,7 @@ export default function Intro() {
                   <UiIcon
                     libIcon='Ionicons'
                     name='create-outline'
-                    className='text-textPrimary'
+                    className='text-foreground'
                     size={48}
                   />
                 ),
@@ -135,7 +133,7 @@ export default function Intro() {
                   <UiIcon
                     libIcon='MaterialCommunityIcons'
                     name='import'
-                    className='text-textPrimary'
+                    className='text-foreground'
                     size={48}
                   />
                 ),
@@ -143,11 +141,11 @@ export default function Intro() {
             ].map((el, idx) => (
               <TouchableOpacity
                 key={idx}
-                className='flex flex-1 items-center gap-2 rounded-[30] border-2 border-componentHovered p-4 py-12 font-semibold'
+                className='flex flex-1 items-center gap-2 rounded-[30] border-2 border-border p-4 py-12 font-semibold'
                 onPress={el.handler}
               >
                 {el.icon}
-                <Text className='typography-subtitle2 text-textPrimary'>{el.title}</Text>
+                <UiText className='typography-subtitle2 text-foreground'>{el.title}</UiText>
               </TouchableOpacity>
             ))}
           </View>

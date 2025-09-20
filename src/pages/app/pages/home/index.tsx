@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Dimensions, Pressable, Text, View } from 'react-native'
+import { Dimensions, TouchableOpacity, View } from 'react-native'
 import Animated, { Extrapolation, interpolate, useSharedValue } from 'react-native-reanimated'
 import Carousel, { Pagination } from 'react-native-reanimated-carousel'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -7,15 +7,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import AppContainer from '@/pages/app/components/AppContainer'
 import type { AppTabScreenProps } from '@/route-types'
 import { useAppPaddings, useAppTheme } from '@/theme'
-import {
-  UiButton,
-  UiCard,
-  UiHorizontalDivider,
-  UiIcon,
-  UiScreenScrollable,
-  UiSwitcher,
-  UiTextField,
-} from '@/ui'
 
 import { parallaxLayout } from './helpers/parallax'
 
@@ -27,7 +18,26 @@ import * as Haptics from 'expo-haptics'
 import { useTranslation } from 'react-i18next'
 
 import { bus, DefaultBusEvents } from '@/core'
-import UiSkeleton from '@/ui/UiSkeleton'
+import { UiButton } from '@/ui/UiButton'
+import { UiCard, UiCardContent } from '@/ui/UiCard'
+import {
+  UiDialog,
+  UiDialogClose,
+  UiDialogContent,
+  UiDialogDescription,
+  UiDialogFooter,
+  UiDialogHeader,
+  UiDialogTitle,
+  UiDialogTrigger,
+} from '@/ui/UiDialog'
+import UiIcon from '@/ui/UiIcon'
+import { UiInput } from '@/ui/UiInput'
+import { UiLabel } from '@/ui/UiLabel'
+import UiScreenScrollable from '@/ui/UiScreenScrollable'
+import { UiSeparator } from '@/ui/UiSeparator'
+import { UiSkeleton } from '@/ui/UiSkeleton'
+import { UiSwitch } from '@/ui/UiSwitch'
+import { UiText } from '@/ui/UiText'
 
 // eslint-disable-next-line no-empty-pattern
 export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
@@ -57,13 +67,13 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
               paddingRight: appPaddings.right,
             }}
           >
-            <Text className='typography-h5 !font-normal text-textPrimary'>
+            <UiText variant='h4' className='text-foreground'>
               {t('home-screen.welcome-title')}
-            </Text>
+            </UiText>
 
-            <Pressable className='relative flex size-10 items-center justify-center rounded-full bg-backgroundContainer'>
-              <UiIcon libIcon='FontAwesome' name='user-o' size={16} className='text-textPrimary' />
-            </Pressable>
+            <TouchableOpacity className='relative flex size-10 items-center justify-center rounded-full bg-muted'>
+              <UiIcon libIcon='FontAwesome' name='user-o' size={16} className='text-foreground' />
+            </TouchableOpacity>
           </View>
           <View
             id='carousel-component'
@@ -89,94 +99,138 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                       style={{
                         width: '100%',
                         height: '90%',
-                        borderRadius: 32,
-                        overflow: 'hidden',
                       }}
                     >
                       {[
-                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
-                          <UiTextField label='Input 1' />
-                          <UiTextField label='Input 2' errorMessage='test error' />
-                          <UiTextField label='Input 3 (disabled)' disabled />
-                          <UiTextField label='Input 4 (readonly)' readOnly />
+                        <UiCard className='flex size-full justify-center gap-6 p-6'>
+                          <UiCardContent>
+                            <UiDialog>
+                              <UiDialogTrigger asChild>
+                                <UiButton variant='outline'>
+                                  <UiText>Open Dialog</UiText>
+                                </UiButton>
+                              </UiDialogTrigger>
+                              <UiDialogContent className='sm:max-w-[425px]'>
+                                <UiDialogHeader>
+                                  <UiDialogTitle>Edit profile</UiDialogTitle>
+                                  <UiDialogDescription>
+                                    Make changes to your profile here. Click save when you&apos;re
+                                    done.
+                                  </UiDialogDescription>
+                                </UiDialogHeader>
+                                <View className='grid gap-4'>
+                                  <View className='grid gap-3'>
+                                    <UiLabel htmlFor='name-1'>Name</UiLabel>
+                                    <UiInput id='name-1' defaultValue='Pedro Duarte' />
+                                  </View>
+                                  <View className='grid gap-3'>
+                                    <UiLabel htmlFor='username-1'>Username</UiLabel>
+                                    <UiInput id='username-1' defaultValue='@peduarte' />
+                                  </View>
+                                </View>
+                                <UiDialogFooter>
+                                  <UiDialogClose asChild>
+                                    <UiButton variant='outline'>
+                                      <UiText>Cancel</UiText>
+                                    </UiButton>
+                                  </UiDialogClose>
+                                  <UiButton>
+                                    <UiText>Save changes</UiText>
+                                  </UiButton>
+                                </UiDialogFooter>
+                              </UiDialogContent>
+                            </UiDialog>
+                            <UiSeparator className='my-5' />
+                            <UiInput placeholder='yopta' />
+                          </UiCardContent>
                         </UiCard>,
-                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
-                          <UiSwitcher label='Switcher 1' />
-                          <UiHorizontalDivider />
-                          <UiSwitcher label='Switcher 2' errorMessage='test error' />
-                          <UiHorizontalDivider />
-                          <UiSwitcher label='Switcher 3 (disabled)' disabled />
+                        <UiCard className='flex size-full justify-center gap-6 p-6'>
+                          <View className='flex flex-row items-center justify-center gap-2'>
+                            <UiLabel>Switcher 1</UiLabel>
+                            <UiSwitch
+                              checked={false}
+                              onCheckedChange={function (): void {
+                                throw new Error('Function not implemented.')
+                              }}
+                            />
+                          </View>
                         </UiCard>,
-                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
+                        <UiCard className='flex size-full justify-center gap-6 p-6'>
                           <UiSkeleton className='size-20 rounded-full bg-red-50' />
                           <UiSkeleton className='size-10 w-[300] rounded-full bg-red-50' />
                           <UiSkeleton className='size-10 w-[200] rounded-full bg-red-50' />
                           <UiSkeleton className='size-10 w-[100] rounded-full bg-red-50' />
                         </UiCard>,
-                        <UiCard className='flex size-full flex-row flex-wrap items-center justify-center gap-6 bg-backgroundContainer p-6'>
+                        <UiCard className='flex size-full flex-row flex-wrap items-center justify-center gap-6 p-6'>
                           <UiIcon
                             size={40}
                             customIcon='calendarBlankIcon'
-                            className='text-textPrimary'
+                            className='text-foreground'
                           />
                           <UiIcon
                             size={40}
                             customIcon='arrowDownIcon'
-                            className='text-textPrimary'
+                            className='text-foreground'
                           />
                           <UiIcon
                             size={40}
                             customIcon='cardholderFillIcon'
-                            className='text-textPrimary'
+                            className='text-foreground'
                           />
                           <UiIcon
                             size={40}
                             libIcon='Entypo'
                             name='facebook'
-                            className='text-textPrimary'
+                            className='text-foreground'
                           />
                           <UiIcon
                             size={40}
                             libIcon='Ionicons'
                             name='logo-html5'
-                            className='text-textPrimary'
+                            className='text-foreground'
                           />
                         </UiCard>,
-                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
-                          <UiButton title='filled' />
-                          <UiButton title='outline' variant='outlined' />
-                          <UiButton title='text' variant='text' />
+                        <UiCard className='flex size-full justify-center gap-6 p-6'>
+                          <UiButton>
+                            <UiText>Filled</UiText>
+                          </UiButton>
+                          <UiButton variant='outline'>
+                            <UiText>outline</UiText>
+                          </UiButton>
+                          <UiButton variant='ghost'>
+                            <UiText>text</UiText>
+                          </UiButton>
                         </UiCard>,
-                        <UiCard className='flex size-full justify-center gap-6 bg-backgroundContainer p-6'>
+                        <UiCard className='flex size-full justify-center gap-6 p-6'>
                           <UiButton
-                            title='error'
-                            color='error'
                             onPress={() => {
                               bus.emit(DefaultBusEvents.error, {
                                 message: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
                               })
                             }}
-                          />
+                          >
+                            <UiText>Error</UiText>
+                          </UiButton>
                           <UiButton
-                            title='success'
-                            variant='outlined'
-                            color='success'
+                            variant='outline'
                             onPress={() => {
                               bus.emit(DefaultBusEvents.success, {
                                 message: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
                               })
                             }}
-                          />
+                          >
+                            <UiText>success</UiText>
+                          </UiButton>
                           <UiButton
-                            title='warning'
-                            variant='text'
-                            color='warning'
+                            variant='ghost'
                             onPress={() => {
                               bus.emit(DefaultBusEvents.warning, {
                                 message: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
                               })
                             }}
-                          />
+                          >
+                            <UiText>warning</UiText>
+                          </UiButton>
                         </UiCard>,
                       ][index] ?? (
                         <View
@@ -216,12 +270,12 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                 width: 6,
                 height: 6,
                 borderRadius: 999,
-                backgroundColor: palette.backgroundContainer,
+                backgroundColor: palette.card,
               }}
               activeDotStyle={{
                 overflow: 'hidden',
                 height: 16,
-                backgroundColor: palette.textPrimary,
+                backgroundColor: palette.foreground,
               }}
               containerStyle={{
                 position: 'absolute',

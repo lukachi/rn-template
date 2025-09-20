@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import { useCallback, useEffect, useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ErrorHandler, useTranslate } from '@/core'
@@ -9,7 +9,10 @@ import HiddenPasscodeView from '@/pages/local-auth/components/HiddenPasscodeView
 import type { LocalAuthStackScreenProps } from '@/route-types'
 import { BiometricStatuses, localAuthStore, MAX_ATTEMPTS } from '@/store'
 import { cn } from '@/theme'
-import { UiButton, UiNumPad, UiScreenScrollable } from '@/ui'
+import { UiButton } from '@/ui/UiButton'
+import UiNumPad from '@/ui/UiNumPad'
+import UiScreenScrollable from '@/ui/UiScreenScrollable'
+import { UiText } from '@/ui/UiText'
 
 const useUnlockWithBiometrics = () => {
   const tryUnlockWithBiometrics = localAuthStore.useLocalAuthStore(
@@ -115,23 +118,21 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
         >
           {lockDeadline === Infinity ? (
             <View className='flex flex-1 items-center gap-2 px-2'>
-              <Text className={cn('typography-h4 my-auto text-center text-textPrimary')}>
+              <UiText variant='h4' className={cn('my-auto text-center')}>
                 {translate('lockscreen.locked-permanently')}
-              </Text>
-              <UiButton
-                className='mt-auto w-full'
-                title={translate('lockscreen.logout-btn')}
-                onPress={tryLogout}
-              />
+              </UiText>
+              <UiButton className='mt-auto w-full' onPress={tryLogout}>
+                {translate('lockscreen.logout-btn')}
+              </UiButton>
             </View>
           ) : (
             <View className='my-auto flex items-center gap-2'>
-              <Text className={cn('typography-h4 text-center text-textPrimary')}>
+              <UiText variant='h4' className={cn('text-center')}>
                 {translate('lockscreen.locked-temp')}
-              </Text>
-              <Text className={cn('typography-subtitle1 text-textPrimary')}>
+              </UiText>
+              <UiText className={cn('typography-subtitle1')}>
                 <Countdown deadline={lockDeadline} onFinish={checkLockDeadline} />
-              </Text>
+              </UiText>
             </View>
           )}
         </View>
@@ -144,18 +145,18 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
           className='w-full flex-1'
         >
           <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-            <Text className={cn('typography-h4 text-center text-textPrimary')}>
+            <UiText className={cn('typography-h4 text-center text-foreground')}>
               {translate('lockscreen.default-title')}
-            </Text>
+            </UiText>
 
             <HiddenPasscodeView length={passcode.length} />
 
             {attemptsLeft < MAX_ATTEMPTS && (
-              <Text className={cn('typography-subtitle1 text-textPrimary')}>
+              <UiText className={cn('typography-subtitle1 text-foreground')}>
                 {translate('lockscreen.attempts-left', {
                   attemptsLeft,
                 })}
-              </Text>
+              </UiText>
             )}
           </View>
 
@@ -170,12 +171,9 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
               //   </Pressable>
               // }
             />
-            <UiButton
-              variant='outlined'
-              color='error'
-              title={translate('lockscreen.forgot-btn')}
-              onPress={tryLogout}
-            />
+            <UiButton variant='outline' onPress={tryLogout}>
+              {translate('lockscreen.forgot-btn')}
+            </UiButton>
           </View>
         </View>
       )}
@@ -203,16 +201,18 @@ function BiometricsLockScreen() {
       }}
     >
       <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-        <Text className={cn('typography-h4 text-center text-textPrimary')}>
+        <UiText className={cn('typography-h4 text-center text-foreground')}>
           Unlock with Biometrics
-        </Text>
+        </UiText>
         <Pressable onPress={unlockWithBiometrics}>
           <BiometricsIcon />
         </Pressable>
       </View>
 
       {isAttemptFailed && (
-        <UiButton title='Try again' onPress={unlockWithBiometrics} className='mt-auto w-full' />
+        <UiButton onPress={unlockWithBiometrics} className='mt-auto w-full'>
+          Try again
+        </UiButton>
       )}
     </UiScreenScrollable>
   )
@@ -240,5 +240,5 @@ function Countdown({ deadline, onFinish }: { deadline: number; onFinish: () => v
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return <Text>{timeLeftInSeconds} Sec</Text>
+  return <UiText>{timeLeftInSeconds} Sec</UiText>
 }

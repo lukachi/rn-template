@@ -26,7 +26,7 @@ export default function BottomTabBar({
       }}
       className={cn('absolute bottom-0 left-0 w-full')}
     >
-      <View className='relative isolate mx-auto flex w-[60%] rounded-full bg-componentPrimary'>
+      <View className='relative isolate mx-auto flex w-[60%] rounded-full bg-muted/30'>
         <View className='absolute left-0 top-0 z-10 size-full overflow-hidden rounded-full'>
           <BlurView experimentalBlurMethod='dimezisBlurView' intensity={35} className='size-full' />
         </View>
@@ -39,7 +39,7 @@ export default function BottomTabBar({
             const routeIcon = descriptor.options.tabBarIcon?.({
               focused: isFocused,
               size: 24,
-              color: isFocused ? palette.textPrimary : palette.textSecondary,
+              color: isFocused ? palette.foreground : palette.mutedForeground,
             })
 
             return (
@@ -52,7 +52,7 @@ export default function BottomTabBar({
                 <View
                   className={cn(
                     'flex size-[50] items-center justify-center rounded-full',
-                    isFocused && 'bg-backgroundContainer',
+                    isFocused && 'bg-muted',
                   )}
                 >
                   {routeIcon}

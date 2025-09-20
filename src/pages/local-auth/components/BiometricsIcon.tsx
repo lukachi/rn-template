@@ -2,7 +2,7 @@ import { AuthenticationType } from 'expo-local-authentication'
 
 import { localAuthStore } from '@/store'
 import { useAppTheme } from '@/theme'
-import { UiIcon } from '@/ui'
+import UiIcon from '@/ui/UiIcon'
 
 type Props = {
   size?: number
@@ -15,19 +15,19 @@ export default function BiometricsIcon({ ...rest }: Props) {
 
   return {
     [AuthenticationType.FINGERPRINT]: (
-      <UiIcon customIcon='fingerprintIcon' size={50} color={palette.baseWhite} {...rest} />
+      <UiIcon customIcon='fingerprintIcon' size={50} color={palette.foreground} {...rest} />
     ),
     [AuthenticationType.FACIAL_RECOGNITION]: (
       <UiIcon
         libIcon='MaterialCommunityIcons'
         name='face-recognition'
         size={50}
-        color={palette.baseWhite}
+        color={palette.foreground}
         {...rest}
       />
     ),
     [AuthenticationType.IRIS]: (
-      <UiIcon customIcon='fingerprintIcon' size={50} color={palette.baseWhite} {...rest} />
+      <UiIcon customIcon='fingerprintIcon' size={50} color={palette.foreground} {...rest} />
     ),
   }[biometricTypes[0]]
 }

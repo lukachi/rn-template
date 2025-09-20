@@ -1,483 +1,116 @@
-import type { ComponentProps, ReactElement, ReactNode } from 'react'
-import { forwardRef, useCallback, useMemo, useState } from 'react'
-import type { GestureResponderEvent, PressableProps } from 'react-native'
-import { Pressable, Text, View } from 'react-native'
-import type { VariantProps } from 'tailwind-variants'
-import { tv } from 'tailwind-variants'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { Platform, Pressable } from 'react-native'
 
-import { cn } from '@/theme'
-import UiIcon from '@/ui/UiIcon'
+import { cn } from '@/theme/utils'
 
-const buttonBaseTv = tv({
-  slots: {
-    container: cn('flex flex-row justify-center items-center'),
-    text: cn(''),
-    icon: cn(''),
-  },
+import { UiText, UiTextClassContext } from './UiText'
 
-  variants: {
-    size: {
-      small: {
-        container: cn('h-[40px] px-[24px] rounded-[1000px] gap-2'),
-        text: cn('typography-buttonSmall'),
-        icon: cn('size-[16px]'),
+const buttonVariants = cva(
+  cn(
+    'group shrink-0 flex-row items-center justify-center gap-2 rounded-md shadow-none',
+    Platform.select({
+      web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+    }),
+  ),
+  {
+    variants: {
+      variant: {
+        default: cn(
+          'bg-primary active:bg-primary/90 shadow-sm shadow-black/5',
+          Platform.select({ web: 'hover:bg-primary/90' }),
+        ),
+        destructive: cn(
+          'bg-destructive active:bg-destructive/90 dark:bg-destructive/60 shadow-sm shadow-black/5',
+          Platform.select({
+            web: 'hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
+          }),
+        ),
+        outline: cn(
+          'border-border bg-background active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5',
+          Platform.select({
+            web: 'hover:bg-accent dark:hover:bg-input/50',
+          }),
+        ),
+        secondary: cn(
+          'bg-secondary active:bg-secondary/80 shadow-sm shadow-black/5',
+          Platform.select({ web: 'hover:bg-secondary/80' }),
+        ),
+        ghost: cn(
+          'active:bg-accent dark:active:bg-accent/50',
+          Platform.select({ web: 'hover:bg-accent dark:hover:bg-accent/50' }),
+        ),
+        link: '',
       },
-      medium: {
-        container: cn('h-[56px] px-[32px] rounded-[1000px] gap-4'),
-        text: cn('typography-buttonMedium'),
-        icon: cn('size-[20px]'),
-      },
-      large: {
-        container: cn('h-[64px] px-[32px] rounded-full gap-4'),
-        text: cn('typography-buttonLarge'),
-        icon: cn('size-[20px]'),
-      },
-    },
-
-    variant: {
-      filled: {},
-      outlined: {
-        container: cn('border border-solid'),
-      },
-      text: {
-        container: cn('bg-transparent'),
-      },
-    },
-
-    color: {
-      text: '',
-      primary: '',
-      secondary: '',
-      success: '',
-      warning: '',
-      error: '',
-    },
-
-    disabled: {
-      true: {},
-    },
-    pressed: {
-      true: {},
-    },
-  },
-
-  compoundVariants: [
-    /* filled */
-
-    // filled-primary
-    {
-      variant: 'filled',
-      color: 'primary',
-      class: {
-        container: cn('bg-primaryMain'),
-        text: cn('text-baseWhite'),
-        icon: cn('text-baseWhite'),
+      size: {
+        default: cn('h-10 px-4 py-2 sm:h-9', Platform.select({ web: 'has-[>svg]:px-3' })),
+        sm: cn('h-9 gap-1.5 rounded-md px-3 sm:h-8', Platform.select({ web: 'has-[>svg]:px-2.5' })),
+        lg: cn('h-11 rounded-md px-6 sm:h-10', Platform.select({ web: 'has-[>svg]:px-4' })),
+        icon: 'h-10 w-10 sm:h-9 sm:w-9',
       },
     },
-    {
-      variant: 'filled',
-      color: 'primary',
-      pressed: true,
-      class: {
-        container: cn('bg-primaryDarker'),
-      },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
     },
-
-    // filled-secondary
-    {
-      variant: 'filled',
-      color: 'secondary',
-      class: {
-        container: cn('bg-secondaryMain'),
-        text: cn('text-baseBlack'),
-        icon: cn('text-baseBlack'),
-      },
-    },
-    {
-      variant: 'filled',
-      color: 'secondary',
-      pressed: true,
-      class: {
-        container: cn('bg-secondaryDarker'),
-      },
-    },
-
-    // filled-success
-    {
-      variant: 'filled',
-      color: 'success',
-      class: {
-        container: cn('bg-successMain'),
-        text: cn('text-baseWhite'),
-        icon: cn('text-baseWhite'),
-      },
-    },
-    {
-      variant: 'filled',
-      color: 'success',
-      pressed: true,
-      class: {
-        container: cn('bg-successDarker'),
-      },
-    },
-
-    // filled-error
-    {
-      variant: 'filled',
-      color: 'error',
-      pressed: true,
-      class: {
-        container: cn('bg-errorDarker'),
-      },
-    },
-    {
-      variant: 'filled',
-      color: 'error',
-      class: {
-        container: cn('bg-errorMain'),
-        text: cn('text-baseWhite'),
-        icon: cn('text-baseWhite'),
-      },
-    },
-    {
-      variant: 'filled',
-      color: 'error',
-      pressed: true,
-      class: {
-        container: cn('bg-errorDarker'),
-      },
-    },
-
-    // filled-warning
-    {
-      variant: 'filled',
-      color: 'warning',
-      pressed: true,
-      class: {
-        container: cn('bg-warningDarker'),
-      },
-    },
-    {
-      variant: 'filled',
-      color: 'warning',
-      class: {
-        container: cn('bg-warningMain'),
-        text: cn('text-baseWhite'),
-        icon: cn('text-baseWhite'),
-      },
-    },
-    {
-      variant: 'filled',
-      color: 'warning',
-      pressed: true,
-      class: {
-        container: cn('bg-warningDarker'),
-      },
-    },
-
-    // filled-disabled
-    {
-      variant: 'filled',
-      disabled: true,
-      class: {
-        container: cn('bg-componentDisabled'),
-        text: cn('text-textDisabled'),
-        icon: cn('text-textDisabled'),
-      },
-    },
-
-    /* outlined */
-
-    // outlined-primary
-    {
-      variant: 'outlined',
-      color: 'primary',
-      class: {
-        container: cn('border-primaryMain'),
-        text: cn('text-primaryMain'),
-        icon: cn('text-primaryMain'),
-      },
-    },
-    {
-      variant: 'outlined',
-      color: 'primary',
-      pressed: true,
-      class: {
-        container: cn('bg-componentPressed'),
-      },
-    },
-
-    // outlined-secondary
-    {
-      variant: 'outlined',
-      color: 'secondary',
-      class: {
-        container: cn('border-secondaryMain'),
-        text: cn('text-secondaryMain'),
-        icon: cn('text-secondaryMain'),
-      },
-    },
-    {
-      variant: 'outlined',
-      color: 'secondary',
-      pressed: true,
-      class: {
-        container: cn('bg-componentPressed'),
-      },
-    },
-
-    // outlined-success
-    {
-      variant: 'outlined',
-      color: 'success',
-      class: {
-        container: cn('border-successMain'),
-        text: cn('text-successMain'),
-        icon: cn('text-successMain'),
-      },
-    },
-    {
-      variant: 'outlined',
-      color: 'success',
-      pressed: true,
-      class: {
-        container: cn('bg-componentPressed'),
-      },
-    },
-
-    // outlined-error
-    {
-      variant: 'outlined',
-      color: 'error',
-      class: {
-        container: cn('border-errorMain'),
-        text: cn('text-errorMain'),
-        icon: cn('text-errorMain'),
-      },
-    },
-    {
-      variant: 'outlined',
-      color: 'error',
-      pressed: true,
-      class: {
-        container: cn('bg-componentPressed'),
-      },
-    },
-
-    // outlined-warning
-    {
-      variant: 'outlined',
-      color: 'warning',
-      class: {
-        container: cn('border-warningMain'),
-        text: cn('text-warningMain'),
-        icon: cn('text-warningMain'),
-      },
-    },
-    {
-      variant: 'outlined',
-      color: 'warning',
-      pressed: true,
-      class: {
-        container: cn('bg-componentPressed'),
-      },
-    },
-
-    // outlined-disabled
-    {
-      variant: 'outlined',
-      disabled: true,
-      class: {
-        container: cn('bg-componentDisabled border-componentDisabled'),
-        text: cn('text-textDisabled border-componentDisabled'),
-        icon: cn('text-textDisabled border-componentDisabled'),
-      },
-    },
-
-    /* text */
-
-    // text-primary
-    {
-      variant: 'text',
-      color: 'primary',
-      class: {
-        text: cn('text-primaryMain'),
-        icon: cn('text-primaryMain'),
-      },
-    },
-    {
-      variant: 'text',
-      color: 'primary',
-      pressed: true,
-      class: {
-        container: cn('bg-componentPressed'),
-      },
-    },
-
-    // text-secondary
-    {
-      variant: 'text',
-      color: 'secondary',
-      class: {
-        text: cn('text-secondaryMain'),
-        icon: cn('text-secondaryMain'),
-      },
-    },
-    {
-      variant: 'text',
-      color: 'secondary',
-      pressed: true,
-      class: {
-        container: cn('bg-componentHovered'),
-      },
-    },
-
-    // text-success
-    {
-      variant: 'text',
-      color: 'success',
-      class: {
-        text: cn('text-successMain'),
-        icon: cn('text-successMain'),
-      },
-    },
-    {
-      variant: 'text',
-      color: 'success',
-      pressed: true,
-      class: {
-        container: cn('bg-componentHovered'),
-      },
-    },
-
-    // text-error
-    {
-      variant: 'text',
-      color: 'error',
-      class: {
-        text: cn('text-errorMain'),
-        icon: cn('text-errorMain'),
-      },
-    },
-    {
-      variant: 'text',
-      color: 'error',
-      pressed: true,
-      class: {
-        container: cn('bg-componentHovered'),
-      },
-    },
-
-    // text-warning
-    {
-      variant: 'text',
-      color: 'warning',
-      class: {
-        text: cn('text-warningMain'),
-        icon: cn('text-warningMain'),
-      },
-    },
-    {
-      variant: 'text',
-      color: 'warning',
-      pressed: true,
-      class: {
-        container: cn('bg-componentHovered'),
-      },
-    },
-
-    // text-warning
-    {
-      variant: 'text',
-      color: 'text',
-      class: {
-        text: cn('text-textPrimary'),
-        icon: cn('text-textPrimary'),
-      },
-    },
-    {
-      variant: 'text',
-      color: 'text',
-      pressed: true,
-      class: {
-        container: cn('bg-componentHovered'),
-      },
-    },
-
-    // text-disabled
-    {
-      variant: 'text',
-      disabled: true,
-      class: {
-        text: cn('text-textDisabled'),
-        icon: cn('text-textDisabled'),
-      },
-    },
-  ],
-
-  defaultVariants: {
-    variant: 'filled',
-    size: 'medium',
-    color: 'primary',
-  },
-})
-
-type Props = Omit<PressableProps, 'children'> & {
-  title?: string
-  leadingIconProps?: ComponentProps<typeof UiIcon>
-  trailingIconProps?: ComponentProps<typeof UiIcon>
-
-  children?: string | ReactElement | ReactNode
-} & VariantProps<typeof buttonBaseTv>
-
-// pressable forwards ref to view under the hood
-type PressableRef = View
-
-export const UiButton = forwardRef<PressableRef, Props>(
-  (
-    { title, size, variant, color, leadingIconProps, trailingIconProps, children, ...rest }: Props,
-    ref,
-  ) => {
-    const [isPressed, setIsPressed] = useState(false)
-
-    const baseStyles = useMemo(
-      () => buttonBaseTv({ variant, size, pressed: isPressed, color, disabled: rest.disabled }),
-      [color, isPressed, rest.disabled, size, variant],
-    )
-
-    const handleTouchStart = useCallback(
-      (event: GestureResponderEvent) => {
-        setIsPressed(true)
-        rest?.onTouchStart?.(event)
-      },
-      [rest],
-    )
-    const handleTouchEnd = useCallback(
-      (event: GestureResponderEvent) => {
-        setIsPressed(false)
-        rest?.onTouchEnd?.(event)
-      },
-      [rest],
-    )
-
-    const btnContent = useMemo(() => {
-      if (children && typeof children !== 'string') {
-        return children
-      }
-
-      return (
-        (children || title) && <Text className={cn(baseStyles.text())}>{children || title}</Text>
-      )
-    }, [baseStyles, children, title])
-
-    return (
-      <Pressable {...rest} ref={ref} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        <View className={cn(baseStyles.container())}>
-          {leadingIconProps && <UiIcon {...leadingIconProps} className={cn(baseStyles.icon())} />}
-          {btnContent}
-          {trailingIconProps && <UiIcon {...trailingIconProps} className={cn(baseStyles.icon())} />}
-        </View>
-      </Pressable>
-    )
   },
 )
+
+const buttonTextVariants = cva(
+  cn(
+    'text-foreground text-sm font-medium',
+    Platform.select({ web: 'pointer-events-none transition-colors' }),
+  ),
+  {
+    variants: {
+      variant: {
+        default: 'text-primary-foreground',
+        destructive: 'text-white',
+        outline: cn(
+          'group-active:text-accent-foreground',
+          Platform.select({ web: 'group-hover:text-accent-foreground' }),
+        ),
+        secondary: 'text-secondary-foreground',
+        ghost: 'group-active:text-accent-foreground',
+        link: cn(
+          'text-primary group-active:underline',
+          Platform.select({ web: 'underline-offset-4 hover:underline group-hover:underline' }),
+        ),
+      },
+      size: {
+        default: '',
+        sm: '',
+        lg: '',
+        icon: '',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  },
+)
+
+type ButtonProps = React.ComponentProps<typeof Pressable> &
+  React.RefAttributes<typeof Pressable> &
+  VariantProps<typeof buttonVariants>
+
+function Button({ className, variant, size, children, ...props }: ButtonProps) {
+  return (
+    <UiTextClassContext.Provider value={buttonTextVariants({ variant, size })}>
+      <Pressable
+        className={cn(props.disabled && 'opacity-50', buttonVariants({ variant, size }), className)}
+        role='button'
+        {...props}
+      >
+        {typeof children === 'string' ? <UiText>{children}</UiText> : children}
+      </Pressable>
+    </UiTextClassContext.Provider>
+  )
+}
+
+export {
+  Button as UiButton,
+  buttonTextVariants as UibuttonTextVariants,
+  buttonVariants as UibuttonVariants,
+}
+export type { ButtonProps as UiButtonProps }

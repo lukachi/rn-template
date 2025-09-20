@@ -1,8 +1,9 @@
 import type { ViewProps } from 'react-native'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 
 import { cn, useAppTheme } from '@/theme'
-import { UiIcon } from '@/ui'
+import UiIcon from '@/ui/UiIcon'
+import { UiText } from '@/ui/UiText'
 
 export default function AppInitializationErrorBoundary({
   className,
@@ -13,16 +14,13 @@ export default function AppInitializationErrorBoundary({
   const { palette } = useAppTheme()
 
   return (
-    <View
-      {...rest}
-      className={cn('flex flex-1 items-center justify-center bg-backgroundPrimary', className)}
-    >
-      <UiIcon libIcon='AntDesign' name='warning' size={170} color={palette.errorMain} />
+    <View {...rest} className={cn('flex flex-1 items-center justify-center', className)}>
+      <UiIcon libIcon='AntDesign' name='warning' size={170} color={palette.destructive} />
 
-      <Text className='typography-h5 mt-4 text-center text-textPrimary'>Something went wrong.</Text>
-      <Text className='typography-body1 mt-4 text-center text-textSecondary'>
+      <UiText className='typography-h5 mt-4 text-center'>Something went wrong.</UiText>
+      <UiText className='typography-body1 mt-4 text-center text-muted-foreground'>
         Please try again later.
-      </Text>
+      </UiText>
     </View>
   )
 }

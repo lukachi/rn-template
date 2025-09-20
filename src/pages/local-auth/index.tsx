@@ -5,7 +5,7 @@ import type { LocalAuthStackParamsList, RootStackScreenProps } from '@/route-typ
 import { localAuthStore, UserActionsInLocalAuth } from '@/store'
 
 import EnableBiometricsScreen from './pages/enable-biometrics'
-import EnablePasscodeScreen from './pages/enable-passcode'
+import EnablePasscodeScreen from './pages/EnablePasscode'
 import LockscreenScreen from './pages/lockscreen'
 import SetPasscodeScreen from './pages/set-passcode'
 

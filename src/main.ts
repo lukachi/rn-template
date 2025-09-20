@@ -7,7 +7,8 @@ import { registerRootComponent } from 'expo'
 
 import App from '@/App'
 
-// Add Buffer to global
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 global.Buffer = Buffer
 
 registerRootComponent(App)

@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
 import { useCallback, useMemo } from 'react'
-import { Pressable, Text, View, type ViewProps } from 'react-native'
+import { Pressable, View, type ViewProps } from 'react-native'
 
 import { cn } from '@/theme'
+
+import { UiText } from './UiText'
 
 type Props = {
   value: string
@@ -41,7 +43,7 @@ export default function UiNumPad({ value, setValue, className, extra, ...rest }:
                 return (
                   <View
                     key={i + j}
-                    className='flex flex-1 items-center justify-center rounded-xl bg-backgroundContainer'
+                    className='flex flex-1 items-center justify-center rounded-xl bg-muted'
                   >
                     {extra}
                   </View>
@@ -59,8 +61,8 @@ export default function UiNumPad({ value, setValue, className, extra, ...rest }:
                     handlePress(num)
                   }}
                 >
-                  <View className='flex items-center justify-center rounded-xl bg-backgroundContainer'>
-                    <Text className='typography-h4 text-textPrimary'>{num}</Text>
+                  <View className='flex items-center justify-center rounded-xl bg-muted'>
+                    <UiText variant='h4'>{num}</UiText>
                   </View>
                 </Pressable>
               </View>

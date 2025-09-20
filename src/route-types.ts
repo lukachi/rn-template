@@ -34,9 +34,6 @@ export type LocalAuthStackScreenProps<T extends keyof LocalAuthStackParamsList> 
 
 export type AppStackParamsList = {
   Tabs?: NavigatorScreenParams<AppTabParamsList>
-  InviteOthers?: {
-    tag?: string
-  }
 }
 
 export type AppStackScreenProps<T extends keyof AppStackParamsList> = NativeStackScreenProps<

@@ -6,7 +6,7 @@ import Toast, { BaseToast } from 'react-native-toast-message'
 
 import { DefaultBusEvents, ErrorHandler, translate } from '@/core'
 import { bus } from '@/core'
-import { sleep } from '@/helpers'
+import { sleep } from '@/helpers/promise'
 import { cn, useAppTheme } from '@/theme'
 import UiIcon from '@/ui/UiIcon'
 
@@ -89,7 +89,7 @@ const showInfoToast = (payload?: unknown) =>
   2. Pass the config as prop to the Toast component instance
 */
 export default function Toasts() {
-  const { palette, typography } = useAppTheme()
+  const { palette } = useAppTheme()
   const insets = useSafeAreaInsets()
 
   useEffect(() => {
@@ -121,16 +121,14 @@ export default function Toasts() {
               )}
               style={{
                 borderRadius: 999,
-                backgroundColor: palette.backgroundContainer,
+                backgroundColor: palette.card,
               }}
               text1Style={{
-                color: palette.textPrimary,
-                ...(typography['.typography-body2'] as object),
+                color: palette.foreground,
                 fontWeight: 600,
               }}
               text2Style={{
-                color: palette.textSecondary,
-                ...(typography['.typography-caption2'] as object),
+                color: palette.mutedForeground,
               }}
             />
           )

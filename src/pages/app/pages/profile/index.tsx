@@ -3,7 +3,7 @@ import WheelPicker from '@quidone/react-native-wheel-picker'
 import * as Haptics from 'expo-haptics'
 import { useColorScheme } from 'nativewind'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
-import { Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
+import { TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { isRTL, useSelectedLanguage } from '@/core'
@@ -20,16 +20,14 @@ import {
   useBottomBarOffset,
   useSelectedTheme,
 } from '@/theme'
-import {
-  UiBottomSheet,
-  UiButton,
-  UiCard,
-  UiHorizontalDivider,
-  UiIcon,
-  UiScreenScrollable,
-  UiSwitcher,
-  useUiBottomSheet,
-} from '@/ui'
+import { UiBottomSheet, useUiBottomSheet } from '@/ui/UiBottomSheet'
+import { UiButton } from '@/ui/UiButton'
+import { UiCard, UiCardContent } from '@/ui/UiCard'
+import UiIcon from '@/ui/UiIcon'
+import UiScreenScrollable from '@/ui/UiScreenScrollable'
+import { UiSeparator } from '@/ui/UiSeparator'
+import { UiSwitch } from '@/ui/UiSwitch'
+import { UiText } from '@/ui/UiText'
 
 // eslint-disable-next-line no-empty-pattern
 export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
@@ -50,12 +48,16 @@ export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
       >
         <View className='flex flex-1 flex-col gap-4'>
           <UiCard className='flex gap-4'>
-            <LangMenuItem />
-            <ThemeMenuItem />
-            <LocalAuthMethodMenuItem />
+            <UiCardContent>
+              <LangMenuItem />
+              <ThemeMenuItem />
+              <LocalAuthMethodMenuItem />
+            </UiCardContent>
           </UiCard>
           <UiCard className='flex gap-4'>
-            <AdvancedMenuItem />
+            <UiCardContent>
+              <AdvancedMenuItem />
+            </UiCardContent>
           </UiCard>
         </View>
       </UiScreenScrollable>
@@ -77,11 +79,11 @@ function LangMenuItem() {
     <>
       <ProfileCardMenuItem
         leadingIcon={
-          <UiIcon libIcon='Fontisto' name='world-o' className='text-textPrimary' size={5 * 4} />
+          <UiIcon libIcon='Fontisto' name='world-o' className='text-foreground' size={5 * 4} />
         }
         title='Language'
         trailingContent={
-          <Text className='typography-body4 capitalize text-textSecondary'>{language}</Text>
+          <UiText className='typography-body4 capitalize text-muted-foreground'>{language}</UiText>
         }
         onPress={bottomSheet.present}
       />
@@ -94,17 +96,20 @@ function LangMenuItem() {
         snapPoints={['40%']}
         headerComponent={
           <View className='flex flex-row items-center justify-center'>
-            <UiButton variant='text' title='Cancel' onPress={bottomSheet.dismiss} />
+            <UiButton variant='ghost' onPress={bottomSheet.dismiss}>
+              <UiText>Cancel</UiText>
+            </UiButton>
 
-            <UiHorizontalDivider className='mx-auto h-3 w-14 rounded-full' />
+            <UiSeparator className='mx-auto h-3 w-14 rounded-full' />
 
             <UiButton
-              variant='text'
-              title='Submit'
+              variant='ghost'
               onPress={() => {
                 setLanguage(value as Language)
               }}
-            />
+            >
+              <UiText>Submit</UiText>
+            </UiButton>
           </View>
         }
       >
@@ -126,7 +131,7 @@ function LangMenuItem() {
                 value: el,
               }))}
               itemTextStyle={{
-                color: palette.textPrimary,
+                color: palette.foreground,
               }}
               value={value}
               onValueChanged={({ item: { value } }) => setValue(value)}
@@ -157,7 +162,7 @@ function ThemeMenuItem() {
               <UiIcon
                 libIcon='FontAwesome'
                 name='paint-brush'
-                className='text-textPrimary'
+                className='text-foreground'
                 size={4 * 4}
               />
             )
@@ -168,7 +173,7 @@ function ThemeMenuItem() {
               <UiIcon
                 libIcon='Fontisto'
                 name='day-sunny'
-                className='text-textPrimary'
+                className='text-foreground'
                 size={4.5 * 4}
               />
             ),
@@ -176,7 +181,7 @@ function ThemeMenuItem() {
               <UiIcon
                 libIcon='Fontisto'
                 name='night-clear'
-                className='text-textPrimary'
+                className='text-foreground'
                 size={4.5 * 4}
               />
             ),
@@ -184,7 +189,9 @@ function ThemeMenuItem() {
         })()}
         title='Theme'
         trailingContent={
-          <Text className='typography-body4 capitalize text-textSecondary'>{selectedTheme}</Text>
+          <UiText className='typography-body4 capitalize text-muted-foreground'>
+            {selectedTheme}
+          </UiText>
         }
         onPress={bottomSheet.present}
       />
@@ -197,7 +204,7 @@ function ThemeMenuItem() {
         snapPoints={['30%']}
         headerComponent={
           <>
-            <UiHorizontalDivider className='mx-auto my-4 mb-0 h-3 w-14 rounded-full' />
+            <UiSeparator className='mx-auto my-4 mb-0 h-3 w-14 rounded-full' />
           </>
         }
       >
@@ -218,7 +225,7 @@ function ThemeMenuItem() {
                     libIcon='Fontisto'
                     name='day-sunny'
                     size={6 * 4}
-                    className='text-textPrimary'
+                    className='text-foreground'
                   />
                 ),
               },
@@ -230,7 +237,7 @@ function ThemeMenuItem() {
                     libIcon='Fontisto'
                     name='night-clear'
                     size={6 * 4}
-                    className='text-textPrimary'
+                    className='text-foreground'
                   />
                 ),
               },
@@ -238,25 +245,22 @@ function ThemeMenuItem() {
                 title: 'system',
                 value: 'system',
                 icon: (
-                  <UiIcon
-                    libIcon='Entypo'
-                    name='mobile'
-                    size={6 * 4}
-                    className='text-textPrimary'
-                  />
+                  <UiIcon libIcon='Entypo' name='mobile' size={6 * 4} className='text-foreground' />
                 ),
               },
             ].map(({ value, title, icon }, idx) => (
               <TouchableOpacity
                 key={idx}
                 className={cn(
-                  'flex w-1/4 items-center gap-4 rounded-lg border-2 border-componentPrimary p-3',
+                  'border-componentPrimary flex w-1/4 items-center gap-4 rounded-lg border-2 p-3',
                   selectedTheme === value ? 'border-primaryMain' : 'border-componentPrimary',
                 )}
                 onPress={() => setSelectedTheme(value as ColorSchemeType)}
               >
                 {icon}
-                <Text className='typography-caption1 capitalize text-textSecondary'>{title}</Text>
+                <UiText className='typography-caption1 capitalize text-muted-foreground'>
+                  {title}
+                </UiText>
               </TouchableOpacity>
             ))}
           </View>
@@ -319,7 +323,7 @@ function LocalAuthMethodMenuItem() {
     <>
       <ProfileCardMenuItem
         leadingIcon={
-          <UiIcon libIcon='Entypo' name='fingerprint' className='text-textPrimary' size={5 * 4} />
+          <UiIcon libIcon='Entypo' name='fingerprint' className='text-foreground' size={5 * 4} />
         }
         title='Auth method'
         onPress={bottomSheet.present}
@@ -333,7 +337,7 @@ function LocalAuthMethodMenuItem() {
         snapPoints={['20%']}
         headerComponent={
           <>
-            <UiHorizontalDivider className='mx-auto my-4 mb-2 h-3 w-14 rounded-full' />
+            <UiSeparator className='mx-auto my-4 mb-2 h-3 w-14 rounded-full' />
           </>
         }
       >
@@ -346,16 +350,16 @@ function LocalAuthMethodMenuItem() {
         >
           <View className={cn('flex gap-5')}>
             <View className='flex flex-row items-center justify-between'>
-              <Text className='typography-body3 font-semibold text-textPrimary'>Passcode</Text>
-              <UiSwitcher value={isPasscodeEnabled} onValueChange={handleChangePasscodeStatus} />
+              <UiText className='typography-body3 font-semibold text-foreground'>Passcode</UiText>
+              <UiSwitch checked={isPasscodeEnabled} onCheckedChange={handleChangePasscodeStatus} />
             </View>
             <View className='flex flex-row items-center justify-between'>
-              <Text className='typography-body3 font-semibold text-textPrimary'>Biometric</Text>
+              <UiText className='typography-body3 font-semibold text-foreground'>Biometric</UiText>
 
               {isBiometricsEnrolled && (
-                <UiSwitcher
-                  value={isBiometricsEnabled}
-                  onValueChange={handleChangeBiometricStatus}
+                <UiSwitch
+                  checked={isBiometricsEnabled}
+                  onCheckedChange={handleChangeBiometricStatus}
                   disabled={!isPasscodeEnabled}
                 />
               )}
@@ -379,7 +383,7 @@ function AdvancedMenuItem() {
     <>
       <ProfileCardMenuItem
         leadingIcon={
-          <UiIcon libIcon='Entypo' name='cog' className='text-textPrimary' size={5 * 4} />
+          <UiIcon libIcon='Entypo' name='cog' className='text-foreground' size={5 * 4} />
         }
         title='Advanced'
         onPress={bottomSheet.present}
@@ -393,7 +397,7 @@ function AdvancedMenuItem() {
         snapPoints={['30%']}
         headerComponent={
           <>
-            <UiHorizontalDivider className='mx-auto my-4 mb-0 h-3 w-14 rounded-full' />
+            <UiSeparator className='mx-auto my-4 mb-0 h-3 w-14 rounded-full' />
           </>
         }
       >
@@ -405,14 +409,14 @@ function AdvancedMenuItem() {
           }}
         >
           <View className={cn('flex size-full flex-1 gap-2')}>
-            <Text className='typography-caption2 ml-4 font-semibold text-textPrimary'>
+            <UiText className='typography-caption2 ml-4 font-semibold text-foreground'>
               Secret key
-            </Text>
-            <UiCard className='flex-row bg-backgroundPrimary py-6'>
+            </UiText>
+            <UiCard className='flex-row py-6'>
               <TouchableOpacity className='ml-auto'>
                 <UiIcon
                   customIcon={isCopied ? 'checkIcon' : 'copySimpleIcon'}
-                  className='text-textSecondary'
+                  className='text-muted-foreground'
                   size={5 * 4}
                   onPress={() => copy('')} // FIXME
                 />
@@ -420,12 +424,12 @@ function AdvancedMenuItem() {
             </UiCard>
 
             <ProfileCardMenuItem
-              className='mt-auto rounded-full bg-componentPrimary p-3 px-4'
+              className='mt-auto rounded-full bg-muted p-3 px-4'
               leadingIcon={
                 <UiIcon
                   libIcon='MaterialCommunityIcons'
                   name='logout'
-                  className='text-errorMain'
+                  className='text-destructive'
                   size={4 * 4}
                 />
               }
@@ -462,11 +466,11 @@ function ProfileCardMenuItem({
       {...rest}
       className={cn('flex w-full flex-row items-center gap-2 py-2', className)}
     >
-      <View className='flex aspect-square size-8 items-center justify-center rounded-full bg-componentPrimary'>
+      <View className='flex aspect-square size-8 items-center justify-center rounded-full bg-muted'>
         {leadingIcon}
       </View>
 
-      <Text className={cn('typography-buttonMedium mr-auto text-textPrimary')}>{title}</Text>
+      <UiText className={cn('typography-buttonMedium mr-auto text-foreground')}>{title}</UiText>
 
       {trailingContent}
 
@@ -474,7 +478,7 @@ function ProfileCardMenuItem({
         <UiIcon
           libIcon='FontAwesome'
           name={isRTL ? 'chevron-left' : 'chevron-right'}
-          className='ml-2 text-textSecondary'
+          className='ml-2 text-muted-foreground'
           size={3 * 4}
         />
       )}
