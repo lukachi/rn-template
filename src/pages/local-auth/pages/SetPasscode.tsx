@@ -7,7 +7,6 @@ import { ErrorHandler, useTranslate } from '@/core'
 import type { LocalAuthStackScreenProps } from '@/route-types'
 import { BiometricStatuses, localAuthStore } from '@/store'
 import { cn } from '@/theme'
-import { UiButton } from '@/ui/UiButton'
 import UiNumPad from '@/ui/UiNumPad'
 import UiScreenScrollable from '@/ui/UiScreenScrollable'
 import { UiText } from '@/ui/UiText'
@@ -24,29 +23,30 @@ export default function SetPasscode({}: LocalAuthStackScreenProps<'SetPasscode'>
 
   const translate = useTranslate()
 
-  const submit = useCallback(async () => {
-    if (!passcode) return
+  const handleSetPasscode = useCallback(
+    (value: string) => {
+      if (value.length > 4) return
 
-    try {
-      setPasscodeStore(passcode)
+      setPasscode(value)
 
-      if (biometricStatus === BiometricStatuses.NotSet) {
-        navigation.navigate('LocalAuth', {
-          screen: 'EnableBiometrics',
-        })
+      if (value.length < 4) return
 
-        return
+      try {
+        setPasscodeStore(passcode)
+
+        if (biometricStatus === BiometricStatuses.NotSet) {
+          navigation.navigate('LocalAuth', {
+            screen: 'EnableBiometrics',
+          })
+
+          return
+        }
+      } catch (error) {
+        ErrorHandler.processWithoutFeedback(error)
       }
-    } catch (error) {
-      ErrorHandler.processWithoutFeedback(error)
-    }
-  }, [biometricStatus, navigation, passcode, setPasscodeStore])
-
-  const handleSetPasscode = useCallback((value: string) => {
-    if (value.length > 4) return
-
-    setPasscode(value)
-  }, [])
+    },
+    [biometricStatus, navigation, passcode, setPasscodeStore],
+  )
 
   return (
     <UiScreenScrollable
@@ -69,9 +69,6 @@ export default function SetPasscode({}: LocalAuthStackScreenProps<'SetPasscode'>
 
         <View className={cn('flex w-full gap-6 p-5')}>
           <UiNumPad value={passcode} setValue={handleSetPasscode} />
-          <UiButton onPress={submit} disabled={!passcode}>
-            {translate('set-passcode.submit-btn')}
-          </UiButton>
         </View>
       </View>
     </UiScreenScrollable>

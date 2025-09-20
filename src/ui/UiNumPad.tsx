@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react'
 import { useCallback, useMemo } from 'react'
-import { Pressable, View, type ViewProps } from 'react-native'
+import { TouchableOpacity, TouchableOpacityProps, View, type ViewProps } from 'react-native'
 
 import { cn } from '@/theme'
 
+import UiIcon from './UiIcon'
 import { UiText } from './UiText'
 
 type Props = {
@@ -36,40 +37,48 @@ export default function UiNumPad({ value, setValue, className, extra, ...rest }:
   return (
     <View {...rest} className={cn('flex w-full gap-2', className)}>
       {numArray.map((row, i) => (
-        <View key={i} className='flex flex-row justify-between gap-2'>
+        <View key={i} className='flex w-full flex-row gap-2'>
           {row.map((num, j) => {
             if (!num) {
               if (extra) {
-                return (
-                  <View
-                    key={i + j}
-                    className='flex flex-1 items-center justify-center rounded-xl bg-muted'
-                  >
-                    {extra}
-                  </View>
-                )
+                return <NumKey key={i + j}>{extra}</NumKey>
               }
 
-              return <View key={i + j} className='flex flex-1 items-center justify-center' />
+              return <NumKey key={i + j} className='flex flex-1 items-center justify-center' />
+            }
+
+            if (num === '<-') {
+              return (
+                <NumKey key={i + j} onPress={() => handlePress(num)}>
+                  <UiIcon customIcon='backspaceIcon' size={32} className='text-foreground' />
+                </NumKey>
+              )
             }
 
             return (
-              <View key={i + j} className='flex flex-1 items-center justify-center'>
-                <Pressable
-                  className='w-full rounded-xl'
-                  onPress={() => {
-                    handlePress(num)
-                  }}
-                >
-                  <View className='flex items-center justify-center rounded-xl bg-muted'>
-                    <UiText variant='h4'>{num}</UiText>
-                  </View>
-                </Pressable>
-              </View>
+              <NumKey key={i + j} onPress={() => handlePress(num)}>
+                <UiText variant='h3' className='typography-h3'>
+                  {num}
+                </UiText>
+              </NumKey>
             )
           })}
         </View>
       ))}
     </View>
+  )
+}
+
+function NumKey({ children, className, ...rest }: TouchableOpacityProps) {
+  return (
+    <TouchableOpacity
+      {...rest}
+      className={cn(
+        'flex size-[75] w-full flex-1 items-center justify-center rounded-xl',
+        className,
+      )}
+    >
+      {children}
+    </TouchableOpacity>
   )
 }
