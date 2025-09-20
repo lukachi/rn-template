@@ -33,6 +33,6 @@ module.exports = (() => {
   return mergeConfig(
     withSvgTransformer(config),
     wrapWithReanimatedMetroConfig(config),
-    withNativeWind(config, { input: './src/theme/global.css' })
+    withNativeWind(config, { input: './src/theme/global.css', inlineRem: 16 })
   )
 })()

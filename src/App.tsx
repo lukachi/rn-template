@@ -1,4 +1,5 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
+import { PortalHost } from '@rn-primitives/portal'
 import * as SplashScreen from 'expo-splash-screen'
 import { verifyInstallation } from 'nativewind'
 import { useMemo, useState } from 'react'
@@ -65,6 +66,7 @@ export default function App() {
               </BottomSheetModalProvider>
             </APIProvider>
             <Toasts />
+            <PortalHost />
           </KeyboardProvider>
         </GestureHandlerRootView>
       </SafeAreaProvider>

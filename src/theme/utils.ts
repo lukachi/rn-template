@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { extendTailwindMerge } from 'tailwind-merge'
 
 import { storage } from '@/core/storage'
-import { darkPalette, lightPalette, typography } from '@/theme/config'
+import { THEME, typography } from '@/theme/config'
 
 const SELECTED_THEME = 'SELECTED_THEME'
 export type ColorSchemeType = 'light' | 'dark' | 'system' // TODO: use from colors.ts
@@ -43,21 +43,6 @@ export const loadSelectedTheme = () => {
   }
 }
 
-export const getAppTheme = () => {
-  const theme = storage.getString(SELECTED_THEME) as ColorSchemeType
-
-  const palette = {
-    system: colorScheme.get() === 'dark' ? darkPalette : lightPalette,
-    light: lightPalette,
-    dark: darkPalette,
-  }[theme]
-
-  return {
-    palette,
-    typography,
-  }
-}
-
 // TODO: refactoring
 export const useAppTheme = () => {
   const { colorScheme: color_ } = useColorScheme()
@@ -65,9 +50,9 @@ export const useAppTheme = () => {
   const { selectedTheme } = useSelectedTheme()
 
   const palette = {
-    system: color_ === 'dark' ? darkPalette : lightPalette,
-    light: lightPalette,
-    dark: darkPalette,
+    system: color_ === 'dark' ? THEME.dark : THEME.light,
+    light: THEME.light,
+    dark: THEME.dark,
   }[selectedTheme]
 
   return {
