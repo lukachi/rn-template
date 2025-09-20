@@ -120,7 +120,7 @@ export default function InviteOthers({}: AppStackScreenProps<'InviteOthers'>) {
                   </View>
 
                   <Pressable className='size-8' onPress={() => shareInvite('')}>
-                    <UiIcon libIcon='AntDesign' name='sharealt' size={24} />
+                    <UiIcon libIcon='AntDesign' name='share-alt' size={24} />
                   </Pressable>
                 </View>
               ))}

@@ -36,6 +36,12 @@ module.exports = (api) => {
       ['react-native-worklets/plugin', {
         processNestedWorklets: true
       }],
+      [
+        "babel-plugin-inline-import",
+        {
+          "extensions": [".svg"]
+        }
+      ]
     ],
   }
 }

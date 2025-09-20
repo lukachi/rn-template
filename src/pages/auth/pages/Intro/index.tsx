@@ -30,7 +30,15 @@ export default function Intro() {
       {
         title: translate('auth.intro.step-1.title'),
         subtitle: translate('auth.intro.step-1.subtitle'),
-        media: <UiIcon customIcon='starFillIcon' className='size-[150px] text-textSecondary' />,
+        // media: <UiIcon customIcon='starFillIcon' className='size-[150px] text-textSecondary' />,
+        media: (
+          <UiIcon
+            libIcon='AntDesign'
+            name='account-book'
+            size={150}
+            className='size-[150px] text-textSecondary'
+          />
+        ),
       },
       {
         title: translate('auth.intro.step-2.title'),

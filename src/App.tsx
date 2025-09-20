@@ -1,5 +1,6 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import * as SplashScreen from 'expo-splash-screen'
+import { verifyInstallation } from 'nativewind'
 import { useMemo, useState } from 'react'
 import { View } from 'react-native'
 import { SystemBars } from 'react-native-edge-to-edge'
@@ -37,7 +38,7 @@ export default function App() {
 
   const initApp = async () => {
     try {
-      // verifyInstallation()
+      verifyInstallation()
       await initLocalAuthStore()
     } catch (e) {
       setAppInitError(e)

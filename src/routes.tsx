@@ -40,7 +40,7 @@ export default function AppRoutes() {
 
   const palette = themeToSet === 'dark' ? darkPalette : lightPalette
 
-  const isAuthorized = false // FIXME
+  const isAuthorized = true // FIXME
   const isUserNeedToLocalAuth = localAuthStore.useUserNeedToLocalAuth()
 
   return (
