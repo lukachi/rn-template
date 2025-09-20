@@ -11,7 +11,8 @@ import { AppStackScreenProps } from '@/route-types'
 import { useAppPaddings } from '@/theme'
 import { UiIcon, UiImage, UiScreenScrollable } from '@/ui'
 
-export default function InviteOthers({ route }: AppStackScreenProps<'InviteOthers'>) {
+// eslint-disable-next-line no-empty-pattern
+export default function InviteOthers({}: AppStackScreenProps<'InviteOthers'>) {
   const insets = useSafeAreaInsets()
   const appPaddings = useAppPaddings()
 
@@ -33,7 +34,6 @@ export default function InviteOthers({ route }: AppStackScreenProps<'InviteOther
 
   return (
     <Animated.View
-      sharedTransitionTag={route.params?.tag}
       style={{
         width: '100%',
         height: '100%',

@@ -77,15 +77,15 @@ runs:
         file_name: .env.secrets.${{ inputs.APP_ENV }}
 
     - name: ⚙️ Run Prebuild
-      run: yarn prebuild:${{ inputs.APP_ENV }}
+      run: pnpm run prebuild:${{ inputs.APP_ENV }}
       shell: bash
 
     - name: 📱 Run Android Build
       if: ${{ inputs.ANDROID == 'true' }}
-      run: yarn build:${{ inputs.APP_ENV }}:android --non-interactive  --no-wait --message "Build  ${{ inputs.APP_ENV }} ${{ inputs.VERSION }}"
+      run: pnpm run build:${{ inputs.APP_ENV }}:android --non-interactive  --no-wait --message "Build  ${{ inputs.APP_ENV }} ${{ inputs.VERSION }}"
       shell: bash
 
     - name: 📱 Run IOS Build
       if: ${{ inputs.IOS == 'true' }}
-      run: yarn build:${{ inputs.APP_ENV }}:ios --non-interactive  --no-wait --message "Build ${{ inputs.APP_ENV }} ${{ inputs.VERSION }}"
+      run: pnpm run build:${{ inputs.APP_ENV }}:ios --non-interactive  --no-wait --message "Build ${{ inputs.APP_ENV }} ${{ inputs.VERSION }}"
       shell: bash

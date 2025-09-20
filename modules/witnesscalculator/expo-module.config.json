@@ -1,9 +1,0 @@
-{
-  "platforms": ["ios", "android"],
-  "ios": {
-    "modules": ["WitnesscalculatorModule"]
-  },
-  "android": {
-    "modules": ["expo.modules.witnesscalculator.WitnesscalculatorModule"]
-  }
-}

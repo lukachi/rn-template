@@ -16,3 +16,4 @@ ios/
 .yarn/
 *.d.ts
 modules/**/*.js
+pnpm-lock.yaml

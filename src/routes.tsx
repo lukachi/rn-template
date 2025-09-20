@@ -8,7 +8,7 @@ import AppScreen from '@/pages/app'
 import AuthScreen from '@/pages/auth'
 import LocalAuthScreen from '@/pages/local-auth'
 import type { RootStackParamList } from '@/route-types'
-import { authStore, localAuthStore } from '@/store'
+import { localAuthStore } from '@/store'
 import { useSelectedTheme } from '@/theme'
 import { cssVars, darkPalette, lightPalette } from '@/theme/config'
 
@@ -40,7 +40,7 @@ export default function AppRoutes() {
 
   const palette = themeToSet === 'dark' ? darkPalette : lightPalette
 
-  const isAuthorized = authStore.useIsAuthorized()
+  const isAuthorized = false // FIXME
   const isUserNeedToLocalAuth = localAuthStore.useUserNeedToLocalAuth()
 
   return (

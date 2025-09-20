@@ -1,6 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { useLayoutEffect } from 'react'
 
 import InviteOthers from '@/pages/app/pages/invite-others'
 import type {
@@ -9,12 +8,9 @@ import type {
   AppTabParamsList,
   RootStackScreenProps,
 } from '@/route-types'
-import { authStore, localAuthStore } from '@/store'
 import { UiIcon } from '@/ui'
 
 import BottomTabBar from './components/BottomTabBarTabBar'
-import DocumentScanScreen from './pages/document-scan'
-import DocumentsScreen from './pages/documents'
 import HomeScreen from './pages/home'
 import ProfileScreen from './pages/profile'
 
@@ -36,16 +32,6 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         }}
       />
       <Tab.Screen
-        name='Documents'
-        component={DocumentsScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <UiIcon libIcon='Fontisto' name='passport-alt' size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
         name='Profile'
         component={ProfileScreen}
         options={{
@@ -61,15 +47,6 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
 
 // eslint-disable-next-line no-empty-pattern
 export default function App({}: RootStackScreenProps<'App'>) {
-  const isFirstEnter = localAuthStore.useLocalAuthStore(state => state.isFirstEnter)
-  const logout = authStore.useLogout()
-
-  useLayoutEffect(() => {
-    if (!isFirstEnter) return
-
-    logout()
-  }, [isFirstEnter, logout])
-
   return (
     <Stack.Navigator
       screenOptions={{
@@ -82,14 +59,6 @@ export default function App({}: RootStackScreenProps<'App'>) {
         component={InviteOthers}
         options={{
           animation: 'fade',
-        }}
-      />
-
-      <Stack.Screen
-        name='Scan'
-        component={DocumentScanScreen}
-        options={{
-          headerShown: false,
         }}
       />
     </Stack.Navigator>

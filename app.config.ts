@@ -39,6 +39,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     package: Env.PACKAGE,
   },
+  androidNavigationBar: {
+    enforceContrast: false,
+  },
   web: {
     favicon: './assets/favicon.png',
     bundler: 'metro',
@@ -86,33 +89,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
       }
     ],
-    // TEMP: since "modules/e-document" uses custom pod,
-    // we need to use `withBuildProperties` in module's plugin
-    // in order to incapsulate per module configuration.
-    // But `withBuildProperties` method ain't supposed to be called multiple times,
-    // so we treat this case as we merge objects
-    // plugins order matter: the later one would run first
-    // https://github.com/expo/expo/blob/sdk-52/packages/expo-build-properties/src/withBuildProperties.ts#L31C6-L31C57
     ['expo-build-properties', {
       android: {
         minSdkVersion: 27,
         targetSdkVersion: 34,
       },
       ios: {
-        deploymentTarget: '17.5',
-        extraPods: [
-          {
-            name: "OpenSSL-Universal",
-            configurations: ["Release", "Debug"],
-            modular_headers: true,
-            version: '1.1.2301'
-          },
-          {
-            name: 'NFCPassportReader',
-            git: 'https://github.com/lukachi/NFCPassportReader.git',
-            commit: "4e36d5b4b902ce847589d2270c887764f6e09029",
-          },
-        ]
+        deploymentTarget: '17.5'
       },
     }],
     [
@@ -139,18 +122,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
       }
     ],
-    ["react-native-vision-camera", {
-      "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
-    }],
-    ["react-native-edge-to-edge",
-      {
-        "android": {
-          "parentTheme": "Default",
-          "enforceNavigationBarContrast": false
-        }
-    }],
-    ['./plugins/withNfc.plugin/build/index.js'],
-    ['./plugins/withLocalAar.plugin.js']
   ],
   extra: {
     ...ClientEnv,

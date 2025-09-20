@@ -11,13 +11,7 @@ import { Language, resources } from '@/core/localization/resources'
 import { useCopyToClipboard } from '@/hooks'
 import AppContainer from '@/pages/app/components/AppContainer'
 import type { AppTabScreenProps } from '@/route-types'
-import {
-  authStore,
-  BiometricStatuses,
-  localAuthStore,
-  PasscodeStatuses,
-  walletStore,
-} from '@/store'
+import { BiometricStatuses, localAuthStore, PasscodeStatuses } from '@/store'
 import {
   cn,
   ColorSchemeType,
@@ -376,9 +370,8 @@ function LocalAuthMethodMenuItem() {
 function AdvancedMenuItem() {
   const appPaddings = useAppPaddings()
 
-  const privateKey = walletStore.useWalletStore(state => state.privateKey)
   const { isCopied, copy } = useCopyToClipboard()
-  const logout = authStore.useLogout()
+  const logout = () => {} // FIXME
 
   const bottomSheet = useUiBottomSheet()
 
@@ -416,16 +409,12 @@ function AdvancedMenuItem() {
               Secret key
             </Text>
             <UiCard className='flex-row bg-backgroundPrimary py-6'>
-              <Text className='typography-body3 line-clamp-1 w-9/12 truncate whitespace-nowrap text-textPrimary'>
-                {privateKey}
-              </Text>
-
               <TouchableOpacity className='ml-auto'>
                 <UiIcon
                   customIcon={isCopied ? 'checkIcon' : 'copySimpleIcon'}
                   className='text-textSecondary'
                   size={5 * 4}
-                  onPress={() => copy(privateKey)}
+                  onPress={() => copy('')} // FIXME
                 />
               </TouchableOpacity>
             </UiCard>

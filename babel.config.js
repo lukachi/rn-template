@@ -18,10 +18,6 @@ module.exports = (api) => {
             '@assets': './assets',
             '@modules': './modules',
             '@env': './src/core/env.js',
-
-            'crypto': 'crypto-browserify',
-            'stream': 'readable-stream',
-            '@iden3/js-crypto': '@iden3/js-crypto/dist/browser/esm/index.js',
           },
           extensions: [
             '.ios.ts',
@@ -36,9 +32,8 @@ module.exports = (api) => {
           ],
         },
       ],
-      ['react-native-worklets-core/plugin'],
       // NOTE: this is only necessary if you are using reanimated for animations
-      ['react-native-reanimated/plugin', {
+      ['react-native-worklets/plugin', {
         processNestedWorklets: true
       }],
     ],

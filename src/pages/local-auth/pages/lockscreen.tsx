@@ -7,7 +7,7 @@ import { ErrorHandler, useTranslate } from '@/core'
 import BiometricsIcon from '@/pages/local-auth/components/BiometricsIcon'
 import HiddenPasscodeView from '@/pages/local-auth/components/HiddenPasscodeView'
 import type { LocalAuthStackScreenProps } from '@/route-types'
-import { authStore, BiometricStatuses, localAuthStore, MAX_ATTEMPTS } from '@/store'
+import { BiometricStatuses, localAuthStore, MAX_ATTEMPTS } from '@/store'
 import { cn } from '@/theme'
 import { UiButton, UiNumPad, UiScreenScrollable } from '@/ui'
 
@@ -45,7 +45,7 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
   const biometricStatus = localAuthStore.useLocalAuthStore(state => state.biometricStatus)
   const attemptsLeft = localAuthStore.useLocalAuthStore(state => state.attemptsLeft)
   const lockDeadline = localAuthStore.useLocalAuthStore(state => state.lockDeadline)
-  const logout = authStore.useLogout()
+  const logout = useCallback(() => {}, []) // FIXME
   const resetLocalAuthStore = localAuthStore.useLocalAuthStore(state => state.resetStore)
   const checkLockDeadline = localAuthStore.useCheckLockDeadline()
 

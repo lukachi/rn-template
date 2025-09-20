@@ -29,14 +29,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 📦 Setup Node + YARN + install deps
-        uses: ./.github/actions/setup-node-yarn-install
+      - name: 📦 Setup Node + PNPM + install deps
+        uses: ./.github/actions/setup-node-pnpm-install
 
       - name: 🏃‍♂️ Run ESLint
-        run: yarn lint
+        run: pnpm lint
 
       - name: 🏃‍♂️ Run TypeScript Commit
-        run: yarn type-check
+        run: pnpm type-check
 
       - name: 🏃‍♂️ Run Prettier
-        run: yarn format
+        run: pnpm format

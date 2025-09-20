@@ -2,8 +2,6 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs'
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { DocType } from './utils/e-document/e-document'
-
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamsList>
   LocalAuth: NavigatorScreenParams<LocalAuthStackParamsList>
@@ -17,7 +15,6 @@ export type RootStackScreenProps<T extends keyof RootStackParamList> = NativeSta
 
 export type AuthStackParamsList = {
   Intro: undefined
-  CreateWallet: { isImporting: boolean } | undefined
 }
 
 export type AuthStackScreenProps<T extends keyof AuthStackParamsList> = NativeStackScreenProps<
@@ -40,12 +37,6 @@ export type AppStackParamsList = {
   InviteOthers?: {
     tag?: string
   }
-
-  Scan:
-    | {
-        documentType?: DocType
-      }
-    | undefined
 }
 
 export type AppStackScreenProps<T extends keyof AppStackParamsList> = NativeStackScreenProps<
@@ -54,7 +45,6 @@ export type AppStackScreenProps<T extends keyof AppStackParamsList> = NativeStac
 >
 
 export type AppTabParamsList = {
-  Documents: undefined
   Home: undefined
   Profile: undefined
 }

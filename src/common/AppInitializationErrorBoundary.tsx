@@ -4,11 +4,12 @@ import { Text, View } from 'react-native'
 import { cn, useAppTheme } from '@/theme'
 import { UiIcon } from '@/ui'
 
-type Props = {
+export default function AppInitializationErrorBoundary({
+  className,
+  ...rest
+}: {
   error: Error
-} & ViewProps
-
-export default function AppInitializationErrorBoundary({ className, ...rest }: Props) {
+} & ViewProps) {
   const { palette } = useAppTheme()
 
   return (

@@ -35,8 +35,8 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      - name: 📦 Setup Node + YARN + install deps
-        uses: ./.github/actions/setup-node-yarn-install
+      - name: 📦 Setup Node + PNPM + install deps
+        uses: ./.github/actions/setup-node-pnpm-install
 
       - name: ⏱️ EAS Build
         uses: ./.github/actions/eas-build

@@ -1,0 +1,59 @@
+# 🔗 Links:
+# Source file: https://github.com/obytes/react-native-template-obytes/blob/master/.github/actions/setup-node-pnpm-install/action.yml
+# Composite actions docs: https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
+
+# ✍️ Description:
+# This is a composite action, which means it can be used in other actions.
+# It is used in almost all workflows to set up the environment and install dependencies.
+# Updating  the package manager or Node version here will be reflected in all workflows.
+
+# 👀 Example usage:
+#       - name : 📦 Setup Node + PNPM + install deps
+#         uses: ./.github/actions/setup-node-pnpm-install
+
+name: 'Setup  Node + PNPM + Install Dependencies'
+description: 'Setup  Node + PNPM + Install Dependencies'
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: latest
+
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Restore dependencies
+      id: pnpm-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          **/node_modules
+          ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/package.json', '!node_modules/**') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          ${{ runner.os }}-pnpm-
+
+    - name: Install dependencies
+      if: steps.pnpm-cache-restore.outputs.cache-hit != 'true'
+      run: pnpm install --frozen-lockfile
+      shell: bash
+
+    - name: Cache dependencies
+      if: steps.pnpm-cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          **/node_modules
+          ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ steps.pnpm-cache-restore.outputs.cache-primary-key }}

@@ -8,11 +8,10 @@ import { KeyboardProvider } from 'react-native-keyboard-controller'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import { APIProvider } from '@/api/client'
-import { initInterceptors } from '@/api/interceptors'
 import { AppInitializationErrorBoundary } from '@/common'
 import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
-import { authStore, localAuthStore, walletStore } from '@/store'
+import { localAuthStore } from '@/store'
 import { loadSelectedTheme } from '@/theme'
 import { Toasts } from '@/ui'
 
@@ -27,22 +26,19 @@ export default function App() {
 
   const [appInitError, setAppInitError] = useState<Error>()
 
-  const isAuthStoreHydrated = authStore.useAuthStore(state => state._hasHydrated)
   const isLocalAuthStoreHydrated = localAuthStore.useLocalAuthStore(state => state._hasHydrated)
-  const isWalletStoreHydrated = walletStore.useWalletStore(state => state._hasHydrated)
   const initLocalAuthStore = localAuthStore.useInitLocalAuthStore()
 
   const { language } = useSelectedLanguage()
 
   const isStoresHydrated = useMemo(() => {
-    return isAuthStoreHydrated && isLocalAuthStoreHydrated && isWalletStoreHydrated
-  }, [isAuthStoreHydrated, isLocalAuthStoreHydrated, isWalletStoreHydrated])
+    return isLocalAuthStoreHydrated
+  }, [isLocalAuthStoreHydrated])
 
   const initApp = async () => {
     try {
       // verifyInstallation()
       await initLocalAuthStore()
-      initInterceptors()
     } catch (e) {
       setAppInitError(e)
       setIsAppInitializingFailed(true)

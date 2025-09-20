@@ -172,17 +172,17 @@ create `.env.secrets.development`, `.env.secrets.staging`, and `.env.secrets.pro
 
 Add them to `env.js` as you did with public values, but use `getSecretWithSuffix` method instead of using `process.env` straight.
 
-This would be enough to run the app locally with `yarn prebuild && yarn ios` or `yarn prebuild && yarn android`.
+This would be enough to run the app locally with `pnpm run prebuild && pnpm run ios` or `pnpm run prebuild && pnpm run android`.
 
 If changes are not applied after modifying the `.env` files, try restart the development server or rebuild the project:
 
-`yarn start`
+`pnpm run start`
 
 #### For EAS Build:
 
 The .env files are not included in the eas build, no matter it local or not, so we added `.easignore`, which repeats `.gitignore` rules, except `.env.secrets` files, so they will be included in eas build archive.
 
-And that should be enough to build the app with `yarn prebuild:staging && yarn build:staging:ios && yarn build:staging:android`. (and `--local`)
+And that should be enough to build the app with `pnpm run prebuild:staging && pnpm run build:staging:ios && pnpm run build:staging:android`. (and `--local`)
 
 #### For CI/CD:
 
@@ -190,7 +190,7 @@ As far as CI just triggers the build, make sure you have done EAS build preparat
 
 Then run:
 
-`yarn prepare-secrets`
+`pnpm run prepare-secrets`
 
 It will push secrets from `.env.secrets.*` files to the EAS servers secrets in a `${APP_ENV_UPPERCASE}_SECRET_KEY` format.
 
@@ -216,13 +216,13 @@ To configure your own custom environment, run scripts with the desired `APP_ENV`
 You need to prebuild the native code before running the app:
 
 ```bash
-yarn prebuild
+pnpm run prebuild
 ```
 
 Then start the Metro development server:
 
 ```bash
-yarn start
+pnpm run start
 ```
 
 ### Run the App on Your Device or Emulator
@@ -230,13 +230,13 @@ yarn start
 **iOS:**
 
 ```bash
-yarn ios
+pnpm run ios
 ```
 
 **Android:**
 
 ```bash
-yarn android
+pnpm run android
 ```
 
 **Note:** Ensure that you have a simulator or device connected.
@@ -265,7 +265,7 @@ Let's assume you finish your feature branch.
 
 - After merging, you have two options to release your app for internal distribution (QA):
   - Select the **New App Version** workflow in GitHub Actions and choose the release type.
-  - Or run `yarn app-release` locally; it will do the same as the action above and push changes to trigger the next GitHub Actions.
+  - Or run `pnpm run app-release` locally; it will do the same as the action above and push changes to trigger the next GitHub Actions.
 
 3. **Build and Publish the App:**
 
@@ -310,8 +310,8 @@ Your first build should be done locally to generate the necessary credentials on
 Run the prebuild and build commands locally for your environment (e.g., staging):
 
 ```bash
-yarn prebuild:staging && yarn build:staging:ios
-yarn prebuild:staging && yarn build:staging:android
+pnpm run prebuild:staging && pnpm run build:staging:ios
+pnpm run prebuild:staging && pnpm run build:staging:android
 ```
 
 During the build process, you may be prompted to log in to your Apple Developer account or provide Keystore information for Android. Follow the prompts to complete the setup.
@@ -327,8 +327,8 @@ These commands will:
 To test release builds locally before merging to the main branch:
 
 ```bash
-yarn prebuild:staging && yarn build:staging:ios --local
-yarn prebuild:staging && yarn build:staging:android --local
+pnpm run prebuild:staging && pnpm run build:staging:ios --local
+pnpm run prebuild:staging && pnpm run build:staging:android --local
 ```
 
 This will create `.ipa` and `.apk` files in the root folder, which you can install on your device using [Expo's Orbit tool](https://docs.expo.dev/build/orbit/).
@@ -366,7 +366,7 @@ brew install bundletool
 1. **Build the `.aab` file:**
 
    ```bash
-   yarn prebuild:staging && yarn build:staging:android --local
+   pnpm run prebuild:staging && pnpm run build:staging:android --local
    ```
 
 2. **Convert `.aab` to `.apk` using `bundletool`:**
@@ -412,11 +412,11 @@ When you add a new dependency that requires native modules:
 3. **Rebuild Native Code:**
 
    ```bash
-   yarn prebuild
-   yarn ios    # or yarn android
+   pnpm run prebuild
+   pnpm run ios    # or pnpm run android
    ```
 
-**Note:** Always run `yarn prebuild` after adding dependencies that include native code to ensure that your native projects are updated.
+**Note:** Always run `pnpm run prebuild` after adding dependencies that include native code to ensure that your native projects are updated.
 
 ### Values & Values-Night
 
@@ -474,8 +474,8 @@ This usually happens when you add a new dependency to the project.
 2. Remove cached files and reinstall dependencies:
 
    ```bash
-   rm -rf node_modules yarn.lock package-lock.json android ios .expo
-   yarn install
+   rm -rf node_modules pnpm-lock.yaml package-lock.json android ios .expo
+   pnpm install
    ```
 
 3. Prebuild and install pods:
@@ -494,7 +494,7 @@ This usually happens when you add a new dependency to the project.
 **One-liner Command:**
 
 ```bash
-rm -rf ~/Library/Developer/Xcode/DerivedData && rm -rf node_modules yarn.lock package-lock.json android ios .expo && yarn && npx expo prebuild --clean && npx pod-install && npx expo run:ios --device
+rm -rf ~/Library/Developer/Xcode/DerivedData && rm -rf node_modules pnpm-lock.yaml package-lock.json android ios .expo && pnpm run && npx expo prebuild --clean && npx pod-install && npx expo run:ios --device
 ```
 
 ### Error: `Error: spawn ./gradlew EACCES`
