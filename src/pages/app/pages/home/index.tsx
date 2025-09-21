@@ -20,21 +20,10 @@ import { useTranslation } from 'react-i18next'
 import { bus, DefaultBusEvents } from '@/core'
 import { UiButton } from '@/ui/UiButton'
 import { UiCard, UiCardContent } from '@/ui/UiCard'
-import {
-  UiDialog,
-  UiDialogClose,
-  UiDialogContent,
-  UiDialogDescription,
-  UiDialogFooter,
-  UiDialogHeader,
-  UiDialogTitle,
-  UiDialogTrigger,
-} from '@/ui/UiDialog'
 import UiIcon from '@/ui/UiIcon'
-import { UiInput } from '@/ui/UiInput'
+import UiImage from '@/ui/UiImage'
 import { UiLabel } from '@/ui/UiLabel'
 import UiScreenScrollable from '@/ui/UiScreenScrollable'
-import { UiSeparator } from '@/ui/UiSeparator'
 import { UiSkeleton } from '@/ui/UiSkeleton'
 import { UiSwitch } from '@/ui/UiSwitch'
 import { UiText } from '@/ui/UiText'
@@ -102,46 +91,24 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                       }}
                     >
                       {[
-                        <UiCard className='flex size-full justify-center gap-6 p-6'>
-                          <UiCardContent>
-                            <UiDialog>
-                              <UiDialogTrigger asChild>
-                                <UiButton variant='outline'>
-                                  <UiText>Open Dialog</UiText>
-                                </UiButton>
-                              </UiDialogTrigger>
-                              <UiDialogContent className='sm:max-w-[425px]'>
-                                <UiDialogHeader>
-                                  <UiDialogTitle>Edit profile</UiDialogTitle>
-                                  <UiDialogDescription>
-                                    Make changes to your profile here. Click save when you&apos;re
-                                    done.
-                                  </UiDialogDescription>
-                                </UiDialogHeader>
-                                <View className='grid gap-4'>
-                                  <View className='grid gap-3'>
-                                    <UiLabel htmlFor='name-1'>Name</UiLabel>
-                                    <UiInput id='name-1' defaultValue='Pedro Duarte' />
-                                  </View>
-                                  <View className='grid gap-3'>
-                                    <UiLabel htmlFor='username-1'>Username</UiLabel>
-                                    <UiInput id='username-1' defaultValue='@peduarte' />
-                                  </View>
-                                </View>
-                                <UiDialogFooter>
-                                  <UiDialogClose asChild>
-                                    <UiButton variant='outline'>
-                                      <UiText>Cancel</UiText>
-                                    </UiButton>
-                                  </UiDialogClose>
-                                  <UiButton>
-                                    <UiText>Save changes</UiText>
-                                  </UiButton>
-                                </UiDialogFooter>
-                              </UiDialogContent>
-                            </UiDialog>
-                            <UiSeparator className='my-5' />
-                            <UiInput placeholder='yopta' />
+                        <UiCard className='relative flex size-full gap-6 overflow-hidden p-0'>
+                          <View className='absolute size-full bg-red-400'>
+                            <UiImage
+                              source={require('@assets/images/home-img-1.jpg')}
+                              className='size-full'
+                            />
+                          </View>
+                          <UiCardContent className='p-6'>
+                            <UiText variant='display-large' className='text-center'>
+                              React Native boilerplate
+                            </UiText>
+
+                            <UiText variant='body-large' className='mt-5 text-center'>
+                              Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum tempore
+                              mollitia voluptatem ex iusto, impedit sed fuga esse explicabo, minus,
+                              recusandae laudantium dolorem! Sed odio autem blanditiis illum ut
+                              tempore.
+                            </UiText>
                           </UiCardContent>
                         </UiCard>,
                         <UiCard className='flex size-full justify-center gap-6 p-6'>
