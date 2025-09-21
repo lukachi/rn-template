@@ -17,7 +17,7 @@ const defaultDataWith6Colors = ['#899F9C', '#B0604D', '#B3C680', '#5C6265', '#F5
 import * as Haptics from 'expo-haptics'
 import { useTranslation } from 'react-i18next'
 
-import { bus, DefaultBusEvents } from '@/core'
+import { emitter } from '@/core'
 import { UiButton } from '@/ui/UiButton'
 import { UiCard, UiCardContent } from '@/ui/UiCard'
 import UiIcon from '@/ui/UiIcon'
@@ -171,7 +171,8 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                         <UiCard className='flex size-full justify-center gap-6 p-6'>
                           <UiButton
                             onPress={() => {
-                              bus.emit(DefaultBusEvents.error, {
+                              emitter.emit('error', {
+                                title: 'some title',
                                 message: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
                               })
                             }}
@@ -181,7 +182,7 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                           <UiButton
                             variant='outline'
                             onPress={() => {
-                              bus.emit(DefaultBusEvents.success, {
+                              emitter.emit('success', {
                                 message: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
                               })
                             }}
@@ -189,14 +190,22 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                             <UiText>success</UiText>
                           </UiButton>
                           <UiButton
-                            variant='ghost'
                             onPress={() => {
-                              bus.emit(DefaultBusEvents.warning, {
+                              emitter.emit('warning', {
                                 message: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
                               })
                             }}
                           >
                             <UiText>warning</UiText>
+                          </UiButton>
+                          <UiButton
+                            onPress={() => {
+                              emitter.emit('info', {
+                                message: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                              })
+                            }}
+                          >
+                            <UiText>info</UiText>
                           </UiButton>
                         </UiCard>,
                       ][index] ?? (

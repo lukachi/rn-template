@@ -1,4 +1,4 @@
-import { bus, DefaultBusEvents } from './event-bus'
+import { emitter } from './event-bus'
 
 export class ErrorHandler {
   static isError(error: unknown): error is Error {
@@ -7,7 +7,7 @@ export class ErrorHandler {
 
   static process(error: unknown, message = ''): void {
     if (!ErrorHandler.isError(error)) return
-    bus.emit(DefaultBusEvents.error, { message: message || error.message })
+    emitter.emit('error', { message: message || error.message })
     ErrorHandler.processWithoutFeedback(error)
   }
 

@@ -1,108 +1,111 @@
-import type { ReactElement } from 'react'
+import {
+  AlertCircleIcon,
+  CheckCircle2Icon,
+  CircleQuestionMarkIcon,
+  TriangleAlertIcon,
+} from 'lucide-react-native'
+import type { ReactNode } from 'react'
 import { useEffect } from 'react'
 import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import Toast, { BaseToast } from 'react-native-toast-message'
+import Toast from 'react-native-toast-message'
 
-import { DefaultBusEvents, ErrorHandler, translate } from '@/core'
-import { bus } from '@/core'
+import { emitter } from '@/core'
 import { sleep } from '@/helpers/promise'
-import { cn, useAppTheme } from '@/theme'
-import UiIcon from '@/ui/UiIcon'
+import { cn } from '@/theme'
 
-const STATUS_MESSAGE_AUTO_HIDE_DURATION = 5 * 1000
+import { UiLucideIcon } from '../UiLucideIcon'
+import { UiText, UiTextClassContext } from '../UiText'
 
-export type ToastPayload = {
-  messageType?: DefaultBusEvents
+const STATUS_MESSAGE_AUTO_HIDE_DURATION = 55 * 1000
 
-  title?: string
-  message?: string | ReactElement
-  iconComponent?: ReactElement
+export type DefaultToastPayload = {
+  title: string
+  message: string
+  icon: () => ReactNode
 }
 
-const defaultTitles = {
-  [DefaultBusEvents.success]: translate('notifications.default-title-success'),
-  [DefaultBusEvents.error]: translate('notifications.default-title-error'),
-  [DefaultBusEvents.warning]: translate('notifications.default-title-warning'),
-  [DefaultBusEvents.info]: translate('notifications.default-title-info'),
-}
+const abortController = new AbortController()
 
-const defaultMessages = {
-  [DefaultBusEvents.success]: translate('notifications.default-message-success'),
-  [DefaultBusEvents.error]: translate('notifications.default-message-error'),
-  [DefaultBusEvents.warning]: translate('notifications.default-message-warning'),
-  [DefaultBusEvents.info]: translate('notifications.default-message-info'),
-}
-
-const defaultIcons = {
-  [DefaultBusEvents.success]: () => {
-    return <UiIcon customIcon='checkIcon' className={cn('text-successMain')} />
-  },
-  [DefaultBusEvents.error]: () => {
-    return <UiIcon customIcon='warningIcon' className={cn('text-errorMain')} />
-  },
-  [DefaultBusEvents.warning]: () => {
-    return <UiIcon customIcon='warningIcon' className={cn('text-warningMain')} />
-  },
-  [DefaultBusEvents.info]: () => {
-    return <UiIcon customIcon='infoIcon' className={cn('text-secondaryMain')} />
-  },
-}
-
-/**
- * Currently shows only one toast at a time
- */
-const showToast = async (messageType = DefaultBusEvents.info, payload: ToastPayload) => {
-  const title = payload?.title || defaultTitles[messageType]
-  const message = payload?.message || defaultMessages[messageType]
-  const icon = payload?.iconComponent || defaultIcons[messageType]
-
+const showSuccessToast = async (payload?: Partial<DefaultToastPayload>) => {
   Toast.hide()
 
   await sleep(250)
 
-  try {
-    Toast.show({
-      type: 'defaultToast',
-      props: {
-        title,
-        message,
-        icon,
-      },
-      visibilityTime: STATUS_MESSAGE_AUTO_HIDE_DURATION,
-    })
-  } catch (e) {
-    ErrorHandler.processWithoutFeedback(e)
-  }
+  Toast.show({
+    type: 'defaultToast',
+    props: {
+      title: 'Success',
+      icon: () => <UiLucideIcon as={CheckCircle2Icon} className='size-16 text-green-500' />,
+      ...payload,
+    },
+    visibilityTime: STATUS_MESSAGE_AUTO_HIDE_DURATION,
+  })
 }
+const showWarningToast = async (payload?: Partial<DefaultToastPayload>) => {
+  Toast.hide()
 
-const showSuccessToast = (payload?: unknown) =>
-  showToast(DefaultBusEvents.success, payload as ToastPayload)
-const showWarningToast = (payload?: unknown) =>
-  showToast(DefaultBusEvents.warning, payload as ToastPayload)
-const showErrorToast = (payload?: unknown) =>
-  showToast(DefaultBusEvents.error, payload as ToastPayload)
-const showInfoToast = (payload?: unknown) =>
-  showToast(DefaultBusEvents.info, payload as ToastPayload)
+  await sleep(250)
+
+  Toast.show({
+    type: 'defaultToast',
+    props: {
+      title: 'Warning',
+      icon: () => <UiLucideIcon as={TriangleAlertIcon} className='size-16 text-yellow-500' />,
+      ...payload,
+    },
+    visibilityTime: STATUS_MESSAGE_AUTO_HIDE_DURATION,
+  })
+}
+const showErrorToast = async (payload?: Partial<DefaultToastPayload>) => {
+  Toast.hide()
+
+  await sleep(250)
+
+  Toast.show({
+    type: 'defaultToast',
+    props: {
+      title: 'Success',
+      icon: () => <UiLucideIcon as={AlertCircleIcon} className='size-16 text-red-500' />,
+      ...payload,
+    },
+    visibilityTime: STATUS_MESSAGE_AUTO_HIDE_DURATION,
+  })
+}
+const showInfoToast = async (payload?: Partial<DefaultToastPayload>) => {
+  Toast.hide()
+
+  await sleep(250)
+
+  Toast.show({
+    type: 'defaultToast',
+    props: {
+      title: 'Success',
+      icon: () => <UiLucideIcon as={CircleQuestionMarkIcon} className='size-16 text-blue-500' />,
+      ...payload,
+    },
+    visibilityTime: STATUS_MESSAGE_AUTO_HIDE_DURATION,
+  })
+}
 
 /*
   2. Pass the config as prop to the Toast component instance
 */
 export default function Toasts() {
-  const { palette } = useAppTheme()
   const insets = useSafeAreaInsets()
 
   useEffect(() => {
-    bus.on(DefaultBusEvents.success, showSuccessToast)
-    bus.on(DefaultBusEvents.warning, showWarningToast)
-    bus.on(DefaultBusEvents.error, showErrorToast)
-    bus.on(DefaultBusEvents.info, showInfoToast)
+    emitter.on('success', showSuccessToast)
+    emitter.on('warning', showWarningToast)
+    emitter.on('error', showErrorToast)
+    emitter.on('info', showInfoToast)
 
     return () => {
-      bus.off(DefaultBusEvents.success, showSuccessToast)
-      bus.off(DefaultBusEvents.warning, showWarningToast)
-      bus.off(DefaultBusEvents.error, showErrorToast)
-      bus.off(DefaultBusEvents.info, showInfoToast)
+      emitter.off('success', showSuccessToast)
+      emitter.off('warning', showWarningToast)
+      emitter.off('error', showErrorToast)
+      emitter.off('info', showInfoToast)
+      abortController.abort()
     }
   }, [])
 
@@ -113,24 +116,22 @@ export default function Toasts() {
         defaultToast: ({ props: { title, message, icon } }) => {
           // Fast solution, just for showcase, implement your own toast container
           return (
-            <BaseToast
-              text1={title}
-              text2={message}
-              renderLeadingIcon={() => (
-                <View className={cn('flex items-center justify-center pl-4')}>{icon()}</View>
-              )}
-              style={{
-                borderRadius: 999,
-                backgroundColor: palette.card,
-              }}
-              text1Style={{
-                color: palette.foreground,
-                fontWeight: 600,
-              }}
-              text2Style={{
-                color: palette.mutedForeground,
-              }}
-            />
+            <View className='flex w-full flex-row justify-center overflow-hidden px-4'>
+              <View
+                className={cn(
+                  'flex w-11/12 flex-row gap-4 rounded-2xl px-4 py-2',
+                  'relative w-full border border-border bg-card',
+                )}
+              >
+                {!!icon && <View className='self-center'>{icon()}</View>}
+                <View className='flex gap-1'>
+                  <UiTextClassContext.Provider value={cn('max-w-[80%]')}>
+                    {title && <UiText variant='title-large'>{title}</UiText>}
+                    {message && <UiText variant='body-large'>{message}</UiText>}
+                  </UiTextClassContext.Provider>
+                </View>
+              </View>
+            </View>
           )
         },
       }}
