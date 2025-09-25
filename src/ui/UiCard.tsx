@@ -9,7 +9,7 @@ function Card({ className, ...props }: ViewProps & React.RefAttributes<View>) {
     <UiTextClassContext.Provider value='text-card-foreground'>
       <View
         className={cn(
-          'flex flex-col gap-6 rounded-2xl border border-border bg-card py-6 shadow-sm shadow-black/5',
+          'border-border bg-card flex flex-col gap-6 rounded-2xl border py-6 shadow-sm shadow-black/5',
           className,
         )}
         {...props}
@@ -30,7 +30,7 @@ function CardTitle({
     <UiText
       role='heading'
       aria-level={3}
-      className={cn('font-semibold leading-none', className)}
+      className={cn('leading-none font-semibold', className)}
       {...props}
     />
   )
@@ -40,7 +40,7 @@ function CardDescription({
   className,
   ...props
 }: React.ComponentProps<typeof UiText> & React.RefAttributes<Text>) {
-  return <UiText className={cn('text-sm text-muted-foreground', className)} {...props} />
+  return <UiText className={cn('text-muted-foreground text-sm', className)} {...props} />
 }
 
 function CardContent({ className, ...props }: ViewProps & React.RefAttributes<View>) {

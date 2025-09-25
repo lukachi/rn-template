@@ -18,7 +18,7 @@ export default function AppInitializationErrorBoundary({
       <UiIcon libIcon='AntDesign' name='warning' size={170} color={palette.destructive} />
 
       <UiText className='typography-h5 mt-4 text-center'>Something went wrong.</UiText>
-      <UiText className='typography-body1 mt-4 text-center text-muted-foreground'>
+      <UiText className='typography-body1 text-muted-foreground mt-4 text-center'>
         Please try again later.
       </UiText>
     </View>

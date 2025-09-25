@@ -120,7 +120,7 @@ export default function Toasts() {
               <View
                 className={cn(
                   'flex w-11/12 flex-row gap-4 rounded-2xl px-4 py-2',
-                  'relative w-full border border-border bg-card',
+                  'border-border bg-card relative w-full border',
                 )}
               >
                 {!!icon && <View className='self-center'>{icon()}</View>}

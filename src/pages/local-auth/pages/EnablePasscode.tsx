@@ -46,7 +46,7 @@ export default function EnablePasscode({}: LocalAuthStackScreenProps<'EnablePass
           {translate('enable-passcode.title')}
         </UiText>
 
-        <View className='flex size-[120] items-center justify-center rounded-full bg-primary'>
+        <View className='bg-primary flex size-[120] items-center justify-center rounded-full'>
           <UiIcon customIcon='lockIcon' size={64} color={palette.foreground} />
         </View>
       </View>

@@ -1,7 +1,8 @@
+import './theme/global.css'
+
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { PortalHost } from '@rn-primitives/portal'
 import * as SplashScreen from 'expo-splash-screen'
-import { verifyInstallation } from 'nativewind'
 import { useMemo, useState } from 'react'
 import { View } from 'react-native'
 import { SystemBars } from 'react-native-edge-to-edge'
@@ -40,7 +41,6 @@ export default function App() {
 
   const initApp = async () => {
     try {
-      verifyInstallation()
       await initLocalAuthStore()
     } catch (e) {
       setAppInitError(e)

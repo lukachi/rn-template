@@ -6,7 +6,7 @@ import Fontisto from '@expo/vector-icons/Fontisto'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons'
-import { cssInterop } from 'nativewind'
+import { styled } from 'nativewind'
 import type { SvgProps } from 'react-native-svg'
 
 const CUSTOM_ICONS = {
@@ -153,7 +153,7 @@ function CustomIcon<C extends CustomIconsKeys>({
   )
 }
 
-cssInterop(CustomIcon, {
+styled(CustomIcon, {
   className: {
     target: 'style',
     nativeStyleToProp: {
@@ -184,7 +184,7 @@ function LibIcon<L extends LibIconsKeys>({
   return <IconComponent {...rest} name={name as string} size={size} color={color} />
 }
 
-cssInterop(LibIcon, {
+styled(LibIcon, {
   className: {
     target: 'style',
   },

@@ -177,7 +177,7 @@ export const BottomSheetHeader = memo(({ title, className, ...rest }: BottomShee
       ]}
     >
       <View className='relative w-full items-center justify-center'>
-        <View className='h-3 w-14 flex-1 rounded-full bg-secondary' />
+        <View className='bg-secondary h-3 w-14 flex-1 rounded-full' />
 
         {title && (
           <UiText variant='h4' className='typography-h5 mt-3 flex-1 font-bold'>

@@ -62,7 +62,7 @@ export default function SetPasscode({}: LocalAuthStackScreenProps<'SetPasscode'>
 
           <View className='flex h-[16] flex-row items-center gap-2'>
             {Array.from({ length: passcode.length }).map((_, i) => (
-              <View key={i} className='size-[16] rounded-full bg-foreground' />
+              <View key={i} className='bg-foreground size-[16] rounded-full' />
             ))}
           </View>
         </View>

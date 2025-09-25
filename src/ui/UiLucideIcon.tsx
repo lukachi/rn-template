@@ -1,5 +1,5 @@
 import type { LucideIcon, LucideProps } from 'lucide-react-native'
-import { cssInterop } from 'nativewind'
+import { styled } from 'nativewind'
 
 import { cn } from '@/theme/utils'
 
@@ -11,7 +11,7 @@ function IconImpl({ as: IconComponent, ...props }: IconProps) {
   return <IconComponent {...props} />
 }
 
-cssInterop(IconImpl, {
+styled(IconImpl, {
   className: {
     target: 'style',
     nativeStyleToProp: {

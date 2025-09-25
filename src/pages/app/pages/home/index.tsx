@@ -60,7 +60,7 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
               {t('home-screen.welcome-title')}
             </UiText>
 
-            <TouchableOpacity className='relative flex size-10 items-center justify-center rounded-full bg-muted'>
+            <TouchableOpacity className='bg-muted relative flex size-10 items-center justify-center rounded-full'>
               <UiIcon libIcon='FontAwesome' name='user-o' size={16} className='text-foreground' />
             </TouchableOpacity>
           </View>
@@ -92,7 +92,7 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                     >
                       {[
                         <UiCard className='relative flex size-full gap-6 overflow-hidden p-0'>
-                          <View className='absolute size-full bg-red-400'>
+                          <View className='absolute size-full'>
                             <UiImage
                               source={require('@assets/images/home-img-1.jpg')}
                               className='size-full'

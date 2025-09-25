@@ -26,8 +26,8 @@ export default function BottomTabBar({
       }}
       className={cn('absolute bottom-0 left-0 w-full')}
     >
-      <View className='relative isolate mx-auto flex w-[60%] rounded-full bg-muted/30'>
-        <View className='absolute left-0 top-0 z-10 size-full overflow-hidden rounded-full'>
+      <View className='bg-muted/30 relative isolate mx-auto flex w-[60%] rounded-full'>
+        <View className='absolute top-0 left-0 z-10 size-full overflow-hidden rounded-full'>
           <BlurView experimentalBlurMethod='dimezisBlurView' intensity={35} className='size-full' />
         </View>
         <View className='z-20 flex-row items-center justify-around py-2'>

@@ -56,7 +56,7 @@ export default function EnableBiometrics({}: LocalAuthStackScreenProps<'EnableBi
         <UiText variant='h4' className={cn('')}>
           {translate('enable-biometrics.title')}
         </UiText>
-        <View className='flex size-[120] items-center justify-center rounded-full bg-primary'>
+        <View className='bg-primary flex size-[120] items-center justify-center rounded-full'>
           {biometricIcon}
         </View>
       </View>

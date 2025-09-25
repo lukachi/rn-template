@@ -1,8 +1,8 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet'
 import WheelPicker from '@quidone/react-native-wheel-picker'
 import * as Haptics from 'expo-haptics'
-import { useColorScheme } from 'nativewind'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { useColorScheme } from 'react-native'
 import { TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -83,7 +83,7 @@ function LangMenuItem() {
         }
         title='Language'
         trailingContent={
-          <UiText className='typography-body4 capitalize text-muted-foreground'>{language}</UiText>
+          <UiText className='typography-body4 text-muted-foreground capitalize'>{language}</UiText>
         }
         onPress={bottomSheet.present}
       />
@@ -189,7 +189,7 @@ function ThemeMenuItem() {
         })()}
         title='Theme'
         trailingContent={
-          <UiText className='typography-body4 capitalize text-muted-foreground'>
+          <UiText className='typography-body4 text-muted-foreground capitalize'>
             {selectedTheme}
           </UiText>
         }
@@ -258,7 +258,7 @@ function ThemeMenuItem() {
                 onPress={() => setSelectedTheme(value as ColorSchemeType)}
               >
                 {icon}
-                <UiText className='typography-caption1 capitalize text-muted-foreground'>
+                <UiText className='typography-caption1 text-muted-foreground capitalize'>
                   {title}
                 </UiText>
               </TouchableOpacity>
@@ -350,11 +350,11 @@ function LocalAuthMethodMenuItem() {
         >
           <View className={cn('flex gap-5')}>
             <View className='flex flex-row items-center justify-between'>
-              <UiText className='typography-body3 font-semibold text-foreground'>Passcode</UiText>
+              <UiText className='typography-body3 text-foreground font-semibold'>Passcode</UiText>
               <UiSwitch checked={isPasscodeEnabled} onCheckedChange={handleChangePasscodeStatus} />
             </View>
             <View className='flex flex-row items-center justify-between'>
-              <UiText className='typography-body3 font-semibold text-foreground'>Biometric</UiText>
+              <UiText className='typography-body3 text-foreground font-semibold'>Biometric</UiText>
 
               {isBiometricsEnrolled && (
                 <UiSwitch
@@ -409,7 +409,7 @@ function AdvancedMenuItem() {
           }}
         >
           <View className={cn('flex size-full flex-1 gap-2')}>
-            <UiText className='typography-caption2 ml-4 font-semibold text-foreground'>
+            <UiText className='typography-caption2 text-foreground ml-4 font-semibold'>
               Secret key
             </UiText>
             <UiCard className='flex-row py-6'>
@@ -424,7 +424,7 @@ function AdvancedMenuItem() {
             </UiCard>
 
             <ProfileCardMenuItem
-              className='mt-auto rounded-full bg-muted p-3 px-4'
+              className='bg-muted mt-auto rounded-full p-3 px-4'
               leadingIcon={
                 <UiIcon
                   libIcon='MaterialCommunityIcons'
@@ -466,11 +466,11 @@ function ProfileCardMenuItem({
       {...rest}
       className={cn('flex w-full flex-row items-center gap-2 py-2', className)}
     >
-      <View className='flex aspect-square size-8 items-center justify-center rounded-full bg-muted'>
+      <View className='bg-muted flex aspect-square size-8 items-center justify-center rounded-full'>
         {leadingIcon}
       </View>
 
-      <UiText className={cn('typography-buttonMedium mr-auto text-foreground')}>{title}</UiText>
+      <UiText className={cn('typography-buttonMedium text-foreground mr-auto')}>{title}</UiText>
 
       {trailingContent}
 
@@ -478,7 +478,7 @@ function ProfileCardMenuItem({
         <UiIcon
           libIcon='FontAwesome'
           name={isRTL ? 'chevron-left' : 'chevron-right'}
-          className='ml-2 text-muted-foreground'
+          className='text-muted-foreground ml-2'
           size={3 * 4}
         />
       )}

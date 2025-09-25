@@ -32,12 +32,12 @@ export default function Intro() {
       {
         title: translate('auth.intro.step-1.title'),
         subtitle: translate('auth.intro.step-1.subtitle'),
-        media: <UiIcon customIcon='starFillIcon' className='size-[150px] text-muted-foreground' />,
+        media: <UiIcon customIcon='starFillIcon' className='text-muted-foreground size-[150px]' />,
       },
       {
         title: translate('auth.intro.step-2.title'),
         subtitle: translate('auth.intro.step-2.subtitle'),
-        media: <UiIcon customIcon='sealCheckIcon' className='size-[150px] text-muted-foreground' />,
+        media: <UiIcon customIcon='sealCheckIcon' className='text-muted-foreground size-[150px]' />,
       },
       {
         title: translate('auth.intro.step-3.title'),
@@ -45,14 +45,14 @@ export default function Intro() {
         media: (
           <UiIcon
             customIcon='suitcaseSimpleFillIcon'
-            className='size-[150px] text-muted-foreground'
+            className='text-muted-foreground size-[150px]'
           />
         ),
       },
       {
         title: translate('auth.intro.step-4.title'),
         subtitle: translate('auth.intro.step-4.subtitle'),
-        media: <UiIcon customIcon='sunIcon' className='size-[150px] text-muted-foreground' />,
+        media: <UiIcon customIcon='sunIcon' className='text-muted-foreground size-[150px]' />,
       },
     ]
   }, [translate])
@@ -112,7 +112,7 @@ export default function Intro() {
         <BottomSheetView className={cn('flex h-full flex-1 items-center gap-2')}>
           <UiText className='typography-body2'>Choose a preferred method</UiText>
 
-          <View className='mb-6 mt-auto flex flex-row gap-4 px-5'>
+          <View className='mt-auto mb-6 flex flex-row gap-4 px-5'>
             {[
               {
                 title: 'Create new',
@@ -141,7 +141,7 @@ export default function Intro() {
             ].map((el, idx) => (
               <TouchableOpacity
                 key={idx}
-                className='flex flex-1 items-center gap-2 rounded-[30] border-2 border-border p-4 py-12 font-semibold'
+                className='border-border flex flex-1 items-center gap-2 rounded-[30] border-2 p-4 py-12 font-semibold'
                 onPress={el.handler}
               >
                 {el.icon}

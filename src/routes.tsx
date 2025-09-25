@@ -1,7 +1,7 @@
 import { type LinkingOptions, NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import * as Linking from 'expo-linking'
-import { useColorScheme } from 'nativewind'
+import { useColorScheme } from 'react-native'
 
 import AppScreen from '@/pages/app'
 import AuthScreen from '@/pages/auth'
@@ -27,7 +27,7 @@ const linking: LinkingOptions<RootStackParamList> = {
 
 // TODO: mv theme to apropriate place
 export default function AppRoutes() {
-  const { colorScheme } = useColorScheme()
+  const colorScheme = useColorScheme()
 
   const isAuthorized = true // FIXME
   const isUserNeedToLocalAuth = localAuthStore.useUserNeedToLocalAuth()

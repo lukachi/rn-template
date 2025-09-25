@@ -1,8 +1,7 @@
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { type ClassValue, clsx } from 'clsx'
-import { colorScheme, useColorScheme } from 'nativewind'
 import React from 'react'
-import { Platform } from 'react-native'
+import { Appearance, Platform, useColorScheme } from 'react-native'
 import { useMMKVString } from 'react-native-mmkv'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { extendTailwindMerge } from 'tailwind-merge'
@@ -21,15 +20,14 @@ export type ColorSchemeType = 'light' | 'dark' | 'system' // TODO: use from colo
  *
  */
 export const useSelectedTheme = () => {
-  const { setColorScheme } = useColorScheme()
   const [theme, _setTheme] = useMMKVString(SELECTED_THEME, storage)
 
   const setSelectedTheme = React.useCallback(
     (t: ColorSchemeType) => {
-      setColorScheme(t)
+      Appearance.setColorScheme(t === 'system' ? null : t)
       _setTheme(t)
     },
-    [setColorScheme, _setTheme],
+    [_setTheme],
   )
 
   const selectedTheme = (theme ?? 'system') as ColorSchemeType
@@ -38,14 +36,15 @@ export const useSelectedTheme = () => {
 // to be used in the root file to load the selected theme from MMKV
 export const loadSelectedTheme = () => {
   const theme = storage.getString(SELECTED_THEME)
-  if (theme !== undefined) {
-    colorScheme.set(theme as ColorSchemeType)
-  }
+
+  const toSet = (theme ?? 'system') as ColorSchemeType
+
+  Appearance.setColorScheme(toSet === 'system' ? null : toSet)
 }
 
 // TODO: refactoring
 export const useAppTheme = () => {
-  const { colorScheme: color_ } = useColorScheme()
+  const color_ = useColorScheme()
 
   const { selectedTheme } = useSelectedTheme()
 

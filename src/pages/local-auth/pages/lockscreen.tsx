@@ -145,7 +145,7 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
           className='w-full flex-1'
         >
           <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-            <UiText className={cn('typography-h4 text-center text-foreground')}>
+            <UiText className={cn('typography-h4 text-foreground text-center')}>
               {translate('lockscreen.default-title')}
             </UiText>
 
@@ -201,7 +201,7 @@ function BiometricsLockScreen() {
       }}
     >
       <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-        <UiText className={cn('typography-h4 text-center text-foreground')}>
+        <UiText className={cn('typography-h4 text-foreground text-center')}>
           Unlock with Biometrics
         </UiText>
         <Pressable onPress={unlockWithBiometrics}>
