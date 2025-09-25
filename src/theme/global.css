@@ -1,100 +1,60 @@
 @import "tailwindcss";
 @import "nativewind/theme";
+@import 'tw-animate-css';
 
-@layer base {
-  :root {
-    --background: 0 0% 80%;
-    --foreground: 0 0% 12.1569%;
-    --card: 0 0% 69.0196%;
-    --card-foreground: 0 0% 12.1569%;
-    --popover: 0 0% 69.0196%;
-    --popover-foreground: 0 0% 12.1569%;
-    --primary: 0 73.4597% 41.3725%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 82 38.9610% 30.1961%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 72.1569%;
-    --muted-foreground: 0 0% 29.0196%;
-    --accent: 207.2727 44% 49.0196%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 26.1176 100% 50%;
-    --destructive-foreground: 0 0% 0%;
-    --border: 0 0% 31.3725%;
-    --input: 0 0% 31.3725%;
-    --ring: 0 73.4597% 41.3725%;
-    --chart-1: 0 73.4597% 41.3725%;
-    --chart-2: 82 38.9610% 30.1961%;
-    --chart-3: 207.2727 44% 49.0196%;
-    --chart-4: 26.1176 100% 50%;
-    --chart-5: 15.7143 17.5000% 47.0588%;
-    --sidebar: 0 0% 69.0196%;
-    --sidebar-foreground: 0 0% 12.1569%;
-    --sidebar-primary: 0 73.4597% 41.3725%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 207.2727 44% 49.0196%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 31.3725%;
-    --sidebar-ring: 0 73.4597% 41.3725%;
-    --font-sans: "Oxanium", sans-serif;
-    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    --font-mono: "Source Code Pro", monospace;
-    --radius: 0px;
-    /* --shadow-2xs: 0px 2px 4px 0px hsl(0 0% 0% / 0.20);
-    --shadow-xs: 0px 2px 4px 0px hsl(0 0% 0% / 0.20);
-    --shadow-sm: 0px 2px 4px 0px hsl(0 0% 0% / 0.40), 0px 1px 2px -1px hsl(0 0% 0% / 0.40);
-    --shadow: 0px 2px 4px 0px hsl(0 0% 0% / 0.40), 0px 1px 2px -1px hsl(0 0% 0% / 0.40);
-    --shadow-md: 0px 2px 4px 0px hsl(0 0% 0% / 0.40), 0px 2px 4px -1px hsl(0 0% 0% / 0.40);
-    --shadow-lg: 0px 2px 4px 0px hsl(0 0% 0% / 0.40), 0px 4px 6px -1px hsl(0 0% 0% / 0.40);
-    --shadow-xl: 0px 2px 4px 0px hsl(0 0% 0% / 0.40), 0px 8px 10px -1px hsl(0 0% 0% / 0.40);
-    --shadow-2xl: 0px 2px 4px 0px hsl(0 0% 0% / 1.00); */
-    --tracking-normal: 0em;
-    --spacing: 0.25rem;
-  }
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 
-  .dark:root {
-    --background: 0 0% 10.1961%;
-    --foreground: 0 0% 87.8431%;
-    --card: 0 0% 16.4706%;
-    --card-foreground: 0 0% 87.8431%;
-    --popover: 0 0% 16.4706%;
-    --popover-foreground: 0 0% 87.8431%;
-    --primary: 1.3636 77.1930% 55.2941%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 92.0388 47.9070% 42.1569%;
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 14.5098%;
-    --muted-foreground: 0 0% 62.7451%;
-    --accent: 206.7123 89.0244% 67.8431%;
-    --accent-foreground: 0 0% 0%;
-    --destructive: 37.6471 100% 50%;
-    --destructive-foreground: 0 0% 0%;
-    --border: 0 0% 29.0196%;
-    --input: 0 0% 29.0196%;
-    --ring: 1.3636 77.1930% 55.2941%;
-    --chart-1: 1.3636 77.1930% 55.2941%;
-    --chart-2: 92.0388 47.9070% 42.1569%;
-    --chart-3: 206.7123 89.0244% 67.8431%;
-    --chart-4: 37.6471 100% 50%;
-    --chart-5: 15.8824 15.3153% 56.4706%;
-    --sidebar: 0 0% 7.8431%;
-    --sidebar-foreground: 0 0% 87.8431%;
-    --sidebar-primary: 1.3636 77.1930% 55.2941%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 206.7123 89.0244% 67.8431%;
-    --sidebar-accent-foreground: 0 0% 0%;
-    --sidebar-border: 0 0% 29.0196%;
-    --sidebar-ring: 1.3636 77.1930% 55.2941%;
-    --font-sans: "Oxanium", sans-serif;
-    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    --font-mono: "Source Code Pro", monospace;
-    --radius: 0px;
-    /* --shadow-2xs: 0px 2px 5px 0px hsl(0 0% 0% / 0.30);
-    --shadow-xs: 0px 2px 5px 0px hsl(0 0% 0% / 0.30);
-    --shadow-sm: 0px 2px 5px 0px hsl(0 0% 0% / 0.60), 0px 1px 2px -1px hsl(0 0% 0% / 0.60);
-    --shadow: 0px 2px 5px 0px hsl(0 0% 0% / 0.60), 0px 1px 2px -1px hsl(0 0% 0% / 0.60);
-    --shadow-md: 0px 2px 5px 0px hsl(0 0% 0% / 0.60), 0px 2px 4px -1px hsl(0 0% 0% / 0.60);
-    --shadow-lg: 0px 2px 5px 0px hsl(0 0% 0% / 0.60), 0px 4px 6px -1px hsl(0 0% 0% / 0.60);
-    --shadow-xl: 0px 2px 5px 0px hsl(0 0% 0% / 0.60), 0px 8px 10px -1px hsl(0 0% 0% / 0.60);
-    --shadow-2xl: 0px 2px 5px 0px hsl(0 0% 0% / 1.50); */
-  }
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+@utility absolute-center {
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
 }

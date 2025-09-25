@@ -151,7 +151,7 @@ function ThemeMenuItem() {
   const bottomSheet = useUiBottomSheet()
 
   const { selectedTheme, setSelectedTheme } = useSelectedTheme()
-  const { colorScheme } = useColorScheme()
+  const colorScheme = useColorScheme()
 
   return (
     <>

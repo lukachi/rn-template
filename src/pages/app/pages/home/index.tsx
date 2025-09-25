@@ -91,11 +91,11 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                       }}
                     >
                       {[
-                        <UiCard className='relative flex size-full gap-6 overflow-hidden p-0'>
-                          <View className='absolute size-full'>
+                        <UiCard className='bg-primary relative flex size-full gap-6 overflow-hidden p-0'>
+                          <View className='absolute-center size-[300] animate-pulse bg-red-300'>
                             <UiImage
+                              className='size-[300]'
                               source={require('@assets/images/home-img-1.jpg')}
-                              className='size-full'
                             />
                           </View>
                           <UiCardContent className='p-6'>
