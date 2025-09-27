@@ -1,11 +1,3 @@
-import AntDesign from '@expo/vector-icons/AntDesign'
-import type { Icon, IconProps } from '@expo/vector-icons/build/createIconSet'
-import Entypo from '@expo/vector-icons/Entypo'
-import FontAwesome from '@expo/vector-icons/FontAwesome'
-import Fontisto from '@expo/vector-icons/Fontisto'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons'
 import { styled } from 'nativewind'
 import type { SvgProps } from 'react-native-svg'
 
@@ -102,118 +94,28 @@ const CUSTOM_ICONS = {
   xCircleIcon: require('@assets/icons/x-circle-icon.svg').default,
 }
 
-const ICON_LIBRARIES = {
-  MaterialCommunityIcons,
-  AntDesign,
-  FontAwesome,
-  SimpleLineIcons,
-  Ionicons,
-  Entypo,
-  Fontisto,
-}
-
-type LibIconsKeys = keyof typeof ICON_LIBRARIES
-
 type CustomIconsKeys = keyof typeof CUSTOM_ICONS
-
-type CommonProps = {
-  color?: string
-  size?: number
-}
 
 type CustomIconProps<C extends CustomIconsKeys> = Omit<SvgProps, 'color'> & {
   customIcon: C
-  libIcon?: never
-  name?: never
 }
 
-function CustomIcon<C extends CustomIconsKeys>({
-  size,
-  color,
-  ...rest
-}: CommonProps & CustomIconProps<C>) {
-  const CustomComponent = CUSTOM_ICONS[rest.customIcon]
+function CustomIcon<C extends CustomIconsKeys>(props: CustomIconProps<C>) {
+  const CustomComponent = CUSTOM_ICONS[props.customIcon]
 
-  return (
-    <CustomComponent
-      {...rest}
-      style={[
-        rest.style,
-        {
-          ...(color && { color }),
-          minWidth: size,
-          minHeight: size,
-          width: size,
-          height: size,
-          maxWidth: size,
-          maxHeight: size,
-        },
-      ]}
-    />
-  )
+  return <CustomComponent {...props} />
 }
 
 styled(CustomIcon, {
   className: {
     target: 'style',
     nativeStyleToProp: {
-      width: true,
-      height: true,
-      color: true,
+      height: 'size',
+      width: 'size',
     },
   },
 })
 
-type LibIconProps<L extends LibIconsKeys> = {
-  libIcon: L
-  name: keyof (typeof ICON_LIBRARIES)[L]['glyphMap']
-  customIcon?: never
-} & Omit<IconProps<string>, 'name' | 'color'>
-
-function LibIcon<L extends LibIconsKeys>({
-  size,
-  color,
-
-  libIcon,
-  name,
-
-  ...rest
-}: CommonProps & LibIconProps<L>) {
-  const IconComponent = ICON_LIBRARIES[libIcon] as Icon<string, string>
-
-  return <IconComponent {...rest} name={name as string} size={size} color={color} />
+export default function UiCustomIcon(props: CustomIconProps<CustomIconsKeys>) {
+  return <CustomIcon {...props} />
 }
-
-styled(LibIcon, {
-  className: {
-    target: 'style',
-  },
-})
-
-type Props<T extends CustomIconsKeys | LibIconsKeys> = T extends CustomIconsKeys
-  ? CustomIconProps<T>
-  : T extends LibIconsKeys
-    ? LibIconProps<T>
-    : undefined
-
-function UiIcon<T extends CustomIconsKeys | LibIconsKeys>(
-  props: Props<T> & CommonProps,
-): T extends CustomIconsKeys
-  ? ReturnType<typeof CustomIcon>
-  : T extends LibIconsKeys
-    ? ReturnType<typeof LibIcon>
-    : never {
-  if ('libIcon' in props) {
-    // TODO: remove eslint-disable, once ts 5.8 release
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return <LibIcon {...(props as LibIconProps<LibIconsKeys>)} />
-  }
-
-  // TODO: remove eslint-disable, once ts 5.8 release
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return <CustomIcon {...(props as CustomIconProps<CustomIconsKeys>)} />
-}
-
-export default UiIcon

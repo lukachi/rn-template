@@ -10,6 +10,7 @@ import { cn } from '@/theme'
 
 import { UiCollapsible } from './UiCollapsible'
 import { UiLabel } from './UiLabel'
+import { UiText } from './UiText'
 
 function Input({ className, ...props }: TextInputProps & React.RefAttributes<TextInput>) {
   return (
@@ -62,12 +63,12 @@ function ControlledUiInput<T extends FieldValues>({
       {label &&
         (() => {
           return (
-            <UiLabel className='typography-m3-label-medium! text-muted-foreground' htmlFor={id}>
+            <UiLabel className='text-muted-foreground' htmlFor={id}>
               {label}
             </UiLabel>
           )
         })()}
-      <div className='relative isolate flex w-full'>
+      <View className='relative isolate flex w-full'>
         {leadingContent}
         <Input
           {...rest}
@@ -81,12 +82,12 @@ function ControlledUiInput<T extends FieldValues>({
           value={field.value}
         />
         {trailingContent}
-      </div>
+      </View>
 
       <UiCollapsible open={!!fieldState.error?.message} className='w-full'>
-        <span className='typography-m3-body-small text-destructive'>
+        <UiText variant='body-medium' className='text-destructive'>
           {fieldState.error?.message}
-        </span>
+        </UiText>
       </UiCollapsible>
     </View>
   )

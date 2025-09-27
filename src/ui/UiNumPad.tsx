@@ -1,10 +1,11 @@
+import { ChevronLeftIcon } from 'lucide-react-native'
 import type { ReactNode } from 'react'
 import { useCallback, useMemo } from 'react'
 import { TouchableOpacity, TouchableOpacityProps, View, type ViewProps } from 'react-native'
 
 import { cn } from '@/theme'
 
-import UiIcon from './UiIcon'
+import { UiLucideIcon } from './icons/UiLucideIcon'
 import { UiText } from './UiText'
 
 type Props = {
@@ -50,16 +51,14 @@ export default function UiNumPad({ value, setValue, className, extra, ...rest }:
             if (num === '<-') {
               return (
                 <NumKey key={i + j} onPress={() => handlePress(num)}>
-                  <UiIcon customIcon='backspaceIcon' size={32} className='text-foreground' />
+                  <UiLucideIcon as={ChevronLeftIcon} className='text-foreground size-8' />
                 </NumKey>
               )
             }
 
             return (
               <NumKey key={i + j} onPress={() => handlePress(num)}>
-                <UiText variant='h3' className='typography-h3'>
-                  {num}
-                </UiText>
+                <UiText variant='title-large'>{num}</UiText>
               </NumKey>
             )
           })}

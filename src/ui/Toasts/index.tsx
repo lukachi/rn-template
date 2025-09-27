@@ -14,7 +14,7 @@ import { emitter } from '@/core'
 import { sleep } from '@/helpers/promise'
 import { cn } from '@/theme'
 
-import { UiLucideIcon } from '../UiLucideIcon'
+import { UiLucideIcon } from '../icons/UiLucideIcon'
 import { UiText, UiTextClassContext } from '../UiText'
 
 const STATUS_MESSAGE_AUTO_HIDE_DURATION = 55 * 1000

@@ -1,6 +1,20 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet'
 import WheelPicker from '@quidone/react-native-wheel-picker'
 import * as Haptics from 'expo-haptics'
+import {
+  BookIcon,
+  BrushIcon,
+  CheckIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CogIcon,
+  CopyIcon,
+  FingerprintIcon,
+  LogOutIcon,
+  MoonIcon,
+  SmartphoneIcon,
+  SunIcon,
+} from 'lucide-react-native'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { useColorScheme } from 'react-native'
 import { TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
@@ -20,10 +34,10 @@ import {
   useBottomBarOffset,
   useSelectedTheme,
 } from '@/theme'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 import { UiBottomSheet, useUiBottomSheet } from '@/ui/UiBottomSheet'
 import { UiButton } from '@/ui/UiButton'
 import { UiCard, UiCardContent } from '@/ui/UiCard'
-import UiIcon from '@/ui/UiIcon'
 import UiScreenScrollable from '@/ui/UiScreenScrollable'
 import { UiSeparator } from '@/ui/UiSeparator'
 import { UiSwitch } from '@/ui/UiSwitch'
@@ -78,12 +92,12 @@ function LangMenuItem() {
   return (
     <>
       <ProfileCardMenuItem
-        leadingIcon={
-          <UiIcon libIcon='Fontisto' name='world-o' className='text-foreground' size={5 * 4} />
-        }
+        leadingIcon={<UiLucideIcon as={BookIcon} className='text-foreground size-16' />}
         title='Language'
         trailingContent={
-          <UiText className='typography-body4 text-muted-foreground capitalize'>{language}</UiText>
+          <UiText variant='body-medium' className='text-muted-foreground capitalize'>
+            {language}
+          </UiText>
         }
         onPress={bottomSheet.present}
       />
@@ -158,38 +172,17 @@ function ThemeMenuItem() {
       <ProfileCardMenuItem
         leadingIcon={(() => {
           if (!colorScheme) {
-            return (
-              <UiIcon
-                libIcon='FontAwesome'
-                name='paint-brush'
-                className='text-foreground'
-                size={4 * 4}
-              />
-            )
+            return <UiLucideIcon as={BrushIcon} className='text-foreground size-4' />
           }
 
           return {
-            light: (
-              <UiIcon
-                libIcon='Fontisto'
-                name='day-sunny'
-                className='text-foreground'
-                size={4.5 * 4}
-              />
-            ),
-            dark: (
-              <UiIcon
-                libIcon='Fontisto'
-                name='night-clear'
-                className='text-foreground'
-                size={4.5 * 4}
-              />
-            ),
+            light: <UiLucideIcon as={SunIcon} className='text-foreground size-5' />,
+            dark: <UiLucideIcon as={MoonIcon} className='text-foreground size-5' />,
           }[colorScheme]
         })()}
         title='Theme'
         trailingContent={
-          <UiText className='typography-body4 text-muted-foreground capitalize'>
+          <UiText variant='body-medium' className='text-muted-foreground capitalize'>
             {selectedTheme}
           </UiText>
         }
@@ -220,45 +213,29 @@ function ThemeMenuItem() {
               {
                 title: 'light',
                 value: 'light',
-                icon: (
-                  <UiIcon
-                    libIcon='Fontisto'
-                    name='day-sunny'
-                    size={6 * 4}
-                    className='text-foreground'
-                  />
-                ),
+                icon: <UiLucideIcon as={SunIcon} className='text-foreground size-5' />,
               },
               {
                 title: 'dark',
                 value: 'dark',
-                icon: (
-                  <UiIcon
-                    libIcon='Fontisto'
-                    name='night-clear'
-                    size={6 * 4}
-                    className='text-foreground'
-                  />
-                ),
+                icon: <UiLucideIcon as={MoonIcon} className='text-foreground size-5' />,
               },
               {
                 title: 'system',
                 value: 'system',
-                icon: (
-                  <UiIcon libIcon='Entypo' name='mobile' size={6 * 4} className='text-foreground' />
-                ),
+                icon: <UiLucideIcon as={SmartphoneIcon} className='text-foreground size-5' />,
               },
             ].map(({ value, title, icon }, idx) => (
               <TouchableOpacity
                 key={idx}
                 className={cn(
-                  'border-componentPrimary flex w-1/4 items-center gap-4 rounded-lg border-2 p-3',
+                  'flex w-1/4 items-center gap-4 rounded-lg border-2 border-amber-300 p-3',
                   selectedTheme === value ? 'border-primaryMain' : 'border-componentPrimary',
                 )}
                 onPress={() => setSelectedTheme(value as ColorSchemeType)}
               >
                 {icon}
-                <UiText className='typography-caption1 text-muted-foreground capitalize'>
+                <UiText variant='title-medium' className='text-muted-foreground capitalize'>
                   {title}
                 </UiText>
               </TouchableOpacity>
@@ -322,9 +299,7 @@ function LocalAuthMethodMenuItem() {
   return (
     <>
       <ProfileCardMenuItem
-        leadingIcon={
-          <UiIcon libIcon='Entypo' name='fingerprint' className='text-foreground' size={5 * 4} />
-        }
+        leadingIcon={<UiLucideIcon as={FingerprintIcon} className='text-foreground size-5' />}
         title='Auth method'
         onPress={bottomSheet.present}
       />
@@ -350,11 +325,15 @@ function LocalAuthMethodMenuItem() {
         >
           <View className={cn('flex gap-5')}>
             <View className='flex flex-row items-center justify-between'>
-              <UiText className='typography-body3 text-foreground font-semibold'>Passcode</UiText>
+              <UiText variant='body-medium' className='text-foreground font-semibold'>
+                Passcode
+              </UiText>
               <UiSwitch checked={isPasscodeEnabled} onCheckedChange={handleChangePasscodeStatus} />
             </View>
             <View className='flex flex-row items-center justify-between'>
-              <UiText className='typography-body3 text-foreground font-semibold'>Biometric</UiText>
+              <UiText variant='body-medium' className='text-foreground font-semibold'>
+                Biometric
+              </UiText>
 
               {isBiometricsEnrolled && (
                 <UiSwitch
@@ -382,9 +361,7 @@ function AdvancedMenuItem() {
   return (
     <>
       <ProfileCardMenuItem
-        leadingIcon={
-          <UiIcon libIcon='Entypo' name='cog' className='text-foreground' size={5 * 4} />
-        }
+        leadingIcon={<UiLucideIcon as={CogIcon} className='text-foreground size-5' />}
         title='Advanced'
         onPress={bottomSheet.present}
       />
@@ -409,15 +386,14 @@ function AdvancedMenuItem() {
           }}
         >
           <View className={cn('flex size-full flex-1 gap-2')}>
-            <UiText className='typography-caption2 text-foreground ml-4 font-semibold'>
+            <UiText variant='body-medium' className='text-foreground ml-4 font-semibold'>
               Secret key
             </UiText>
             <UiCard className='flex-row py-6'>
               <TouchableOpacity className='ml-auto'>
-                <UiIcon
-                  customIcon={isCopied ? 'checkIcon' : 'copySimpleIcon'}
-                  className='text-muted-foreground'
-                  size={5 * 4}
+                <UiLucideIcon
+                  as={isCopied ? CheckIcon : CopyIcon}
+                  className='text-muted-foreground size-5'
                   onPress={() => copy('')} // FIXME
                 />
               </TouchableOpacity>
@@ -425,14 +401,7 @@ function AdvancedMenuItem() {
 
             <ProfileCardMenuItem
               className='bg-muted mt-auto rounded-full p-3 px-4'
-              leadingIcon={
-                <UiIcon
-                  libIcon='MaterialCommunityIcons'
-                  name='logout'
-                  className='text-destructive'
-                  size={4 * 4}
-                />
-              }
+              leadingIcon={<UiLucideIcon as={LogOutIcon} className='text-destructive size-4' />}
               trailingIcon={<></>}
               title='Log out'
               onPress={logout}
@@ -470,16 +439,16 @@ function ProfileCardMenuItem({
         {leadingIcon}
       </View>
 
-      <UiText className={cn('typography-buttonMedium text-foreground mr-auto')}>{title}</UiText>
+      <UiText variant='body-medium' className={cn('text-foreground mr-auto')}>
+        {title}
+      </UiText>
 
       {trailingContent}
 
       {trailingIcon || (
-        <UiIcon
-          libIcon='FontAwesome'
-          name={isRTL ? 'chevron-left' : 'chevron-right'}
-          className='text-muted-foreground ml-2'
-          size={3 * 4}
+        <UiLucideIcon
+          as={isRTL ? ChevronLeftIcon : ChevronRightIcon}
+          className='text-muted-foreground ml-2 size-3'
         />
       )}
     </TouchableOpacity>

@@ -8,7 +8,7 @@
  *     <View className={cn('flex flex-col items-center gap-4 p-5 py-0')}>
  *       <UiHorizontalDivider />
  *
- *       <UiText className='text-muted-foreground typography-body2'>Choose a preferred method</UiText>
+ *       <UiText className='text-muted-foreground'>Choose a preferred method</UiText>
  *
  *       <View className='mt-auto flex w-full flex-col gap-2'>
  *         <UiButton size='large' title='Create a new profile' />
@@ -167,7 +167,7 @@ export const BottomSheetHeader = memo(({ title, className, ...rest }: BottomShee
   return (
     <View
       {...rest}
-      className={cn('flex-row items-center rounded-t-2xl py-4 pb-0', className)}
+      className={cn('flex-row items-center rounded-t-sm py-4 pb-0', className)}
       style={[
         rest.style,
         {
@@ -177,10 +177,10 @@ export const BottomSheetHeader = memo(({ title, className, ...rest }: BottomShee
       ]}
     >
       <View className='relative w-full items-center justify-center'>
-        <View className='bg-secondary h-3 w-14 flex-1 rounded-full' />
+        <View className='bg-secondary h-2 w-10 flex-1 rounded-full' />
 
         {title && (
-          <UiText variant='h4' className='typography-h5 mt-3 flex-1 font-bold'>
+          <UiText variant='title-large' className='text-foreground mt-3 flex-1 font-bold'>
             {title}
           </UiText>
         )}

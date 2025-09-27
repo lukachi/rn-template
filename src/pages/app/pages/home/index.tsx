@@ -15,12 +15,14 @@ const screenWidth = Dimensions.get('window').width
 const defaultDataWith6Colors = ['#899F9C', '#B0604D', '#B3C680', '#5C6265', '#F5D399', '#F1F1F1']
 
 import * as Haptics from 'expo-haptics'
+import { CalendarIcon, UserIcon } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
 
 import { emitter } from '@/core'
+import UiCustomIcon from '@/ui/icons/UiCustomIcon'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 import { UiButton } from '@/ui/UiButton'
 import { UiCard, UiCardContent } from '@/ui/UiCard'
-import UiIcon from '@/ui/UiIcon'
 import UiImage from '@/ui/UiImage'
 import { UiLabel } from '@/ui/UiLabel'
 import UiScreenScrollable from '@/ui/UiScreenScrollable'
@@ -61,7 +63,7 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
             </UiText>
 
             <TouchableOpacity className='bg-muted relative flex size-10 items-center justify-center rounded-full'>
-              <UiIcon libIcon='FontAwesome' name='user-o' size={16} className='text-foreground' />
+              <UiLucideIcon as={UserIcon} size={16} className='text-foreground' />
             </TouchableOpacity>
           </View>
           <View
@@ -129,31 +131,17 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                           <UiSkeleton className='size-10 w-[100] rounded-full bg-red-50' />
                         </UiCard>,
                         <UiCard className='flex size-full flex-row flex-wrap items-center justify-center gap-6 p-6'>
-                          <UiIcon
-                            size={40}
+                          <UiLucideIcon as={CalendarIcon} className='text-foreground size-10' />
+                          <UiCustomIcon
                             customIcon='calendarBlankIcon'
                             className='text-foreground'
                           />
-                          <UiIcon
-                            size={40}
+                          <UiCustomIcon
                             customIcon='arrowDownIcon'
-                            className='text-foreground'
+                            className='text-foreground size-10'
                           />
-                          <UiIcon
-                            size={40}
+                          <UiCustomIcon
                             customIcon='cardholderFillIcon'
-                            className='text-foreground'
-                          />
-                          <UiIcon
-                            size={40}
-                            libIcon='Entypo'
-                            name='facebook'
-                            className='text-foreground'
-                          />
-                          <UiIcon
-                            size={40}
-                            libIcon='Ionicons'
-                            name='logo-html5'
                             className='text-foreground'
                           />
                         </UiCard>,

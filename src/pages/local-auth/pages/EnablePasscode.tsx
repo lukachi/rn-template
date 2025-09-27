@@ -1,4 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
+import { LockIcon } from 'lucide-react-native'
 import { useCallback } from 'react'
 import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -6,9 +7,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslate } from '@/core'
 import type { LocalAuthStackScreenProps } from '@/route-types'
 import { localAuthStore } from '@/store'
-import { cn, useAppTheme } from '@/theme'
+import { cn } from '@/theme'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 import { UiButton } from '@/ui/UiButton'
-import UiIcon from '@/ui/UiIcon'
 import UiScreenScrollable from '@/ui/UiScreenScrollable'
 import { UiText } from '@/ui/UiText'
 
@@ -19,8 +20,6 @@ export default function EnablePasscode({}: LocalAuthStackScreenProps<'EnablePass
   const navigation = useNavigation()
 
   const insets = useSafeAreaInsets()
-
-  const { palette } = useAppTheme()
 
   const translate = useTranslate()
 
@@ -47,7 +46,7 @@ export default function EnablePasscode({}: LocalAuthStackScreenProps<'EnablePass
         </UiText>
 
         <View className='bg-primary flex size-[120] items-center justify-center rounded-full'>
-          <UiIcon customIcon='lockIcon' size={64} color={palette.foreground} />
+          <UiLucideIcon as={LockIcon} className='text-foreground size-16' />
         </View>
       </View>
 

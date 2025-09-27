@@ -4,7 +4,7 @@ import { View, type ViewProps } from 'react-native'
 
 import { cn } from '@/theme/utils'
 
-import { UiLucideIcon } from './UiLucideIcon'
+import { UiLucideIcon } from './icons/UiLucideIcon'
 import { UiText, UiTextClassContext } from './UiText'
 
 function Alert({

@@ -7,7 +7,7 @@ import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens'
 
 import { cn } from '@/theme/utils'
 
-import { UiLucideIcon } from './UiLucideIcon'
+import { UiLucideIcon } from './icons/UiLucideIcon'
 import { UiNativeOnlyAnimatedView } from './UiNativeOnlyAnimatedView'
 
 const Dialog = DialogPrimitive.Root

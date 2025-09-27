@@ -130,7 +130,7 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
               <UiText variant='h4' className={cn('text-center')}>
                 {translate('lockscreen.locked-temp')}
               </UiText>
-              <UiText className={cn('typography-subtitle1')}>
+              <UiText variant='title-large'>
                 <Countdown deadline={lockDeadline} onFinish={checkLockDeadline} />
               </UiText>
             </View>
@@ -145,14 +145,14 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
           className='w-full flex-1'
         >
           <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-            <UiText className={cn('typography-h4 text-foreground text-center')}>
+            <UiText variant='title-medium' className={cn('text-foreground text-center')}>
               {translate('lockscreen.default-title')}
             </UiText>
 
             <HiddenPasscodeView length={passcode.length} />
 
             {attemptsLeft < MAX_ATTEMPTS && (
-              <UiText className={cn('typography-subtitle1 text-foreground')}>
+              <UiText variant='title-medium' className={cn('text-foreground')}>
                 {translate('lockscreen.attempts-left', {
                   attemptsLeft,
                 })}
@@ -201,7 +201,7 @@ function BiometricsLockScreen() {
       }}
     >
       <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-        <UiText className={cn('typography-h4 text-foreground text-center')}>
+        <UiText variant='title-small' className={cn('text-foreground text-center')}>
           Unlock with Biometrics
         </UiText>
         <Pressable onPress={unlockWithBiometrics}>

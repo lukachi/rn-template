@@ -1,8 +1,9 @@
+import { FileWarningIcon } from 'lucide-react-native'
 import type { ViewProps } from 'react-native'
 import { View } from 'react-native'
 
-import { cn, useAppTheme } from '@/theme'
-import UiIcon from '@/ui/UiIcon'
+import { cn } from '@/theme'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 import { UiText } from '@/ui/UiText'
 
 export default function AppInitializationErrorBoundary({
@@ -11,14 +12,14 @@ export default function AppInitializationErrorBoundary({
 }: {
   error: Error
 } & ViewProps) {
-  const { palette } = useAppTheme()
-
   return (
     <View {...rest} className={cn('flex flex-1 items-center justify-center', className)}>
-      <UiIcon libIcon='AntDesign' name='warning' size={170} color={palette.destructive} />
+      <UiLucideIcon as={FileWarningIcon} className='text-destructive size-[45]' />
 
-      <UiText className='typography-h5 mt-4 text-center'>Something went wrong.</UiText>
-      <UiText className='typography-body1 text-muted-foreground mt-4 text-center'>
+      <UiText variant='h4' className='mt-4 text-center'>
+        Something went wrong.
+      </UiText>
+      <UiText variant='body-large' className='text-muted-foreground mt-4 text-center'>
         Please try again later.
       </UiText>
     </View>

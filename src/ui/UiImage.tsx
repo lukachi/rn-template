@@ -1,13 +1,12 @@
-import type { ImageProps } from 'expo-image'
-import { Image as NImage } from 'expo-image'
 import { styled } from 'nativewind'
+import { Image, ImageProps } from 'react-native'
 
 import { cn } from '@/theme'
 
-styled(NImage, {
+styled(Image, {
   className: 'style',
 })
 
 export default function UiImage({ className, ...rest }: ImageProps) {
-  return <NImage {...rest} className={cn('size-full', className)} />
+  return <Image {...rest} className={cn('size-full', className)} />
 }

@@ -3,8 +3,10 @@ import './theme/global.css'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { PortalHost } from '@rn-primitives/portal'
 import * as SplashScreen from 'expo-splash-screen'
+import { kebabCase } from 'lodash'
+import { VariableContextProvider } from 'nativewind'
 import { useMemo, useState } from 'react'
-import { View } from 'react-native'
+import { useColorScheme, View } from 'react-native'
 import { SystemBars } from 'react-native-edge-to-edge'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
@@ -15,7 +17,7 @@ import { AppInitializationErrorBoundary } from '@/common'
 import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
 import { localAuthStore } from '@/store'
-import { loadSelectedTheme } from '@/theme'
+import { loadSelectedTheme, THEME } from '@/theme'
 
 import Toasts from './ui/Toasts'
 
@@ -32,12 +34,27 @@ export default function App() {
 
   const isLocalAuthStoreHydrated = localAuthStore.useLocalAuthStore(state => state._hasHydrated)
   const initLocalAuthStore = localAuthStore.useInitLocalAuthStore()
+  const colorScheme = useColorScheme()
 
   const { language } = useSelectedLanguage()
 
   const isStoresHydrated = useMemo(() => {
     return isLocalAuthStoreHydrated
   }, [isLocalAuthStoreHydrated])
+
+  const cssVars = (['light', 'dark'] as const).reduce(
+    (acc, scheme) => ({
+      ...acc,
+      [scheme]: Object.entries(THEME[scheme]).reduce(
+        (vars, [key, value]) => ({
+          ...vars,
+          [`--${kebabCase(key)}`]: value,
+        }),
+        {} as Record<string, string>,
+      ),
+    }),
+    {} as Record<'light' | 'dark', Record<string, string>>,
+  )
 
   const initApp = async () => {
     try {
@@ -57,20 +74,22 @@ export default function App() {
 
   return (
     <View style={{ flex: 1 }} key={[language, isStoresHydrated].join(';')} onLayout={initApp}>
-      <SafeAreaProvider>
-        <GestureHandlerRootView>
-          <KeyboardProvider>
-            <APIProvider>
-              <BottomSheetModalProvider>
-                <SystemBars style='auto' />
-                {isAppInitialized && <AppRoutes />}
-              </BottomSheetModalProvider>
-            </APIProvider>
-            <Toasts />
-            <PortalHost />
-          </KeyboardProvider>
-        </GestureHandlerRootView>
-      </SafeAreaProvider>
+      <VariableContextProvider value={colorScheme ? cssVars[colorScheme] : {}}>
+        <SafeAreaProvider>
+          <GestureHandlerRootView>
+            <KeyboardProvider>
+              <APIProvider>
+                <BottomSheetModalProvider>
+                  <SystemBars style='auto' />
+                  {isAppInitialized && <AppRoutes />}
+                </BottomSheetModalProvider>
+              </APIProvider>
+              <Toasts />
+              <PortalHost />
+            </KeyboardProvider>
+          </GestureHandlerRootView>
+        </SafeAreaProvider>
+      </VariableContextProvider>
     </View>
   )
 }

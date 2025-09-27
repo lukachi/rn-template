@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { HouseIcon, User2Icon } from 'lucide-react-native'
 
 import type {
   AppStackParamsList,
@@ -7,7 +8,7 @@ import type {
   AppTabParamsList,
   RootStackScreenProps,
 } from '@/route-types'
-import UiIcon from '@/ui/UiIcon'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 
 import BottomTabBar from './components/BottomTabBarTabBar'
 import HomeScreen from './pages/home'
@@ -26,7 +27,7 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <UiIcon libIcon='FontAwesome' name='home' size={size} color={color} />
+            <UiLucideIcon as={HouseIcon} size={size} color={color} />
           ),
         }}
       />
@@ -36,7 +37,7 @@ function AppTabs({}: AppStackScreenProps<'Tabs'>) {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <UiIcon customIcon='userIcon' size={size} color={color} />
+            <UiLucideIcon as={User2Icon} size={size} color={color} />
           ),
         }}
       />

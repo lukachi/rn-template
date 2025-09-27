@@ -65,7 +65,6 @@
     "@dev-plugins/react-navigation": "^0.3.1",
     "@dev-plugins/react-query": "^0.3.1",
     "@distributedlab/tools": "^1.0.0-rc.17",
-    "@expo/vector-icons": "^15.0.2",
     "@gorhom/bottom-sheet": "^5.2.6",
     "@hookform/resolvers": "^5.2.2",
     "@noble/curves": "^1.9.2",

@@ -1,4 +1,12 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet'
+import {
+  CaseLowerIcon,
+  ImportIcon,
+  PencilIcon,
+  SearchSlashIcon,
+  StarIcon,
+  SunIcon,
+} from 'lucide-react-native'
 import { useMemo, useRef } from 'react'
 import { Dimensions, TouchableOpacity, View } from 'react-native'
 import type { ICarouselInstance } from 'react-native-reanimated-carousel'
@@ -7,9 +15,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useTranslate } from '@/core'
 import { cn, useAppTheme } from '@/theme'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 import { BottomSheetHeader, UiBottomSheet, useUiBottomSheet } from '@/ui/UiBottomSheet'
 import { UiButton } from '@/ui/UiButton'
-import UiIcon from '@/ui/UiIcon'
+import { UiCard, UiCardContent } from '@/ui/UiCard'
 import { UiText } from '@/ui/UiText'
 
 import { StepLayout } from './components'
@@ -32,27 +41,22 @@ export default function Intro() {
       {
         title: translate('auth.intro.step-1.title'),
         subtitle: translate('auth.intro.step-1.subtitle'),
-        media: <UiIcon customIcon='starFillIcon' className='text-muted-foreground size-[150px]' />,
+        media: <UiLucideIcon as={StarIcon} className='text-muted-foreground size-[150px]' />,
       },
       {
         title: translate('auth.intro.step-2.title'),
         subtitle: translate('auth.intro.step-2.subtitle'),
-        media: <UiIcon customIcon='sealCheckIcon' className='text-muted-foreground size-[150px]' />,
+        media: <UiLucideIcon as={SearchSlashIcon} className='text-muted-foreground size-[150px]' />,
       },
       {
         title: translate('auth.intro.step-3.title'),
         subtitle: translate('auth.intro.step-3.subtitle'),
-        media: (
-          <UiIcon
-            customIcon='suitcaseSimpleFillIcon'
-            className='text-muted-foreground size-[150px]'
-          />
-        ),
+        media: <UiLucideIcon as={CaseLowerIcon} className='text-muted-foreground size-[150px]' />,
       },
       {
         title: translate('auth.intro.step-4.title'),
         subtitle: translate('auth.intro.step-4.subtitle'),
-        media: <UiIcon customIcon='sunIcon' className='text-muted-foreground size-[150px]' />,
+        media: <UiLucideIcon as={SunIcon} className='text-muted-foreground size-[150px]' />,
       },
     ]
   }, [translate])
@@ -95,7 +99,7 @@ export default function Intro() {
 
       <UiBottomSheet
         detached
-        snapPoints={['40%']}
+        snapPoints={['30%']}
         headerComponent={
           <BottomSheetHeader
             title='Authorization'
@@ -106,46 +110,39 @@ export default function Intro() {
         ref={bottomSheet.ref}
         backgroundStyle={{
           backgroundColor: palette.card,
-          borderRadius: 40,
         }}
       >
         <BottomSheetView className={cn('flex h-full flex-1 items-center gap-2')}>
-          <UiText className='typography-body2'>Choose a preferred method</UiText>
+          <UiText variant='body-large' className='text-muted-foreground'>
+            Choose a preferred method
+          </UiText>
 
           <View className='mt-auto mb-6 flex flex-row gap-4 px-5'>
             {[
               {
                 title: 'Create new',
                 handler: () => {},
-                icon: (
-                  <UiIcon
-                    libIcon='Ionicons'
-                    name='create-outline'
-                    className='text-foreground'
-                    size={48}
-                  />
-                ),
+                icon: <UiLucideIcon as={PencilIcon} className='text-foreground size-12' />,
               },
               {
                 title: 'Import',
                 handler: () => {},
-                icon: (
-                  <UiIcon
-                    libIcon='MaterialCommunityIcons'
-                    name='import'
-                    className='text-foreground'
-                    size={48}
-                  />
-                ),
+                icon: <UiLucideIcon as={ImportIcon} className='text-foreground size-12' />,
               },
             ].map((el, idx) => (
               <TouchableOpacity
                 key={idx}
-                className='border-border flex flex-1 items-center gap-2 rounded-[30] border-2 p-4 py-12 font-semibold'
+                className='flex-1 p-4 py-12 font-semibold'
                 onPress={el.handler}
               >
-                {el.icon}
-                <UiText className='typography-subtitle2 text-foreground'>{el.title}</UiText>
+                <UiCard>
+                  <UiCardContent className='flex items-center gap-2'>
+                    {el.icon}
+                    <UiText variant='title-small' className='text-foreground'>
+                      {el.title}
+                    </UiText>
+                  </UiCardContent>
+                </UiCard>
               </TouchableOpacity>
             ))}
           </View>
