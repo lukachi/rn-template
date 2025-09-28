@@ -14,6 +14,7 @@ function IconImpl({ as: IconComponent, ...props }: IconProps) {
 styled(IconImpl, {
   className: {
     target: 'style',
+
     nativeStyleToProp: {
       height: 'size',
       width: 'size',

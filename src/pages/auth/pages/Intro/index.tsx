@@ -4,7 +4,6 @@ import {
   ImportIcon,
   PencilIcon,
   SearchSlashIcon,
-  StarIcon,
   SunIcon,
 } from 'lucide-react-native'
 import { useMemo, useRef } from 'react'
@@ -15,10 +14,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useTranslate } from '@/core'
 import { cn, useAppTheme } from '@/theme'
+import UiCustomIcon from '@/ui/icons/UiCustomIcon'
 import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 import { BottomSheetHeader, UiBottomSheet, useUiBottomSheet } from '@/ui/UiBottomSheet'
 import { UiButton } from '@/ui/UiButton'
-import { UiCard, UiCardContent } from '@/ui/UiCard'
+import { UiCard, UiCardContent, UiCardHeader } from '@/ui/UiCard'
 import { UiText } from '@/ui/UiText'
 
 import { StepLayout } from './components'
@@ -41,7 +41,14 @@ export default function Intro() {
       {
         title: translate('auth.intro.step-1.title'),
         subtitle: translate('auth.intro.step-1.subtitle'),
-        media: <UiLucideIcon as={StarIcon} className='text-muted-foreground size-[150px]' />,
+        media: (
+          <UiCustomIcon
+            name='trophyFillIcon'
+            className='text-muted-foreground size-[150px]'
+            width={150}
+            height={150}
+          />
+        ),
       },
       {
         title: translate('auth.intro.step-2.title'),
@@ -99,7 +106,7 @@ export default function Intro() {
 
       <UiBottomSheet
         detached
-        snapPoints={['30%']}
+        snapPoints={['40%']}
         headerComponent={
           <BottomSheetHeader
             title='Authorization'
@@ -136,11 +143,9 @@ export default function Intro() {
                 onPress={el.handler}
               >
                 <UiCard>
+                  <UiCardHeader>{el.icon}</UiCardHeader>
                   <UiCardContent className='flex items-center gap-2'>
-                    {el.icon}
-                    <UiText variant='title-small' className='text-foreground'>
-                      {el.title}
-                    </UiText>
+                    <UiText variant='title-small'>{el.title}</UiText>
                   </UiCardContent>
                 </UiCard>
               </TouchableOpacity>

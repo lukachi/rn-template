@@ -1,5 +1,5 @@
 import { styled } from 'nativewind'
-import type { SvgProps } from 'react-native-svg'
+import { type SvgProps } from 'react-native-svg'
 
 const CUSTOM_ICONS = {
   arrowCounterClockwiseIcon: require('@assets/icons/arrow-counter-clockwise-icon.svg').default,
@@ -94,14 +94,12 @@ const CUSTOM_ICONS = {
   xCircleIcon: require('@assets/icons/x-circle-icon.svg').default,
 }
 
-type CustomIconsKeys = keyof typeof CUSTOM_ICONS
-
-type CustomIconProps<C extends CustomIconsKeys> = Omit<SvgProps, 'color'> & {
-  customIcon: C
+type CustomIconProps = SvgProps & {
+  name: keyof typeof CUSTOM_ICONS
 }
 
-function CustomIcon<C extends CustomIconsKeys>(props: CustomIconProps<C>) {
-  const CustomComponent = CUSTOM_ICONS[props.customIcon]
+function CustomIcon(props: CustomIconProps) {
+  const CustomComponent = CUSTOM_ICONS[props.name]
 
   return <CustomComponent {...props} />
 }
@@ -116,6 +114,6 @@ styled(CustomIcon, {
   },
 })
 
-export default function UiCustomIcon(props: CustomIconProps<CustomIconsKeys>) {
+export default function UiCustomIcon(props: CustomIconProps) {
   return <CustomIcon {...props} />
 }

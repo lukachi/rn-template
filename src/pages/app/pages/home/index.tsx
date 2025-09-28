@@ -132,18 +132,9 @@ export default function HomeScreen({}: AppTabScreenProps<'Home'>) {
                         </UiCard>,
                         <UiCard className='flex size-full flex-row flex-wrap items-center justify-center gap-6 p-6'>
                           <UiLucideIcon as={CalendarIcon} className='text-foreground size-10' />
-                          <UiCustomIcon
-                            customIcon='calendarBlankIcon'
-                            className='text-foreground'
-                          />
-                          <UiCustomIcon
-                            customIcon='arrowDownIcon'
-                            className='text-foreground size-10'
-                          />
-                          <UiCustomIcon
-                            customIcon='cardholderFillIcon'
-                            className='text-foreground'
-                          />
+                          <UiCustomIcon name='calendarBlankIcon' className='text-foreground' />
+                          <UiCustomIcon name='arrowDownIcon' className='text-foreground size-10' />
+                          <UiCustomIcon name='cardholderFillIcon' className='text-foreground' />
                         </UiCard>,
                         <UiCard className='flex size-full justify-center gap-6 p-6'>
                           <UiButton>

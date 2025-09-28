@@ -39,7 +39,7 @@ export const THEME = {
     fontSerif: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
     fontMono:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-    radius: '0.5rem',
+    radius: '1rem',
     shadow2xs: '0 1px 3px 0px hsl(0 0% 0% / 0.05)',
     shadowXs: '0 1px 3px 0px hsl(0 0% 0% / 0.05)',
     shadowSm: '0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10)',
@@ -87,7 +87,7 @@ export const THEME = {
     fontSerif: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
     fontMono:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-    radius: '0.5rem',
+    radius: '1rem',
     shadow2xs: '0 1px 3px 0px hsl(0 0% 0% / 0.05)',
     shadowXs: '0 1px 3px 0px hsl(0 0% 0% / 0.05)',
     shadowSm: '0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10)',
