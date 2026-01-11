@@ -41,8 +41,8 @@ web-build/
 .vscode
 
 # local env files
-#.env
-#.env.*
+.env
+.env.*
 
 .expo
 /android
@@ -54,7 +54,8 @@ modules/**/*/.cxx
 *.aab
 *.ipa
 
-.env.secrets
-.env.secrets.*
-
 *.cer
+GoogleService-Info.plist
+google-services.json
+
+credentials/

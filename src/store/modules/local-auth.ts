@@ -10,7 +10,7 @@ import {
 import { create } from 'zustand'
 import { combine, createJSONStorage, persist } from 'zustand/middleware'
 
-import { zustandStorage } from '../helpers'
+import { zustandSecureStorage } from '../helpers'
 
 export enum PasscodeStatuses {
   NotSet = 'not-set',
@@ -233,13 +233,14 @@ const useLocalAuthStore = create(
     {
       name: 'local-auth-store',
       version: 1,
-      storage: createJSONStorage(() => zustandStorage),
+      storage: createJSONStorage(() => zustandSecureStorage),
 
       onRehydrateStorage: () => state => {
         state?.setHasHydrated(true)
       },
 
       partialize: state => ({
+        ...state,
         passcode: state.passcode,
         passcodeStatus: state.passcodeStatus,
         biometricStatus: state.biometricStatus,

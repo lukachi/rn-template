@@ -27,7 +27,6 @@ i18n.use(initReactI18next).init({
   resources,
   lng: language,
   fallbackLng: 'en',
-  compatibilityJSON: 'v3', // By default React Native projects does not support Intl
 
   // allows integrating dynamic values into translations.
   interpolation: {

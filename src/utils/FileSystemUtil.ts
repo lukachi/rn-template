@@ -1,11 +1,11 @@
-import * as FileSystem from 'expo-file-system'
+import { Directory, File, Paths } from 'expo-file-system' // FIXME
 
 enum AppDirectoryNames {
   Logs = 'logs/',
 }
 
 const APP_DIR_PATHS: Record<AppDirectoryNames, string> = {
-  [AppDirectoryNames.Logs]: FileSystem.documentDirectory + 'logs/',
+  [AppDirectoryNames.Logs]: Paths.document + 'logs/',
 }
 
 enum AppFileNames {
@@ -22,7 +22,7 @@ type AppFileContentTypes = {
 
 const WRITE_METHODS_BY_FILE = {
   [AppFileNames.RuntimeLog]: async (path: string, content: string) => {
-    await FileSystem.writeAsStringAsync(path, content)
+    new File(path).write(content)
   },
 }
 
@@ -30,10 +30,10 @@ export class FileSystemUtil {
   static appFiles = AppFileNames
 
   private static async ensureDirExists(dir: AppDirectoryNames) {
-    const dirInfo = await FileSystem.getInfoAsync(APP_DIR_PATHS[dir])
+    const dirInfo = await new File(APP_DIR_PATHS[dir]).info()
 
     if (!dirInfo.exists) {
-      await FileSystem.makeDirectoryAsync(APP_DIR_PATHS[dir])
+      new Directory(APP_DIR_PATHS[dir]).create()
     }
   }
 
@@ -48,17 +48,15 @@ export class FileSystemUtil {
   static async getFileContent<T extends AppFileNames>(
     appFileName: T,
   ): Promise<AppFileContentTypes[T]> {
-    const file = await FileSystem.readAsStringAsync(
-      APP_DIR_PATHS[APP_FILE_DIR[appFileName]] + appFileName,
-    )
+    const file = new File(APP_DIR_PATHS[APP_FILE_DIR[appFileName]] + appFileName)
 
     // TODO: check for other content types neither string
-    return file as AppFileContentTypes[T]
+    return file.text()
   }
 
   static async deleteFile(appFileName: AppFileNames) {
-    const fileToDelete = APP_DIR_PATHS[APP_FILE_DIR[appFileName]] + appFileName
+    const fileToDelete = new File(APP_DIR_PATHS[APP_FILE_DIR[appFileName]] + appFileName)
 
-    await FileSystem.deleteAsync(fileToDelete)
+    fileToDelete.delete()
   }
 }

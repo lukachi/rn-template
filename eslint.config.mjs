@@ -194,6 +194,7 @@ export default tseslint.config(
     },
     rules: {
       ...rnEslintPlugin.configs.all.rules,
+      'react-native/no-raw-text': 'off',
       'react-native/sort-styles': 'warn',
       'react-native/no-inline-styles': 'off',
       'react-native/no-color-literals': 'off',

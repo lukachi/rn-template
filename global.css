@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+@import 'uniwind';
+
+@import 'heroui-native/styles';
+@source './node_modules/heroui-native/lib';
+
+@layer theme {
+  :root {
+    @variant light {
+      /* --background: #F2F4FE;
+      --foreground: #333333;
+      --accent: #0066FF;
+
+      --surface: #FFFFFF; */
+    }
+    @variant dark {
+      /* --background: #13161D;
+      --foreground: #FFFFFF;
+      --accent: #0066FF;
+      --surface: #222226; */
+    }
+  }
+}
+
+@theme {
+  --radius: 8px;
+
+  --font-sans: ChakraPetch-SemiBold;
+  --font-serif: Inter_24pt-Regular;
+  --font-mono: Inter_24pt-Regular;
+}
+
+@utility absolute-center {
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+}
+
+@utility flex-center {
+  @apply flex justify-center items-center;
+}

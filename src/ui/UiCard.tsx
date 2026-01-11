@@ -1,27 +1,17 @@
-import { BlurView } from 'expo-blur'
-import type { ViewProps } from 'react-native'
-import { View } from 'react-native'
-import tinycolor from 'tinycolor2'
+import { Card as HNCard } from 'heroui-native'
 
-import { cn, useAppTheme } from '@/theme'
+const Card = HNCard
+const CardHeader = HNCard.Header
+const CardBody = HNCard.Body
+const CardFooter = HNCard.Footer
+const CardTitle = HNCard.Title
+const CardDescription = HNCard.Description
 
-export default function UiCard({ children, className, ...rest }: ViewProps) {
-  const { palette } = useAppTheme()
-
-  return (
-    <View className={cn('relative isolate overflow-hidden rounded-3xl')}>
-      <View className='absolute left-0 top-0 z-10 size-full'>
-        <BlurView experimentalBlurMethod='dimezisBlurView' intensity={25} className='size-full' />
-      </View>
-      <View
-        {...rest}
-        className={cn('z-20 p-4', className)}
-        style={{
-          backgroundColor: tinycolor(palette.backgroundContainer).setAlpha(0.25).toRgbString(),
-        }}
-      >
-        {children}
-      </View>
-    </View>
-  )
+export {
+  Card as UiCard,
+  CardBody as UiCardBody,
+  CardDescription as UiCardDescription,
+  CardFooter as UiCardFooter,
+  CardHeader as UiCardHeader,
+  CardTitle as UiCardTitle,
 }

@@ -1,13 +1,14 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useState } from 'react'
 
-import type { LocalAuthStackParamsList, RootStackScreenProps } from '@/route-types'
-import { localAuthStore, UserActionsInLocalAuth } from '@/store'
+import type { RootStackScreenProps } from '@/route-types'
+import { localAuthStore, UserActionsInLocalAuth } from '@/store/modules/local-auth'
 
 import EnableBiometricsScreen from './pages/enable-biometrics'
 import EnablePasscodeScreen from './pages/enable-passcode'
 import LockscreenScreen from './pages/lockscreen'
 import SetPasscodeScreen from './pages/set-passcode'
+import { LocalAuthStackParamsList } from './route-types'
 
 const Stack = createNativeStackNavigator<LocalAuthStackParamsList>()
 

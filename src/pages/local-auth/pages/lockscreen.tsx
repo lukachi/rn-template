@@ -1,15 +1,19 @@
 import { useNavigation } from '@react-navigation/native'
 import { useCallback, useEffect, useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ErrorHandler, useTranslate } from '@/core'
 import BiometricsIcon from '@/pages/local-auth/components/BiometricsIcon'
 import HiddenPasscodeView from '@/pages/local-auth/components/HiddenPasscodeView'
-import type { LocalAuthStackScreenProps } from '@/route-types'
-import { authStore, BiometricStatuses, localAuthStore, MAX_ATTEMPTS } from '@/store'
-import { cn } from '@/theme'
-import { UiButton, UiNumPad, UiScreenScrollable } from '@/ui'
+import { BiometricStatuses, localAuthStore, MAX_ATTEMPTS } from '@/store/modules/local-auth'
+import { cn } from '@/theme/utils'
+import { UiButton } from '@/ui/UiButton'
+import UiNumPad from '@/ui/UiNumPad'
+import UiScreenScrollable from '@/ui/UiScreenScrollable'
+import { UiText } from '@/ui/UiText'
+
+import type { LocalAuthStackScreenProps } from '../route-types'
 
 const useUnlockWithBiometrics = () => {
   const tryUnlockWithBiometrics = localAuthStore.useLocalAuthStore(
@@ -45,7 +49,6 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
   const biometricStatus = localAuthStore.useLocalAuthStore(state => state.biometricStatus)
   const attemptsLeft = localAuthStore.useLocalAuthStore(state => state.attemptsLeft)
   const lockDeadline = localAuthStore.useLocalAuthStore(state => state.lockDeadline)
-  const logout = authStore.useLogout()
   const resetLocalAuthStore = localAuthStore.useLocalAuthStore(state => state.resetStore)
   const checkLockDeadline = localAuthStore.useCheckLockDeadline()
 
@@ -77,14 +80,12 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
   )
 
   const tryLogout = useCallback(async () => {
-    logout()
-
     await resetLocalAuthStore()
 
     navigation.navigate('Auth', {
       screen: 'Intro',
     })
-  }, [logout, navigation, resetLocalAuthStore])
+  }, [navigation, resetLocalAuthStore])
 
   const handleSetPasscode = useCallback(
     async (value: string) => {
@@ -104,7 +105,7 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
   }
 
   return (
-    <UiScreenScrollable className={cn('flex flex-1 items-center justify-center')}>
+    <UiScreenScrollable className={cn('bg-background flex flex-1 items-center justify-center')}>
       {lockDeadline || lockDeadline === Infinity ? (
         <View
           style={{
@@ -115,23 +116,21 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
         >
           {lockDeadline === Infinity ? (
             <View className='flex flex-1 items-center gap-2 px-2'>
-              <Text className={cn('typography-h4 my-auto text-center text-textPrimary')}>
+              <UiText variant='body-small' className={cn('text-foreground my-auto text-center')}>
                 {translate('lockscreen.locked-permanently')}
-              </Text>
-              <UiButton
-                className='mt-auto w-full'
-                title={translate('lockscreen.logout-btn')}
-                onPress={tryLogout}
-              />
+              </UiText>
+              <UiButton className='mt-auto w-full' onPress={tryLogout}>
+                {translate('lockscreen.logout-btn')}
+              </UiButton>
             </View>
           ) : (
             <View className='my-auto flex items-center gap-2'>
-              <Text className={cn('typography-h4 text-center text-textPrimary')}>
+              <UiText variant='title-small' className={cn('text-foreground text-center')}>
                 {translate('lockscreen.locked-temp')}
-              </Text>
-              <Text className={cn('typography-subtitle1 text-textPrimary')}>
+              </UiText>
+              <UiText variant='title-small' className={cn('text-foreground')}>
                 <Countdown deadline={lockDeadline} onFinish={checkLockDeadline} />
-              </Text>
+              </UiText>
             </View>
           )}
         </View>
@@ -144,18 +143,18 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
           className='w-full flex-1'
         >
           <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-            <Text className={cn('typography-h4 text-center text-textPrimary')}>
+            <UiText variant='title-small' className={cn('text-foreground text-center')}>
               {translate('lockscreen.default-title')}
-            </Text>
+            </UiText>
 
             <HiddenPasscodeView length={passcode.length} />
 
             {attemptsLeft < MAX_ATTEMPTS && (
-              <Text className={cn('typography-subtitle1 text-textPrimary')}>
+              <UiText variant='title-medium' className={cn('text-foreground')}>
                 {translate('lockscreen.attempts-left', {
                   attemptsLeft,
                 })}
-              </Text>
+              </UiText>
             )}
           </View>
 
@@ -170,12 +169,9 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
               //   </Pressable>
               // }
             />
-            <UiButton
-              variant='outlined'
-              color='error'
-              title={translate('lockscreen.forgot-btn')}
-              onPress={tryLogout}
-            />
+            <UiButton variant='secondary' onPress={tryLogout}>
+              {translate('lockscreen.forgot-btn')}
+            </UiButton>
           </View>
         </View>
       )}
@@ -196,23 +192,25 @@ function BiometricsLockScreen() {
 
   return (
     <UiScreenScrollable
-      className={cn('flex flex-1 items-center justify-center px-4')}
+      className={cn('bg-background flex flex-1 items-center justify-center px-4')}
       style={{
         paddingTop: insets.top,
         paddingBottom: insets.bottom,
       }}
     >
       <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-        <Text className={cn('typography-h4 text-center text-textPrimary')}>
+        <UiText variant='title-small' className={cn('text-foreground text-center')}>
           Unlock with Biometrics
-        </Text>
+        </UiText>
         <Pressable onPress={unlockWithBiometrics}>
           <BiometricsIcon />
         </Pressable>
       </View>
 
       {isAttemptFailed && (
-        <UiButton title='Try again' onPress={unlockWithBiometrics} className='mt-auto w-full' />
+        <UiButton onPress={unlockWithBiometrics} className='mt-auto w-full'>
+          Try again
+        </UiButton>
       )}
     </UiScreenScrollable>
   )
@@ -240,5 +238,5 @@ function Countdown({ deadline, onFinish }: { deadline: number; onFinish: () => v
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return <Text>{timeLeftInSeconds} Sec</Text>
+  return <UiText>{timeLeftInSeconds} Sec</UiText>
 }

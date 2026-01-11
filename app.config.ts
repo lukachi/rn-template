@@ -1,6 +1,6 @@
 import type { ConfigContext, ExpoConfig } from '@expo/config'
 
-import { ClientEnv, Env } from './env'
+import { ClientEnv, Env } from './env.ts'
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -23,10 +23,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     bundleIdentifier: Env.BUNDLE_ID,
-    entitlements: {
-      'com.apple.developer.kernel.increased-memory-limit': true,
-      'com.apple.developer.kernel.extended-virtual-addressing': true
-    },
     "infoPlist": {
       "ITSAppUsesNonExemptEncryption": false
     },
@@ -45,37 +41,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     ['expo-asset'],
-    [
-      'expo-font',
-      {
-        fonts: [
-          './assets/fonts/PlaywriteCU-ExtraLight.ttf',
-          './assets/fonts/PlaywriteCU-Light.ttf',
-          './assets/fonts/PlaywriteCU-Regular.ttf',
-          './assets/fonts/PlaywriteCU-Thin.ttf',
-          './assets/fonts/Roboto-Black.ttf',
-          './assets/fonts/Roboto-BlackItalic.ttf',
-          './assets/fonts/Roboto-Bold.ttf',
-          './assets/fonts/Roboto-BoldItalic.ttf',
-          './assets/fonts/Roboto-Italic.ttf',
-          './assets/fonts/Roboto-Light.ttf',
-          './assets/fonts/Roboto-LightItalic.ttf',
-          './assets/fonts/Roboto-Medium.ttf',
-          './assets/fonts/Roboto-MediumItalic.ttf',
-          './assets/fonts/Roboto-Regular.ttf',
-          './assets/fonts/Roboto-Thin.ttf',
-          './assets/fonts/Roboto-ThinItalic.ttf',
-        ],
-      },
-    ],
+    ['expo-font'],
     [
       "expo-splash-screen",
       {
-        "backgroundColor": "#f5f6f6",
-        "image": "./assets/icon.png",
+        "backgroundColor": "#FFFFFF",
+        "image": "./assets/splash.png",
         "dark": {
-          "image": "./assets/icon.png",
-          "backgroundColor": "#111111"
+          "image": "./assets/splash.png",
+          "backgroundColor": "#13161D"
         },
         "imageWidth": 200
       }
@@ -86,35 +60,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
       }
     ],
-    // TEMP: since "modules/e-document" uses custom pod,
-    // we need to use `withBuildProperties` in module's plugin
-    // in order to incapsulate per module configuration.
-    // But `withBuildProperties` method ain't supposed to be called multiple times,
-    // so we treat this case as we merge objects
-    // plugins order matter: the later one would run first
-    // https://github.com/expo/expo/blob/sdk-52/packages/expo-build-properties/src/withBuildProperties.ts#L31C6-L31C57
-    ['expo-build-properties', {
-      android: {
-        minSdkVersion: 27,
-        targetSdkVersion: 34,
-      },
-      ios: {
-        deploymentTarget: '17.5',
-        extraPods: [
-          {
-            name: "OpenSSL-Universal",
-            configurations: ["Release", "Debug"],
-            modular_headers: true,
-            version: '1.1.2301'
-          },
-          {
-            name: 'NFCPassportReader',
-            git: 'https://github.com/lukachi/NFCPassportReader.git',
-            commit: "4e36d5b4b902ce847589d2270c887764f6e09029",
-          },
-        ]
-      },
-    }],
     [
       'app-icon-badge',
       {
@@ -139,18 +84,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
       }
     ],
-    ["react-native-vision-camera", {
-      "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
-    }],
-    ["react-native-edge-to-edge",
-      {
-        "android": {
-          "parentTheme": "Default",
-          "enforceNavigationBarContrast": false
-        }
-    }],
-    ['./plugins/withNfc.plugin/build/index.js'],
-    ['./plugins/withLocalAar.plugin.js']
   ],
   extra: {
     ...ClientEnv,

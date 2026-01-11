@@ -1,75 +1,51 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { useLayoutEffect } from 'react'
+import { HouseIcon, User2Icon } from 'lucide-react-native'
 
-import InviteOthers from '@/pages/app/pages/invite-others'
-import type {
-  AppStackParamsList,
-  AppStackScreenProps,
-  AppTabParamsList,
-  RootStackScreenProps,
-} from '@/route-types'
-import { authStore, localAuthStore } from '@/store'
-import { UiIcon } from '@/ui'
+import { RootStackScreenProps } from '@/route-types'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 
 import BottomTabBar from './components/BottomTabBarTabBar'
-import DocumentScanScreen from './pages/document-scan'
-import DocumentsScreen from './pages/documents'
 import HomeScreen from './pages/home'
 import ProfileScreen from './pages/profile'
+import { AppStackParamsList, AppStackScreenProps, AppTabParamsList } from './route-types'
 
 const Stack = createNativeStackNavigator<AppStackParamsList>()
 const Tab = createBottomTabNavigator<AppTabParamsList>()
+// const Tab = createNativeBottomTabNavigator<AppTabParamsList>()
 
 // eslint-disable-next-line no-empty-pattern
 function AppTabs({}: AppStackScreenProps<'Tabs'>) {
   return (
-    <Tab.Navigator tabBar={props => <BottomTabBar {...props} />} initialRouteName='Home'>
-      <Tab.Screen
-        name='Home'
-        component={HomeScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <UiIcon libIcon='FontAwesome' name='home' size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name='Documents'
-        component={DocumentsScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <UiIcon libIcon='Fontisto' name='passport-alt' size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name='Profile'
-        component={ProfileScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <UiIcon customIcon='userIcon' size={size} color={color} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+    <>
+      <Tab.Navigator tabBar={props => <BottomTabBar {...props} />} initialRouteName='Home'>
+        <Tab.Screen
+          name='Home'
+          component={HomeScreen}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color, size }) => (
+              <UiLucideIcon as={HouseIcon} size={size} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name='Profile'
+          component={ProfileScreen}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color, size }) => (
+              <UiLucideIcon as={User2Icon} size={size} color={color} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </>
   )
 }
 
 // eslint-disable-next-line no-empty-pattern
 export default function App({}: RootStackScreenProps<'App'>) {
-  const isFirstEnter = localAuthStore.useLocalAuthStore(state => state.isFirstEnter)
-  const logout = authStore.useLogout()
-
-  useLayoutEffect(() => {
-    if (!isFirstEnter) return
-
-    logout()
-  }, [isFirstEnter, logout])
-
   return (
     <Stack.Navigator
       screenOptions={{
@@ -77,21 +53,6 @@ export default function App({}: RootStackScreenProps<'App'>) {
       }}
     >
       <Stack.Screen name='Tabs' component={AppTabs} />
-      <Stack.Screen
-        name='InviteOthers'
-        component={InviteOthers}
-        options={{
-          animation: 'fade',
-        }}
-      />
-
-      <Stack.Screen
-        name='Scan'
-        component={DocumentScanScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
     </Stack.Navigator>
   )
 }

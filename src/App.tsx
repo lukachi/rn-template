@@ -1,76 +1,78 @@
+import '../global.css'
+
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
+import { useQuery } from '@tanstack/react-query'
 import * as SplashScreen from 'expo-splash-screen'
-import { useMemo, useState } from 'react'
+import { HeroUINativeProvider } from 'heroui-native'
+import { type PropsWithChildren } from 'react'
 import { View } from 'react-native'
-import { SystemBars } from 'react-native-edge-to-edge'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import { APIProvider } from '@/api/client'
-import { initInterceptors } from '@/api/interceptors'
-import { AppInitializationErrorBoundary } from '@/common'
-import { useSelectedLanguage } from '@/core'
 import AppRoutes from '@/routes'
-import { authStore, localAuthStore, walletStore } from '@/store'
-import { loadSelectedTheme } from '@/theme'
-import { Toasts } from '@/ui'
+import { localAuthStore } from '@/store/modules/local-auth'
+import { UiSpinner } from '@/ui/UISpinner'
 
-loadSelectedTheme()
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false,
+})
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync()
 
 export default function App() {
-  const [isAppInitialized, setIsAppInitialized] = useState(false)
-  const [isAppInitializingFailed, setIsAppInitializingFailed] = useState(false)
-
-  const [appInitError, setAppInitError] = useState<Error>()
-
-  const isAuthStoreHydrated = authStore.useAuthStore(state => state._hasHydrated)
-  const isLocalAuthStoreHydrated = localAuthStore.useLocalAuthStore(state => state._hasHydrated)
-  const isWalletStoreHydrated = walletStore.useWalletStore(state => state._hasHydrated)
-  const initLocalAuthStore = localAuthStore.useInitLocalAuthStore()
-
-  const { language } = useSelectedLanguage()
-
-  const isStoresHydrated = useMemo(() => {
-    return isAuthStoreHydrated && isLocalAuthStoreHydrated && isWalletStoreHydrated
-  }, [isAuthStoreHydrated, isLocalAuthStoreHydrated, isWalletStoreHydrated])
-
-  const initApp = async () => {
-    try {
-      // verifyInstallation()
-      await initLocalAuthStore()
-      initInterceptors()
-    } catch (e) {
-      setAppInitError(e)
-      setIsAppInitializingFailed(true)
-    }
-
-    setIsAppInitialized(true)
-    await SplashScreen.hideAsync()
-  }
-
-  if (isAppInitializingFailed && appInitError) {
-    return <AppInitializationErrorBoundary error={appInitError} />
-  }
-
   return (
-    <View style={{ flex: 1 }} key={[language, isStoresHydrated].join(';')} onLayout={initApp}>
-      <SafeAreaProvider>
-        <GestureHandlerRootView>
-          <KeyboardProvider>
-            <APIProvider>
-              <BottomSheetModalProvider>
-                <SystemBars style='auto' />
-                {isAppInitialized && <AppRoutes />}
-              </BottomSheetModalProvider>
-            </APIProvider>
-            <Toasts />
-          </KeyboardProvider>
-        </GestureHandlerRootView>
-      </SafeAreaProvider>
-    </View>
+    <SafeAreaProvider>
+      <GestureHandlerRootView>
+        <KeyboardProvider>
+          <APIProvider>
+            <BottomSheetModalProvider>
+              <HeroUINativeProvider>
+                <StoresHydrationGuard>
+                  <AppRoutes />
+                </StoresHydrationGuard>
+              </HeroUINativeProvider>
+            </BottomSheetModalProvider>
+          </APIProvider>
+        </KeyboardProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   )
+}
+
+export function StoresHydrationGuard({ children }: PropsWithChildren) {
+  const isLocalAuthStoreHydrated = localAuthStore.useLocalAuthStore(s => s._hasHydrated)
+
+  const initLocalAuth = localAuthStore.useInitLocalAuthStore()
+
+  const { isSuccess: isLocalAuthInitialized } = useQuery({
+    queryKey: ['init-local-auth'],
+    enabled: isLocalAuthStoreHydrated, // 1. Wait for store hydration
+    staleTime: Infinity,
+    queryFn: async () => {
+      try {
+        await initLocalAuth()
+        SplashScreen.hideAsync()
+        return true
+      } catch {
+        return false
+      }
+    },
+  })
+
+  const isReady = isLocalAuthStoreHydrated && isLocalAuthInitialized
+
+  if (!isReady) {
+    return (
+      <View className='bg-background flex-1 items-center justify-center'>
+        <UiSpinner className='text-accent h-10 w-10' />
+      </View>
+    )
+  }
+
+  return children
 }

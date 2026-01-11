@@ -1,8 +1,9 @@
+import { LiquidGlassView } from '@callstack/liquid-glass'
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
-import { BlurView } from 'expo-blur'
-import { TouchableOpacity, View } from 'react-native'
+import { Pressable, View } from 'react-native'
+import { useCSSVariable, useResolveClassNames } from 'uniwind'
 
-import { cn, useAppTheme } from '@/theme'
+import { cn } from '@/theme/utils'
 
 export default function BottomTabBar({
   state,
@@ -10,11 +11,21 @@ export default function BottomTabBar({
   navigation,
   insets,
 }: BottomTabBarProps) {
-  const { palette } = useAppTheme()
-
   const currentRoute = state.routes[state.index]
 
   const tabBarStyle = descriptors[currentRoute.key].options.tabBarStyle
+
+  const overlayForegroundColor = useCSSVariable('--overlay-foreground')
+  const mutedColor = useCSSVariable('--muted')
+
+  const glassContainerStyle = useResolveClassNames(
+    cn('relative isolate mx-auto flex w-[60%] rounded-full'),
+  )
+  const glassItemStyle = useResolveClassNames(
+    cn('flex size-[50] items-center justify-center rounded-full'),
+  )
+
+  const bgOverlayStyle = useResolveClassNames('bg-overlay')
 
   return (
     <View
@@ -26,11 +37,8 @@ export default function BottomTabBar({
       }}
       className={cn('absolute bottom-0 left-0 w-full')}
     >
-      <View className='relative isolate mx-auto flex w-[60%] rounded-full bg-componentPrimary'>
-        <View className='absolute left-0 top-0 z-10 size-full overflow-hidden rounded-full'>
-          <BlurView experimentalBlurMethod='dimezisBlurView' intensity={35} className='size-full' />
-        </View>
-        <View className='z-20 flex-row items-center justify-around py-2'>
+      <LiquidGlassView effect='clear' style={glassContainerStyle}>
+        <View className='relative z-20 flex-row items-center justify-around py-2'>
           {state.routes.map((route, idx) => {
             const isFocused = idx === state.index
 
@@ -39,29 +47,28 @@ export default function BottomTabBar({
             const routeIcon = descriptor.options.tabBarIcon?.({
               focused: isFocused,
               size: 24,
-              color: isFocused ? palette.textPrimary : palette.textSecondary,
+              color: isFocused ? String(overlayForegroundColor) : String(mutedColor),
             })
 
             return (
-              <TouchableOpacity
+              <Pressable
                 key={route.name}
                 onPress={() => {
                   navigation.navigate(route.name)
                 }}
               >
-                <View
-                  className={cn(
-                    'flex size-[50] items-center justify-center rounded-full',
-                    isFocused && 'bg-backgroundContainer',
-                  )}
+                <LiquidGlassView
+                  interactive
+                  style={[glassItemStyle, isFocused ? bgOverlayStyle : {}]}
+                  effect={isFocused ? 'regular' : 'none'}
                 >
                   {routeIcon}
-                </View>
-              </TouchableOpacity>
+                </LiquidGlassView>
+              </Pressable>
             )
           })}
         </View>
-      </View>
+      </LiquidGlassView>
     </View>
   )
 }

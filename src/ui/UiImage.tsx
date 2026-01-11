@@ -1,13 +1,10 @@
-import type { ImageProps } from 'expo-image'
-import { Image } from 'expo-image'
-import { cssInterop } from 'nativewind'
+import { Image, ImageProps } from 'react-native'
+import { withUniwind } from 'uniwind'
 
-function UiImage(props: ImageProps) {
-  return <Image {...props} />
+import { cn } from '@/theme/utils'
+
+const StyledImage = withUniwind(Image)
+
+export default function UiImage({ className, ...rest }: ImageProps) {
+  return <StyledImage {...rest} className={cn('size-full', className)} />
 }
-
-cssInterop(UiImage, {
-  className: 'style',
-})
-
-export default UiImage

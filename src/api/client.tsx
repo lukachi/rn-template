@@ -6,7 +6,7 @@ import type { PropsWithChildren } from 'react'
 import { Config } from '@/config'
 
 export const apiClient = axios.create({
-  baseURL: Config.RELAYER_API_URL,
+  baseURL: Config.API_URL,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -1,67 +1,65 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet'
 import WheelPicker from '@quidone/react-native-wheel-picker'
 import * as Haptics from 'expo-haptics'
-import { useColorScheme } from 'nativewind'
+import {
+  BookIcon,
+  BrushIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  FingerprintIcon,
+  MoonIcon,
+  SmartphoneIcon,
+  SunIcon,
+} from 'lucide-react-native'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
-import { Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
+import { TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Uniwind, useResolveClassNames, useUniwind } from 'uniwind'
 
 import { isRTL, useSelectedLanguage } from '@/core'
 import { Language, resources } from '@/core/localization/resources'
-import { useCopyToClipboard } from '@/hooks'
 import AppContainer from '@/pages/app/components/AppContainer'
-import type { AppTabScreenProps } from '@/route-types'
-import {
-  authStore,
-  BiometricStatuses,
-  localAuthStore,
-  PasscodeStatuses,
-  walletStore,
-} from '@/store'
-import {
-  cn,
-  ColorSchemeType,
-  useAppPaddings,
-  useAppTheme,
-  useBottomBarOffset,
-  useSelectedTheme,
-} from '@/theme'
-import {
-  UiBottomSheet,
-  UiButton,
-  UiCard,
-  UiHorizontalDivider,
-  UiIcon,
-  UiScreenScrollable,
-  UiSwitcher,
-  useUiBottomSheet,
-} from '@/ui'
+import { AppTabScreenProps } from '@/pages/app/route-types'
+import { BiometricStatuses, localAuthStore, PasscodeStatuses } from '@/store/modules/local-auth'
+import { cn, useAppPaddings } from '@/theme/utils'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
+import { UiButton } from '@/ui/UiButton'
+import { UiCard, UiCardBody } from '@/ui/UiCard'
+import UiScreenScrollable from '@/ui/UiScreenScrollable'
+import { UiSeparator } from '@/ui/UiSeparator'
+import { UiSwitch } from '@/ui/UiSwitch'
+import { UiText } from '@/ui/UiText'
 
 // eslint-disable-next-line no-empty-pattern
 export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
   const insets = useSafeAreaInsets()
   const appPaddings = useAppPaddings()
-  const offset = useBottomBarOffset()
 
   return (
-    <AppContainer>
+    <AppContainer className='bg-background'>
       <UiScreenScrollable
         style={{
           paddingTop: insets.top,
           paddingLeft: appPaddings.left,
           paddingRight: appPaddings.right,
-          paddingBottom: offset,
         }}
         className='gap-3'
       >
         <View className='flex flex-1 flex-col gap-4'>
           <UiCard className='flex gap-4'>
-            <LangMenuItem />
-            <ThemeMenuItem />
-            <LocalAuthMethodMenuItem />
+            <UiCardBody>
+              <LangMenuItem />
+            </UiCardBody>
           </UiCard>
           <UiCard className='flex gap-4'>
-            <AdvancedMenuItem />
+            <UiCardBody>
+              <ThemeMenuItem />
+            </UiCardBody>
+          </UiCard>
+          <UiCard className='flex gap-4'>
+            <UiCardBody>
+              <LocalAuthMethodMenuItem />
+            </UiCardBody>
           </UiCard>
         </View>
       </UiScreenScrollable>
@@ -71,7 +69,6 @@ export default function ProfileScreen({}: AppTabScreenProps<'Profile'>) {
 
 function LangMenuItem() {
   const appPaddings = useAppPaddings()
-  const { palette } = useAppTheme()
 
   // TODO: reload app after change language
   const { language, setLanguage } = useSelectedLanguage()
@@ -79,15 +76,17 @@ function LangMenuItem() {
 
   const bottomSheet = useUiBottomSheet()
 
+  const bgStyles = useResolveClassNames('text-overlay-foreground')
+
   return (
     <>
       <ProfileCardMenuItem
-        leadingIcon={
-          <UiIcon libIcon='Fontisto' name='world-o' className='text-textPrimary' size={5 * 4} />
-        }
+        leadingIcon={<UiLucideIcon as={BookIcon} className='text-accent-foreground' size={16} />}
         title='Language'
         trailingContent={
-          <Text className='typography-body4 capitalize text-textSecondary'>{language}</Text>
+          <UiText variant='body-medium' className='text-foreground capitalize'>
+            {language}
+          </UiText>
         }
         onPress={bottomSheet.present}
       />
@@ -99,18 +98,21 @@ function LangMenuItem() {
         enableDynamicSizing={false}
         snapPoints={['40%']}
         headerComponent={
-          <View className='flex flex-row items-center justify-center'>
-            <UiButton variant='text' title='Cancel' onPress={bottomSheet.dismiss} />
+          <View className='flex flex-row items-center justify-center p-1'>
+            <UiButton variant='ghost' onPress={bottomSheet.dismiss}>
+              <UiText>Cancel</UiText>
+            </UiButton>
 
-            <UiHorizontalDivider className='mx-auto h-3 w-14 rounded-full' />
+            <UiSeparator className='mx-auto h-3 w-14 rounded-full' />
 
             <UiButton
-              variant='text'
-              title='Submit'
+              variant='ghost'
               onPress={() => {
                 setLanguage(value as Language)
               }}
-            />
+            >
+              <UiText>Submit</UiText>
+            </UiButton>
           </View>
         }
       >
@@ -131,9 +133,7 @@ function LangMenuItem() {
                 }[el],
                 value: el,
               }))}
-              itemTextStyle={{
-                color: palette.textPrimary,
-              }}
+              itemTextStyle={bgStyles}
               value={value}
               onValueChanged={({ item: { value } }) => setValue(value)}
               onValueChanging={Haptics.selectionAsync}
@@ -151,46 +151,27 @@ function ThemeMenuItem() {
 
   const bottomSheet = useUiBottomSheet()
 
-  const { selectedTheme, setSelectedTheme } = useSelectedTheme()
-  const { colorScheme } = useColorScheme()
+  const { theme, hasAdaptiveThemes } = useUniwind()
+  const activeTheme = hasAdaptiveThemes ? 'system' : theme
 
   return (
     <>
       <ProfileCardMenuItem
         leadingIcon={(() => {
-          if (!colorScheme) {
-            return (
-              <UiIcon
-                libIcon='FontAwesome'
-                name='paint-brush'
-                className='text-textPrimary'
-                size={4 * 4}
-              />
-            )
+          if (!theme) {
+            return <UiLucideIcon as={BrushIcon} className='text-accent-foreground' size={16} />
           }
 
           return {
-            light: (
-              <UiIcon
-                libIcon='Fontisto'
-                name='day-sunny'
-                className='text-textPrimary'
-                size={4.5 * 4}
-              />
-            ),
-            dark: (
-              <UiIcon
-                libIcon='Fontisto'
-                name='night-clear'
-                className='text-textPrimary'
-                size={4.5 * 4}
-              />
-            ),
-          }[colorScheme]
+            light: <UiLucideIcon as={SunIcon} className='text-accent-foreground' size={16} />,
+            dark: <UiLucideIcon as={MoonIcon} className='text-accent-foreground' size={16} />,
+          }[theme]
         })()}
         title='Theme'
         trailingContent={
-          <Text className='typography-body4 capitalize text-textSecondary'>{selectedTheme}</Text>
+          <UiText variant='body-medium' className='text-foreground capitalize'>
+            {theme}
+          </UiText>
         }
         onPress={bottomSheet.present}
       />
@@ -203,7 +184,7 @@ function ThemeMenuItem() {
         snapPoints={['30%']}
         headerComponent={
           <>
-            <UiHorizontalDivider className='mx-auto my-4 mb-0 h-3 w-14 rounded-full' />
+            <UiSeparator className='mx-auto my-4 mb-0 h-3 w-14 rounded-full' />
           </>
         }
       >
@@ -219,52 +200,35 @@ function ThemeMenuItem() {
               {
                 title: 'light',
                 value: 'light',
-                icon: (
-                  <UiIcon
-                    libIcon='Fontisto'
-                    name='day-sunny'
-                    size={6 * 4}
-                    className='text-textPrimary'
-                  />
-                ),
+                icon: <UiLucideIcon as={SunIcon} className='text-foreground' size={16} />,
               },
               {
                 title: 'dark',
                 value: 'dark',
-                icon: (
-                  <UiIcon
-                    libIcon='Fontisto'
-                    name='night-clear'
-                    size={6 * 4}
-                    className='text-textPrimary'
-                  />
-                ),
+                icon: <UiLucideIcon as={MoonIcon} className='text-foreground' size={16} />,
               },
               {
                 title: 'system',
                 value: 'system',
-                icon: (
-                  <UiIcon
-                    libIcon='Entypo'
-                    name='mobile'
-                    size={6 * 4}
-                    className='text-textPrimary'
-                  />
-                ),
+                icon: <UiLucideIcon as={SmartphoneIcon} className='text-foreground' size={16} />,
               },
-            ].map(({ value, title, icon }, idx) => (
-              <TouchableOpacity
-                key={idx}
-                className={cn(
-                  'flex w-1/4 items-center gap-4 rounded-lg border-2 border-componentPrimary p-3',
-                  selectedTheme === value ? 'border-primaryMain' : 'border-componentPrimary',
-                )}
-                onPress={() => setSelectedTheme(value as ColorSchemeType)}
-              >
-                {icon}
-                <Text className='typography-caption1 capitalize text-textSecondary'>{title}</Text>
-              </TouchableOpacity>
-            ))}
+            ].map(({ value, title, icon }, idx) => {
+              return (
+                <TouchableOpacity
+                  key={idx}
+                  className={cn(
+                    'flex w-2/7 items-center gap-4 rounded-lg border-2 border-amber-300 p-3',
+                    activeTheme === value ? 'border-accent' : 'border-foreground/20',
+                  )}
+                  onPress={() => Uniwind.setTheme(value as 'light' | 'dark' | 'system')}
+                >
+                  {icon}
+                  <UiText variant='title-medium' className='text-foreground text-center capitalize'>
+                    {title}
+                  </UiText>
+                </TouchableOpacity>
+              )
+            })}
           </View>
         </BottomSheetView>
       </UiBottomSheet>
@@ -325,7 +289,7 @@ function LocalAuthMethodMenuItem() {
     <>
       <ProfileCardMenuItem
         leadingIcon={
-          <UiIcon libIcon='Entypo' name='fingerprint' className='text-textPrimary' size={5 * 4} />
+          <UiLucideIcon as={FingerprintIcon} className='text-accent-foreground' size={16} />
         }
         title='Auth method'
         onPress={bottomSheet.present}
@@ -339,7 +303,7 @@ function LocalAuthMethodMenuItem() {
         snapPoints={['20%']}
         headerComponent={
           <>
-            <UiHorizontalDivider className='mx-auto my-4 mb-2 h-3 w-14 rounded-full' />
+            <UiSeparator className='mx-auto my-4 mb-2 h-3 w-14 rounded-full' />
           </>
         }
       >
@@ -352,98 +316,27 @@ function LocalAuthMethodMenuItem() {
         >
           <View className={cn('flex gap-5')}>
             <View className='flex flex-row items-center justify-between'>
-              <Text className='typography-body3 font-semibold text-textPrimary'>Passcode</Text>
-              <UiSwitcher value={isPasscodeEnabled} onValueChange={handleChangePasscodeStatus} />
+              <UiText variant='body-medium' className='text-foreground font-semibold'>
+                Passcode
+              </UiText>
+              <UiSwitch
+                isSelected={isPasscodeEnabled}
+                onSelectedChange={handleChangePasscodeStatus}
+              />
             </View>
             <View className='flex flex-row items-center justify-between'>
-              <Text className='typography-body3 font-semibold text-textPrimary'>Biometric</Text>
+              <UiText variant='body-medium' className='text-foreground font-semibold'>
+                Biometric
+              </UiText>
 
               {isBiometricsEnrolled && (
-                <UiSwitcher
-                  value={isBiometricsEnabled}
-                  onValueChange={handleChangeBiometricStatus}
-                  disabled={!isPasscodeEnabled}
+                <UiSwitch
+                  isSelected={isBiometricsEnabled}
+                  onSelectedChange={handleChangeBiometricStatus}
+                  isDisabled={!isPasscodeEnabled}
                 />
               )}
             </View>
-          </View>
-        </BottomSheetView>
-      </UiBottomSheet>
-    </>
-  )
-}
-
-function AdvancedMenuItem() {
-  const appPaddings = useAppPaddings()
-
-  const privateKey = walletStore.useWalletStore(state => state.privateKey)
-  const { isCopied, copy } = useCopyToClipboard()
-  const logout = authStore.useLogout()
-
-  const bottomSheet = useUiBottomSheet()
-
-  return (
-    <>
-      <ProfileCardMenuItem
-        leadingIcon={
-          <UiIcon libIcon='Entypo' name='cog' className='text-textPrimary' size={5 * 4} />
-        }
-        title='Advanced'
-        onPress={bottomSheet.present}
-      />
-
-      <UiBottomSheet
-        title='Advanced'
-        ref={bottomSheet.ref}
-        detached
-        enableDynamicSizing={false}
-        snapPoints={['30%']}
-        headerComponent={
-          <>
-            <UiHorizontalDivider className='mx-auto my-4 mb-0 h-3 w-14 rounded-full' />
-          </>
-        }
-      >
-        <BottomSheetView
-          className='mt-3 flex size-full gap-2 pb-6'
-          style={{
-            paddingLeft: appPaddings.left,
-            paddingRight: appPaddings.right,
-          }}
-        >
-          <View className={cn('flex size-full flex-1 gap-2')}>
-            <Text className='typography-caption2 ml-4 font-semibold text-textPrimary'>
-              Secret key
-            </Text>
-            <UiCard className='flex-row bg-backgroundPrimary py-6'>
-              <Text className='typography-body3 line-clamp-1 w-9/12 truncate whitespace-nowrap text-textPrimary'>
-                {privateKey}
-              </Text>
-
-              <TouchableOpacity className='ml-auto'>
-                <UiIcon
-                  customIcon={isCopied ? 'checkIcon' : 'copySimpleIcon'}
-                  className='text-textSecondary'
-                  size={5 * 4}
-                  onPress={() => copy(privateKey)}
-                />
-              </TouchableOpacity>
-            </UiCard>
-
-            <ProfileCardMenuItem
-              className='mt-auto rounded-full bg-componentPrimary p-3 px-4'
-              leadingIcon={
-                <UiIcon
-                  libIcon='MaterialCommunityIcons'
-                  name='logout'
-                  className='text-errorMain'
-                  size={4 * 4}
-                />
-              }
-              trailingIcon={<></>}
-              title='Log out'
-              onPress={logout}
-            />
           </View>
         </BottomSheetView>
       </UiBottomSheet>
@@ -473,20 +366,21 @@ function ProfileCardMenuItem({
       {...rest}
       className={cn('flex w-full flex-row items-center gap-2 py-2', className)}
     >
-      <View className='flex aspect-square size-8 items-center justify-center rounded-full bg-componentPrimary'>
+      <View className='bg-accent flex aspect-square size-8 items-center justify-center rounded-full'>
         {leadingIcon}
       </View>
 
-      <Text className={cn('typography-buttonMedium mr-auto text-textPrimary')}>{title}</Text>
+      <UiText variant='body-medium' className={cn('text-foreground mr-auto')}>
+        {title}
+      </UiText>
 
       {trailingContent}
 
       {trailingIcon || (
-        <UiIcon
-          libIcon='FontAwesome'
-          name={isRTL ? 'chevron-left' : 'chevron-right'}
-          className='ml-2 text-textSecondary'
-          size={3 * 4}
+        <UiLucideIcon
+          as={isRTL ? ChevronLeftIcon : ChevronRightIcon}
+          className='text-foreground ml-2'
+          size={14}
         />
       )}
     </TouchableOpacity>

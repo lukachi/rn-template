@@ -1,12 +1,13 @@
-module.exports = (api) => {
+module.exports = api => {
   api.cache(true)
   return {
     presets: [
-      ['babel-preset-expo', {
-        jsxRuntime: 'automatic',
-        jsxImportSource: "nativewind"
-      }],
-      'nativewind/babel',
+      [
+        'babel-preset-expo',
+        {
+          jsxRuntime: 'automatic',
+        },
+      ],
     ],
     plugins: [
       [
@@ -17,11 +18,6 @@ module.exports = (api) => {
             '@': './src',
             '@assets': './assets',
             '@modules': './modules',
-            '@env': './src/core/env.js',
-
-            'crypto': 'crypto-browserify',
-            'stream': 'readable-stream',
-            '@iden3/js-crypto': '@iden3/js-crypto/dist/browser/esm/index.js',
           },
           extensions: [
             '.ios.ts',
@@ -36,11 +32,29 @@ module.exports = (api) => {
           ],
         },
       ],
-      ['react-native-worklets-core/plugin'],
       // NOTE: this is only necessary if you are using reanimated for animations
-      ['react-native-reanimated/plugin', {
-        processNestedWorklets: true
-      }],
+      [
+        'react-native-worklets/plugin',
+        {
+          processNestedWorklets: true,
+        },
+      ],
+      [
+        'babel-plugin-inline-import',
+        {
+          extensions: ['.svg', '.sql'],
+        },
+      ],
+      [
+        'react-native-unistyles/plugin',
+        {
+          // pass root folder of your application
+          // all files under this folder will be processed by the Babel plugin
+          // if you need to include more folders, or customize discovery process
+          // check available babel options
+          root: 'src',
+        },
+      ],
     ],
   }
 }
