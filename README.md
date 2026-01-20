@@ -107,15 +107,11 @@ SOME_OTHER_VARIABLE=your-value
 
 ### Validating New Variables
 
-In `env.js`, add your new variables with `zod` validations:
+In [`env.ts`](env.ts), add your new variables with `zod` validations:
 
 ```javascript
 const client = z.object({
   APP_ENV: z.enum(['development', 'staging', 'production']),
-  NAME: z.string(),
-  SCHEME: z.string(),
-  BUNDLE_ID: z.string(),
-  PACKAGE: z.string(),
   VERSION: z.string(),
 
   // ADD YOUR CLIENT ENV VARS HERE
@@ -124,42 +120,16 @@ const client = z.object({
 })
 
 const buildTime = z.object({
-  EXPO_ACCOUNT_OWNER: z.string(),
-  EAS_PROJECT_ID: z.string(),
+  BUNDLE_ID: z.string().default('com.example.templateapp'), // ios bundle id
+  PACKAGE: z.string().default('com.example.templateapp'), // android package name
+  NAME: z.string().default('Template App'), // app name
+  SLUG: z.string().default('template-app'), // app slug
+  EXPO_ACCOUNT_OWNER: z.string().default('the_owner'), // expo account owner
+  EAS_PROJECT_ID: z.string().default(''), // eas project id
+  SCHEME: z.string().default('templateapp'), // app scheme
   // ADD YOUR BUILD TIME ENV VARS HERE
   SOME_ANOTHER_PUBLIC_KEY: z.string(),
 })
-```
-
-And get them:
-
-```javascript
-/**
- * @type {Record<keyof z.infer<typeof client> , unknown>}
- */
-const _clientEnv = {
-  APP_ENV,
-  NAME: NAME,
-  SCHEME: SCHEME,
-  BUNDLE_ID: withEnvSuffix(BUNDLE_ID),
-  PACKAGE: withEnvSuffix(PACKAGE),
-  VERSION: packageJSON.version,
-
-  // ADD YOUR ENV VARS HERE TOO
-  SOME_PUBLIC_KEY_1: process.env.SOME_PUBLIC_KEY_1,
-  SOME_PUBLIC_KEY_2: process.env.SOME_PUBLIC_KEY_2,
-}
-
-/**
- * @type {Record<keyof z.infer<typeof buildTime> , unknown>}
- */
-const _buildTimeEnv = {
-  EXPO_ACCOUNT_OWNER,
-  EAS_PROJECT_ID,
-
-  // ADD YOUR ENV VARS HERE TOO
-  SOME_ANOTHER_PUBLIC_KEY: process.env.SOME_ANOTHER_PUBLIC_KEY,
-}
 ```
 
 After adding new variables, restart the development server to apply changes.
@@ -241,14 +211,6 @@ pnpm run android
 
 **Note:** Ensure that you have a simulator or device connected.
 
-### IMPORTANT! IOS SIMULATOR NOT WORKS
-
-Due to `e-document` module, and `NFCPassportReader` pod limitations. The iOS build can't be run on the simulator. Please use a real device for testing.
-
-Or if you don't need this module, simply remove [e-document](modules/e-document) directory from the app, all imports and usages of this module, `extraPods` `NFCPassportReader` from [app.config.ts](app.config.ts) and then run the app on the simulator.
-
----
-
 ## Release Process
 
 By default, everything should be automated.
@@ -278,10 +240,6 @@ Let's assume you finish your feature branch.
 **Note:** This template doesn't submit the app to stores automatically. You should do it manually via the EAS dashboard or configure auto-submit in GitHub Actions. In that case, you need to check the EAS submit configuration and follow the steps from the [EAS Submit documentation](https://docs.expo.dev/submit/introduction/).
 
 ### Important! Setup GitHub Actions
-
-Add the required secrets to your GitHub repository:
-
-- **`GH_TOKEN`**: A [GitHub Personal Access Token](https://github.com/settings/tokens) with `repo` and `workflow` scopes to allow GitHub Actions to interact with your repository.
 
 - **`EXPO_TOKEN`**: An Expo token to authenticate with EAS. Generate one [here](https://expo.dev/settings/access-tokens) with the necessary permissions.
 

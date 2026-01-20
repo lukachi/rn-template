@@ -32,8 +32,8 @@ jobs:
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git config --global user.name "${GITHUB_ACTOR}[bot]"
 
-      - name: 📦 Setup Node + YARN + install deps
-        uses: ./.github/actions/setup-node-yarn-install
+      - name: 📦 Setup Node + pnpm + install deps
+        uses: ./.github/actions/setup-node-pnpm-install
 
       - name: 🔧 Set Release Type Environment Variable
         run: echo "RELEASE_TYPE=\"$RELEASE_TYPE\"" >> $GITHUB_ENV
@@ -42,7 +42,7 @@ jobs:
 
       - name: 🏃‍♂️ Run release
         run: |
-          NODE_DEBUG=release-it:* yarn release --ci --increment $RELEASE_TYPE
+          NODE_DEBUG=release-it:* pnpm release --ci --increment $RELEASE_TYPE
         env:
           RELEASE_TYPE: ${{ github.event.inputs.release-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

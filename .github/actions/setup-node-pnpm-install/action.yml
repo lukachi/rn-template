@@ -1,0 +1,32 @@
+# 🔗 Links:
+# Source file: https://github.com/obytes/react-native-template-obytes/blob/master/.github/actions/setup-node-pnpm-install/action.yml
+# Composite actions docs: https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
+
+# ✍️ Description:
+# This is a composite action, which means it can be used in other actions.
+# It is used in almost all workflows to set up the environment and install dependencies.
+# Updating the package manager or Node version here will be reflected in all workflows.
+
+# 👀 Example usage:
+#       - name : 📦 Setup Node + pnpm + install deps
+#         uses: ./.github/actions/setup-node-pnpm-install
+
+name: 'Setup Node + pnpm + Install Dependencies'
+description: 'Setup Node + pnpm + Install Dependencies'
+runs:
+  using: composite
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      shell: bash
