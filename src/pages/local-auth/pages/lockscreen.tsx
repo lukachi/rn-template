@@ -55,12 +55,13 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
   const insets = useSafeAreaInsets()
 
   const [passcode, setPasscode] = useState('')
+  const [usePasscodeFallback, setUsePasscodeFallback] = useState(false)
 
   const tryUnlockWithPasscode = localAuthStore.useLocalAuthStore(
     state => state.tryUnlockWithPasscode,
   )
 
-  // const { unlockWithBiometrics } = useUnlockWithBiometrics()
+  const { unlockWithBiometrics } = useUnlockWithBiometrics()
 
   const translate = useTranslate()
 
@@ -100,8 +101,17 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
     [submit],
   )
 
-  if (biometricStatus === BiometricStatuses.Enabled) {
-    return <BiometricsLockScreen />
+  const handleFallbackToPasscode = useCallback(() => {
+    setUsePasscodeFallback(true)
+  }, [])
+
+  const handleRetryBiometrics = useCallback(() => {
+    setUsePasscodeFallback(false)
+    unlockWithBiometrics()
+  }, [unlockWithBiometrics])
+
+  if (biometricStatus === BiometricStatuses.Enabled && !usePasscodeFallback) {
+    return <BiometricsLockScreen onFallbackToPasscode={handleFallbackToPasscode} />
   }
 
   return (
@@ -162,12 +172,13 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
             <UiNumPad
               value={passcode}
               setValue={handleSetPasscode}
-              // TODO: is it necessary? The BiometricsLockScreen will handle it
-              // extra={
-              //   <Pressable onPress={unlockWithBiometrics}>
-              //     <BiometricsIcon size={20} />
-              //   </Pressable>
-              // }
+              extra={
+                usePasscodeFallback && biometricStatus === BiometricStatuses.Enabled ? (
+                  <Pressable onPress={handleRetryBiometrics}>
+                    <BiometricsIcon size={20} />
+                  </Pressable>
+                ) : undefined
+              }
             />
             <UiButton variant='secondary' onPress={tryLogout}>
               {translate('lockscreen.forgot-btn')}
@@ -179,8 +190,9 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
   )
 }
 
-function BiometricsLockScreen() {
+function BiometricsLockScreen({ onFallbackToPasscode }: { onFallbackToPasscode: () => void }) {
   const { isAttemptFailed, unlockWithBiometrics } = useUnlockWithBiometrics()
+  const translate = useTranslate()
 
   const insets = useSafeAreaInsets()
 
@@ -200,7 +212,7 @@ function BiometricsLockScreen() {
     >
       <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
         <UiText variant='title-small' className={cn('text-foreground text-center')}>
-          Unlock with Biometrics
+          {translate('lockscreen.biometrics-title')}
         </UiText>
         <Pressable onPress={unlockWithBiometrics}>
           <BiometricsIcon />
@@ -208,9 +220,14 @@ function BiometricsLockScreen() {
       </View>
 
       {isAttemptFailed && (
-        <UiButton onPress={unlockWithBiometrics} className='mt-auto w-full'>
-          Try again
-        </UiButton>
+        <View className='mt-auto flex w-full gap-3'>
+          <UiButton onPress={unlockWithBiometrics} className='w-full'>
+            {translate('lockscreen.try-again-btn')}
+          </UiButton>
+          <UiButton variant='secondary' onPress={onFallbackToPasscode} className='w-full'>
+            {translate('lockscreen.use-passcode-btn')}
+          </UiButton>
+        </View>
       )}
     </UiScreenScrollable>
   )

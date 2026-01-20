@@ -11,7 +11,7 @@ type Props = {
 
 export default function AppContainer({
   isBottomBlockShown = false,
-  isBlurredBottom = true,
+  isBlurredBottom = false,
   children,
   ...rest
 }: Props) {

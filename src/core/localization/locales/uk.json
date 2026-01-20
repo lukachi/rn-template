@@ -38,11 +38,14 @@
   },
   "lockscreen": {
     "attempts-left": "Залишилось спроб: {{attemptsLeft}}",
+    "biometrics-title": "Розблокувати біометрією",
     "default-title": "Введіть код-пароль",
     "forgot-btn": "Забули пароль",
     "locked-permanently": "Акаунт заблоковано назавжди, до виходу з системи",
     "locked-temp": "Акаунт заблоковано",
-    "logout-btn": "Вийти"
+    "logout-btn": "Вийти",
+    "try-again-btn": "Спробувати знову",
+    "use-passcode-btn": "Використати код-пароль"
   },
   "notifications": {
     "default-message-default": "Просто повідомлення",
