@@ -38,11 +38,14 @@
   },
   "lockscreen": {
     "attempts-left": "Attempts Left: {{attemptsLeft}}",
+    "biometrics-title": "Unlock with Biometrics",
     "default-title": "Enter passcode",
     "forgot-btn": "Forgot password",
     "locked-permanently": "Account locked permanently, until logout",
     "locked-temp": "Account locked",
-    "logout-btn": "Logout"
+    "logout-btn": "Logout",
+    "try-again-btn": "Try again",
+    "use-passcode-btn": "Use passcode"
   },
   "notifications": {
     "default-message-default": "Just a message",

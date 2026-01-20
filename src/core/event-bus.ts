@@ -1,17 +1,10 @@
-import { EventEmitter } from '@distributedlab/tools'
+import Emittery from 'emittery'
 
-import type { ToastPayload } from '@/ui/Toasts'
+import { DefaultToastPayload } from '@/ui/Toasts'
 
-export enum DefaultBusEvents {
-  error = 'error',
-  warning = 'warning',
-  success = 'success',
-  info = 'info',
-}
-
-export const bus = new EventEmitter<{
-  [DefaultBusEvents.success]: ToastPayload
-  [DefaultBusEvents.error]: ToastPayload
-  [DefaultBusEvents.warning]: ToastPayload
-  [DefaultBusEvents.info]: ToastPayload
+export const emitter = new Emittery<{
+  error: Partial<DefaultToastPayload>
+  warning: Partial<DefaultToastPayload>
+  success: Partial<DefaultToastPayload>
+  info: Partial<DefaultToastPayload>
 }>()

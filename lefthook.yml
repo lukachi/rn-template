@@ -1,28 +1,9 @@
-# EXAMPLE USAGE:
-#
-#   Refer for explanation to following link:
-#   https://lefthook.dev/configuration/
-#
-# pre-push:
-#   jobs:
-#     - name: packages audit
-#       tags:
-#         - frontend
-#         - security
-#       run: yarn audit
-#
-#     - name: gems audit
-#       tags:
-#         - backend
-#         - security
-#       run: bundle audit
-#
 pre-commit:
   # parallel: true
   commands:
     lint:
-      run: yarn lint
+      run: pnpm run lint
     type-check:
-      run: yarn type-check
+      run: pnpm run type-check
     format:
-      run: yarn format:fix && git add .
+      run: pnpm run format:fix && git add .

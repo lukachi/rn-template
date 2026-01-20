@@ -1,7 +1,7 @@
 import type { ScrollViewProps, ViewProps } from 'react-native'
 import { ScrollView, View } from 'react-native'
 
-import { cn } from '@/theme'
+import { cn } from '@/theme/utils'
 
 type Props = {
   scrollViewProps?: ScrollViewProps

@@ -1,8 +1,8 @@
 import { AuthenticationType } from 'expo-local-authentication'
+import { FingerprintIcon, ScanFaceIcon } from 'lucide-react-native'
 
-import { localAuthStore } from '@/store'
-import { useAppTheme } from '@/theme'
-import { UiIcon } from '@/ui'
+import { localAuthStore } from '@/store/modules/local-auth'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 
 type Props = {
   size?: number
@@ -10,24 +10,17 @@ type Props = {
 }
 
 export default function BiometricsIcon({ ...rest }: Props) {
-  const { palette } = useAppTheme()
   const biometricTypes = localAuthStore.useLocalAuthStore(state => state.biometricAuthTypes)
 
   return {
     [AuthenticationType.FINGERPRINT]: (
-      <UiIcon customIcon='fingerprintIcon' size={50} color={palette.baseWhite} {...rest} />
+      <UiLucideIcon {...rest} as={FingerprintIcon} className='text-foreground' size={50} />
     ),
     [AuthenticationType.FACIAL_RECOGNITION]: (
-      <UiIcon
-        libIcon='MaterialCommunityIcons'
-        name='face-recognition'
-        size={50}
-        color={palette.baseWhite}
-        {...rest}
-      />
+      <UiLucideIcon {...rest} as={ScanFaceIcon} className='text-foreground' size={50} />
     ),
     [AuthenticationType.IRIS]: (
-      <UiIcon customIcon='fingerprintIcon' size={50} color={palette.baseWhite} {...rest} />
+      <UiLucideIcon {...rest} as={FingerprintIcon} className='text-foreground' size={50} />
     ),
   }[biometricTypes[0]]
 }

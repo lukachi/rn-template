@@ -1,6 +1,5 @@
 .env*
 .env.*
-*.config.js
 *.config.ts
 *.css
 .turbo
@@ -16,3 +15,4 @@ ios/
 .yarn/
 *.d.ts
 modules/**/*.js
+pnpm-lock.yaml

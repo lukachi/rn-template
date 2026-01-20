@@ -1,0 +1,5 @@
+onlyBuiltDependencies:
+  - esbuild
+  - lefthook
+  - react-native-nitro-modules
+  - unrs-resolver
