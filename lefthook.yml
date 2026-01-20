@@ -3,7 +3,7 @@ pre-commit:
   commands:
     lint:
       run: pnpm run lint
-    type-check:
-      run: pnpm run type-check
+    typecheck:
+      run: pnpm run typecheck
     format:
       run: pnpm run format:fix && git add .

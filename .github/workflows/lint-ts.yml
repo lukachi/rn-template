@@ -35,8 +35,8 @@ jobs:
       - name: 🏃‍♂️ Run ESLint
         run: pnpm lint
 
-      - name: 🏃‍♂️ Run TypeScript Commit
-        run: pnpm type-check
+      - name: 🏃‍♂️ Run TypeCheck
+        run: pnpm typecheck
 
       - name: 🏃‍♂️ Run Prettier
         run: pnpm format
