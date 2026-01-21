@@ -1,19 +1,47 @@
 import { useNavigation } from '@react-navigation/native'
-import { useCallback, useEffect, useState } from 'react'
+import { AuthenticationType } from 'expo-local-authentication'
+import {
+  AlertTriangleIcon,
+  FingerprintIcon,
+  LockKeyholeIcon,
+  LogOutIcon,
+  ScanFaceIcon,
+  ShieldOffIcon,
+  TimerIcon,
+} from 'lucide-react-native'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { ErrorHandler, useTranslate } from '@/core'
-import BiometricsIcon from '@/pages/local-auth/components/BiometricsIcon'
-import HiddenPasscodeView from '@/pages/local-auth/components/HiddenPasscodeView'
+import { ErrorHandler } from '@/core'
 import { BiometricStatuses, localAuthStore, MAX_ATTEMPTS } from '@/store/modules/local-auth'
-import { cn } from '@/theme/utils'
+import { cn, useAppPaddings } from '@/theme/utils'
+import { UiLucideIcon } from '@/ui/icons/UiLucideIcon'
 import { UiButton } from '@/ui/UiButton'
 import UiNumPad from '@/ui/UiNumPad'
-import UiScreenScrollable from '@/ui/UiScreenScrollable'
 import { UiText } from '@/ui/UiText'
 
 import type { LocalAuthStackScreenProps } from '../route-types'
+
+const PASSCODE_LENGTH = 4
+
+type PasscodeDotProps = {
+  filled: boolean
+  hasError: boolean
+}
+
+function PasscodeDot({ filled, hasError }: PasscodeDotProps) {
+  return (
+    <View
+      className={cn(
+        'size-4 rounded-full border-2 transition-all',
+        hasError && 'border-danger bg-danger',
+        !hasError && filled && 'border-accent bg-accent',
+        !hasError && !filled && 'border-muted bg-transparent',
+      )}
+    />
+  )
+}
 
 const useUnlockWithBiometrics = () => {
   const tryUnlockWithBiometrics = localAuthStore.useLocalAuthStore(
@@ -53,17 +81,17 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
   const checkLockDeadline = localAuthStore.useCheckLockDeadline()
 
   const insets = useSafeAreaInsets()
+  const appPaddings = useAppPaddings()
 
   const [passcode, setPasscode] = useState('')
   const [usePasscodeFallback, setUsePasscodeFallback] = useState(false)
+  const [hasError, setHasError] = useState(false)
 
   const tryUnlockWithPasscode = localAuthStore.useLocalAuthStore(
     state => state.tryUnlockWithPasscode,
   )
 
   const { unlockWithBiometrics } = useUnlockWithBiometrics()
-
-  const translate = useTranslate()
 
   const navigation = useNavigation()
 
@@ -75,7 +103,11 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
         return
       }
 
-      setPasscode('')
+      setHasError(true)
+      setTimeout(() => {
+        setPasscode('')
+        setHasError(false)
+      }, 500)
     },
     [tryUnlockWithPasscode],
   )
@@ -90,11 +122,11 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
 
   const handleSetPasscode = useCallback(
     async (value: string) => {
-      if (value.length > 4) return
+      if (value.length > PASSCODE_LENGTH) return
 
       setPasscode(value)
 
-      if (value.length === 4) {
+      if (value.length === PASSCODE_LENGTH) {
         await submit(value)
       }
     },
@@ -110,132 +142,281 @@ export default function Lockscreen({}: LocalAuthStackScreenProps<'Lockscreen'>) 
     unlockWithBiometrics()
   }, [unlockWithBiometrics])
 
+  const showBiometricsOption = usePasscodeFallback && biometricStatus === BiometricStatuses.Enabled
+
+  // Biometrics Lock Screen
   if (biometricStatus === BiometricStatuses.Enabled && !usePasscodeFallback) {
     return <BiometricsLockScreen onFallbackToPasscode={handleFallbackToPasscode} />
   }
 
+  // Locked State (Temporary or Permanent)
+  if (lockDeadline || lockDeadline === Infinity) {
+    return (
+      <LockedScreen
+        lockDeadline={lockDeadline}
+        onLogout={tryLogout}
+        onLockExpired={checkLockDeadline}
+      />
+    )
+  }
+
+  // Passcode Lock Screen
   return (
-    <UiScreenScrollable className={cn('bg-background flex flex-1 items-center justify-center')}>
-      {lockDeadline || lockDeadline === Infinity ? (
-        <View
-          style={{
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-          }}
-          className='w-full flex-1'
-        >
-          {lockDeadline === Infinity ? (
-            <View className='flex flex-1 items-center gap-2 px-2'>
-              <UiText variant='body-small' className={cn('text-foreground my-auto text-center')}>
-                {translate('lockscreen.locked-permanently')}
-              </UiText>
-              <UiButton className='mt-auto w-full' onPress={tryLogout}>
-                {translate('lockscreen.logout-btn')}
-              </UiButton>
-            </View>
-          ) : (
-            <View className='my-auto flex items-center gap-2'>
-              <UiText variant='title-small' className={cn('text-foreground text-center')}>
-                {translate('lockscreen.locked-temp')}
-              </UiText>
-              <UiText variant='title-small' className={cn('text-foreground')}>
-                <Countdown deadline={lockDeadline} onFinish={checkLockDeadline} />
-              </UiText>
-            </View>
-          )}
-        </View>
-      ) : (
-        <View
-          style={{
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-          }}
-          className='w-full flex-1'
-        >
-          <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-            <UiText variant='title-small' className={cn('text-foreground text-center')}>
-              {translate('lockscreen.default-title')}
-            </UiText>
-
-            <HiddenPasscodeView length={passcode.length} />
-
-            {attemptsLeft < MAX_ATTEMPTS && (
-              <UiText variant='title-medium' className={cn('text-foreground')}>
-                {translate('lockscreen.attempts-left', {
-                  attemptsLeft,
-                })}
-              </UiText>
-            )}
-          </View>
-
-          <View className={cn('flex w-full gap-10 p-5')}>
-            <UiNumPad
-              value={passcode}
-              setValue={handleSetPasscode}
-              extra={
-                usePasscodeFallback && biometricStatus === BiometricStatuses.Enabled ? (
-                  <Pressable onPress={handleRetryBiometrics}>
-                    <BiometricsIcon size={20} />
-                  </Pressable>
-                ) : undefined
-              }
-            />
-            <UiButton variant='secondary' onPress={tryLogout}>
-              {translate('lockscreen.forgot-btn')}
-            </UiButton>
-          </View>
-        </View>
-      )}
-    </UiScreenScrollable>
-  )
-}
-
-function BiometricsLockScreen({ onFallbackToPasscode }: { onFallbackToPasscode: () => void }) {
-  const { isAttemptFailed, unlockWithBiometrics } = useUnlockWithBiometrics()
-  const translate = useTranslate()
-
-  const insets = useSafeAreaInsets()
-
-  useEffect(() => {
-    unlockWithBiometrics()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  return (
-    <UiScreenScrollable
-      className={cn('bg-background flex flex-1 items-center justify-center px-4')}
+    <View
       style={{
         paddingTop: insets.top,
         paddingBottom: insets.bottom,
+        paddingLeft: appPaddings.left,
+        paddingRight: appPaddings.right,
       }}
+      className='bg-background flex-1'
     >
-      <View className={cn('my-auto flex w-full items-center gap-4 p-5')}>
-        <UiText variant='title-small' className={cn('text-foreground text-center')}>
-          {translate('lockscreen.biometrics-title')}
+      {/* Header Section */}
+      <View className='mt-8 items-center'>
+        <View className='bg-accent/10 mb-5 rounded-2xl p-4'>
+          <UiLucideIcon as={LockKeyholeIcon} className='text-accent' size={28} />
+        </View>
+
+        <UiText variant='headline-small' className='text-foreground mb-2 text-center'>
+          Welcome Back
         </UiText>
-        <Pressable onPress={unlockWithBiometrics}>
-          <BiometricsIcon />
-        </Pressable>
+
+        <UiText variant='body-small' className='text-muted text-center'>
+          Enter your passcode to unlock
+        </UiText>
       </View>
 
-      {isAttemptFailed && (
-        <View className='mt-auto flex w-full gap-3'>
-          <UiButton onPress={unlockWithBiometrics} className='w-full'>
-            {translate('lockscreen.try-again-btn')}
-          </UiButton>
-          <UiButton variant='secondary' onPress={onFallbackToPasscode} className='w-full'>
-            {translate('lockscreen.use-passcode-btn')}
-          </UiButton>
+      {/* Passcode Dots */}
+      <View className='mt-8 items-center'>
+        <View className='bg-surface flex-row gap-5 rounded-2xl px-8 py-5'>
+          {Array.from({ length: PASSCODE_LENGTH }).map((_, i) => (
+            <PasscodeDot key={i} filled={i < passcode.length} hasError={hasError} />
+          ))}
         </View>
-      )}
-    </UiScreenScrollable>
+
+        {attemptsLeft < MAX_ATTEMPTS && (
+          <View className='bg-danger/10 mt-4 flex-row items-center gap-2 rounded-xl px-4 py-2'>
+            <UiLucideIcon as={AlertTriangleIcon} className='text-danger' size={16} />
+            <UiText variant='caption1' className='text-danger'>
+              {attemptsLeft} {attemptsLeft === 1 ? 'attempt' : 'attempts'} remaining
+            </UiText>
+          </View>
+        )}
+      </View>
+
+      {/* NumPad Section */}
+      <View className='mt-auto'>
+        <UiNumPad
+          value={passcode}
+          setValue={handleSetPasscode}
+          className='mb-6'
+          extra={
+            showBiometricsOption ? <BiometricButton onPress={handleRetryBiometrics} /> : undefined
+          }
+        />
+
+        <Pressable onPress={tryLogout} className='flex-row items-center justify-center gap-2 py-3'>
+          <UiLucideIcon as={LogOutIcon} className='text-muted' size={18} />
+          <UiText variant='button-small' className='text-muted'>
+            Forgot passcode? Log out
+          </UiText>
+        </Pressable>
+      </View>
+    </View>
   )
 }
 
-function Countdown({ deadline, onFinish }: { deadline: number; onFinish: () => void }) {
+type BiometricButtonProps = {
+  onPress: () => void
+}
+
+function BiometricButton({ onPress }: BiometricButtonProps) {
+  const biometricTypes = localAuthStore.useLocalAuthStore(state => state.biometricAuthTypes)
+  const biometricType = biometricTypes[0] ?? AuthenticationType.FINGERPRINT
+
+  const Icon = useMemo(() => {
+    return {
+      [AuthenticationType.FINGERPRINT]: FingerprintIcon,
+      [AuthenticationType.FACIAL_RECOGNITION]: ScanFaceIcon,
+      [AuthenticationType.IRIS]: ScanFaceIcon,
+    }[biometricType]
+  }, [biometricType])
+
+  return (
+    <Pressable onPress={onPress} className='flex-center'>
+      <UiLucideIcon as={Icon} className='text-accent' size={24} />
+    </Pressable>
+  )
+}
+
+type BiometricsLockScreenProps = {
+  onFallbackToPasscode: () => void
+}
+
+function BiometricsLockScreen({ onFallbackToPasscode }: BiometricsLockScreenProps) {
+  const { isAttemptFailed, unlockWithBiometrics } = useUnlockWithBiometrics()
+  const biometricTypes = localAuthStore.useLocalAuthStore(state => state.biometricAuthTypes)
+  const biometricType = biometricTypes[0] ?? AuthenticationType.FINGERPRINT
+
+  const insets = useSafeAreaInsets()
+  const appPaddings = useAppPaddings()
+
+  useEffect(() => {
+    unlockWithBiometrics()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const BiometricIcon = useMemo(() => {
+    return {
+      [AuthenticationType.FINGERPRINT]: FingerprintIcon,
+      [AuthenticationType.FACIAL_RECOGNITION]: ScanFaceIcon,
+      [AuthenticationType.IRIS]: ScanFaceIcon,
+    }[biometricType]
+  }, [biometricType])
+
+  const biometricLabel = useMemo(() => {
+    return {
+      [AuthenticationType.FINGERPRINT]: 'Touch ID',
+      [AuthenticationType.FACIAL_RECOGNITION]: 'Face ID',
+      [AuthenticationType.IRIS]: 'Iris Scan',
+    }[biometricType]
+  }, [biometricType])
+
+  return (
+    <View
+      style={{
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+        paddingLeft: appPaddings.left,
+        paddingRight: appPaddings.right,
+      }}
+      className='bg-background flex-1'
+    >
+      {/* Main Content */}
+      <View className='my-auto items-center'>
+        <Pressable onPress={unlockWithBiometrics} className='bg-accent/10 mb-6 rounded-3xl p-6'>
+          <UiLucideIcon as={BiometricIcon} className='text-accent' size={56} />
+        </Pressable>
+
+        <UiText variant='headline-medium' className='text-foreground mb-2 text-center'>
+          Welcome Back
+        </UiText>
+
+        <UiText variant='body-medium' className='text-muted text-center'>
+          Tap to unlock with {biometricLabel}
+        </UiText>
+
+        {isAttemptFailed && (
+          <View className='bg-danger/10 mt-6 flex-row items-center gap-2 rounded-xl px-4 py-3'>
+            <UiLucideIcon as={AlertTriangleIcon} className='text-danger' size={18} />
+            <UiText variant='body-small' className='text-danger'>
+              Authentication failed. Try again.
+            </UiText>
+          </View>
+        )}
+      </View>
+
+      {/* Bottom Actions */}
+      <View className='pb-2'>
+        {isAttemptFailed ? (
+          <View className='gap-3'>
+            <UiButton size='lg' onPress={unlockWithBiometrics}>
+              Try Again
+            </UiButton>
+            <UiButton size='lg' variant='secondary' onPress={onFallbackToPasscode}>
+              Use Passcode Instead
+            </UiButton>
+          </View>
+        ) : (
+          <Pressable onPress={onFallbackToPasscode} className='py-3'>
+            <UiText variant='button-small' className='text-muted text-center'>
+              Use passcode instead
+            </UiText>
+          </Pressable>
+        )}
+      </View>
+    </View>
+  )
+}
+
+type LockedScreenProps = {
+  lockDeadline: number
+  onLogout: () => void
+  onLockExpired: () => void
+}
+
+function LockedScreen({ lockDeadline, onLogout, onLockExpired }: LockedScreenProps) {
+  const insets = useSafeAreaInsets()
+  const appPaddings = useAppPaddings()
+  const isPermanentlyLocked = lockDeadline === Infinity
+
+  return (
+    <View
+      style={{
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+        paddingLeft: appPaddings.left,
+        paddingRight: appPaddings.right,
+      }}
+      className='bg-background flex-1'
+    >
+      {/* Main Content */}
+      <View className='my-auto items-center'>
+        <View className='bg-danger/10 mb-6 rounded-3xl p-5'>
+          <UiLucideIcon
+            as={isPermanentlyLocked ? ShieldOffIcon : TimerIcon}
+            className='text-danger'
+            size={40}
+          />
+        </View>
+
+        <UiText variant='headline-medium' className='text-foreground mb-2 text-center'>
+          {isPermanentlyLocked ? 'App Locked' : 'Too Many Attempts'}
+        </UiText>
+
+        <UiText variant='body-medium' className='text-muted max-w-70 text-center'>
+          {isPermanentlyLocked
+            ? 'Your app has been locked due to too many failed attempts. Please log out to continue.'
+            : 'Please wait before trying again'}
+        </UiText>
+
+        {!isPermanentlyLocked && (
+          <View className='bg-surface mt-8 items-center rounded-2xl px-8 py-5'>
+            <UiText variant='caption2' className='text-muted mb-1'>
+              Try again in
+            </UiText>
+            <Countdown deadline={lockDeadline} onFinish={onLockExpired} />
+          </View>
+        )}
+      </View>
+
+      {/* Bottom Actions */}
+      <View className='pb-2'>
+        {isPermanentlyLocked ? (
+          <UiButton size='lg' variant='danger' onPress={onLogout}>
+            <View className='flex-row items-center gap-2'>
+              <UiLucideIcon as={LogOutIcon} className='text-danger-foreground' size={20} />
+              <UiText className='text-danger-foreground'>Log Out</UiText>
+            </View>
+          </UiButton>
+        ) : (
+          <UiText variant='caption2' className='text-muted text-center'>
+            You&apos;ll be able to try again once the timer expires
+          </UiText>
+        )}
+      </View>
+    </View>
+  )
+}
+
+type CountdownProps = {
+  deadline: number
+  onFinish: () => void
+}
+
+function Countdown({ deadline, onFinish }: CountdownProps) {
   const [timeLeftInSeconds, setTimeLeftInSeconds] = useState(
-    Math.trunc((deadline - Date.now()) / 1000),
+    Math.max(0, Math.trunc((deadline - Date.now()) / 1000)),
   )
 
   useEffect(() => {
@@ -251,9 +432,15 @@ function Countdown({ deadline, onFinish }: { deadline: number; onFinish: () => v
     }, 1000)
 
     return () => clearInterval(interval)
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return <UiText>{timeLeftInSeconds} Sec</UiText>
+  const minutes = Math.floor(timeLeftInSeconds / 60)
+  const seconds = timeLeftInSeconds % 60
+
+  return (
+    <UiText variant='display-small' className='text-foreground font-mono'>
+      {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+    </UiText>
+  )
 }

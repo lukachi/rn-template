@@ -30,7 +30,7 @@ const linking: LinkingOptions<RootStackParamList> = {
 
 // TODO: mv theme to apropriate place
 export default function AppRoutes() {
-  const isAuthorized = true // FIXME: hardcoded
+  const isAuthorized = false // FIXME: hardcoded
   const isUserNeedToLocalAuth = localAuthStore.useUserNeedToLocalAuth()
 
   const background = useCSSVariable('--background')
