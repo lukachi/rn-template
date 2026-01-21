@@ -241,11 +241,11 @@ Format: M_NN_PP_XXYY (up to 9 digits)
 Environment codes are self-derived from alphabetical positions (a=01, b=02, ...z=26):
 
 | Environment | Letters | Code | Example versionCode (0.1.0) |
-|-------------|---------|------|----------------------------|
-| staging     | ST      | 1920 | 1001920                    |
-| regtest     | RE      | 1805 | 1001805                    |
-| production  | PR      | 1618 | 1001618                    |
-| development | DE      | 0405 | 1000405                    |
+| ----------- | ------- | ---- | --------------------------- |
+| staging     | ST      | 1920 | 1001920                     |
+| regtest     | RE      | 1805 | 1001805                     |
+| production  | PR      | 1618 | 1001618                     |
+| development | DE      | 0405 | 1000405                     |
 
 This allows submitting multiple environment builds of the same semver to the stores without conflicts.
 
@@ -276,8 +276,8 @@ You can also trigger builds from the [Expo Dashboard](https://expo.dev) under yo
 
 Workflows are defined in `.eas/workflows/`:
 
-| Workflow | Trigger | Description |
-|----------|---------|-------------|
+| Workflow           | Trigger                   | Description                           |
+| ------------------ | ------------------------- | ------------------------------------- |
 | `build-manual.yml` | Manual (CLI or Dashboard) | Builds & submits selected environment |
 
 ### Distribution
