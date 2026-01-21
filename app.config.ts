@@ -1,6 +1,6 @@
 import type { ConfigContext, ExpoConfig } from '@expo/config'
 
-import { ClientEnv, Env } from './env.ts'
+import { ClientEnv, Env, getBuildNumber, getVersionCode } from './env.ts'
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -10,7 +10,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   owner: Env.EXPO_ACCOUNT_OWNER,
   scheme: Env.SCHEME,
   slug: Env.SLUG,
-  version: Env.VERSION.toString(),
+  version: getBuildNumber(Env.VERSION, Env.APP_ENV),
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
@@ -23,10 +23,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     bundleIdentifier: Env.BUNDLE_ID,
-    "infoPlist": {
-      "ITSAppUsesNonExemptEncryption": false
+    buildNumber: getBuildNumber(Env.VERSION, Env.APP_ENV),
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
     },
-    bitcode: false
+    bitcode: false,
   },
   android: {
     adaptiveIcon: {
@@ -34,6 +35,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#2E3C4B',
     },
     package: Env.PACKAGE,
+    versionCode: getVersionCode(Env.VERSION, Env.APP_ENV),
   },
   web: {
     favicon: './assets/favicon.png',

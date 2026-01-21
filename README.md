@@ -111,7 +111,7 @@ In [`env.ts`](env.ts), add your new variables with `zod` validations:
 
 ```javascript
 const client = z.object({
-  APP_ENV: z.enum(['development', 'staging', 'production']),
+  APP_ENV: z.enum(['development', 'staging', 'regtest', 'production']),
   VERSION: z.string(),
 
   // ADD YOUR CLIENT ENV VARS HERE
@@ -138,7 +138,7 @@ After adding new variables, restart the development server to apply changes.
 
 #### For local development:
 
-create `.env.secrets.development`, `.env.secrets.staging`, and `.env.secrets.production` and fill them with your sensitive values.
+create `.env.secrets.development`, `.env.secrets.staging`, `.env.secrets.regtest`, and `.env.secrets.production` and fill them with your sensitive values.
 
 Add them to `env.js` as you did with public values, but use `getSecretWithSuffix` method instead of using `process.env` straight.
 
@@ -154,30 +154,35 @@ The .env files are not included in the eas build, no matter it local or not, so 
 
 And that should be enough to build the app with `pnpm run prebuild:staging && pnpm run build:staging:ios && pnpm run build:staging:android`. (and `--local`)
 
-#### For CI/CD:
+#### For EAS Workflows (CI/CD):
 
-As far as CI just triggers the build, make sure you have done EAS build preparations, published secrets and prepared credentials for your eas project.
+EAS Workflows handle builds in the cloud. Make sure you have done EAS build preparations and configured credentials for your project.
 
-Then run:
+1. **Push secrets to EAS:**
 
-`pnpm run prepare-secrets`
+   ```bash
+   pnpm run prepare-secrets
+   ```
 
-It will push secrets from `.env.secrets.*` files to the EAS servers secrets in a `${APP_ENV_UPPERCASE}_SECRET_KEY` format.
+   This pushes secrets from `.env.secrets.*` files to EAS in `${APP_ENV_UPPERCASE}_SECRET_KEY` format.
 
-Then make sure you have added all secrets keys to [eas-build](.github/actions/eas-build/action.yml) action.
-You just need the key name, e.g. `envkey_SECRET_KEY: DO_NOT_CHANGE` to pass expo config check, and the value will be taken from the EAS dashboard.
+2. **Configure EAS environment variables:**
 
-That will be enough to run these workflows in repo actions.
+   Go to your project on [expo.dev](https://expo.dev), navigate to **Secrets**, and ensure all required secrets are configured for each environment (development, staging, regtest, production).
+
+3. **Trigger builds:**
+
+   Builds are triggered manually via `eas workflow:run` or from the Expo Dashboard.
 
 CONCLUSION:
 
-This will cover using secrets in `metro dev server`, local and local-triggered eas builds, and CI/CD triggered eas builds.
+This covers using secrets in `metro dev server`, local EAS builds, and EAS Workflow cloud builds.
 
 ---
 
 ## Development Process
 
-By default, this template has `development`, `staging`, and `production` environments. Each of them will create separate builds and allow you to set up multiple app variants on the same device.
+By default, this template has `development`, `staging`, `regtest`, and `production` environments. Each of them will create separate builds and allow you to set up multiple app variants on the same device.
 
 To configure your own custom environment, run scripts with the desired `APP_ENV` variable, and also set it up in the [eas.json](./eas.json) file.
 
@@ -211,55 +216,94 @@ pnpm run android
 
 **Note:** Ensure that you have a simulator or device connected.
 
+## Versioning
+
+This template uses semantic versioning with environment-aware build identifiers.
+
+### Version Format
+
+- **iOS `buildNumber`**: `{version}-{env}` (e.g., `0.1.0-staging`, `0.1.0-regtest`, `0.1.0` for production)
+- **Android `versionCode`**: Unique integer derived from semver + environment
+- **Android `versionName`**: Same as iOS buildNumber
+
+### Android versionCode Calculation
+
+The versionCode is automatically calculated to ensure uniqueness across versions and environments:
+
+```
+Format: M_NN_PP_XXYY (up to 9 digits)
+  M    = major version (0-9)
+  NN   = minor version (00-99)
+  PP   = patch version (00-99)
+  XXYY = environment code (derived from first 2 letters)
+```
+
+Environment codes are self-derived from alphabetical positions (a=01, b=02, ...z=26):
+
+| Environment | Letters | Code | Example versionCode (0.1.0) |
+|-------------|---------|------|----------------------------|
+| staging     | ST      | 1920 | 1001920                    |
+| regtest     | RE      | 1805 | 1001805                    |
+| production  | PR      | 1618 | 1001618                    |
+| development | DE      | 0405 | 1000405                    |
+
+This allows submitting multiple environment builds of the same semver to the stores without conflicts.
+
+---
+
 ## Release Process
 
-By default, everything should be automated.
+This template uses **EAS Workflows** for building and submitting apps.
 
-### Default Case
+### Build & Submit
 
-Let's assume you finish your feature branch.
+To build and submit a specific environment:
 
-1. **Create a Pull Request (PR):**
+```bash
+# Build & submit staging only
+eas workflow:run build-manual.yml --input profile=staging
 
-- GitHub Actions will lint and type-check your code.
+# Build & submit regtest only
+eas workflow:run build-manual.yml --input profile=regtest
 
-2. **Merge the PR:**
+# Build & submit production only
+eas workflow:run build-manual.yml --input profile=production
+```
 
-- After merging, you have two options to release your app for internal distribution (QA):
-  - Select the **New App Version** workflow in GitHub Actions and choose the release type.
-  - Or run `pnpm run app-release` locally; it will do the same as the action above and push changes to trigger the next GitHub Actions.
+You can also trigger builds from the [Expo Dashboard](https://expo.dev) under your project's **Workflows** tab, where you'll get a dropdown to select the profile.
 
-3. **Build and Publish the App:**
+### EAS Workflows
 
-- Run the `eas-build-qa` workflow; it will build and publish the app for internal distribution via EAS.
+Workflows are defined in `.eas/workflows/`:
 
-4. **Production Release:**
+| Workflow | Trigger | Description |
+|----------|---------|-------------|
+| `build-manual.yml` | Manual (CLI or Dashboard) | Builds & submits selected environment |
 
-- The `Production` release works the same way by running the `eas-production-build` workflow.
+### Distribution
 
-**Note:** This template doesn't submit the app to stores automatically. You should do it manually via the EAS dashboard or configure auto-submit in GitHub Actions. In that case, you need to check the EAS submit configuration and follow the steps from the [EAS Submit documentation](https://docs.expo.dev/submit/introduction/).
+All non-development builds are configured for store distribution:
 
-### Important! Setup GitHub Actions
+- **iOS**: TestFlight (use Test Groups to distribute different builds to different QA teams)
+- **Android**: Play Store Internal Track
 
-- **`EXPO_TOKEN`**: An Expo token to authenticate with EAS. Generate one [here](https://expo.dev/settings/access-tokens) with the necessary permissions.
+### Important! Setup EAS
 
-**Workflows:**
+1. **Link your project to EAS:**
 
-The GitHub Actions workflows are defined in the `.github/workflows` directory:
+   ```bash
+   eas init
+   ```
 
-- **`new-app-version.yml`**: Handles incrementing the app version and pushing changes.
-- **`eas-build-qa.yml`**: Builds and publishes the app for internal distribution (QA).
-- **`eas-production-build.yml`**: Builds and publishes the app for production release.
+2. **Generate an Expo token** for CI/CD: [Expo Access Tokens](https://expo.dev/settings/access-tokens)
 
-To customize the workflows, edit the YAML files as needed.
+3. **Configure App Store Connect** (iOS) and **Google Play Console** (Android) credentials in EAS:
 
-**Permissions:**
+   ```bash
+   eas credentials
+   ```
 
-Ensure that GitHub Actions has the necessary permissions to run workflows. Check your repository settings under **Settings > Actions > General** and adjust the **Workflow permissions** accordingly.
-
-[//]: # 'TBD: GH BOT?'
-[//]: # 'TBD: EAS UPDATE?'
-[//]: # 'TBD: EAS SUBMIT?'
+   See [EAS Submit documentation](https://docs.expo.dev/submit/introduction/) for detailed setup.
 
 ### Second Important! EAS First Build
 

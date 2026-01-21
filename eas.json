@@ -26,18 +26,40 @@
     },
     "staging": {
       "channel": "staging",
-      "distribution": "internal",
+      "distribution": "store",
       "pnpm": "10.19.0",
       "ios": {
         "image": "latest"
       },
       "android": {
-        "gradleCommand": ":app:assembleRelease",
+        "buildType": "app-bundle",
         "image": "latest"
       },
       "env": {
         "APP_ENV": "staging",
-        "EXPO_NO_DOTENV": "1"
+        "EXPO_NO_DOTENV": "1",
+        "FLIPPER_DISABLE": "1"
+      },
+      "prebuildCommand": "prebuild --skip-dependency-update react",
+      "cache": {
+        "key": "eas-1"
+      }
+    },
+    "regtest": {
+      "channel": "regtest",
+      "distribution": "store",
+      "pnpm": "10.19.0",
+      "ios": {
+        "image": "latest"
+      },
+      "android": {
+        "buildType": "app-bundle",
+        "image": "latest"
+      },
+      "env": {
+        "APP_ENV": "regtest",
+        "EXPO_NO_DOTENV": "1",
+        "FLIPPER_DISABLE": "1"
       },
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
@@ -85,6 +107,20 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "track": "internal"
+      }
+    },
+    "staging": {
+      "android": {
+        "track": "internal"
+      }
+    },
+    "regtest": {
+      "android": {
+        "track": "internal"
+      }
+    }
   }
 }

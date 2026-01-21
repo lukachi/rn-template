@@ -1,0 +1,39 @@
+name: Build Manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        type: choice
+        options:
+          - production
+          - staging
+          - regtest
+        required: true
+
+jobs:
+  build-ios:
+    type: build
+    params:
+      platform: ios
+      profile: ${{ inputs.profile }}
+
+  build-android:
+    type: build
+    params:
+      platform: android
+      profile: ${{ inputs.profile }}
+
+  submit-ios:
+    type: submit
+    needs: [build-ios]
+    params:
+      platform: ios
+      profile: ${{ inputs.profile }}
+
+  submit-android:
+    type: submit
+    needs: [build-android]
+    params:
+      platform: android
+      profile: ${{ inputs.profile }}
