@@ -1,0 +1,50 @@
+name: Build Release
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      profile:
+        type: choice
+        options:
+          - production
+          - staging
+          - regtest
+          - development
+        required: true
+        default: production
+      submit:
+        type: boolean
+        default: true
+        required: false
+
+jobs:
+  build-ios:
+    type: build
+    params:
+      platform: ios
+      profile: ${{ inputs.profile || 'production' }}
+
+  build-android:
+    type: build
+    params:
+      platform: android
+      profile: ${{ inputs.profile || 'production' }}
+
+  submit-ios:
+    type: submit
+    if: ${{ (inputs.submit == true || inputs.submit == null) && (inputs.profile || 'production') != 'development' }}
+    needs: [build-ios]
+    params:
+      platform: ios
+      profile: ${{ inputs.profile || 'production' }}
+
+  submit-android:
+    type: submit
+    if: ${{ (inputs.submit == true || inputs.submit == null) && (inputs.profile || 'production') != 'development' }}
+    needs: [build-android]
+    params:
+      platform: android
+      profile: ${{ inputs.profile || 'production' }}

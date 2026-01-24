@@ -1,48 +1,27 @@
-name: New App Version
+name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      release-type:
-        type: choice
-        description: 'Release type (one of): patch, minor, major'
-        required: true
-        default: 'patch'
-        options:
-          - patch
-          - minor
-          - major
+  release:
+    types: [published]
 
 jobs:
-  release:
-    name: Create New Version and push new tag
+  dispatch-eas-workflow:
+    name: Dispatch EAS Build Workflow
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      version: ${{ steps.package_version.outputs.version }}
     steps:
       - name: 📦 Checkout project repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
-      - name: 📝 Git User Setup
-        run: |
-          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git config --global user.name "${GITHUB_ACTOR}[bot]"
+          ref: ${{ github.event.release.tag_name }}
 
       - name: 📦 Setup Node + pnpm + install deps
         uses: ./.github/actions/setup-node-pnpm-install
 
-      - name: 🔧 Set Release Type Environment Variable
-        run: echo "RELEASE_TYPE=\"$RELEASE_TYPE\"" >> $GITHUB_ENV
-        env:
-          RELEASE_TYPE: ${{ github.event.inputs.release-type }}
+      - name: 🔧 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🏃‍♂️ Run release
-        run: |
-          NODE_DEBUG=release-it:* pnpm release --ci --increment $RELEASE_TYPE
-        env:
-          RELEASE_TYPE: ${{ github.event.inputs.release-type }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 🚀 Dispatch EAS Workflow
+        run: eas workflow:run .eas/workflows/build-release.yml --non-interactive
