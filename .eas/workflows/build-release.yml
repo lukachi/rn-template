@@ -65,6 +65,8 @@ jobs:
     type: submit
     needs: [get_ios_build, build_ios]
     if: ${{ (inputs.submit == true || inputs.submit == null) && (inputs.profile || 'production') != 'development' }}
+    env:
+      EXPO_DEBUG: '1'
     params:
       build_id: ${{ needs.build_ios.outputs.build_id || needs.get_ios_build.outputs.build_id }}
       profile: ${{ inputs.profile || 'production' }}
@@ -74,6 +76,8 @@ jobs:
     type: submit
     needs: [get_android_build, build_android]
     if: ${{ (inputs.submit == true || inputs.submit == null) && (inputs.profile || 'production') != 'development' }}
+    env:
+      EXPO_DEBUG: '1'
     params:
       build_id: ${{ needs.build_android.outputs.build_id || needs.get_android_build.outputs.build_id }}
       profile: ${{ inputs.profile || 'production' }}
