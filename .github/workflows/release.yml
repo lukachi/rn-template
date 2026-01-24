@@ -24,6 +24,6 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 🚀 Dispatch EAS Workflow
-        run: eas workflow:run .eas/workflows/build-release.yml --non-interactive
-        env:
-          NODE_OPTIONS: --import tsx/esm
+        run: |
+          export NODE_OPTIONS="--import tsx/esm"
+          eas workflow:run .eas/workflows/build-release.yml --non-interactive
