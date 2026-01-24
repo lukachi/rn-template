@@ -305,24 +305,41 @@ All non-development builds are configured for store distribution:
 
    See [EAS Submit documentation](https://docs.expo.dev/submit/introduction/) for detailed setup.
 
-### Second Important! EAS First Build
+### Second Important! EAS First Build (Required Before CI/CD)
 
-Your first build should be done locally to generate the necessary credentials on the EAS servers.
+**Before triggering any GitHub workflow or EAS workflow, you MUST run the prebuild and build commands locally first.** This is required to generate and upload credentials to EAS servers. Without this step, CI/CD builds will fail due to missing credentials.
 
-Run the prebuild and build commands locally for your environment (e.g., staging):
+Run the prebuild and build commands locally for **each environment** you plan to use in CI/CD:
 
 ```bash
+# For staging
 pnpm run prebuild:staging && pnpm run build:staging:ios
 pnpm run prebuild:staging && pnpm run build:staging:android
+
+# For production
+pnpm run prebuild:production && pnpm run build:production:ios
+pnpm run prebuild:production && pnpm run build:production:android
+
+# For regtest (if needed)
+pnpm run prebuild:regtest && pnpm run build:regtest:ios
+pnpm run prebuild:regtest && pnpm run build:regtest:android
 ```
 
-During the build process, you may be prompted to log in to your Apple Developer account or provide Keystore information for Android. Follow the prompts to complete the setup.
+During the build process, you will be prompted to:
+
+- Log in to your Apple Developer account (iOS)
+- Create or select a distribution certificate and provisioning profile (iOS)
+- Create or provide Keystore information (Android)
+
+Follow the prompts to complete the setup.
 
 These commands will:
 
-- Generate native project files.
-- Build the app locally.
+- Generate native project files with the correct `APP_ENV`.
+- Build the app and trigger credential generation prompts.
 - Upload credentials to EAS servers for future cloud builds.
+
+**Only after completing these steps** can you trigger builds via EAS Workflows or GitHub Actions.
 
 **Testing Release Builds Locally:**
 
