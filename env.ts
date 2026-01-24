@@ -27,9 +27,9 @@ const buildTime = z.object({
   BUNDLE_ID: z.string().default('com.lukachi.templateapp'), // ios bundle id
   PACKAGE: z.string().default('com.lukachi.templateapp'), // android package name
   NAME: z.string().default('Template App'), // app name
-  SLUG: z.string().default('template-app'), // app slug
-  EXPO_ACCOUNT_OWNER: z.string().default('dl-expo'), // expo account owner
-  EAS_PROJECT_ID: z.string().default(''), // eas project id
+  SLUG: z.string().default('template'), // app slug
+  EXPO_ACCOUNT_OWNER: z.string().default('lukachi'), // expo account owner
+  EAS_PROJECT_ID: z.string().default('40c83c51-180e-486a-bb1e-290cd69e8fe3'), // eas project id
   SCHEME: z.string().default('templateapp'), // app scheme
 })
 
