@@ -7,11 +7,10 @@
     "allowSyntheticDefaultImports": true,
     "downlevelIteration": true,
     "esModuleInterop": true,
-    "preserveSymlinks": false,
+    "preserveSymlinks": true,
     "incremental": true,
     "jsx": "react-jsx",
-    "moduleResolution": "bundler",
-    "module": "esnext",
+    "moduleResolution": "node",
     "noEmitOnError": false,
     "noImplicitAny": false,
     "noImplicitReturns": false,
@@ -26,9 +25,7 @@
     "strictNullChecks": true,
     "target": "es2020",
     "types": ["node"],
-    "lib": ["dom", "esnext"],
-    "allowImportingTsExtensions": true,
-    "noEmit": true
+    "lib": ["dom", "esnext"]
   },
   "exclude": ["_"],
   "typeAcquisition": {

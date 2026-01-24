@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@assets/*": ["./assets/*"],
+      "@modules/*": ["./modules/*"],
+      "@db": ["./db"]
+    },
+    "types": ["lodash"]
+  },
+  "include": ["**/*.ts", "**/*.tsx", "declarations.d.ts", "src/uniwind-types.d.ts", "./env.ts"],
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "eslint.config.mjs",
+    "docs",
+    "cli",
+    "android",
+    "ios",
+    "lint-staged.config.js"
+  ]
+}
