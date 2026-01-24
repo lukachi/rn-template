@@ -26,7 +26,7 @@ jobs:
     type: fingerprint
     environment: ${{ inputs.profile || 'production' }}
 
-  get-ios-build:
+  get_ios_build:
     name: Check existing iOS build
     type: get-build
     needs: [fingerprint]
@@ -34,7 +34,7 @@ jobs:
       fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
       profile: ${{ inputs.profile || 'production' }}
 
-  get-android-build:
+  get_android_build:
     name: Check existing Android build
     type: get-build
     needs: [fingerprint]
@@ -42,38 +42,38 @@ jobs:
       fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
       profile: ${{ inputs.profile || 'production' }}
 
-  build-ios:
+  build_ios:
     name: Build iOS
     type: build
-    needs: [get-ios-build]
-    if: ${{ !needs.get-ios-build.outputs.build_id }}
+    needs: [get_ios_build]
+    if: ${{ !needs.get_ios_build.outputs.build_id }}
     params:
       platform: ios
       profile: ${{ inputs.profile || 'production' }}
 
-  build-android:
+  build_android:
     name: Build Android
     type: build
-    needs: [get-android-build]
-    if: ${{ !needs.get-android-build.outputs.build_id }}
+    needs: [get_android_build]
+    if: ${{ !needs.get_android_build.outputs.build_id }}
     params:
       platform: android
       profile: ${{ inputs.profile || 'production' }}
 
-  submit-ios:
+  submit_ios:
     name: Submit iOS Build
     type: submit
-    needs: [get-ios-build, build-ios]
+    needs: [get_ios_build, build_ios]
     if: ${{ (inputs.submit == true || inputs.submit == null) && (inputs.profile || 'production') != 'development' }}
     params:
-      build_id: ${{ needs.build-ios.outputs.build_id || needs.get-ios-build.outputs.build_id }}
+      build_id: ${{ needs.build_ios.outputs.build_id || needs.get_ios_build.outputs.build_id }}
       profile: ${{ inputs.profile || 'production' }}
 
-  submit-android:
+  submit_android:
     name: Submit Android Build
     type: submit
-    needs: [get-android-build, build-android]
+    needs: [get_android_build, build_android]
     if: ${{ (inputs.submit == true || inputs.submit == null) && (inputs.profile || 'production') != 'development' }}
     params:
-      build_id: ${{ needs.build-android.outputs.build_id || needs.get-android-build.outputs.build_id }}
+      build_id: ${{ needs.build_android.outputs.build_id || needs.get_android_build.outputs.build_id }}
       profile: ${{ inputs.profile || 'production' }}
