@@ -1,11 +1,14 @@
 {
   "extends": "./tsconfig.base",
   "compilerOptions": {
-    "moduleResolution": "bundler",
-    "module": "esnext",
     "strict": true,
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "resolveJsonModule": true,
+    "preserveSymlinks": false,
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "paths": {
       "@/*": ["./src/*"],
       "@assets/*": ["./assets/*"],

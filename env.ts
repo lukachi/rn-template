@@ -1,11 +1,9 @@
-import { createRequire } from 'module'
 import path from 'path'
 
 import dotenv from 'dotenv'
 import z from 'zod'
 
-const require = createRequire(import.meta.url)
-const packageJSON = require('./package.json')
+import * as packageJSON from './package.json'
 
 const __dirname = path.resolve()
 
