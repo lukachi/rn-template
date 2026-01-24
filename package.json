@@ -1,7 +1,7 @@
 {
   "name": "rn-template",
   "main": "src/main.ts",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "engines": {
     "node": ">=24.12.0"
   },
