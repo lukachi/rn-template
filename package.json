@@ -2,6 +2,9 @@
   "name": "rn-template",
   "main": "src/main.ts",
   "version": "0.2.6",
+  "engines": {
+    "node": ">=24.12.0"
+  },
   "scripts": {
     "cleanup": "rm -rf node_modules pnpm-lock.yaml ios android .expo",
     "prebuild": "npx expo prebuild --clean && npx pod-install",
