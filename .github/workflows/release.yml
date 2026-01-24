@@ -25,5 +25,5 @@ jobs:
 
       - name: 🚀 Dispatch EAS Workflow
         run: |
-          export NODE_OPTIONS="--import tsx/esm"
+          # export NODE_OPTIONS="--import tsx/esm"
           eas workflow:run .eas/workflows/build-release.yml --non-interactive

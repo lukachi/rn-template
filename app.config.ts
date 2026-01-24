@@ -1,3 +1,4 @@
+import 'tsx/cjs'
 import type { ConfigContext, ExpoConfig } from '@expo/config'
 
 import { ClientEnv, Env, getBuildNumber, getVersionCode } from './env.ts'
