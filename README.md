@@ -261,13 +261,13 @@ To build and submit a specific environment:
 
 ```bash
 # Build & submit staging only
-eas workflow:run build-manual.yml --input profile=staging
+eas workflow:run build-release.yml --input profile=staging
 
 # Build & submit regtest only
-eas workflow:run build-manual.yml --input profile=regtest
+eas workflow:run build-release.yml --input profile=regtest
 
 # Build & submit production only
-eas workflow:run build-manual.yml --input profile=production
+eas workflow:run build-release.yml --input profile=production
 ```
 
 You can also trigger builds from the [Expo Dashboard](https://expo.dev) under your project's **Workflows** tab, where you'll get a dropdown to select the profile.
@@ -276,9 +276,9 @@ You can also trigger builds from the [Expo Dashboard](https://expo.dev) under yo
 
 Workflows are defined in `.eas/workflows/`:
 
-| Workflow           | Trigger                   | Description                           |
-| ------------------ | ------------------------- | ------------------------------------- |
-| `build-manual.yml` | Manual (CLI or Dashboard) | Builds & submits selected environment |
+| Workflow            | Trigger                   | Description                           |
+| ------------------- | ------------------------- | ------------------------------------- |
+| `build-release.yml` | Manual (CLI or Dashboard) | Builds & submits selected environment |
 
 ### Distribution
 
