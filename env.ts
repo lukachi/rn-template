@@ -5,7 +5,7 @@ import dotenv from 'dotenv'
 import z from 'zod'
 
 const require = createRequire(import.meta.url)
-const packageJSON = require('./package.json') as { version: string }
+const packageJSON = require('./package.json')
 
 const __dirname = path.resolve()
 
