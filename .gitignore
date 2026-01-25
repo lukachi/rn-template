@@ -43,6 +43,7 @@ web-build/
 # local env files
 .env
 .env.local
+.env.secrets.*
 
 .expo
 /android

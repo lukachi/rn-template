@@ -1,6 +1,6 @@
-# React Native Template for Scaffolding App with Web3 | ZK | Document Scan Features
+# Expo React Native Template
 
-This repository provides a React Native template for building applications with Web3 integrations, zero-knowledge proofs, and document scanning capabilities. It is designed to help you quickly set up a project with these features and streamline your development process.
+A production-ready template for Expo React Native development with multi-environment support, automated CI/CD via EAS Workflows, and streamlined release process to TestFlight and Google Play.
 
 ## Prerequisites
 
@@ -84,105 +84,100 @@ eas login
 - Configure **Signing & Capabilities** with Xcode (optional, the CLI may prompt you to choose a signing team).
 - Enable **Developer Mode** on your iOS device.
 
-## Configure App Identifiers and Package Names
+## Configure App Identifiers
 
-Follow the steps in the [env.js](./env.js) file to configure app identifiers, package names, and environment variables with `zod` validations.
+Edit the defaults in [`env.ts`](env.ts) to match your app:
+
+```typescript
+const buildTime = z.object({
+  BUNDLE_ID: z.string().default('com.yourcompany.yourapp'), // iOS bundle id
+  PACKAGE: z.string().default('com.yourcompany.yourapp'), // Android package name
+  NAME: z.string().default('Your App'), // App display name
+  SLUG: z.string().default('your-app'), // App slug
+  EXPO_ACCOUNT_OWNER: z.string().default('your-expo-username'),
+  EAS_PROJECT_ID: z.string().default(''), // Set after running `eas init`
+  SCHEME: z.string().default('yourapp'), // Deep link scheme
+})
+```
 
 ---
 
-### Environment Variables
+## Environment Variables
 
-Create `.env`, `.env.development`, and `.env.production` files in the root directory and fill them with your public values.
-Here's an example of what your `.env` file might look like:
+This template uses per-environment `.env` files with Zod validation.
 
-### !IMPORTANT!
+### File Structure
 
-These files are public and should not contain any sensitive data.
+```
+.env.development          # Public vars for development
+.env.staging              # Public vars for staging
+.env.regtest              # Public vars for regtest
+.env.production           # Public vars for production
+.env.secrets.development  # Secrets for development (git-ignored)
+.env.secrets.staging      # Secrets for staging (git-ignored)
+.env.secrets.regtest      # Secrets for regtest (git-ignored)
+.env.secrets.production   # Secrets for production (git-ignored)
+```
+
+### Example `.env.{environment}` file
 
 ```env
-SOME_PUBLIC_KEY_1=some_public_value_1
-SOME_PUBLIC_KEY_2=some_public_value_2
-SOME_OTHER_VARIABLE=your-value
+API_URL=https://api.example.com
 ```
 
-### Validating New Variables
+### Adding New Variables
 
-In [`env.ts`](env.ts), add your new variables with `zod` validations:
+In [`env.ts`](env.ts), add your variables to the appropriate schema:
 
-```javascript
+```typescript
 const client = z.object({
+  VERSION: z.string().default(packageJSON.version),
   APP_ENV: z.enum(['development', 'staging', 'regtest', 'production']),
-  VERSION: z.string(),
-
-  // ADD YOUR CLIENT ENV VARS HERE
-  SOME_PUBLIC_KEY_1: z.string(),
-  SOME_PUBLIC_KEY_2: z.string(),
-})
-
-const buildTime = z.object({
-  BUNDLE_ID: z.string().default('com.example.templateapp'), // ios bundle id
-  PACKAGE: z.string().default('com.example.templateapp'), // android package name
-  NAME: z.string().default('Template App'), // app name
-  SLUG: z.string().default('template-app'), // app slug
-  EXPO_ACCOUNT_OWNER: z.string().default('the_owner'), // expo account owner
-  EAS_PROJECT_ID: z.string().default(''), // eas project id
-  SCHEME: z.string().default('templateapp'), // app scheme
-  // ADD YOUR BUILD TIME ENV VARS HERE
-  SOME_ANOTHER_PUBLIC_KEY: z.string(),
+  API_URL: z.url(),
+  // Add your runtime variables here
 })
 ```
 
-After adding new variables, restart the development server to apply changes.
+### How Environment Loading Works
 
-### Sensitive Data
+The `env.ts` file automatically loads the correct `.env` files based on `APP_ENV`:
 
-#### For local development:
+```typescript
+dotenv.config({
+  path: [
+    path.resolve(__dirname, `.env.${APP_ENV}`),
+    path.resolve(__dirname, `.env.secrets.${APP_ENV}`),
+  ],
+})
+```
 
-create `.env.secrets.development`, `.env.secrets.staging`, `.env.secrets.regtest`, and `.env.secrets.production` and fill them with your sensitive values.
+### Secrets Management
 
-Add them to `env.js` as you did with public values, but use `getSecretWithSuffix` method instead of using `process.env` straight.
+#### Local Development
 
-This would be enough to run the app locally with `pnpm run prebuild && pnpm run ios` or `pnpm run prebuild && pnpm run android`.
+Create `.env.secrets.{environment}` files for sensitive values. These are git-ignored but loaded automatically.
 
-If changes are not applied after modifying the `.env` files, try restart the development server or rebuild the project:
+#### EAS Build (Local or Cloud)
 
-`pnpm run start`
+The `.easignore` file is configured to include `.env.secrets.*` files in the EAS build archive, so your secrets are available during the build.
 
-#### For EAS Build:
+#### EAS Workflows (CI/CD)
 
-The .env files are not included in the eas build, no matter it local or not, so we added `.easignore`, which repeats `.gitignore` rules, except `.env.secrets` files, so they will be included in eas build archive.
+For cloud builds via EAS Workflows, push your secrets to EAS:
 
-And that should be enough to build the app with `pnpm run prebuild:staging && pnpm run build:staging:ios && pnpm run build:staging:android`. (and `--local`)
+```bash
+pnpm run prepare-secrets
+```
 
-#### For EAS Workflows (CI/CD):
+This uploads secrets from `.env.secrets.*` files to EAS in `${APP_ENV_UPPERCASE}_SECRET_KEY` format.
 
-EAS Workflows handle builds in the cloud. Make sure you have done EAS build preparations and configured credentials for your project.
-
-1. **Push secrets to EAS:**
-
-   ```bash
-   pnpm run prepare-secrets
-   ```
-
-   This pushes secrets from `.env.secrets.*` files to EAS in `${APP_ENV_UPPERCASE}_SECRET_KEY` format.
-
-2. **Configure EAS environment variables:**
-
-   Go to your project on [expo.dev](https://expo.dev), navigate to **Secrets**, and ensure all required secrets are configured for each environment (development, staging, regtest, production).
-
-3. **Trigger builds:**
-
-   Builds are triggered manually via `eas workflow:run` or from the Expo Dashboard.
-
-CONCLUSION:
-
-This covers using secrets in `metro dev server`, local EAS builds, and EAS Workflow cloud builds.
+You can also manually configure secrets at [expo.dev](https://expo.dev) → Your Project → **Secrets**.
 
 ---
 
 ## Development Process
 
-By default, this template has `development`, `staging`, `regtest`, and `production` environments. Each of them will create separate builds and allow you to set up multiple app variants on the same device.
+This template supports `development`, `staging`, `regtest`, and `production` environments. All environments share the same bundle ID/package name—environments are distinguished through versioning (see [Versioning](#versioning) section), not separate app variants.
 
 To configure your own custom environment, run scripts with the desired `APP_ENV` variable, and also set it up in the [eas.json](./eas.json) file.
 
@@ -253,41 +248,15 @@ This allows submitting multiple environment builds of the same semver to the sto
 
 ## Release Process
 
-This template uses **EAS Workflows** for building and submitting apps.
+This template uses a streamlined release flow: **Release Script → GitHub Release → EAS Workflow**.
 
-### Build & Submit
+### Prerequisites for Distribution
 
-To build and submit a specific environment:
+Before you can trigger a release, complete these steps in order:
 
-```bash
-# Build & submit staging only
-eas workflow:run build-release.yml --input profile=staging
+---
 
-# Build & submit regtest only
-eas workflow:run build-release.yml --input profile=regtest
-
-# Build & submit production only
-eas workflow:run build-release.yml --input profile=production
-```
-
-You can also trigger builds from the [Expo Dashboard](https://expo.dev) under your project's **Workflows** tab, where you'll get a dropdown to select the profile.
-
-### EAS Workflows
-
-Workflows are defined in `.eas/workflows/`:
-
-| Workflow            | Trigger                   | Description                           |
-| ------------------- | ------------------------- | ------------------------------------- |
-| `build-release.yml` | Manual (CLI or Dashboard) | Builds & submits selected environment |
-
-### Distribution
-
-All non-development builds are configured for store distribution:
-
-- **iOS**: TestFlight (use Test Groups to distribute different builds to different QA teams)
-- **Android**: Play Store Internal Track
-
-### Important! Setup EAS
+### Step 1: Setup EAS Project
 
 1. **Link your project to EAS:**
 
@@ -295,125 +264,329 @@ All non-development builds are configured for store distribution:
    eas init
    ```
 
+   This creates your project on [expo.dev](https://expo.dev) and sets the `EAS_PROJECT_ID` in your config.
+
 2. **Generate an Expo token** for CI/CD: [Expo Access Tokens](https://expo.dev/settings/access-tokens)
 
-3. **Configure App Store Connect** (iOS) and **Google Play Console** (Android) credentials in EAS:
+   Add this token as `EXPO_TOKEN` secret in your GitHub repository settings.
 
-   ```bash
-   eas credentials
-   ```
+---
 
-   See [EAS Submit documentation](https://docs.expo.dev/submit/introduction/) for detailed setup.
+### Step 2: Setup EAS Build Credentials (Required First!)
 
-### Second Important! EAS First Build (Required Before CI/CD)
+**This is the first thing you must do once ready to distribute.** Before any CI/CD workflow can build your app, you must run a build locally to generate and upload credentials to EAS servers.
 
-**Before triggering any GitHub workflow or EAS workflow, you MUST run the prebuild and build commands locally first.** This is required to generate and upload credentials to EAS servers. Without this step, CI/CD builds will fail due to missing credentials.
-
-Run the prebuild and build commands locally for **each environment** you plan to use in CI/CD:
+Run for **each environment** you plan to use:
 
 ```bash
-# For staging
-pnpm run prebuild:staging && pnpm run build:staging:ios
-pnpm run prebuild:staging && pnpm run build:staging:android
-
 # For production
 pnpm run prebuild:production && pnpm run build:production:ios
 pnpm run prebuild:production && pnpm run build:production:android
+
+# For staging
+pnpm run prebuild:staging && pnpm run build:staging:ios
+pnpm run prebuild:staging && pnpm run build:staging:android
 
 # For regtest (if needed)
 pnpm run prebuild:regtest && pnpm run build:regtest:ios
 pnpm run prebuild:regtest && pnpm run build:regtest:android
 ```
 
-During the build process, you will be prompted to:
+During the build, you will be prompted to:
 
-- Log in to your Apple Developer account (iOS)
-- Create or select a distribution certificate and provisioning profile (iOS)
-- Create or provide Keystore information (Android)
+- **iOS**: Log in to your Apple Developer account, create/select distribution certificate and provisioning profile
+- **Android**: Create or provide Keystore information
 
-Follow the prompts to complete the setup.
-
-These commands will:
-
-- Generate native project files with the correct `APP_ENV`.
-- Build the app and trigger credential generation prompts.
-- Upload credentials to EAS servers for future cloud builds.
-
-**Only after completing these steps** can you trigger builds via EAS Workflows or GitHub Actions.
+These credentials are uploaded to EAS and reused for all future cloud builds.
 
 **Testing Release Builds Locally:**
-
-To test release builds locally before merging to the main branch:
 
 ```bash
 pnpm run prebuild:staging && pnpm run build:staging:ios --local
 pnpm run prebuild:staging && pnpm run build:staging:android --local
 ```
 
-This will create `.ipa` and `.apk` files in the root folder, which you can install on your device using [Expo's Orbit tool](https://docs.expo.dev/build/orbit/).
+- **iOS**: Creates `.ipa` file, installable via [Expo Orbit](https://docs.expo.dev/build/orbit/)
+- **Android**: Creates `.aab` file (Android App Bundle) since we use `distribution: store`. To install locally, use [bundletool](https://developer.android.com/tools/bundletool) to extract an APK:
 
-### Third Important! Android QA Build
+  ```bash
+  # Install bundletool (macOS)
+  brew install bundletool
 
-#### Updated: fixed by [this plugin](./plugins/withLocalAar.plugin.js), and not necessary anymore
+  # Generate APKs from AAB
+  bundletool build-apks --bundle=build.aab --output=build.apks --mode=universal
 
-Note:
-To know what to put instead of `my-module-with-lib` in `dirs project(':my-module-with-lib').projectDir.absolutePath + '/libs'`
+  # Extract the universal APK
+  unzip build.apks -d extracted && mv extracted/universal.apk ./app.apk
+  ```
 
-you can run android project at the android studio e.g.
+---
+
+### Step 3: Setup Store Submission Credentials
+
+After build credentials are configured, set up submission credentials for automatic TestFlight and Play Store deployment.
+
+#### iOS: App Store Connect Setup
+
+##### 3.1 Create App in App Store Connect
+
+This step **cannot be automated** - Apple requires manual app creation.
+
+1. Go to [App Store Connect](https://appstoreconnect.apple.com/)
+2. Click **My Apps** → **+** → **New App**
+3. Fill in:
+   - **Platform**: iOS
+   - **Name**: Your app's display name
+   - **Primary Language**: Select your language
+   - **Bundle ID**: Must match `BUNDLE_ID` in your env config
+   - **SKU**: A unique identifier (e.g., `com.yourcompany.yourapp.2024`)
+4. Click **Create**
+5. Note your **Apple ID** (numeric, found in App Information → General Information)
+
+##### 3.2 Create App Store Connect API Key
+
+1. Go to [App Store Connect → Users and Access → Integrations → App Store Connect API](https://appstoreconnect.apple.com/access/integrations/api)
+2. Click **Generate API Key** (or **+**)
+3. Enter a name (e.g., `EAS Submit Key`)
+4. Select **Admin** access (required for TestFlight)
+5. Click **Generate**
+6. **Download the `.p8` file immediately** - you can only download it once!
+7. Note:
+   - **Issuer ID**: Displayed at the top of the page
+   - **Key ID**: Displayed next to your key name
+
+##### 3.3 Configure ASC API Key in EAS
 
 ```bash
-studio android
+eas credentials
 ```
 
-config gradle plugin e.g. zulu 17 at this moment. And in logs you will see all modules names, including yours.
-that is the name you should use.
+Select:
 
-Due to [this issue](https://github.com/expo/expo/issues/27985), building an `.apk` file directly may not be possible when using `*.aar` files. As a workaround, we'll build an `.aab` file and convert it to a universal `.apk` using `bundletool`.
+1. **iOS**
+2. **App Store Connect API Key: Manage your API Key**
+3. **Set up an API Key for your project**
+4. **Add a new API key**
 
-**Install Bundletool:**
+Enter the Issuer ID, Key ID, and path to your `.p8` file.
 
-Download `bundletool.jar` from the [official GitHub repository](https://github.com/google/bundletool/releases/latest).
+#### Android: Google Play Console Setup
 
-Alternatively, install via Homebrew:
+1. Create your app in [Google Play Console](https://play.google.com/console)
+2. Set up a service account with API access - see [EAS Submit Android docs](https://docs.expo.dev/submit/android/)
+3. Configure in EAS:
+
+   ```bash
+   eas credentials
+   ```
+
+   Select Android and follow the prompts for Google Service Account Key.
+
+---
+
+### Step 4: Trigger a Release
+
+Once all credentials are configured, you can trigger releases using the release script:
 
 ```bash
-brew install bundletool
+pnpm run release
 ```
 
-**Build and Convert the App Bundle:**
+This uses [release-it](https://github.com/release-it/release-it) to:
 
-1. **Build the `.aab` file:**
+1. Bump the version in `package.json`
+2. Create a git commit and tag
+3. Push to GitHub
+4. Create a GitHub Release
 
-   ```bash
-   pnpm run prebuild:staging && pnpm run build:staging:android --local
-   ```
+The GitHub Release automatically triggers the [release workflow](.github/workflows/release.yml), which dispatches the EAS Workflow to build and submit your app.
 
-2. **Convert `.aab` to `.apk` using `bundletool`:**
+### Release Flow
 
-   ```bash
-   bundletool build-apks --bundle=app-release.aab --output=dist/app.apks --mode=universal
-   ```
+```
+pnpm run release
+       ↓
+GitHub Release (tag created)
+       ↓
+.github/workflows/release.yml (triggered on release publish)
+       ↓
+eas workflow:run build-release.yml
+       ↓
+EAS builds iOS & Android → Submits to TestFlight & Play Store Internal Track
+```
 
-- Replace `app-release.aab` with the name of your generated AAB file.
-- The output `app.apks` file is actually a ZIP archive.
+### How `submit_ios` Works
 
-3. **Extract the Universal APK:**
+The `submit_ios` job in [.eas/workflows/build-release.yml](.eas/workflows/build-release.yml):
 
-   ```bash
-   unzip dist/app.apks -d dist
-   ```
+```yaml
+submit_ios:
+  name: Submit iOS Build
+  type: submit
+  needs: [get_ios_build, build_ios]
+  if: ${{ (inputs.submit == true || inputs.submit == null) && (inputs.profile || 'production') != 'development' }}
+  params:
+    build_id: ${{ needs.build_ios.outputs.build_id || needs.get_ios_build.outputs.build_id }}
+    profile: ${{ inputs.profile || 'production' }}
+```
 
-4. **Locate the `universal.apk` File:**
+- **`type: submit`**: EAS's built-in job type for store submission
+- **References build**: Takes `build_id` from new or cached build
+- **Uses submit profile**: Reads config from `eas.json` submit profiles
+- **Handles auth**: Uses the ASC API Key configured in EAS credentials
+- **Skips dev builds**: The `if` condition prevents submission for development profile
 
-- The `universal.apk` file inside the `dist` directory is the APK you can distribute to your QA team.
+### Distribution
 
-**Note:** Ensure that you have Java installed on your machine, as `bundletool` requires it.
+- **iOS**: TestFlight (use Test Groups to distribute to QA teams)
+- **Android**: Play Store Internal Track
 
-**Distribute the APK:**
-
-- You can now share the `universal.apk` file with your QA team for testing.
+---
 
 ## Good to Know
+
+### Fingerprint-Based Builds & OTA Updates
+
+This template uses EAS **fingerprint** approach to optimize builds and enable efficient update delivery.
+
+#### What is Fingerprint?
+
+A fingerprint is a hash that represents your app's native code state. EAS calculates this hash based on native dependencies, config plugins, and native code changes. The workflow ([build-release.yml](.eas/workflows/build-release.yml)) uses fingerprints to:
+
+- **Skip redundant builds**: If a build with the same fingerprint exists, it reuses that build instead of creating a new one
+- **Save build minutes**: Only rebuild when native code actually changes
+- **Enable smart OTA updates**: Determine whether changes require a new binary or can be delivered over-the-air
+
+#### How Updates Are Delivered
+
+| Change Type                                         | Fingerprint Changes? | Delivery Method               |
+| --------------------------------------------------- | -------------------- | ----------------------------- |
+| Native code (new SDK, native module, config plugin) | ✅ Yes               | New build → Store submission  |
+| JS/TS code only                                     | ❌ No                | OTA update via `expo-updates` |
+| Assets (images, fonts)                              | ❌ No                | OTA update via `expo-updates` |
+
+#### How OTA Updates Work
+
+When you release and the fingerprint matches an existing build:
+
+1. **No new build is created** — the existing build is reused
+2. **EAS Update publishes the JS bundle** to the update channel
+3. **Users receive the update** on next app launch (or immediately with `Updates.fetchUpdateAsync()`)
+
+This means JS-only changes can reach users instantly without going through App Store / Play Store review.
+
+#### Workflow in Practice
+
+```
+pnpm run release (bumps version, creates GitHub Release)
+       ↓
+EAS Workflow runs fingerprint check
+       ↓
+┌─────────────────────────────────────────────────────────┐
+│ Fingerprint changed?                                     │
+│   YES → Build new binary → Submit to stores             │
+│   NO  → Reuse existing build → Publish OTA update       │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### Channels
+
+Each environment has its own update channel (configured in `eas.json`):
+
+- `production` → production channel
+- `staging` → staging channel
+- `regtest` → regtest channel
+- `development` → development channel
+
+Users on a specific build only receive updates from their matching channel.
+
+---
+
+### Managing Environments & Channels
+
+The predefined environments (`development`, `staging`, `regtest`, `production`) are just defaults—you can customize, add, or remove them to fit your workflow.
+
+#### Adding a New Environment
+
+1. **Create environment files:**
+
+   ```bash
+   touch .env.myenv
+   touch .env.secrets.myenv  # git-ignored, for sensitive values
+   ```
+
+2. **Update `env.ts`** — add your environment to the allowed values:
+
+   ```typescript
+   const client = z.object({
+     APP_ENV: z.enum(['development', 'staging', 'regtest', 'production', 'myenv']),
+     // ...
+   })
+   ```
+
+3. **Add EAS build profile in `eas.json`:**
+
+   ```json
+   {
+     "build": {
+       "myenv": {
+         "channel": "myenv",
+         "distribution": "store",
+         "env": {
+           "APP_ENV": "myenv"
+         }
+         // ... copy other settings from existing profiles
+       }
+     },
+     "submit": {
+       "myenv": {
+         "android": { "track": "internal" }
+       }
+     }
+   }
+   ```
+
+4. **Add npm scripts in `package.json`:**
+
+   ```json
+   {
+     "scripts": {
+       "prebuild:myenv": "cross-env APP_ENV=myenv pnpm prebuild",
+       "build:myenv:ios": "cross-env APP_ENV=myenv eas build --profile myenv --platform ios",
+       "build:myenv:android": "cross-env APP_ENV=myenv eas build --profile myenv --platform android"
+     }
+   }
+   ```
+
+5. **Update EAS Workflow** (if using automated releases) — add your environment to the profile options in [build-release.yml](.eas/workflows/build-release.yml):
+
+   ```yaml
+   inputs:
+     profile:
+       type: choice
+       options:
+         - production
+         - staging
+         - regtest
+         - development
+         - myenv # add here
+   ```
+
+#### Removing an Environment
+
+1. Delete the `.env.{environment}` and `.env.secrets.{environment}` files
+2. Remove the environment from `env.ts` enum
+3. Remove the build/submit profile from `eas.json`
+4. Remove related npm scripts from `package.json`
+5. Remove from EAS Workflow options if applicable
+
+#### Channel Strategy Tips
+
+- **Channels are independent of environments** — you could have multiple environments share a channel, or each environment with its own
+- **OTA updates target channels** — users receive updates from the channel their build was created with
+- **Promote builds across tracks, not channels** — for store releases, promote builds through store tracks (internal → beta → production) rather than changing channels
+
+---
 
 ### Adding New Dependencies
 
@@ -436,28 +609,6 @@ When you add a new dependency that requires native modules:
    ```
 
 **Note:** Always run `pnpm run prebuild` after adding dependencies that include native code to ensure that your native projects are updated.
-
-### Values & Values-Night
-
-Currently, there isn't a solution to keep the same assets with the same name in both `values` and `values-night` folders and use them from one entry point automatically.
-
-We need to keep both assets in different folders and use them separately in code.
-
-### Fetching Data from API
-
-It's better to create a function per endpoint and then use hooks like `useLoading` to handle the loading state in the component or use libraries like [React Query](https://react-query.tanstack.com/) for benefits like caching.
-
-**Swift**
-
-```swift
-let path = URL(string: pathString)
-```
-
-**Android (Kotlin)**
-
-```kotlin
-val path = File(pathString)
-```
 
 ## Troubleshooting
 
