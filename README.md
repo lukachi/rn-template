@@ -372,9 +372,35 @@ Enter the Issuer ID, Key ID, and path to your `.p8` file.
 
 #### Android: Google Play Console Setup
 
-1. Create your app in [Google Play Console](https://play.google.com/console)
-2. Set up a service account with API access - see [EAS Submit Android docs](https://docs.expo.dev/submit/android/)
-3. Configure in EAS:
+##### 3.1 Create App and Upload First Build Manually
+
+> **Important**: Google requires the first Android app submission to be done manually through the Play Console. Automated tools like EAS Submit can only be used for subsequent submissions. See [Expo's guide on first Android submission](https://github.com/expo/fyi/blob/main/first-android-submission.md) for details.
+
+1. Go to [Google Play Console](https://play.google.com/console)
+2. Click **Create app** and fill in required details (name, language, app type, pricing)
+3. Complete all dashboard setup tasks (privacy policy, app content, store listing)
+4. Navigate to **Release** → **Testing** → **Internal testing**
+5. Click **Create new release** and upload your first `.aab` file manually
+6. When prompted for app signing, select **"Use Google-generated key"** (recommended for future uploads)
+7. Complete the release and submit for review
+
+To get your AAB file for manual upload:
+
+```bash
+# Build locally
+pnpm run prebuild:production && pnpm run build:production:android --local
+
+# Or download from EAS after a cloud build
+eas build:list --platform android
+# Then download the artifact from the EAS dashboard
+```
+
+##### 3.2 Set Up Service Account for Automated Submissions
+
+After the first manual submission, set up a service account for automated releases:
+
+1. Set up a service account with API access - see [EAS Submit Android docs](https://docs.expo.dev/submit/android/)
+2. Configure in EAS:
 
    ```bash
    eas credentials
